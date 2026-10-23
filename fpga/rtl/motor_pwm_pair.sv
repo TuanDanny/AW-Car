@@ -1,49 +1,44 @@
 `timescale 1ns/1ps
 `default_nettype none
 module motor_pwm_pair #(
-    parameter integer PERIOD_CYCLES = 1350,
-    parameter integer DUTY_WIDTH = 16,
-    parameter integer ZERO_CYCLES = 27000,
-    parameter integer SETUP_CYCLES = 27
+    parameter int PERIOD_CYCLES = 1350,
+    parameter int DUTY_WIDTH = 16,
+    parameter int ZERO_CYCLES = 27000,
+    parameter int SETUP_CYCLES = 27
 ) (
-    input  wire clk,
-    input  wire rst_n,
-    input  wire enable,
-    input  wire command_valid,
-    input  wire [DUTY_WIDTH-1:0] command_left,
-    input  wire [DUTY_WIDTH-1:0] command_right,
-    input  wire [1:0] command_direction,
-    output wire pwm_left,
-    output wire pwm_right,
-    output reg [1:0] direction,
-    output wire interlock_active,
-    output reg command_rejected
+    input  logic clk,
+    input  logic rst_n,
+    input  logic enable,
+    input  logic command_valid,
+    input  logic [DUTY_WIDTH-1:0] command_left,
+    input  logic [DUTY_WIDTH-1:0] command_right,
+    input  logic [1:0] command_direction,
+    output logic pwm_left,
+    output logic pwm_right,
+    output logic [1:0] direction,
+    output logic interlock_active,
+    output logic command_rejected
 );
-    function integer bits_for;
-        input integer value;
-        integer v;
-        begin
-            v = value - 1; bits_for = 0;
-            while (v > 0) begin bits_for = bits_for + 1; v = v >> 1; end
-            if (bits_for == 0) bits_for = 1;
-        end
-    endfunction
-    localparam integer WAIT_MAX = ZERO_CYCLES > SETUP_CYCLES ? ZERO_CYCLES : SETUP_CYCLES;
-    localparam integer WAIT_WIDTH = bits_for(WAIT_MAX);
-    localparam [1:0] RUN = 0, WAIT_ZERO = 1, WAIT_SETUP = 2, LOAD = 3;
-    reg [1:0] state;
-    reg [WAIT_WIDTH-1:0] wait_count;
-    reg [DUTY_WIDTH-1:0] pending_left, pending_right;
-    reg [1:0] pending_direction;
-    wire valid = command_valid && command_left <= PERIOD_CYCLES && command_right <= PERIOD_CYCLES;
-    wire same_direction = command_direction == direction;
-    wire pwm_enable = enable && (state == RUN || state == LOAD);
-    wire pwm_command = enable && ((state == RUN && valid && same_direction) ||
-                                 (state == LOAD && (!valid || same_direction)));
-    wire [DUTY_WIDTH-1:0] pwm_left_command = valid ? command_left : pending_left;
-    wire [DUTY_WIDTH-1:0] pwm_right_command = valid ? command_right : pending_right;
-    wire unused_period, unused_rejected, unused_applied;
-    wire [DUTY_WIDTH-1:0] unused_left, unused_right;
+    localparam int WAIT_MAX = ZERO_CYCLES > SETUP_CYCLES ? ZERO_CYCLES : SETUP_CYCLES;
+    localparam int WAIT_WIDTH = (WAIT_MAX > 1) ? $clog2(WAIT_MAX) : 1;
+    typedef enum logic [1:0] {
+        RUN = 2'd0, WAIT_ZERO = 2'd1, WAIT_SETUP = 2'd2, LOAD = 2'd3
+    } state_t;
+    state_t state;
+    logic [WAIT_WIDTH-1:0] wait_count;
+    logic [DUTY_WIDTH-1:0] pending_left, pending_right;
+    logic [1:0] pending_direction;
+    logic valid, same_direction, pwm_enable, pwm_command;
+    logic [DUTY_WIDTH-1:0] pwm_left_command, pwm_right_command;
+    logic unused_period, unused_rejected, unused_applied;
+    logic [DUTY_WIDTH-1:0] unused_left, unused_right;
+    assign valid = command_valid && command_left <= PERIOD_CYCLES && command_right <= PERIOD_CYCLES;
+    assign same_direction = command_direction == direction;
+    assign pwm_enable = enable && (state == RUN || state == LOAD);
+    assign pwm_command = enable && ((state == RUN && valid && same_direction) ||
+                                   (state == LOAD && (!valid || same_direction)));
+    assign pwm_left_command = valid ? command_left : pending_left;
+    assign pwm_right_command = valid ? command_right : pending_right;
     assign interlock_active = state == WAIT_ZERO || state == WAIT_SETUP;
     pwm_pair #(.PERIOD_CYCLES(PERIOD_CYCLES), .DUTY_WIDTH(DUTY_WIDTH)) pwm (
         .clk(clk), .rst_n(rst_n), .enable(pwm_enable), .command_valid(pwm_command),
@@ -51,7 +46,7 @@ module motor_pwm_pair #(
         .pwm_left(pwm_left), .pwm_right(pwm_right), .period_start(unused_period),
         .command_rejected(unused_rejected), .command_applied(unused_applied),
         .active_left(unused_left), .active_right(unused_right));
-    always @(posedge clk or negedge rst_n) begin
+    always_ff @(posedge clk or negedge rst_n) begin
         if (!rst_n) begin
             state <= RUN; wait_count <= 0; direction <= 0;
             pending_left <= 0; pending_right <= 0; pending_direction <= 0;

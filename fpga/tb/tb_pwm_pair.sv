@@ -1,11 +1,11 @@
 `timescale 1ns/1ps
 module tb_pwm_pair;
-    reg clk = 0;
+    logic clk = 0;
     always #5 clk = !clk;
-    reg rst_n = 0, enable = 0, command_valid = 0;
-    reg [15:0] duty_left = 0, duty_right = 0;
-    wire left, right, start, rejected, applied;
-    wire [15:0] active_left, active_right;
+    logic rst_n = 0, enable = 0, command_valid = 0;
+    logic [15:0] duty_left = 0, duty_right = 0;
+    logic left, right, start, rejected, applied;
+    logic [15:0] active_left, active_right;
     pwm_pair #(.PERIOD_CYCLES(17)) dut (
         .clk(clk), .rst_n(rst_n), .enable(enable), .command_valid(command_valid),
         .command_left(duty_left), .command_right(duty_right),
@@ -13,8 +13,8 @@ module tb_pwm_pair;
         .command_rejected(rejected), .command_applied(applied),
         .active_left(active_left), .active_right(active_right));
     // Default 27MHz/1350-tick instance: validate exact HIGH counts and period.
-    wire real_left, real_right, real_start, real_rejected, real_applied;
-    wire [15:0] real_active_left, real_active_right;
+    logic real_left, real_right, real_start, real_rejected, real_applied;
+    logic [15:0] real_active_left, real_active_right;
     pwm_pair real_parameters (
         .clk(clk), .rst_n(rst_n), .enable(enable), .command_valid(1'b1),
         .command_left(16'd675), .command_right(16'd1350),
@@ -24,8 +24,8 @@ module tb_pwm_pair;
     integer slots = 0, highs_left = 0, highs_right = 0, periods = 0;
     integer real_slots = 0, real_high_left = 0, real_high_right = 0, real_periods = 0;
     integer period_left, period_right;
-    reg measuring = 0, real_measuring = 0;
-    reg previous_enable = 0;
+    logic measuring = 0, real_measuring = 0;
+    logic previous_enable = 0;
     // Independent scoreboard counts observed output slots per whole period.
     always @(posedge clk) begin
         #1;
@@ -85,7 +85,7 @@ module tb_pwm_pair;
             repeat (35) @(negedge clk);
         end
     endtask
-    reg [31:0] random_state;
+    logic [31:0] random_state;
     integer i, seed, l, r;
     initial begin
         if ($test$plusargs("waves")) begin $dumpfile("tb_pwm_pair.vcd"); $dumpvars(0, tb_pwm_pair); end

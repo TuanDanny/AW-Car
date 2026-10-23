@@ -2,6 +2,8 @@
 
 Nơi lưu RTL và testbench cho 2 encoder A/B, PWM 2 motor sau, giao tiếp Motion
 và watchdog/FSM. PID, xử lý cảm biến an toàn và servo lái nằm ở ESP32 Motion.
+Toàn bộ nguồn RTL/testbench dùng **SystemVerilog, đuôi `.sv`**; hook/CI chặn
+đuôi HDL khác. Runner bật `iverilog -g2012`, script tổng hợp bật `read_verilog -sv`.
 
 Trạng thái: đã có RTL/testbench cho reset, encoder X4 hai bánh, snapshot,
 PWM hai kênh và trình tự đổi chiều độc lập driver. Chưa có UART/watchdog,

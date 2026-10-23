@@ -1,19 +1,19 @@
 `timescale 1ns/1ps
 `default_nettype none
 module quadrature_decoder #(
-    parameter integer COUNT_WIDTH = 32,
-    parameter integer INVERT = 0
+    parameter int COUNT_WIDTH = 32,
+    parameter int INVERT = 0
 ) (
-    input  wire clk,
-    input  wire rst_n,
-    input  wire sample_valid,
-    input  wire [1:0] ab,
-    output reg [COUNT_WIDTH-1:0] count,
-    output reg invalid_event,
-    output reg initialized
+    input  logic clk,
+    input  logic rst_n,
+    input  logic sample_valid,
+    input  logic [1:0] ab,
+    output logic [COUNT_WIDTH-1:0] count,
+    output logic invalid_event,
+    output logic initialized
 );
-    reg [1:0] previous;
-    always @(posedge clk or negedge rst_n) begin
+    logic [1:0] previous;
+    always_ff @(posedge clk or negedge rst_n) begin
         if (!rst_n) begin
             count <= 0;
             previous <= 0;

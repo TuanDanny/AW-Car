@@ -27,6 +27,11 @@
 - `firmware/shared`: giao thức/kiểu dữ liệu chung, không phụ thuộc riêng một MCU.
 - `fpga`: RTL đo encoder, PWM motor và watchdog; PID/servo ở Motion. Viết RTL
   độc lập hãng; Quartus chỉ tham khảo cho chip Altera/Intel, Tang Nano dùng Gowin.
+- Toàn bộ mã HDL của dự án, gồm RTL và testbench, bắt buộc dùng **SystemVerilog
+  với đuôi `.sv`**; không thêm nguồn `.v`, `.vh`, `.svh`, `.vhd` hoặc `.vhdl`.
+  RTL dùng `logic`, `always_ff`/`always_comb` đúng vai trò; tổng hợp bằng
+  Yosys/Gowin và mô phỏng bằng Icarus. Build bật chế độ SystemVerilog; khi đổi tên
+  file, cập nhật mọi script/danh sách nguồn và chạy lại mô phỏng/tổng hợp.
 - `dashboard`: giao diện Web; `hardware`: BOM/nguồn/sơ đồ/PCB; `docs`: kế hoạch.
 - `tests`: kiểm thử; `tools`: công cụ phát triển. Chỉ thêm thư mục con khi cần.
 - Không thêm framework, dependency hay mã firmware giả để lấp khung thư mục.

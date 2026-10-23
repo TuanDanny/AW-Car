@@ -1,19 +1,19 @@
 `timescale 1ns/1ps
 module tb_pwm_timing;
-    reg clk = 0;
+    logic clk = 0;
     always #18.519 clk = !clk;
-    reg rst_n = 0, enable = 0, valid = 0;
-    reg [15:0] l = 675, r = 1350;
-    reg [1:0] requested_direction = 0;
-    wire pl, pr, interlock, rejected;
-    wire [1:0] direction;
+    logic rst_n = 0, enable = 0, valid = 0;
+    logic [15:0] l = 675, r = 1350;
+    logic [1:0] requested_direction = 0;
+    logic pl, pr, interlock, rejected;
+    logic [1:0] direction;
     motor_pwm_pair dut (.clk(clk), .rst_n(rst_n), .enable(enable), .command_valid(valid),
         .command_left(l), .command_right(r), .command_direction(requested_direction),
         .pwm_left(pl), .pwm_right(pr), .direction(direction),
         .interlock_active(interlock), .command_rejected(rejected));
     // Minimum supported parameters exercise width calculations and single-cycle waits.
-    wire min_left, min_right, min_hold, min_rejected;
-    wire [1:0] min_direction;
+    logic min_left, min_right, min_hold, min_rejected;
+    logic [1:0] min_direction;
     motor_pwm_pair #(.PERIOD_CYCLES(1), .ZERO_CYCLES(1), .SETUP_CYCLES(1)) minimum (
         .clk(clk), .rst_n(rst_n), .enable(enable), .command_valid(valid),
         .command_left(16'd1), .command_right(16'd0), .command_direction(requested_direction),

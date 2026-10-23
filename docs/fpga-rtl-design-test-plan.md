@@ -84,8 +84,10 @@ chân I/O, mapping, timing và điều kiện điện đều ảnh hưởng.
 
 ## 3. Chia module RTL
 
-Lõi dùng Verilog tổng hợp được, ưu tiên tập con Verilog-2005; testbench có thể
-dùng SystemVerilog đơn giản. Chỉ wrapper chứa primitive/constraints riêng hãng.
+Toàn bộ RTL và testbench dùng **SystemVerilog, đuôi `.sv`**. RTL dùng `logic`,
+`always_ff`/`always_comb` và enum khi phù hợp; giới hạn trong tập con tổng hợp
+được bằng Yosys/Gowin. Icarus bật `-g2012`, Yosys bật `read_verilog -sv`.
+Hook/CI kiểm tra đuôi nguồn; chỉ wrapper chứa primitive/constraints riêng hãng.
 Tất cả timer dùng clock-enable trong domain 27 MHz, không tạo clock bằng logic.
 
 | Khối dự kiến | Trách nhiệm và giao diện chính |

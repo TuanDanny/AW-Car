@@ -1,12 +1,12 @@
 `timescale 1ns/1ps
 module tb_encoder_pair;
-    reg clk = 0;
+    logic clk = 0;
     always #5 clk = !clk;
-    reg rst_n = 0;
-    reg [1:0] left_ab = 3, right_ab = 3;
-    wire [7:0] left_count, right_count, snap_left, snap_right, snap_time;
-    wire [3:0] snap_seq, snap_status;
-    wire snap_valid;
+    logic rst_n = 0;
+    logic [1:0] left_ab = 3, right_ab = 3;
+    logic [7:0] left_count, right_count, snap_left, snap_right, snap_time;
+    logic [3:0] snap_seq, snap_status;
+    logic snap_valid;
     encoder_pair #(.COUNT_WIDTH(8), .TIME_WIDTH(8), .SEQ_WIDTH(4),
         .FILTER_N(3), .SNAPSHOT_CYCLES(7), .INVERT_RIGHT(1)) dut (
         .clk(clk), .rst_n(rst_n), .left_ab(left_ab), .right_ab(right_ab),
@@ -25,10 +25,10 @@ module tb_encoder_pair;
         endcase
     endfunction
     integer cycles = 0, snapshots = 0;
-    reg [7:0] before_left, before_right, before_time;
-    reg [3:0] before_seq;
-    reg [7:0] last_left = 0, last_right = 0, last_time = 0;
-    reg [3:0] last_seq = 0;
+    logic [7:0] before_left, before_right, before_time;
+    logic [3:0] before_seq;
+    logic [7:0] last_left = 0, last_right = 0, last_time = 0;
+    logic [3:0] last_seq = 0;
     // Scoreboard checks old-value snapshot semantics on every clock.
     always @(posedge clk) begin
         before_left = left_count; before_right = right_count;
@@ -52,7 +52,7 @@ module tb_encoder_pair;
             last_time = snap_time; last_seq = snap_seq;
         end
     end
-    reg [31:0] random_state;
+    logic [31:0] random_state;
     integer seed, k, li = 2, ri = 2, expected_left = 0, expected_right = 0;
     integer dl, dr;
     initial begin

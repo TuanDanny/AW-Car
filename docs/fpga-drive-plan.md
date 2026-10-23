@@ -63,7 +63,8 @@ phát; không chuyển xử lý âm thanh, mạng, PID hay toàn bộ cảm bi�
 | UART RX/TX và parser | Khung có giới hạn độ dài, phiên bản, session, sequence, CRC và tái đồng bộ; frame sai không ghi đầu ra |
 | FSM và watchdog | Boot/reset DISARMED; chỉ arm sau handshake mới và lệnh zero; timeout mất quyền chạy; lỗi nghiêm trọng chốt FAULT, cần phục hồi chủ động |
 
-Lõi dùng Verilog/RTL tổng hợp được, tham số hóa clock/timer/độ rộng đếm; tách
+RTL và testbench dùng SystemVerilog (`.sv`), RTL tổng hợp được và tham số hóa
+clock/timer/độ rộng đếm; tách
 primitive clock/reset/IO riêng cho từng hãng khi cần. Không đưa PLL/IP riêng
 Quartus vào lõi rồi coi như tương thích Gowin. CDC và reset phải có thiết kế
 rõ ràng; mô phỏng chức năng không tự chứng minh hết rủi ro metastability.

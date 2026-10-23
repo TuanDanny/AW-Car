@@ -47,7 +47,33 @@ class RepositoryChecksTest(unittest.TestCase):
     def test_ignored_generated_directory_is_excluded(self):
         self.write(".gitignore", "build/\n")
         self.write("build/generated/output.txt", "generated\n")
+        self.write("build/generated/netlist.v", "module generated; endmodule\n")
         self.assertEqual(CHECKS.check_repository(self.root), [])
+
+    def test_hdl_requires_sv_for_rtl_and_testbenches(self):
+        for directory in ("fpga/rtl", "fpga/tb"):
+            self.write(f"{directory}/README.md", "# HDL\n")
+        self.write("fpga/README.md", "# FPGA\n")
+        for directory in ("fpga/rtl", "fpga/tb"):
+            for suffix in (".v", ".vh", ".svh", ".vhd", ".vhdl", ".V", ".SV"):
+                with self.subTest(directory=directory, suffix=suffix):
+                    name = f"{directory}/source{suffix}"
+                    self.write(name, "module example; endmodule\n")
+                    self.assertIn(f"HDL sources must use SystemVerilog .sv: {name}",
+                                  CHECKS.check_repository(self.root))
+                    (self.root / name).unlink()
+            self.write(f"{directory}/source.sv", "module example; endmodule\n")
+        self.assertEqual(CHECKS.check_repository(self.root), [])
+
+    def test_staged_old_hdl_extension_cannot_be_hidden_by_rename(self):
+        self.write("example.v", "module example; endmodule\n")
+        self.git("add", ".")
+        (self.root / "example.v").rename(self.root / "example.sv")
+        self.assertEqual(CHECKS.check_repository(self.root), [])
+        self.assertIn("HDL sources must use SystemVerilog .sv: example.v",
+                      CHECKS.check_repository(self.root, staged=True))
+        self.git("add", "-A")
+        self.assertEqual(CHECKS.check_repository(self.root, staged=True), [])
 
     def test_staged_snapshot_cannot_be_hidden_by_worktree_fix(self):
         self.write("module/code.py", "pass\n")

@@ -1,49 +1,43 @@
 `timescale 1ns/1ps
 `default_nettype none
 module pwm_pair #(
-    parameter integer PERIOD_CYCLES = 1350,
-    parameter integer DUTY_WIDTH = 16
+    parameter int PERIOD_CYCLES = 1350,
+    parameter int DUTY_WIDTH = 16
 ) (
-    input  wire clk,
-    input  wire rst_n,
-    input  wire enable,
-    input  wire command_valid,
-    input  wire [DUTY_WIDTH-1:0] command_left,
-    input  wire [DUTY_WIDTH-1:0] command_right,
-    output wire pwm_left,
-    output wire pwm_right,
-    output wire period_start,
-    output reg command_rejected,
-    output reg command_applied,
-    output reg [DUTY_WIDTH-1:0] active_left,
-    output reg [DUTY_WIDTH-1:0] active_right
+    input  logic clk,
+    input  logic rst_n,
+    input  logic enable,
+    input  logic command_valid,
+    input  logic [DUTY_WIDTH-1:0] command_left,
+    input  logic [DUTY_WIDTH-1:0] command_right,
+    output logic pwm_left,
+    output logic pwm_right,
+    output logic period_start,
+    output logic command_rejected,
+    output logic command_applied,
+    output logic [DUTY_WIDTH-1:0] active_left,
+    output logic [DUTY_WIDTH-1:0] active_right
 );
-    function integer bits_for;
-        input integer value;
-        integer v;
-        begin
-            v = value - 1; bits_for = 0;
-            while (v > 0) begin bits_for = bits_for + 1; v = v >> 1; end
-            if (bits_for == 0) bits_for = 1;
-        end
-    endfunction
-    localparam integer PHASE_WIDTH = bits_for(PERIOD_CYCLES);
-    reg [PHASE_WIDTH-1:0] phase;
-    reg [DUTY_WIDTH-1:0] shadow_left, shadow_right;
-    reg pending;
-    reg pwm_left_ff, pwm_right_ff;
-    wire in_range = command_left <= PERIOD_CYCLES && command_right <= PERIOD_CYCLES;
-    wire accept = command_valid && in_range && enable;
-    wire boundary = phase == PERIOD_CYCLES - 1;
-    wire [PHASE_WIDTH-1:0] next_phase = boundary ? 0 : phase + 1'b1;
-    wire [DUTY_WIDTH-1:0] next_left = accept ? command_left : pending ? shadow_left : active_left;
-    wire [DUTY_WIDTH-1:0] next_right = accept ? command_right : pending ? shadow_right : active_right;
+    localparam int PHASE_WIDTH = (PERIOD_CYCLES > 1) ? $clog2(PERIOD_CYCLES) : 1;
+    logic [PHASE_WIDTH-1:0] phase;
+    logic [DUTY_WIDTH-1:0] shadow_left, shadow_right;
+    logic pending;
+    logic pwm_left_ff, pwm_right_ff;
+    logic in_range, accept, boundary;
+    logic [PHASE_WIDTH-1:0] next_phase;
+    logic [DUTY_WIDTH-1:0] next_left, next_right;
+    assign in_range = command_left <= PERIOD_CYCLES && command_right <= PERIOD_CYCLES;
+    assign accept = command_valid && in_range && enable;
+    assign boundary = phase == PERIOD_CYCLES - 1;
+    assign next_phase = boundary ? 0 : phase + 1'b1;
+    assign next_left = accept ? command_left : pending ? shadow_left : active_left;
+    assign next_right = accept ? command_right : pending ? shadow_right : active_right;
     // Registered PWM avoids glitches from a binary counter/comparator carry.
     // enable is a synchronous safety permission; its falling level also masks IO immediately.
     assign pwm_left = rst_n && enable && pwm_left_ff;
     assign pwm_right = rst_n && enable && pwm_right_ff;
     assign period_start = enable && phase == 0;
-    always @(posedge clk or negedge rst_n) begin
+    always_ff @(posedge clk or negedge rst_n) begin
         if (!rst_n) begin
             phase <= PERIOD_CYCLES - 1;
             shadow_left <= 0; shadow_right <= 0;

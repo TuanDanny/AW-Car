@@ -1,4 +1,4 @@
-"""Check repository documentation and the feature-branch convention."""
+"""Check repository documentation, SystemVerilog sources and branch convention."""
 
 import argparse
 from pathlib import Path, PurePosixPath
@@ -10,6 +10,7 @@ import sys
 BRANCH_PATTERN = re.compile(
     r"(?:feat/f[0-9]{2,}-|(?:fix|docs|chore)/)[a-z0-9][a-z0-9._-]*"
 )
+HDL_SUFFIXES = {".v", ".vh", ".sv", ".svh", ".vhd", ".vhdl"}
 
 
 def git(root, *args):
@@ -43,6 +44,11 @@ def check_repository(root, *, staged=False, branch=None):
             parent = parent.parent
     for name in sorted(required - paths):
         errors.append(f"Missing {name}")
+
+    for name in sorted(paths):
+        suffix = PurePosixPath(name).suffix
+        if suffix.lower() in HDL_SUFFIXES and suffix != ".sv":
+            errors.append(f"HDL sources must use SystemVerilog .sv: {name}")
 
     for name in sorted(path for path in paths if path.endswith(".md")):
         try:
@@ -78,7 +84,7 @@ def main():
         for error in errors:
             print(f"ERROR: {error}", file=sys.stderr)
         return 1
-    print("PASS: repository structure, Markdown and requested branch checks")
+    print("PASS: repository structure, Markdown, SystemVerilog and requested branch checks")
     return 0
 
 

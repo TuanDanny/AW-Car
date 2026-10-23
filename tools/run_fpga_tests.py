@@ -49,7 +49,7 @@ def main() -> int:
         str(Path(compiler).parent), str(Path(runtime).parent), tool_env.get("PATH", "")]))
     build = ROOT / "fpga" / "build"
     build.mkdir(parents=True, exist_ok=True)
-    sources = sorted(str(path) for path in (ROOT / "fpga" / "rtl").glob("*.v"))
+    sources = sorted(str(path) for path in (ROOT / "fpga" / "rtl").glob("*.sv"))
     try:
         version = subprocess.run([compiler, "-V"], cwd=ROOT, text=True,
                                  capture_output=True, timeout=15, check=True, env=tool_env)
