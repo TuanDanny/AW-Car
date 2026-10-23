@@ -7,6 +7,8 @@ Lưu yêu cầu, quyết định kỹ thuật và kết quả thử nghiệm.
 - [Quy trình Git](workflow.md): nhánh tính năng, squash merge và bảo vệ main.
 - [Kế hoạch FPGA và toàn hệ thống](fpga-drive-plan.md): quyết định mới nhất,
   FPGA phát PWM motor, phân tải, công cụ và các điều kiện nghiệm thu.
+- [Thiết kế và kiểm thử RTL](fpga-rtl-design-test-plan.md): module, ca thử,
+  luồng Icarus/Gowin không cần Quartus và điều kiện chọn board trước khi mua.
 
 Quy tắc dành cho agent nằm ở [AGENTS.md](../AGENTS.md); không sao chép thành
 nhiều bộ quy tắc khác nhau.

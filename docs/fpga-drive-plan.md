@@ -119,9 +119,12 @@ an toàn cho mọi vận tốc; giới hạn vận hành theo vùng phát hiện
 
 ## 5. Luồng công cụ và điều kiện chọn board
 
-`Đặc tả -> RTL + testbench -> mô phỏng -> chip tham chiếu -> báo cáo tài nguyên
-và timing -> chip/board ứng viên -> tổng hợp + place-and-route + timing đúng
-chip -> chốt mua -> thử trên bàn -> tích hợp xe`.
+`Đặc tả -> RTL + testbench -> mô phỏng Icarus/VVP -> tổng hợp, place-and-route
+và timing đúng chip ứng viên bằng Gowin -> đánh giá tài nguyên/I/O/nguồn/giá
+-> chốt mua -> thử trên bàn -> tích hợp xe`.
+
+Không cần Quartus trong luồng chính. Xem [kế hoạch RTL và kiểm thử](fpga-rtl-design-test-plan.md)
+cho module, thông số đề xuất, test tự kiểm tra và cách chạy trên Windows.
 
 Quartus nhắm chip Altera/Intel được phiên bản đó hỗ trợ; không tạo bitstream
 cho Gowin trên Tang Nano. Có thể dùng Quartus để học/đánh giá lõi trên một chip

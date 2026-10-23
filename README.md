@@ -85,9 +85,10 @@ LVGL là thư viện giao diện; firmware MCU dự kiến dùng ESP-IDF/FreeRTO
 
 1. Đặc tả RTL/giao tiếp và nguồn, motor/encoder, hình học lái, chế độ dừng.
 2. Viết RTL độc lập hãng và testbench; mô phỏng cả lỗi và mất/reset từng khối.
-3. Quartus có thể đánh giá trên chip Altera/Intel tham chiếu; nếu chọn Tang
-   Nano phải tổng hợp, place-and-route và kiểm tra timing lại bằng Gowin cho
-   đúng mã chip. Chọn board theo toàn bộ tài nguyên/I/O/nguồn và ngân sách.
+3. Không cần Quartus: mô phỏng bằng Icarus/VVP, tổng hợp, place-and-route và
+   kiểm tra timing bằng Gowin Education cho đúng chip Tang Nano ứng viên.
+   Chọn board theo tài nguyên/I/O/nguồn và ngân sách; xem
+   [kế hoạch thiết kế RTL và kiểm thử](docs/fpga-rtl-design-test-plan.md).
 4. Mua sau khi đủ bằng chứng thiết kế; thử FPGA + Motion + driver trên bàn,
    sau đó tích hợp cảm biến/PID, UART Brain và Dashboard ở tốc độ thấp.
 5. Thêm TFT/LVGL và Xiaozhi; cảnh báo thiết yếu phải phát được khi mất Internet.
