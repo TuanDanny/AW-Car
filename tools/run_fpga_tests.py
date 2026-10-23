@@ -9,11 +9,14 @@ import subprocess
 import sys
 
 ROOT = Path(__file__).resolve().parents[1]
-TESTS = ("tb_encoder_units", "tb_encoder_pair", "tb_encoder_timing")
+TESTS = ("tb_encoder_units", "tb_encoder_pair", "tb_encoder_timing",
+         "tb_pwm_pair", "tb_motor_pwm_pair", "tb_pwm_timing")
 
 
-def execute(command: list[str], timeout: float, cwd: Path) -> None:
-    result = subprocess.run(command, cwd=cwd, text=True, capture_output=True, timeout=timeout)
+def execute(command: list[str], timeout: float, cwd: Path,
+            env: dict[str, str] | None = None) -> None:
+    result = subprocess.run(command, cwd=cwd, text=True, capture_output=True,
+                            timeout=timeout, env=env)
     if result.stdout:
         print(result.stdout, end="")
     if result.stderr:
@@ -39,22 +42,27 @@ def main() -> int:
     compiler, runtime = shutil.which(args.iverilog), shutil.which(args.vvp)
     if not compiler or not runtime:
         parser.error("Icarus/VVP unavailable; set PATH, IVERILOG/VVP or --iverilog/--vvp")
+    # Resolve before switching the simulation cwd; child ivl/vvp DLLs may need bin in PATH.
+    compiler, runtime = str(Path(compiler).resolve()), str(Path(runtime).resolve())
+    tool_env = os.environ.copy()
+    tool_env["PATH"] = os.pathsep.join(dict.fromkeys([
+        str(Path(compiler).parent), str(Path(runtime).parent), tool_env.get("PATH", "")]))
     build = ROOT / "fpga" / "build"
     build.mkdir(parents=True, exist_ok=True)
     sources = sorted(str(path) for path in (ROOT / "fpga" / "rtl").glob("*.v"))
     try:
         version = subprocess.run([compiler, "-V"], cwd=ROOT, text=True,
-                                 capture_output=True, timeout=15, check=True)
+                                 capture_output=True, timeout=15, check=True, env=tool_env)
         print(version.stdout.splitlines()[0])
         for name in args.test or TESTS:
             print(f"RUN {name}", flush=True)
             output = build / f"{name}.vvp"
             execute([compiler, "-g2012", "-Wall", "-s", name, "-o", str(output),
-                     *sources, str(ROOT / "fpga" / "tb" / f"{name}.sv")], args.timeout, ROOT)
+                     *sources, str(ROOT / "fpga" / "tb" / f"{name}.sv")], args.timeout, ROOT, tool_env)
             command = [runtime, str(output)]
             if args.waves:
                 command.append("+waves")
-            execute(command, args.timeout, build)
+            execute(command, args.timeout, build, tool_env)
     except (OSError, RuntimeError, subprocess.SubprocessError) as error:
         print(f"FAIL: {error}", file=sys.stderr)
         return 1

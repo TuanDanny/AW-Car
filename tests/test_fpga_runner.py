@@ -2,6 +2,7 @@
 from pathlib import Path
 from contextlib import redirect_stderr, redirect_stdout
 import io
+import os
 import subprocess
 import tempfile
 import unittest
@@ -33,7 +34,26 @@ class FpgaRunnerTests(unittest.TestCase):
                   redirect_stdout(io.StringIO()), redirect_stderr(io.StringIO())):
                 self.assertEqual(runner.main(), 1)
                 self.assertEqual(execute.call_count, 1)
-                self.assertEqual(execute.call_args.args[0][0], "iverilog")
+                self.assertEqual(Path(execute.call_args.args[0][0]).name, "iverilog")
+
+    def test_relative_tool_paths_and_child_environment(self):
+        original_path = os.environ.get("PATH")
+        with tempfile.TemporaryDirectory(prefix="aw car ") as directory:
+            with (patch.object(runner, "ROOT", Path(directory)),
+                  patch.object(runner.shutil, "which", side_effect=lambda name: "relative/bin/" + name),
+                  patch.object(runner.subprocess, "run", return_value=subprocess.CompletedProcess(
+                      ["iverilog"], 0, "test compiler\n", "")),
+                  patch.object(runner, "execute") as execute,
+                  patch("sys.argv", ["run_fpga_tests.py", "--test", "tb_encoder_units"]),
+                  redirect_stdout(io.StringIO())):
+                self.assertEqual(runner.main(), 0)
+                self.assertEqual(execute.call_count, 2)
+                runtime_args = execute.call_args.args
+                self.assertTrue(Path(runtime_args[0][0]).is_absolute())
+                self.assertEqual(runtime_args[2], Path(directory) / "fpga" / "build")
+                self.assertIn(str(Path(runtime_args[0][0]).parent),
+                              runtime_args[3]["PATH"].split(os.pathsep))
+                self.assertEqual(os.environ.get("PATH"), original_path)
 
 
 if __name__ == "__main__":

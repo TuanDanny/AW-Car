@@ -1,0 +1,7 @@
+# Generic Gowin mapping only: no exact part, pinout, placement or routed timing.
+read_verilog fpga/rtl/pwm_pair.v fpga/rtl/motor_pwm_pair.v
+proc
+select -assert-none t:$dlatch t:$adlatch
+synth_gowin -top motor_pwm_pair -noiopads -nowidelut -json fpga/build/pwm_gowin.json
+check -assert
+tee -o fpga/build/pwm_stat.json stat -json
