@@ -9,7 +9,8 @@ import subprocess
 import sys
 
 ROOT = Path(__file__).resolve().parents[1]
-TESTS = ("tb_encoder_units", "tb_encoder_pair", "tb_encoder_timing")
+TESTS = ("tb_encoder_units", "tb_encoder_pair", "tb_encoder_timing",
+         "tb_pwm_pair", "tb_motor_pwm_pair", "tb_pwm_timing")
 
 
 def execute(command: list[str], timeout: float, cwd: Path) -> None:

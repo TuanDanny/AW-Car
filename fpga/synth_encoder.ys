@@ -1,0 +1,7 @@
+# Run from repository root after creating fpga/build.
+read_verilog fpga/rtl/input_sync_filter.v fpga/rtl/quadrature_decoder.v fpga/rtl/encoder_pair.v
+proc
+select -assert-none t:$dlatch t:$adlatch
+synth_gowin -top encoder_pair -noiopads -nowidelut -json fpga/build/encoder_gowin.json
+check -assert
+tee -o fpga/build/encoder_stat.json stat -json

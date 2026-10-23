@@ -1,7 +1,7 @@
 # Kế hoạch thiết kế và kiểm thử RTL FPGA
 
-Ngày nghiên cứu: **23/10/2026**. Đã triển khai/mô phỏng phần reset, encoder và
-snapshot; xem tiến độ hiện tại ở [FPGA](../fpga/README.md). Các phần còn lại
+Ngày nghiên cứu: **23/10/2026**. Đã triển khai/mô phỏng phần reset, encoder,
+snapshot và PWM/chiều độc lập driver; xem [FPGA](../fpga/README.md). Các phần còn lại
 là kế hoạch; chưa có kết quả tài nguyên toàn lõi hoặc timing.
 Phân tải đã chốt ở [kế hoạch toàn hệ thống](fpga-drive-plan.md).
 

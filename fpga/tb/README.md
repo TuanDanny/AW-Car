@@ -11,6 +11,13 @@ bài, `--test tb_encoder_pair` để chọn và `--waves` để lưu VCD trong b
   định, mỗi seed 10.000 chuyển hợp lệ mỗi bánh và đối chiếu count độc lập.
 - `tb_encoder_timing`: tham số mặc định, kiểm tra ba chu kỳ snapshot270.000
   tick; mô phỏng clock 27 MHz với độ chính xác ps.
+- `tb_pwm_pair`: duty0/1/giữa/P-1/P, từ chối ngoài miền/disabled, shadow cặp,
+  10 seed x 1.000 lệnh và đo số tick HIGH/cạnh/chu kỳ bằng scoreboard.
+- `tb_motor_pwm_pair`: thời gian zero/setup, lệnh thay thế khi đổi chiều,
+  lệnh lỗi không đổi chiều; disable/reset từng bước chuyển và khi clock đứng.
+- `tb_pwm_timing`: clock27MHz, chu kỳ1.350 tick, duty50/100%, zero27.000 tick,
+  setup27 tick và các tham số nhỏ nhất hợp lệ (period/zero/setup=1).
 
 Mô hình test không mô phỏng metastability hoặc nguồn/mức điện áp. Các test này
-chưa nghiệm thu UART, watchdog hay toàn hệ thống.
+chưa nghiệm thu UART, watchdog hay toàn hệ thống. PWM/chiều là tín hiệu logic
+trừu tượng, chưa kiểm tra truth table/phanh của một driver cụ thể.
