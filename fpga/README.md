@@ -5,7 +5,9 @@ và watchdog/FSM. PID, xử lý cảm biến an toàn và servo lái nằm ở E
 
 Trạng thái: mới chốt phân tải, chưa có RTL, báo cáo tổng hợp hay board đã chọn.
 Viết lõi độc lập hãng; chỉ thêm thư mục RTL/testbench/target khi có file thực tế.
-Quartus dùng chip Altera/Intel tham chiếu; Tang Nano phải đánh giá lại bằng
-Gowin cho đúng mã chip, gồm place-and-route, timing và cấu hình tự khởi động.
+Luồng đề xuất: Icarus/VVP + GTKWave để mô phỏng, Gowin Education để tổng hợp,
+place-and-route và kiểm tra timing đúng chip Tang Nano ứng viên; không cần
+Quartus. Chưa cài/chạy xác minh toolchain, chưa chứng minh fit trên board 1K.
 
 Xem [kế hoạch và nghiệm thu toàn hệ thống](../docs/fpga-drive-plan.md).
+Chi tiết [thiết kế RTL, kiểm thử và thứ tự triển khai](../docs/fpga-rtl-design-test-plan.md).
