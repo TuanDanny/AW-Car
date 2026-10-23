@@ -127,3 +127,63 @@ command_enable do mô hình controller trong test cấp, không đến từ HELL
 Handshake chống buffer cũ, ARM thực tế, watchdog/FSM và gate độc lập vẫn cần
 thiết kế/kiểm thử ở f10. Chưa có firmware Motion, target, PnR/STA hoặc phép đo
 đường truyền/motor trên board.
+
+## FSM an toàn và top truyền động — 23/10/2026
+
+Nhánh `feat/f10-fpga-safety`, nền `e3bfb7f`. Thêm `safety_fsm`/`drive_core`,
+giữ toàn bộ HDL `.sv`. UART/encoder/PWM đã nối thành top logic; chưa có
+wrapper board, adapter driver hoặc firmware Motion. [Hợp đồng safety](../firmware/shared/fpga-safety.md)
+chốt GPIO recovery/ACK, STATUS ARM_PENDING, fault và clear gate bên ngoài.
+
+Cùng Icarus/VVP13.0 và YoWASP-Yosys0.70 nêu ở trên. Lệnh tái tạo toàn bộ
+hồi quy với bài tích hợp dài ở clock danh định:
+
+```powershell
+python tools/run_fpga_tests.py --iverilog build/toolchain/ucrt64/bin/iverilog.exe --vvp build/toolchain/ucrt64/bin/vvp.exe --full-timing --timeout 1800
+build/toolchain/yowasp/Scripts/yowasp-yosys.exe -Q -q -l fpga/build/drive-synth.log -s fpga/synth_drive.ys
+```
+
+| Testbench | Kết quả | Bằng chứng |
+| --- | --- | --- |
+| tb_safety_fsm | PASS | Baseline GPIO LOW/stale HIGH, ACK và session; STATUS sai phiên/state, permit quá sớm; CMD trước/tại deadline; traffic khác không gia hạn; mất permit, reconnect, DISABLE, lỗi ngoài/PWM, clear/timeout và reset các pha |
+| tb_safety_timing | PASS | Tham số mặc định27MHz: ARM ở zero tại49ms, FAULT đúng tick1.350.000 ở50ms dù có CMD, không phục hồi tại51ms |
+| tb_frame_tx | PASS | Giữ toàn vector STATUS cũ và kiểm tra byte_last/session/state đóng băng qua backpressure |
+| tb_drive_core --full-timing | PASS | 2.010,444ms tại27MHz/115200/20kHz/50ms; 189 STATUS đúng snapshot; UART/PWM/encoder, reset, E-stop, clock-stop/stale gate |
+| tb_drive_defaults | PASS | 225,343ms,11 STATUS; cùng chuỗi lỗi, cả hai duty đúng và encoder thuận/ngược qua STATUS, toàn tham số danh định |
+
+Toàn bộ **15 testbench PASS**, compile không warning; **20 test Python PASS**,
+vector chung/kiểm tra repo/nhánh/diff đạt. Bốn script synthesis encoder/PWM/
+link/drive đều đạt; chưa phải nghiệm thu phần cứng.
+
+Bài top dùng host UART/CRC/observer riêng; đối chiếu cả payload/session từ
+snapshot được chấp nhận, xác nhận metadata completion sau CRC stop bit. Thử
+duplicate, sai phiên/CRC/duty, xung E-stop10ns, reset với permit HIGH, mất
+clock khi PWM HIGH. Mô hình Motion dùng đồng hồ riêng, không gia hạn bằng
+metadata snapshot lặp/cũ, kiểm tra hạ permit trong30+1ms. Gate ngoài ưu tiên
+SET, giữ lỗi sau nhả E-stop/nguồn; clock trở lại không cấp lại duty cache.
+Đây là model hợp đồng, chưa phải kiểm thử firmware hay sơ đồ điện.
+
+Runner mặc định dùng clock2,7MHz cho bài2s và scale đồng thời timer/PWM,
+giữ baud115200; chế độ `--full-timing` đổi bài này sang27MHz. CI bật full-timing.
+Không dùng mô phỏng logic để kết luận timing điện hay timing sau route.
+
+Tổng hợp **toàn top `drive_core`**, mặc định27MHz, bằng `synth_drive.ys`:
+`proc` không latch, `check -assert` không lỗi. Mapping generic Gowin/gw1n,
+`-noiopads -nowidelut`, không phải netlist đúng mã chip9K:
+
+| Khối | FF primitive | LUT1–4 cell | ALU cell |
+| --- | --- | --- | --- |
+| drive_core, toàn lõi | **1.122** | **1.608** | **662** |
+| fpga_link, có completion metadata mới | 587 | 838 | 282 |
+
+Không cộng cell các bài độc lập để thay kết quả top, không cộng LUT/ALU để
+báo utilization vật lý. Top xuất43 bit cổng logic, gồm24 bit diagnostic
+state/fault có thể giữ nội bộ ở wrapper; giao diện chức năng còn19 bit,
+gồm cả clock/reset. Số pin board còn dùng được và điện áp bank chưa kiểm tra.
+
+Mapping hiện tại vượt864FF của Nano1K. Người dùng đồng ý đánh giá **Nano9K**
+thay vì cắt CRC/watchdog/độ rộng encoder. Sipeed ghi9K dùng
+GW1NR-LV9QN88PC6/I5,8.640LUT4/6.480FF,27MHz; [nguồn chính thức](https://wiki.sipeed.com/hardware/en/tang/Tang-Nano-9K/Nano-9K.html)
+đối chiếu23/10/2026. Chưa chốt mua: cần constraints/CDC/reset, Gowin/PnR/STA
+đúng chip, pinout/nguồn/giá. Còn driver/gate, Motion/Brain lease/PID/cảm biến,
+servo và thử quãng dừng trên xe; FSM/top mô phỏng không thay các bước này.

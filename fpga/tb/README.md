@@ -31,6 +31,20 @@ bài, `--test tb_encoder_pair` để chọn và `--waves` để lưu VCD trong b
 - `tb_fpga_link`: 27MHz/115200 thật, nhận CMD/gửi STATUS đồng thời, CRC lỗi/
   duplicate không commit, snapshot nguyên tử/drop, timeout mặc định2/5ms và phục hồi.
 
-Mô hình test không mô phỏng metastability hoặc nguồn/mức điện áp. Các test này
-chưa nghiệm thu handshake ARM, watchdog hay toàn hệ thống. PWM/chiều là tín hiệu logic
+- `tb_safety_fsm`: GPIO mới/stale HIGH, session/ARM_PENDING, STATUS sai phiên/
+  state, permit sớm, CMD trước/tại deadline, traffic không gia hạn, DISABLE,
+  fault/clear/timeout và reset các bước recovery/ARM/CLEAR.
+- `tb_safety_timing`: mặc định27MHz, ARM zero tại49/50/51ms; hết hạn đúng
+  1.350.000 tick và CMD đúng hạn không cứu watchdog.
+- `tb_drive_core`: UART host/CRC/observer độc lập, đối chiếu toàn STATUS với
+  snapshot được nhận; encoder chạy hai chiều, UART tới PWM, xác nhận stop bit,
+  fault latch ngoài, E-stop10ns, reset khi cached permit HIGH, clock đứng và
+  mô hình Motion stale inhibit30+1ms kể cả metadata snapshot lặp/cũ.
+  Mặc định chạy>=2s ở2,7MHz, đổi timer/PWM cùng tỷ lệ; `--full-timing` chạy
+  cùng kịch bản>=2s ở27MHz/115200/20kHz/50ms, CI bật chế độ này.
+- `tb_drive_defaults`: cùng chuỗi lỗi với toàn tham số mặc định27MHz, không
+  chạy vòng giữ lệnh2s. Wrapper reuse scenario `.sv`, không sao chép model.
+
+Mô hình test không mô phỏng metastability hoặc nguồn/mức điện áp. Motion/gate
+chỉ là model kiểm chứng hợp đồng, chưa có firmware hoặc sơ đồ điện thực tế. PWM/chiều là tín hiệu logic
 trừu tượng, chưa kiểm tra truth table/phanh của một driver cụ thể.

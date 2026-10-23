@@ -1,0 +1,7 @@
+# Complete logical top, generic Gowin mapping; no PnR or exact target.
+read_verilog -sv fpga/rtl/command_guard.sv fpga/rtl/crc16_byte.sv fpga/rtl/drive_core.sv fpga/rtl/encoder_pair.sv fpga/rtl/fpga_link.sv fpga/rtl/frame_rx.sv fpga/rtl/frame_tx.sv fpga/rtl/input_sync_filter.sv fpga/rtl/motor_pwm_pair.sv fpga/rtl/pwm_pair.sv fpga/rtl/quadrature_decoder.sv fpga/rtl/reset_sync.sv fpga/rtl/safety_fsm.sv fpga/rtl/uart_rx.sv fpga/rtl/uart_tx.sv
+proc
+select -assert-none t:$dlatch t:$adlatch
+synth_gowin -top drive_core -noiopads -nowidelut -json fpga/build/drive_gowin.json
+check -assert
+tee -o fpga/build/drive_stat.json stat -json

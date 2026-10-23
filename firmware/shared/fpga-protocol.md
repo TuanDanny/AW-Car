@@ -41,7 +41,8 @@ STATUS payload18 byte: left_count32 ở +0, right_count32 ở +4, timestamp32 �
 encoder_status8 ở +17 (bit0..3 từ encoder_pair; bit7..4 zero).
 Đây là điều chỉnh từ payload17/frame30 trong đề xuất trước để không mất
 trạng thái encoder. Header sequence bằng snapshot_seq, không tăng khi gửi
-lại snapshot cũ. State/fault do FSM tương lai cung cấp, link không tự tạo FSM.
+lại snapshot cũ. State/fault từ `safety_fsm`; mã và trình tự ARM/clear ở
+[hợp đồng an toàn](fpga-safety.md), link không tự tạo FSM.
 Mỗi frame31 mất khoảng 2,69 ms; 100 Hz chiếm 31.000 bit/s mỗi chiều TX.
 
 ## Parser và giao diện RTL
@@ -86,12 +87,14 @@ không tiêu thụ sequence; duplicate/cũ/sai phiên không phát command_valid
 DISABLE có CRC/format đúng luôn tạo yêu cầu giảm quyền, không phụ thuộc phiên
 hay sequence và không đổi mốc; không thể dùng DISABLE để cấp lại quyền.
 HELLO không đổi mốc. Sự kiện mang session/sequence đã latch cùng pulse.
-Không sự kiện nào tự làm mới watchdog ở gói này. Bước safety phải chỉ gia hạn
-bằng CMD mới hợp lệ khi ARMED; timeout phải thắng CMD đến đúng hạn.
+Guard chỉ phát sự kiện, `safety_fsm` khởi tạo watchdog khi ARM_ZERO và chỉ
+gia hạn bằng CMD mới hợp lệ khi ARMED; timeout thắng CMD đến đúng hạn.
 
-Session32 tự nó không chống buffer cũ sau reset cả hai đầu. Handshake/challenge
-hoặc đường phục hồi riêng và gate phần cứng vẫn phải chốt ở bước safety;
-v1 hiện chốt wire format và ranh giới giao diện, chưa nghiệm thu ARM toàn xe.
+Session32 tự nó không chống buffer cũ sau reset cả hai đầu. Đã bổ sung GPIO
+recovery_req/recovery_ack và trình tự STATUS ARM_PENDING trước Motion permit;
+xem [hợp đồng an toàn](fpga-safety.md). `status_sent/status_session/status_state`
+của link xác nhận sau stop bit CRC cuối, không phải khi serializer nhận xong
+snapshot. Phần này đã được thử bằng model, chưa nghiệm thu ARM trên xe.
 
 ## Vector chung
 

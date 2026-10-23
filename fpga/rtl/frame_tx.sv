@@ -17,7 +17,10 @@ module frame_tx (
     input  logic [15:0] fault,
     output logic byte_valid,
     input  logic byte_ready,
-    output logic [7:0] byte_data
+    output logic [7:0] byte_data,
+    output logic byte_last,
+    output logic [31:0] frame_session,
+    output logic [7:0] frame_state
 );
     logic busy;
     logic [4:0] index;
@@ -26,6 +29,9 @@ module frame_tx (
     logic [15:0] crc, next_crc;
     assign snapshot_ready = !busy && !flush;
     assign byte_valid = busy && !flush;
+    assign byte_last = byte_valid && index == 30;
+    assign frame_session = frozen_session;
+    assign frame_state = payload[119:112];
     function automatic logic [7:0] select_byte(input logic [4:0] idx,
             input logic [31:0] session_value, input logic [143:0] sample,
             input logic [15:0] checksum);

@@ -25,7 +25,7 @@ giản và enum cho FSM. Không dùng khởi tạo biến để thay phép gán 
   và bắt đầu lại khoảng zero; lệnh sai miền không đổi trình tự đang hợp lệ.
 
 PWM mặc định PERIOD_CYCLES=1350, DUTY_WIDTH=16, duty0..1350. `enable` là quyền
-chạy đồng bộ từ FSM an toàn sẽ triển khai sau, không phải tín hiệu raw từ MCU
+chạy đồng bộ từ `safety_fsm` trong `drive_core`, không phải tín hiệu raw từ MCU
 hoặc E-stop. Khi enable LOW, đầu ra bị mask ngay; giữ LOW qua ít nhất một
 cạnh clock để xóa active/shadow/chiều chờ. Khi cấp lại enable mà chưa có lệnh
 mới thì duty vẫn zero. Không nhả/cấp enable bất đồng bộ để thay FSM hoặc gate
@@ -81,14 +81,31 @@ UART dùng CLK_HZ/BAUD dương, bộ chia làm tròn `(CLK_HZ + BAUD/2)/BAUD`, �
 và đủ dài cho frame/baud cấu hình. Chỉ thay CLK_HZ không tự đổi timeout:
 54000/135000 là tham số đánh giá27MHz, cần đổi cùng clock.
 
-FSM tương lai phải cấp session_active/active_session/sequence_base bằng
+FSM cấp session_active/active_session/sequence_base bằng
 context_load; hủy/đổi phiên cũng pulse context_load. Khi đó parser/TX bị flush,
-guard bỏ sự kiện cùng clock và xóa cặp duty đang lưu. command_enable phải đến
-từ trạng thái ARMED. Không dùng UART/HELLO làm quyền chạy. Event session/sequence
+guard bỏ sự kiện cùng clock và xóa cặp duty đang lưu. command_enable đến
+từ trạng thái ARMED và bị chặn ở cạnh timeout. Không dùng UART/HELLO làm quyền chạy. Event session/sequence
 đã latch cùng pulse; không dùng lại cặp duty nếu không có command_valid mới.
 TX có thể hoàn tất byte UART cũ khi flush: phía Motion phải loại frame thiếu
 CRC/sai phiên, không coi UART byte đang chạy là snapshot mới.
 
-Chi tiết offset/CRC/vector và phần handshake còn phải thiết kế ở
-[wire protocol](../../firmware/shared/fpga-protocol.md). Lõi guard chưa quyết
-định timeout/ARM và không thay thế gate độc lập Motion/E-stop/nguồn.
+`frame_tx` còn xuất byte_last và session/state của snapshot đóng băng.
+`fpga_link.status_sent` chỉ pulse sau stop bit CRC cuối; context_load hủy
+xác nhận đang chờ, không dùng busy serializer làm xác nhận ARM.
+
+- `safety_fsm`: DISARMED/HANDSHAKE/ARM_PENDING/ARMED/FAULT/CLEAR_WAIT; GPIO
+  recovery bắt buộc, HELLO không tự arm. ARM_ZERO khởi tạo watchdog50ms;
+  STATUS ARM_PENDING gửi đủ + Motion permit mới cho ARMED. Timeout thắng CMD
+  cùng cạnh. DISABLE/fault hủy phiên, clear thành công vẫn DISARMED.
+- `drive_core`: top logic nối đủ reset/CDC, encoder, link, FSM và PWM. Input
+  recovery_req/motion_permit/safety_ok/gate_fault_n, output recovery_ack/
+  fpga_permit/gate_clear; thêm UART và encoder/PWM/chiều. Cổng state/fault là
+  diagnostic, board wrapper có thể giữ nội bộ, không tính là GPIO bắt buộc.
+  Capture LOW async và release hai FF cho health/permit; mask PWM/permit raw.
+  Gate-clear cũng bị chặn raw nếu reset, live fault, Motion permit hoặc req HIGH.
+
+Mặc định watchdog1350000, handshake6750000, clear135000, hold2700 tick tại
+27MHz; xem yêu cầu tham số và trình tự ở [hợp đồng an toàn](../../firmware/shared/fpga-safety.md).
+Top chưa có POR/pin/clock constraints theo board hoặc adapter driver. Gate
+ngoài và Motion stale inhibit là phần bắt buộc, không được thay bằng RTL mask.
+Chi tiết offset/CRC/vector ở [wire protocol](../../firmware/shared/fpga-protocol.md).

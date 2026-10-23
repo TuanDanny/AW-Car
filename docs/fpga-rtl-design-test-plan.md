@@ -1,9 +1,9 @@
 # Kế hoạch thiết kế và kiểm thử RTL FPGA
 
 Ngày nghiên cứu: **23/10/2026**. Đã triển khai/mô phỏng phần reset, encoder,
-snapshot, PWM/chiều độc lập driver và UART/parser/CRC/serializer/guard;
-xem [FPGA](../fpga/README.md). Các phần còn lại
-là kế hoạch; chưa có kết quả tài nguyên toàn lõi hoặc timing.
+snapshot, PWM/chiều, UART/parser/CRC/serializer/guard, FSM/watchdog và top;
+xem [FPGA](../fpga/README.md). Đã có mapping generic toàn lõi.
+Các phần target/driver/phần cứng vẫn là kế hoạch; chưa có timing sau route.
 Phân tải đã chốt ở [kế hoạch toàn hệ thống](fpga-drive-plan.md).
 
 ## 1. Hướng thực hiện
@@ -46,7 +46,7 @@ và timing; không mặc định kết quả hai bộ công cụ tương đươn
    VVP, GTKWave, Yosys và các công cụ khác; chưa cần học hết hoặc thêm cocotb/UVM.
 2. Mở môi trường bằng `environment.ps1` theo README của bộ công cụ; kiểm tra
    `iverilog -V`, `vvp -V`, `yosys -V`. Ghi phiên bản/release cố định cho nhóm.
-3. Cài Gowin Education; kiểm tra chọn được đúng mã chip 1K và chạy được một
+3. Cài Gowin Education; kiểm tra chọn được đúng mã chip9K và chạy được một
    thiết kế thử nhỏ trước khi đầu tư viết toàn bộ RTL. Chưa cần cắm board.
 4. Nếu bộ Windows có lỗi, chuyển phần mô phỏng sang OSS CAD Suite linux-x64
    trong WSL2/Ubuntu. Dự án OSS CAD Suite khuyên WSL cho trải nghiệm Windows;
@@ -167,7 +167,7 @@ với vector chung Motion. Frame có preamble A5/5A, version/type/length mỗi
 trường1 byte, session32, sequence16, payload và CRC16. Little-endian cho số
 nhiều byte; CCITT-FALSE (poly1021, initFFFF, không reflection/xor-out), CRC
 từ version đến hết payload. Guard cần quyền phiên từ FSM ngoài; handshake
-chống frame cũ/ARM chưa được nghiệm thu và còn ở bước safety. Parser không
+GPIO/STATUS đã được thử bằng model ở [hợp đồng safety](../firmware/shared/fpga-safety.md). Parser không
 tự cấp phiên hoặc bật motor.
 CRC phát hiện lỗi truyền, không phải cơ chế xác thực chống kẻ tấn công.
 
@@ -176,7 +176,7 @@ CRC phát hiện lỗi truyền, không phải cơ chế xác thực chống k�
   chiều và hai duty16: frame 19 byte, thời gian truyền khoảng 1,65 ms.
 - STATUS có count32 x2, timestamp32, snapshot sequence16, state8, fault16 và
   encoder_status8: payload18 byte, frame31 byte, khoảng2,69ms. Offset/vector
-  ở đặc tả chung. Phản hồi ARM/handshake an toàn còn thuộc bước safety.
+  ở đặc tả chung. ARM chờ STATUS ARM_PENDING phát đủ stop bit và Motion permit.
 - Chỉ `CMD` mới, CRC đúng, phiên đúng, miền đúng **khi ARMED** gia hạn watchdog.
   Sequence16 dùng delta modulo: `0 < delta < 32768`; cho phép mất frame,
   loại duplicate/cũ, thử wrap 65535 -> 0. Watchdog hết là hủy phiên chạy.
@@ -185,10 +185,9 @@ CRC phát hiện lỗi truyền, không phải cơ chế xác thực chống k�
   không ghi setpoint hoặc ngăn watchdog hết hạn. Sau lỗi phải nhận lại được
   frame hợp lệ mà không reset FPGA; kiểm thử cả byte giống preamble trong payload.
 - Motion tạo session mới khi kết nối lại, xóa hàng đợi TX/RX cũ, chỉ phát CMD
-  từ bước PID còn hợp lệ. **Cần chốt trước triển khai ARM:** cách phát hiện
-  reset FPGA, handshake hai chiều và bảo đảm phiên mới/không arm bằng frame
-  cũ còn trong buffer. Không coi session32 tự nó giải quyết reset hai đầu;
-  cân nhắc tín hiệu phục hồi riêng hoặc boot identity/challenge phù hợp.
+  từ bước PID còn hợp lệ. Đã chọn GPIO recovery_req/ack với baseline LOW và
+  STATUS ARM_PENDING trước Motion permit; session32 không tự giải quyết reset
+  hai đầu. Firmware Motion cần triển khai và thử hợp đồng safety đã chốt.
 - Không cấp phiên mới/arm chỉ vì cổng UART hoạt động trở lại. DISABLE hợp lệ
   phải làm giảm quyền chạy; yêu cầu phục hồi/ARM tuyệt đối không được tăng duty.
 
@@ -240,7 +239,11 @@ khi simulation ổn, không phải dependency chặn bản đầu.
 ## 5. Tổng hợp và điều kiện quyết định mua board
 
 Ứng viên đầu để đo: **Tang Nano 1K / GW1NZ-LV1QN48C6/I5**, 1.152 LUT4, 864 FF,
-clock 27 MHz theo Sipeed. Đây là cấu hình benchmark, **chưa xác nhận thiết kế vừa**.
+clock 27 MHz theo Sipeed. Mapping toàn lõi hiện đã vượt ngân sách FF1K.
+Người dùng đồng ý chuyển sang **Tang Nano9K**, chip **GW1NR-LV9QN88PC6/I5**,
+8.640 LUT4/6.480 FF, clock27MHz theo [Sipeed](https://wiki.sipeed.com/hardware/en/tang/Tang-Nano-9K/Nano-9K.html)
+(đối chiếu23/10/2026). Đây là ứng viên target tiếp theo; chưa có fit/timing/I/O
+đúng chip, chưa kiểm tra giá hiện tại hoặc chốt mua. Không giảm safety để ép1K.
 
 1. Trong Gowin Education tạo project đúng part/package/speed grade; top phải
    có tất cả encoder, UART, PWM, chiều và permit, không bỏ khối để báo fit giả.
@@ -265,7 +268,7 @@ clock 27 MHz theo Sipeed. Đây là cấu hình benchmark, **chưa xác nhận t
 Nếu chưa có Gowin chạy được và chỉ có Yosys generic, vẫn tiến hành thiết kế và
 mô phỏng, nhưng **chưa chốt mua board**. Kết quả Apicula/nextpnr cho đúng chip
 có thể bổ sung bằng chứng; review mức hỗ trợ/timing/constraint trước khi thay
-đường nghiệm thu Gowin. Chưa có ước lượng FF/LUT đáng tin khi RTL chưa tồn tại.
+đường nghiệm thu Gowin. Cell count generic toàn lõi và giới hạn được ghi ở [verification](../fpga/verification.md).
 
 Sau khi mua: đo PWM/chiều/gate bằng logic analyzer/oscilloscope, cấp xung
 encoder giả rồi thật, rút UART, reset/tắt nguồn từng board, ngắt clock và
@@ -286,14 +289,14 @@ khi PR trước squash merge. Mã `f07..f13` là gói triển khai dự kiến, 
 | 3. `feat/f07-fpga-encoder` | Reset/CDC, 2 decoder, snapshot | Unit test + mô hình số đếm/pha/nhiễu/wrap đạt; tổng hợp sớm |
 | 4. `feat/f08-fpga-pwm` | PWM cặp + motor sequencer; bản độc lập mặc định inhibit | Duty/boundary/đổi chiều/reset đạt; đo tài nguyên tăng thêm |
 | 5. `feat/f09-fpga-link` | Đã có UART + parser/CRC/serializer + command guard; không tự ARM | Vector chung, lỗi frame/sequence/session và snapshot TX; handshake thuộc f10 |
-| 6. `feat/f10-fpga-safety` | FSM/watchdog + nối top; module PWM chưa qua safety không được dùng chạy xe | Timeout/reconnect/reset và test gate ngoài đạt trong mô phỏng |
-| 7. `feat/f11-fpga-target` | Target 1K, constraints, regression toàn lõi; báo cáo route/timing | Đủ hồ sơ quyết định mua hoặc lý do đổi board |
+| 6. `feat/f10-fpga-safety` | Đã có FSM/watchdog + top logic và GPIO recovery/STATUS ARM | Test timeout/reconnect/reset, model gate/Motion; chưa có gate/firmware thật |
+| 7. `feat/f11-fpga-target` | Đánh giá target9K, constraints, báo cáo route/timing | Đủ hồ sơ quyết định mua hoặc lý do đổi board |
 | 8. `feat/f12-motion-fpga-link` | Driver giao thức Motion, PID sử dụng snapshot, stale-data inhibit | Kiểm thử hai đầu/mô hình trước, board bench sau khi có phần cứng |
 | 9. `feat/f13-drive-integration` | Driver/nguồn/encoder thật, cảm biến/PID, Brain/Web/servo | Biên bản thử lỗi, tốc độ/quãng dừng và tải đồng thời |
 
-Bước tiếp theo là f10: chốt handshake/gate phục hồi, triển khai safety FSM/
-watchdog và nối các khối đã có. Driver chưa chốt nên adapter chân công suất
-vẫn để sau; chưa gọi toàn lõi là sẵn sàng điều khiển motor.
+Bước tiếp theo là f11: wrapper/constraints và Gowin/PnR/STA đúng chip9K.
+Driver chưa chốt nên adapter chân công suất vẫn để sau; core đã nối đủ logic
+nhưng chưa sẵn sàng điều khiển motor thật. Firmware/gate và thử bàn vẫn bắt buộc.
 
 Cấu trúc dự kiến dưới `fpga/`, **chỉ tạo khi có file thực tế**:
 
@@ -321,7 +324,7 @@ python tools/run_fpga_tests.py --test tb_pwm_pair --waves
 
 Runner chọn top testbench rõ ràng và chỉ gọi VVP sau khi compiler thành công;
 trả failure khi test lỗi/timeout. Xem VCD bằng GTKWave khi cần debug. Yosys đã
-có ba script tổng hợp sơ bộ trong `fpga/`. Gowin chạy synthesis/PnR/STA trong
+có bốn script tổng hợp sơ bộ, gồm top hoàn chỉnh, trong `fpga/`. Gowin chạy synthesis/PnR/STA trong
 IDE project target; thêm script
 CLI sau khi xác minh lệnh và bản Gowin được cài, không bịa lệnh build hiện tại.
 

@@ -7,8 +7,9 @@ Toàn bộ nguồn RTL/testbench dùng **SystemVerilog, đuôi `.sv`**; hook/CI 
 
 Trạng thái: đã có RTL/testbench cho reset, encoder X4 hai bánh, snapshot,
 PWM hai kênh, trình tự đổi chiều độc lập driver và UART/parser/CRC/serializer/
-command guard. Chưa có FSM an toàn/watchdog, adapter driver, target board
-hoặc báo cáo timing. Link chưa nối PWM. Xem giao diện ở
+command guard, FSM/watchdog và top `drive_core` đã nối link với PWM. Chưa có
+adapter driver, target board hoặc báo cáo timing. Hợp đồng GPIO phục hồi/ARM
+và gate ngoài ở [fpga-safety.md](../firmware/shared/fpga-safety.md). Xem giao diện ở
 [rtl](rtl/README.md), ca thử ở [tb](tb/README.md).
 
 Chạy từ root sau khi Icarus/VVP có trong PATH:
@@ -28,15 +29,20 @@ python tools/run_fpga_tests.py --iverilog build/toolchain/ucrt64/bin/iverilog.ex
 ```
 
 Kết quả chạy và giới hạn được ghi ở [verification.md](verification.md).
-Chưa được nối lõi PWM này vào motor: cần FSM/watchdog và gate an toàn bên ngoài.
+Chưa nối motor thật: còn cần driver/gate an toàn bên ngoài, target và thử trên bàn.
 
-`synth_encoder.ys`, `synth_pwm.ys`, `synth_link.ys` kiểm tra latch/lỗi cấu trúc và mapping
+Runner mặc định chạy top 2 giây ở clock rút gọn2,7MHz và bài lỗi ở27MHz.
+Dùng `--full-timing --timeout 1800` để chạy cả bài2giây ở27MHz; CI dùng chế độ
+này. Đây là thời gian mô phỏng, thời gian chạy trên máy có thể lâu hơn nhiều.
+
+`synth_encoder.ys`, `synth_pwm.ys`, `synth_link.ys`, `synth_drive.ys` kiểm tra latch/lỗi cấu trúc và mapping
 generic Gowin; chạy từ root sau khi có `fpga/build/` bằng `yosys -s <script>`
-hoặc YoWASP-Yosys. Đã chạy Yosys0.70 cục bộ; CI cũng chạy ba script này.
+hoặc YoWASP-Yosys. Đã chạy Yosys0.70 cục bộ; CI cũng chạy bốn script này, gồm top hoàn chỉnh.
 Chưa có pinout/constraints/PnR/STA đúng chip; cell count sơ bộ không kết luận fit.
 Luồng đề xuất: Icarus/VVP + GTKWave để mô phỏng, Gowin Education để tổng hợp,
 place-and-route và kiểm tra timing đúng chip Tang Nano ứng viên; không cần
-Quartus. Chưa chứng minh toàn lõi fit trên board 1K.
+Quartus. Mapping generic hiện vượt ngân sách FF1K; Nano9K là ứng viên kế tiếp đã được
+người dùng đồng ý, chưa xác nhận fit/timing hoặc giá lúc mua.
 
 Xem [kế hoạch và nghiệm thu toàn hệ thống](../docs/fpga-drive-plan.md).
 Chi tiết [thiết kế RTL, kiểm thử và thứ tự triển khai](../docs/fpga-rtl-design-test-plan.md).

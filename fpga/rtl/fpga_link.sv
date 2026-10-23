@@ -38,13 +38,40 @@ module fpga_link #(
     input  logic [15:0] snapshot_seq,
     input  logic [3:0] snapshot_status,
     input  logic [7:0] safety_state,
-    input  logic [15:0] fault
+    input  logic [15:0] fault,
+    output logic status_sent,
+    output logic [31:0] status_session,
+    output logic [7:0] status_state
 );
     logic [7:0] rx_byte, tx_byte, kind;
     logic rx_valid, framing_error, break_error, frame_valid, tx_valid, tx_ready, tx_done;
     logic [31:0] session;
     logic [15:0] frame_seq;
     logic [47:0] payload;
+    logic tx_last, status_pending;
+    logic [31:0] serialized_session;
+    logic [7:0] serialized_state;
+    // Remember metadata when the final byte enters UART, not when a later
+    // snapshot replaces the serializer. Confirmation follows the full stop bit.
+    always_ff @(posedge clk or negedge rst_n) begin
+        if (!rst_n) begin
+            status_pending <= 0; status_sent <= 0;
+            status_session <= 0; status_state <= 0;
+        end else begin
+            status_sent <= 0;
+            if (context_load) status_pending <= 0;
+            else begin
+                if (status_pending && tx_done) begin
+                    status_sent <= 1; status_pending <= 0;
+                end
+                if (tx_valid && tx_ready && tx_last) begin
+                    status_pending <= 1;
+                    status_session <= serialized_session;
+                    status_state <= serialized_state;
+                end
+            end
+        end
+    end
     uart_rx #(.CLK_HZ(CLK_HZ), .BAUD(BAUD)) receiver (
         .clk(clk), .rst_n(rst_n), .rx(rx), .data(rx_byte), .valid(rx_valid),
         .framing_error(framing_error), .break_error(break_error));
@@ -68,7 +95,8 @@ module fpga_link #(
         .session(session_active ? active_session : 32'd0), .snapshot_left(snapshot_left),
         .snapshot_right(snapshot_right), .snapshot_time(snapshot_time), .snapshot_seq(snapshot_seq),
         .snapshot_status(snapshot_status), .safety_state(safety_state), .fault(fault),
-        .byte_valid(tx_valid), .byte_ready(tx_ready), .byte_data(tx_byte));
+        .byte_valid(tx_valid), .byte_ready(tx_ready), .byte_data(tx_byte),
+        .byte_last(tx_last), .frame_session(serialized_session), .frame_state(serialized_state));
     uart_tx #(.CLK_HZ(CLK_HZ), .BAUD(BAUD)) transmitter (
         .clk(clk), .rst_n(rst_n), .data(tx_byte), .valid(tx_valid),
         .ready(tx_ready), .tx(tx), .done(tx_done));
