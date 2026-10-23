@@ -18,6 +18,12 @@ Runner nhận `--iverilog` và `--vvp` để dùng đường dẫn cục bộ, `
 VCD tại `fpga/build/`. CI chạy mô phỏng trên Linux. Viết lõi độc lập hãng;
 chỉ thêm thư mục target khi có wrapper/constraints thực tế.
 
+Với bộ Icarus cục bộ đã chuẩn bị trên máy này, không cần đổi PATH hệ thống:
+
+```sh
+python tools/run_fpga_tests.py --iverilog build/toolchain/ucrt64/bin/iverilog.exe --vvp build/toolchain/ucrt64/bin/vvp.exe
+```
+
 Kết quả chạy và giới hạn được ghi ở [verification.md](verification.md).
 Chưa được nối lõi PWM này vào motor: cần FSM/watchdog và gate an toàn bên ngoài.
 

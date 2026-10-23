@@ -35,7 +35,9 @@ Cùng Icarus/VVP13.0, ba testbench PWM trả mã0, compile không warning:
 | tb_pwm_timing | PASS | Clock27MHz: period1350, HIGH675/1350; zero27000, setup27; tham số nhỏ nhất1/1/1 |
 
 Đã chạy lại regression encoder sau khi thêm PWM: cả sáu testbench PASS.
-11 test Python và kiểm tra cấu trúc/diff đạt. Lõi PWM chưa có watchdog/arm;
+12 test Python và kiểm tra cấu trúc/diff đạt. Runner cũng được kiểm tra bằng
+đường dẫn tool tương đối khi PATH chưa có Icarus; môi trường DLL chỉ truyền
+cho subprocess, không sửa PATH hệ thống. Lõi PWM chưa có watchdog/arm;
 enable phải đến từ FSM an toàn, không phải một chân MCU raw hoặc E-stop raw.
 
 Tổng hợp sơ bộ bằng **YoWASP-Yosys0.70.0.0.post1259**, Yosys0.70,

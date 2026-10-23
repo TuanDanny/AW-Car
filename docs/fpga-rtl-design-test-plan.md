@@ -304,20 +304,19 @@ Runner tại `tools/`, test runner tại `tests/`; build/wave/log để trong `b
 đã bị ignore, chỉ lưu tóm tắt cần review và artifact CI. Không commit thư mục
 cài công cụ, file tạm IDE hoặc báo cáo sinh tự động quá lớn.
 
-Ví dụ lệnh **cho phiên có mã**, chưa chạy được trên skeleton hiện tại; đường
-dẫn/file list/module dưới đây sẽ được tạo cùng tính năng:
+Lệnh hiện hành từ root sau khi Icarus/VVP có trong PATH; cách dùng đường dẫn
+tool cục bộ trên Windows nằm ở [FPGA README](../fpga/README.md):
 
 ```powershell
-. C:\Tools\oss-cad-suite\environment.ps1
-New-Item -ItemType Directory -Force fpga/build
-iverilog -g2012 -Wall -s tb_encoder_pair -o fpga/build/tb_encoder_pair.vvp -c fpga/tb/encoder_pair.f
-vvp fpga/build/tb_encoder_pair.vvp
-gtkwave fpga/build/encoder_pair.vcd
+python tools/run_fpga_tests.py --list
+python tools/run_fpga_tests.py
+python tools/run_fpga_tests.py --test tb_pwm_pair --waves
 ```
 
-File list tính đường dẫn từ root repository. Runner sẽ chỉ gọi VVP sau khi
-compiler thành công và trả failure khi test lỗi/timeout; GTKWave chỉ mở khi
-cần debug. Gowin chạy synthesis/PnR/STA trong IDE project target; thêm script
+Runner chọn top testbench rõ ràng và chỉ gọi VVP sau khi compiler thành công;
+trả failure khi test lỗi/timeout. Xem VCD bằng GTKWave khi cần debug. Yosys đã
+có hai script tổng hợp sơ bộ trong `fpga/`. Gowin chạy synthesis/PnR/STA trong
+IDE project target; thêm script
 CLI sau khi xác minh lệnh và bản Gowin được cài, không bịa lệnh build hiện tại.
 
 ## 7. Nguồn đã đối chiếu

@@ -1,7 +1,8 @@
 # Kế hoạch FPGA và toàn hệ thống
 
-Ngày chốt phân tải: **23/10/2026**. Đây là kế hoạch thiết kế, chưa có RTL,
-kết quả tổng hợp hay phép đo phần cứng. Tài liệu này cập nhật phương án trước
+Ngày chốt phân tải: **23/10/2026**. Đây là kế hoạch kiến trúc; tiến độ RTL và
+bằng chứng mô phỏng/tổng hợp sơ bộ ở [FPGA](../fpga/README.md). Chưa có phép
+đo phần cứng. Tài liệu này cập nhật phương án trước
 trong [rà soát issue #1](issue-1-technical-review.md).
 
 ## 1. Quyết định và giới hạn
@@ -147,9 +148,10 @@ Không chọn board chỉ theo số thanh ghi. Ghi lại cho mỗi chip ứng vi
   sụt áp/nhiễu cho logic và âm thanh, chung GND được bố trí đúng.
 - Tổng chi phí board/bộ nạp/phụ kiện/vận chuyển, nguồn cung và khả năng thay thế.
 
-Hiện chưa có RTL hay kết quả mô phỏng/tổng hợp. Chưa chạy Quartus/Gowin; lần
-kiểm tra môi trường chưa tìm thấy Quartus/iverilog/Verilator/Yosys trong PATH,
-không kết luận các phần mềm chưa được cài ở vị trí khác.
+Đã có RTL reset/encoder/snapshot/PWM/chiều độc lập driver, mô phỏng Icarus và
+tổng hợp sơ bộ Yosys; xem [báo cáo](../fpga/verification.md). Chưa có UART/FSM/
+watchdog, chưa chạy Gowin/PnR/STA đúng chip và chưa chốt board. Kiểm tra công
+cụ qua PATH trước đây không còn phản ánh toolchain cục bộ đã chuẩn bị.
 
 ## 6. Nghiệm thu theo giai đoạn và 3 môn
 
