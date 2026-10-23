@@ -4,7 +4,8 @@
 
 - Đọc README ở root, README của thư mục liên quan và yêu cầu đang thực hiện.
 - Kiểm tra `git status` và nhánh hiện tại; giữ nguyên thay đổi không thuộc tác vụ.
-- Bản đầu: 2 ESP32-S3, 1 INMP441; DoA dành cho nâng cấp. Chi tiết ở `docs/`.
+- Bản đầu: 2 ESP32-S3, 1 FPGA, 1 INMP441; DoA dành cho nâng cấp.
+  Phân tải và tiêu chí chọn FPGA ở `docs/fpga-drive-plan.md`; chưa chốt board.
 - Trao đổi và báo cáo bằng tiếng Việt, ngắn gọn; nêu giả định ảnh hưởng thiết kế.
 
 ## Nhánh và merge
@@ -24,6 +25,8 @@
 - Root `README.md` là mục lục chính; `AGENTS.md` là nguồn quy tắc duy nhất.
 - `firmware/brain`: âm thanh, Xiaozhi, TFT, mạng. `firmware/motion`: PID và an toàn.
 - `firmware/shared`: giao thức/kiểu dữ liệu chung, không phụ thuộc riêng một MCU.
+- `fpga`: RTL đo encoder, PWM motor và watchdog; PID/servo ở Motion. Viết RTL
+  độc lập hãng; Quartus chỉ tham khảo cho chip Altera/Intel, Tang Nano dùng Gowin.
 - `dashboard`: giao diện Web; `hardware`: BOM/nguồn/sơ đồ/PCB; `docs`: kế hoạch.
 - `tests`: kiểm thử; `tools`: công cụ phát triển. Chỉ thêm thư mục con khi cần.
 - Không thêm framework, dependency hay mã firmware giả để lấp khung thư mục.
@@ -35,6 +38,8 @@
 - Chạy `git diff --check` và xem diff; cập nhật README khi đổi vai trò/cách dùng.
 - Khi có mã nguồn: chạy build/test đúng phần bị đổi; CI cấu trúc không thay thế
   build firmware, test giao thức hoặc phép đo an toàn trên xe.
-- Motion phải dừng độc lập khi mất lệnh/lỗi an toàn; AI/Web không ghi PWM trực tiếp.
+- Motion phải dừng độc lập khi mất lệnh/lỗi an toàn, có đường khóa driver ngoài
+  giao tiếp FPGA. FPGA mặc định không cho chạy khi boot/reset/mất lệnh hợp lệ.
+  AI/Web không ghi PWM trực tiếp; E-stop không phụ thuộc MCU hay clock FPGA.
 - Báo rõ đã đổi gì, kiểm tra nào đạt/chưa chạy và rủi ro còn lại. Không gọi
   tính năng là hoàn tất nếu chưa có bằng chứng kiểm thử phù hợp.

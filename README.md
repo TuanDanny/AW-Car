@@ -15,9 +15,15 @@ hay PCB. Chưa có tính năng nào được xác nhận hoạt động trên ph
 - [Rà soát kỹ thuật và kế hoạch hiệu chỉnh](docs/issue-1-technical-review.md):
   các điểm cần sửa trước khi mua linh kiện, kiến trúc đề xuất và tiêu chí nghiệm thu.
 
-Cấu hình bản đầu đã xác nhận sau cập nhật issue ngày 23/10/2026: **2 ESP32-S3
-và 1 mic INMP441**. Mic phục vụ thu giọng nói/lệnh; DoA và tự hướng về người nói
-được giữ cho giai đoạn nâng cấp bằng cụm mic thu đồng bộ.
+Cấu hình đã chốt ngày 23/10/2026: **2 ESP32-S3, 1 FPGA và 1 mic INMP441**.
+FPGA đọc encoder và phát PWM cho 2 motor sau; Motion tính PID, điều khiển servo
+và giám sát an toàn. Chưa mua/chốt board FPGA: mô phỏng RTL, đánh giá tài nguyên
+và timing trên chip ứng viên trước. Tang Nano là ứng viên, không phải lựa chọn
+đã xác nhận. Xem [kế hoạch FPGA và toàn hệ thống](docs/fpga-drive-plan.md).
+
+Mic phục vụ thu giọng nói/lệnh; DoA và tự hướng về người nói được giữ cho nâng
+cấp bằng cụm mic thu đồng bộ. Đồ án hiện hướng tới 3 môn: Tích hợp hệ thống cảm
+biến, Lý thuyết mạch và RTL/FPGA; đã bỏ mục tiêu môn PCB khuếch đại.
 
 ## Cấu trúc thư mục
 
@@ -26,6 +32,7 @@ và 1 mic INMP441**. Mic phục vụ thu giọng nói/lệnh; DoA và tự hư�
 | [firmware/brain](firmware/brain/README.md) | MCU 1: âm thanh, Xiaozhi, TFT, mạng |
 | [firmware/motion](firmware/motion/README.md) | MCU 2: truyền động, PID, an toàn |
 | [firmware/shared](firmware/shared/README.md) | Giao thức và kiểu dữ liệu chung |
+| [fpga](fpga/README.md) | RTL encoder, PWM 2 motor và watchdog |
 | [dashboard](dashboard/README.md) | Giao diện điều khiển và telemetry |
 | [hardware](hardware/README.md) | BOM, nguồn, cơ khí, sơ đồ và PCB |
 | [docs](docs/README.md) | Yêu cầu, quyết định và kế hoạch thử nghiệm |
@@ -50,7 +57,7 @@ Hooks áp dụng cho clone đã bật; CI và ruleset GitHub có vai trò riêng
 hiện chưa bật bảo vệ main trên GitHub. Kiểm tra cấu trúc không thay thế build
 firmware hoặc phép đo trên xe.
 
-## Kiến trúc đề xuất
+## Kiến trúc đã chốt về phân tải
 
 ```mermaid
 flowchart LR
@@ -58,23 +65,34 @@ flowchart LR
     Audio["1 mic INMP441 / loa"] <--> Brain
     TFT["TFT: giao diện và QR"] <--> Brain
     Brain <-->|"UART: lệnh có hạn dùng / trạng thái"| Motion["MCU 2: Motion\nPID, giám sát an toàn"]
-    Sensors["Encoder / cảm biến an toàn"] --> Motion
-    Motion --> Drive["Driver 2 motor sau / servo lái trước"]
-    Stop["Mạch dừng khẩn cấp"] --> Drive
+    Sensors["Cảm biến an toàn / nguồn"] --> Motion
+    Encoder["Encoder A/B 2 bánh sau"] --> FPGA["FPGA: encoder, PWM, watchdog"]
+    Motion <-->|"UART riêng: duty / chiều / arm / số đếm / lỗi"| FPGA
+    FPGA -->|"PWM / chiều quay"| Drive["Driver công suất 2 motor sau"]
+    Motion --> Servo["Servo lái trước"]
+    Motion -->|"Khóa phần cứng độc lập"| Gate["Mạch cho phép driver"]
+    FPGA -->|"Cho phép khi hợp lệ"| Gate
+    Stop["E-stop / giám sát nguồn"] --> Gate
+    Gate --> Drive
 ```
 
 MCU Motion có quyền từ chối lệnh và dừng xe độc lập khi MCU Brain, mạng hoặc AI
-gặp lỗi. LVGL là thư viện giao diện; nền tảng chạy firmware dự kiến là
-ESP-IDF/FreeRTOS. Cấu hình bản đầu dùng 2 MCU; chỉ cân nhắc thêm sau khi đo tải.
+gặp lỗi. FPGA tự hết hạn lệnh Motion; Motion khóa driver nếu FPGA mất phản hồi.
+Mạch khóa driver phải giữ motor tắt cả khi FPGA chưa cấu hình hoặc mất nguồn.
+LVGL là thư viện giao diện; firmware MCU dự kiến dùng ESP-IDF/FreeRTOS.
 
 ## Thứ tự thực hiện
 
-1. Chốt hình học xe, motor/encoder, dòng kẹt và hệ thống nguồn.
-2. Chạy thử Motion: dừng an toàn, encoder, PID và cảm biến.
-3. Thêm UART và Web Dashboard với cơ chế hết hạn lệnh.
-4. Thêm TFT/LVGL và Xiaozhi; cảnh báo thiết yếu phải phát được khi mất Internet.
-5. Thiết kế motherboard bản đầu sau khi nguyên mẫu 1 mic vượt các bài nghiệm thu.
-6. Nâng cấp DoA: chọn cụm mic, chứng minh thu đồng bộ, rồi thử định hướng/di
+1. Đặc tả RTL/giao tiếp và nguồn, motor/encoder, hình học lái, chế độ dừng.
+2. Viết RTL độc lập hãng và testbench; mô phỏng cả lỗi và mất/reset từng khối.
+3. Quartus có thể đánh giá trên chip Altera/Intel tham chiếu; nếu chọn Tang
+   Nano phải tổng hợp, place-and-route và kiểm tra timing lại bằng Gowin cho
+   đúng mã chip. Chọn board theo toàn bộ tài nguyên/I/O/nguồn và ngân sách.
+4. Mua sau khi đủ bằng chứng thiết kế; thử FPGA + Motion + driver trên bàn,
+   sau đó tích hợp cảm biến/PID, UART Brain và Dashboard ở tốc độ thấp.
+5. Thêm TFT/LVGL và Xiaozhi; cảnh báo thiết yếu phải phát được khi mất Internet.
+6. Thiết kế motherboard 2 MCU/1 FPGA/1 mic sau khi nguyên mẫu đạt nghiệm thu.
+7. Nâng cấp DoA: chọn cụm mic, chứng minh thu đồng bộ, rồi thử định hướng/di
    chuyển theo âm; có thể cần sửa phần cứng và PCB.
 
 Danh sách F01-F06, các giới hạn và điều kiện chuyển giai đoạn nằm trong

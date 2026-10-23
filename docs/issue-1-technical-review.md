@@ -5,6 +5,11 @@ Ngày rà soát: **23/10/2026**. Nguồn yêu cầu:
 đang mở, chưa có bình luận tại thời điểm đọc.
 Đã đọc lại bản issue cập nhật lúc **11:22 ngày 23/10/2026 (UTC+7)**.
 
+**Cập nhật theo quyết định sau đó ngày 23/10/2026:** thêm FPGA đọc encoder,
+phát PWM 2 motor sau và watchdog; Motion giữ PID, servo và an toàn. Chưa chọn
+board; làm RTL/mô phỏng và đánh giá đúng chip trước mua. Kế hoạch mới nhất ở
+[FPGA và toàn hệ thống](fpga-drive-plan.md); nội dung issue chưa đồng bộ FPGA.
+
 ## 1. Phạm vi và kết luận
 
 Người sở hữu xác nhận dự án đang lên kế hoạch, chưa lắp xe. Kho ở commit
@@ -14,7 +19,7 @@ chạy kiểm thử firmware. Các hiệu chỉnh dưới đây được ghi và
 kho cục bộ, chưa thay đổi nội dung issue trên GitHub.
 
 **Cấu hình bản đầu đã xác nhận với người sở hữu:** xe lái trước bằng servo,
-2 motor sau có encoder theo BOM đề xuất, 2 ESP32-S3, **1 mic INMP441**,
+2 motor sau có encoder theo BOM đề xuất, 2 ESP32-S3, 1 FPGA, **1 mic INMP441**,
 an toàn cục bộ, Dashboard, TFT và tương tác giọng nói. Người sở hữu chọn
 "Dùng 1 mic trước; giữ DoA cho giai đoạn nâng cấp".
 
@@ -37,9 +42,11 @@ chọn đã xác nhận trong cuộc trò chuyện, cần sửa nội dung issue
   đồng bộ; số lượng và phần cứng sẽ chốt khi thử nghiệm. Chưa triển khai trên
   cấu hình 1 mic." Brain xử lý âm thanh; Motion thực hiện lệnh đã giới hạn.
 - Phần phân tải: bản đầu Brain xử lý thu/phát âm thanh, Xiaozhi, TFT và Web;
-  Motion xử lý servo, PID và an toàn. DoA chưa nằm trong tải xử lý bản đầu.
-- Tổng quan dùng 2 ESP32-S3; motherboard bản đầu có 1 mic. MCU thứ ba và cụm mic
-  nâng cấp chỉ xem xét khi có số đo tải/phương án thu. Ghi chú BOM của mic đổi
+  Motion xử lý servo, PID và an toàn; thêm FPGA đọc 2 encoder A/B, phát PWM/chiều
+  cho driver 2 motor sau và watchdog lệnh. DoA chưa nằm trong tải bản đầu.
+- Tổng quan và BOM dùng 2 ESP32-S3, 1 FPGA chưa chốt board; motherboard bản đầu
+  có 1 mic và FPGA/đầu nối board FPGA. MCU thứ ba và cụm mic nâng cấp chỉ xem
+  xét khi có số đo tải/phương án thu. Ghi chú BOM của mic đổi
   thành "Thu giọng nói/lệnh; chưa hỗ trợ định hướng nguồn âm" để tránh nhầm
   đặc tính thu đa hướng của mic với khả năng xác định góc.
 
@@ -50,12 +57,12 @@ bởi lần rà soát này.
 
 | Mã | Kết quả mong muốn | Phạm vi đề xuất |
 | --- | --- | --- |
-| F01 | Di chuyển mượt, đo m/s và km/h | Servo lái trước, 2 motor sau, encoder và PID riêng từng motor |
+| F01 | Di chuyển mượt, đo m/s và km/h | FPGA đọc encoder/phát PWM 2 motor sau; Motion tính PID từng motor và điều khiển servo lái trước |
 | F02 | Nâng cấp: xác định hướng người nói, hướng đầu xe về nguồn âm | Hoãn khỏi bản đầu 1 mic; chọn cụm thu đồng bộ, đo độ tin cậy rồi mới cho di chuyển |
 | F03 | Xiaozhi nhận lệnh và phản hồi bằng loa | Bản đầu dùng 1 mic; Brain xử lý tương tác; lệnh chuyển động qua lớp kiểm tra; cảnh báo thiết yếu lưu cục bộ |
-| F04 | Dừng khi gặp vật cản, mép rơi, nghiêng, va chạm hoặc kẹt | Motion đọc cảm biến, quyết định dừng và ghi mã lỗi độc lập với Brain |
+| F04 | Dừng khi gặp vật cản, mép rơi, nghiêng, va chạm hoặc kẹt | Motion quyết định dừng độc lập Brain, khóa driver ngoài UART FPGA; FPGA tự hết hạn lệnh Motion; E-stop độc lập phần mềm |
 | F05 | TFT 2.8 inch: biểu cảm, tốc độ, QR; Dashboard điều khiển/debug | Brain chạy giao diện LVGL và mạng; Dashboard hiển thị cả trạng thái lỗi và độ mới dữ liệu |
-| F06 | Motherboard tích hợp MCU, nguồn, âm thanh và các đầu nối | Làm cho cấu hình 2 MCU/1 mic sau khi nguyên mẫu đạt; DoA nâng cấp có thể cần sửa PCB |
+| F06 | Motherboard tích hợp MCU, FPGA/đầu nối FPGA, nguồn, âm thanh | Làm cho cấu hình 2 MCU/1 FPGA/1 mic sau khi nguyên mẫu đạt; DoA nâng cấp có thể cần sửa PCB |
 
 ## 3. Các điểm cần sửa trong kế hoạch
 
@@ -94,7 +101,10 @@ linh kiện trong issue là linh kiện sai.
 
 ### MCU 2 - Motion
 
-- Đếm encoder, điều khiển PWM, servo, PID và giám sát an toàn cục bộ.
+- Nhận snapshot encoder từ FPGA, tính tốc độ/PID, điều khiển servo và giám sát
+  an toàn cục bộ. Gửi duty/chiều/quyền chạy cho FPGA, không phát PWM motor sau.
+- Có đường khóa driver riêng ngoài UART; mất phản hồi FPGA hoặc snapshot quá
+  hạn phải bỏ arm/khóa driver. Không phát lại duty cache để giữ watchdog.
 - Đọc cảm biến theo tác vụ/lịch không chặn vòng điều khiển; mỗi mẫu có timestamp
   và cờ hợp lệ. Lỗi cảm biến thiết yếu có thể dừng xe; lỗi SHT30 chỉ cần báo lỗi.
 - Thực thi state machine gồm `DISARMED`, `ARMED` và `FAULT` với điều kiện chuyển
@@ -102,12 +112,23 @@ linh kiện trong issue là linh kiện sai.
 - Timeout điều khiển đưa xe về `DISARMED`; lỗi an toàn nghiêm trọng chốt `FAULT`.
   Chỉ cho arm lại bằng thao tác chủ động sau khi điều kiện lỗi đã hết.
 
-Mục tiêu ban đầu để thử: vòng điều khiển 100 Hz, lệnh điều khiển mới 20-50 Hz,
-timeout lệnh 250 ms. Đây là **giá trị đề xuất cần đo**, không phải kết quả đạt
+Mục tiêu ban đầu để thử: vòng điều khiển 100 Hz, lệnh Brain-Motion mới 20-50 Hz,
+timeout lệnh Brain 250 ms. Liên kết Motion-FPGA dự kiến 100 Hz, timeout 50 ms;
+xem [đặc tả cần chốt](fpga-drive-plan.md#4-giao-tiếp-và-an-toàn).
+Đây là **giá trị đề xuất cần đo**, không phải kết quả đạt
 được hay thông số đủ an toàn cho mọi tốc độ. Lịch đọc ToF phải tôn trọng timing
 budget thực của cảm biến; không ép tất cả cảm biến chạy 100 Hz.
 
-Cấu hình bản đầu dùng 2 MCU theo BOM đã cập nhật. MCU thứ ba chỉ được xem xét
+### FPGA - khối truyền động
+
+- Đồng bộ/giải mã 2 encoder A/B, chốt số đếm đồng thời và gửi trạng thái Motion.
+- Phát PWM/chiều cho driver 2 motor sau; không cấp công suất trực tiếp motor.
+- Kiểm tra lệnh/arm, giới hạn duty và watchdog; reset/mất lệnh không tự chạy lại.
+- Trạng thái tắt trước khi FPGA cấu hình/mất nguồn do gate/pull-down ngoài FPGA
+  đảm nhận. Watchdog RTL không bảo vệ khi chính clock FPGA dừng; Motion khóa
+  driver qua đường riêng. E-stop không phụ thuộc MCU/FPGA.
+
+Cấu hình bản đầu dùng 2 MCU và 1 FPGA. MCU thứ ba chỉ được xem xét
 khi có số đo CPU, heap/DMA, độ trễ hoặc xung đột ngoại vi chứng minh 2 MCU không
 đáp ứng; thêm MCU cũng làm tăng yêu cầu đồng bộ và debug.
 
@@ -150,7 +171,7 @@ PCB bản đầu. Chưa chốt phải mua 4 INMP441; chỉ giữ phương án đ
 6. Xuất `angle_body`, `confidence`, độ mới kết quả và cờ hợp lệ. Góc quy ước:
    0° phía trước, 90° bên trái, 180° phía sau, 270° bên phải. Không đưa góc này
    thẳng thành góc servo. Bộ lập chuyển động phải xét hình học lái và vùng an toàn.
-7. Bản đầu chỉ hiển thị hướng. Chỉ bật chuyển động tốc độ thấp sau khi người dùng
+7. Bước đầu của nâng cấp DoA chỉ hiển thị hướng. Chỉ bật chuyển động tốc độ thấp sau khi người dùng
    arm và bài thử DoA/an toàn đạt; góc không tiếp cận được bằng cung tiến an toàn
    thì dừng và báo trạng thái. Mất độ tin cậy hoặc kết quả quá hạn thì dừng chế độ này.
 
@@ -228,9 +249,14 @@ lắp thật thì thay/bổ sung cảm biến hướng xuống có dải đo ph�
 - **Mức logic:** UART, I2C và ADC phải tương thích 3.3 V. TB6612FNG có VCC logic
   tách VM motor; chọn VCC phù hợp GPIO. Kiểm tra pull-up I2C trên từng breakout,
   tổng trở khi mắc song song, điện áp ngõ ra encoder và mạch chia áp FSR.
+- **FPGA:** chưa chốt board; RTL, mô phỏng và báo cáo đúng chip trước mua.
+  Quartus chỉ tham khảo trên chip Altera/Intel được hỗ trợ; Tang Nano dùng
+  Gowin [S9]. Xét LUT/FF/RAM/DSP/PLL, I/O, timing sau place-and-route, nguồn,
+  bộ nạp, tự khởi động và ngân sách; không quy đổi số FF Quartus trực tiếp.
 - **GPIO/bus:** lập bảng chân theo đúng module flash/PSRAM và board; loại chân
   bộ nhớ chiếm dụng, chân boot/USB/debug cần giữ [S7]. Chốt controller và độ phân
-  giải TFT, SPI, backlight, buffer LVGL, chân I2S/UART/I2C/ADC/PCNT/PWM trước PCB.
+  giải TFT, SPI, backlight, buffer LVGL, I2S/2 đường UART/I2C/ADC/servo và các
+  chân FPGA encoder/PWM/chiều/permit; tách enable/inhibit khỏi UART trước PCB.
 - **Cảm biến:** chọn cụ thể MPU6050 hoặc BMI270 và driver tương ứng; chọn biến
   thể VL53L0X/SHT30/INA219 và kiểm tra địa chỉ I2C. Nếu thêm nhiều ToF trùng địa
   chỉ, thiết kế chân XSHUT/đổi địa chỉ hoặc bộ chia bus. INA219 cần chọn shunt,
@@ -239,6 +265,9 @@ lắp thật thì thay/bổ sung cảm biến hướng xuống có dải đo ph�
   theo module. Không tự thêm đường RF từ chip ra IPEX nếu dùng nguyên module.
 
 ## 8. Yêu cầu tối thiểu cho UART và Dashboard
+
+Phần này áp dụng cho liên kết **Brain-Motion**; liên kết **Motion-FPGA** có
+ngân sách và watchdog riêng trong [kế hoạch FPGA](fpga-drive-plan.md).
 
 Đề xuất UART 3.3 V TX/RX chéo, chung GND, khởi đầu 115200 baud 8N1 trên dây
 ngắn; chỉ tăng baud sau đo lỗi khi motor chạy. Giới hạn mỗi chiều tối đa 50
@@ -276,11 +305,11 @@ Các hàng dưới đây là **bài thử phải thực hiện**, chưa có hàn
 
 | Giai đoạn | Sản phẩm bàn giao | Điều kiện chuyển bước |
 | --- | --- | --- |
-| P0 - Chốt thiết kế | BOM có SKU/datasheet, hình học lái, sơ đồ nguồn, bảng chân, giới hạn vận hành | Tính dòng/nhiệt/headroom; chọn được rail, sạc/BMS/driver phù hợp; chốt phạm vi chỉ tiến và vùng thử |
-| P1 - Motion trên bàn thử | Motor/encoder/servo, PID, cảm biến, state machine dừng | Thử bánh nhấc khỏi đất trước; boot/reset không chạy; chiều và tốc độ encoder đúng; giới hạn cơ khí servo; xử lý mất cảm biến, quá dòng/kẹt và E-stop |
+| P0 - Chốt thiết kế trước mua | BOM ứng viên, hình học lái, nguồn/gate, đặc tả RTL/giao tiếp, testbench và báo cáo đúng chip | Mô phỏng chức năng/lỗi đạt; tổng hợp/place-and-route/timing đạt trên chip ứng viên; đủ I/O/nguồn/ngân sách; dòng/nhiệt/headroom phù hợp, chốt phạm vi chỉ tiến |
+| P1 - FPGA và Motion trên bàn thử | PWM/encoder/UART/watchdog, driver, servo, PID, cảm biến, state machine dừng | Thử bánh nhấc khỏi đất; boot/reset/chưa nạp/mất nguồn không chạy; kiểm tra PWM/encoder, UART lỗi/mất, clock FPGA đứng, khóa driver riêng, servo, cảm biến, quá dòng/kẹt và E-stop |
 | P2 - UART và Web | Hai MCU, đặc tả giao thức, Dashboard, lái tốc độ thấp | Cố ý ngắt Web/UART, treo/reset Brain, chèn frame sai/lặp/quá dài; Motion dừng trong hạn đo được và không tự khởi động lại; chỉ một nguồn điều khiển |
 | P3 - TFT và giọng nói 1 mic | LVGL, QR, Xiaozhi, lệnh giọng nói, cảnh báo cục bộ | Stress Wi-Fi + GIF + thu/phát loa; không reset do sụt nguồn; kiểm tra phân xử Web/giọng nói và timeout; Motion giữ lịch điều khiển; mất Internet vẫn dừng và phát cảnh báo cục bộ được nếu Brain còn hoạt động |
-| P4 - Chạy tích hợp và PCB bản đầu | Báo cáo thử tải/nhiễu, sơ đồ và layout motherboard 2 MCU/1 mic | Sau P0-P3: đo quãng dừng theo tải/nền/điện áp và các chế độ lỗi; thử mép rơi có gá bảo vệ; ghi brownout, nhiệt, CPU/heap, độ trễ; nguyên mẫu đạt rồi mới làm PCB; không chờ DoA |
+| P4 - Chạy tích hợp và PCB bản đầu | Báo cáo thử tải/nhiễu, sơ đồ và layout motherboard 2 MCU/1 FPGA/1 mic | Sau P0-P3: đo quãng dừng theo tải/nền/điện áp và các chế độ lỗi; thử mép rơi có gá bảo vệ; ghi brownout, nhiệt, CPU/heap, độ trễ; nguyên mẫu đạt rồi mới làm PCB; không chờ DoA |
 | P5 - Nâng cấp DoA | Cụm thu đa kênh đồng bộ, bộ dữ liệu đo góc, chế độ hướng âm | Chọn phần cứng; đo lệch/trôi kênh, góc quanh xe, khoảng cách, nhiễu/vọng, motor/loa; chốt ngưỡng tin cậy/sai số chấp nhận trước đánh giá; bật di chuyển sau bài thử cung lái và an toàn; đánh giá lại PCB nếu đổi phần cứng |
 
 Trước mỗi bài thử chuyển động, lập giá trị nghiệm thu định lượng theo xe thật:
@@ -292,8 +321,9 @@ xuất vào quãng dừng; giảm timeout/tốc độ nếu vùng phát hiện k
 ### Những việc còn phải quyết định
 
 Chưa có dữ liệu để chốt kích thước/tải xe, bánh, SKU motor/servo, dòng kẹt,
-loại board S3, màn hình, ngân sách và thời gian chạy mong muốn. Bản đầu đã chốt
-1 mic và 2 MCU; phần còn lại cần hoàn tất ở P0. Số lượng mic, đường thu đồng bộ
+loại board S3, màn hình, ngân sách toàn xe và thời gian chạy mong muốn. Bản đầu
+đã chốt 1 mic, 2 MCU và 1 FPGA; board FPGA/bộ nạp có ngân sách dưới 500.000đ,
+chưa mua/chốt chip; phần còn lại cần hoàn tất ở P0. Số lượng mic, đường thu đồng bộ
 và tiêu chí sai số DoA dành cho P5, chưa được chứng minh. Đây là đầu vào thiết
 kế, không phải lỗi đã được sửa trên phần cứng.
 
@@ -307,6 +337,7 @@ kế, không phải lỗi đã được sửa trên phần cứng.
 - **[S6]** [Texas Instruments - INA219](https://www.ti.com/product/INA219): đo điện áp bus và sụt áp shunt, cấu hình/calibration dòng.
 - **[S7]** [Espressif - ESP32-S3 Schematic Checklist](https://docs.espressif.com/projects/esp-hardware-design-guidelines/en/latest/esp32s3/schematic-checklist.html): nguồn, bộ nhớ, GPIO và các chân strapping.
 - **[S8]** [Espressif - ESP32-S3-WROOM-1/1U](https://www.espressif.com/sites/default/files/documentation/esp32-s3-wroom-1_wroom-1u_datasheet_en.pdf): nguồn và biến thể module/anten; cần đối chiếu đúng mã mua thực tế.
+- **[S9]** [Sipeed - Gowin IDE cho Tang](https://wiki.sipeed.com/hardware/en/tang/common-doc/get_started/install-the-ide.html): công cụ, chip được hỗ trợ và Programmer; kết quả chọn chip phải qua đánh giá đúng target.
 
 Các tần số, timeout, phân tải, công thức và bài nghiệm thu trong bản này là đề
 xuất kỹ thuật cho AW-Car; datasheet không chứng nhận an toàn hay hiệu năng của
