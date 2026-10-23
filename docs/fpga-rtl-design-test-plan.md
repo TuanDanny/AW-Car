@@ -1,7 +1,8 @@
 # Kế hoạch thiết kế và kiểm thử RTL FPGA
 
 Ngày nghiên cứu: **23/10/2026**. Đã triển khai/mô phỏng phần reset, encoder,
-snapshot và PWM/chiều độc lập driver; xem [FPGA](../fpga/README.md). Các phần còn lại
+snapshot, PWM/chiều độc lập driver và UART/parser/CRC/serializer/guard;
+xem [FPGA](../fpga/README.md). Các phần còn lại
 là kế hoạch; chưa có kết quả tài nguyên toàn lõi hoặc timing.
 Phân tải đã chốt ở [kế hoạch toàn hệ thống](fpga-drive-plan.md).
 
@@ -161,23 +162,26 @@ Tất cả timer dùng clock-enable trong domain 27 MHz, không tạo clock bằ
 
 ### Giao thức: chốt đặc tả trước khi code parser
 
-Đề xuất frame nhị phân: preamble 2 byte, version/type/length mỗi trường 1 byte,
-session32, command sequence16, payload theo type, CRC16. Little-endian cho số
-nhiều byte; CRC tính từ version đến hết payload. Chọn đầy đủ biến thể CRC,
-giá trị đầu/reflection/xor-out và vector mẫu chung với Motion trước khi code.
+Đã chốt/triển khai tầng truyền ở [wire protocol v1](../firmware/shared/fpga-protocol.md)
+với vector chung Motion. Frame có preamble A5/5A, version/type/length mỗi
+trường1 byte, session32, sequence16, payload và CRC16. Little-endian cho số
+nhiều byte; CCITT-FALSE (poly1021, initFFFF, không reflection/xor-out), CRC
+từ version đến hết payload. Guard cần quyền phiên từ FSM ngoài; handshake
+chống frame cũ/ARM chưa được nghiệm thu và còn ở bước safety. Parser không
+tự cấp phiên hoặc bật motor.
 CRC phát hiện lỗi truyền, không phải cơ chế xác thực chống kẻ tấn công.
 
-- `HELLO/ARM_ZERO`, `CMD`, `DISABLE`, `CLEAR_FAULT`, `STATUS` có type/độ dài cố
-  định; reserved bits phải zero. `CMD` có thể dùng payload 6 byte cho flags,
+- `HELLO`, `ARM_ZERO`, `CMD`, `DISABLE`, `CLEAR_FAULT`, `STATUS` có type/độ dài cố
+  định; reserved bits phải zero. `CMD` dùng payload 6 byte cho flags,
   chiều và hai duty16: frame 19 byte, thời gian truyền khoảng 1,65 ms.
-- STATUS có count32 x2, timestamp32, snapshot sequence16, state8 và fault16:
-  payload 17 byte, frame 30 byte, khoảng 2,60 ms. Đây là layout đề xuất; bảng
-  trường/offset, phản hồi ARM và báo phiên hiện hành phải được đặc tả riêng.
+- STATUS có count32 x2, timestamp32, snapshot sequence16, state8, fault16 và
+  encoder_status8: payload18 byte, frame31 byte, khoảng2,69ms. Offset/vector
+  ở đặc tả chung. Phản hồi ARM/handshake an toàn còn thuộc bước safety.
 - Chỉ `CMD` mới, CRC đúng, phiên đúng, miền đúng **khi ARMED** gia hạn watchdog.
   Sequence16 dùng delta modulo: `0 < delta < 32768`; cho phép mất frame,
   loại duplicate/cũ, thử wrap 65535 -> 0. Watchdog hết là hủy phiên chạy.
-- Đề xuất parser bỏ frame nếu khoảng cách hai byte >2 ms hoặc thời gian cả
-  frame >5 ms; giữ bounded state, không chờ vô hạn length sai. Hỏng frame
+- Parser bỏ frame khi đạt hạn2ms giữa byte hoặc5ms toàn frame (timeout thắng
+  byte đến đúng hạn); giữ bounded state, không chờ vô hạn length sai. Hỏng frame
   không ghi setpoint hoặc ngăn watchdog hết hạn. Sau lỗi phải nhận lại được
   frame hợp lệ mà không reset FPGA; kiểm thử cả byte giống preamble trong payload.
 - Motion tạo session mới khi kết nối lại, xóa hàng đợi TX/RX cũ, chỉ phát CMD
@@ -281,15 +285,15 @@ khi PR trước squash merge. Mã `f07..f13` là gói triển khai dự kiến, 
 | 2. `chore/fpga-toolchain` | Cài/xác minh Icarus/Gowin, ghi version, runner mô phỏng và CI tối thiểu | Thiết kế thử có test tự kiểm tra và target synthesis/route chạy được |
 | 3. `feat/f07-fpga-encoder` | Reset/CDC, 2 decoder, snapshot | Unit test + mô hình số đếm/pha/nhiễu/wrap đạt; tổng hợp sớm |
 | 4. `feat/f08-fpga-pwm` | PWM cặp + motor sequencer; bản độc lập mặc định inhibit | Duty/boundary/đổi chiều/reset đạt; đo tài nguyên tăng thêm |
-| 5. `feat/f09-fpga-link` | UART + parser/CRC/serializer + command guard | Vector chung Motion, lỗi frame/sequence/session và snapshot TX đạt |
+| 5. `feat/f09-fpga-link` | Đã có UART + parser/CRC/serializer + command guard; không tự ARM | Vector chung, lỗi frame/sequence/session và snapshot TX; handshake thuộc f10 |
 | 6. `feat/f10-fpga-safety` | FSM/watchdog + nối top; module PWM chưa qua safety không được dùng chạy xe | Timeout/reconnect/reset và test gate ngoài đạt trong mô phỏng |
 | 7. `feat/f11-fpga-target` | Target 1K, constraints, regression toàn lõi; báo cáo route/timing | Đủ hồ sơ quyết định mua hoặc lý do đổi board |
 | 8. `feat/f12-motion-fpga-link` | Driver giao thức Motion, PID sử dụng snapshot, stale-data inhibit | Kiểm thử hai đầu/mô hình trước, board bench sau khi có phần cứng |
 | 9. `feat/f13-drive-integration` | Driver/nguồn/encoder thật, cảm biến/PID, Brain/Web/servo | Biên bản thử lỗi, tốc độ/quãng dừng và tải đồng thời |
 
-Phiên tới nên hoàn thành bước 1-2 rồi làm encoder/snapshot trước. Nếu chưa
-chốt được handshake/driver, vẫn có thể test decoder/PWM tách rời; chưa được
-gọi toàn lõi là sẵn sàng điều khiển motor.
+Bước tiếp theo là f10: chốt handshake/gate phục hồi, triển khai safety FSM/
+watchdog và nối các khối đã có. Driver chưa chốt nên adapter chân công suất
+vẫn để sau; chưa gọi toàn lõi là sẵn sàng điều khiển motor.
 
 Cấu trúc dự kiến dưới `fpga/`, **chỉ tạo khi có file thực tế**:
 
@@ -317,7 +321,7 @@ python tools/run_fpga_tests.py --test tb_pwm_pair --waves
 
 Runner chọn top testbench rõ ràng và chỉ gọi VVP sau khi compiler thành công;
 trả failure khi test lỗi/timeout. Xem VCD bằng GTKWave khi cần debug. Yosys đã
-có hai script tổng hợp sơ bộ trong `fpga/`. Gowin chạy synthesis/PnR/STA trong
+có ba script tổng hợp sơ bộ trong `fpga/`. Gowin chạy synthesis/PnR/STA trong
 IDE project target; thêm script
 CLI sau khi xác minh lệnh và bản Gowin được cài, không bịa lệnh build hiện tại.
 

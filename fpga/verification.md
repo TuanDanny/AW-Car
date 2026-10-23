@@ -85,5 +85,45 @@ Trên cùng Icarus13.0/Yosys0.70 đã nêu ở trên:
   riêng bằng mô phỏng, không phải bằng chứng metastability/điện áp phần cứng.
 
 Log kiểm tra cục bộ nằm trong `fpga/build/`, không commit. Chưa có kết quả
-Gowin/PnR/timing hoặc chạy trên board; UART/FSM an toàn/watchdog vẫn ở giai
-đoạn tiếp theo.
+Gowin/PnR/timing hoặc chạy trên board. Kết quả UART ở mục dưới;
+FSM an toàn/watchdog vẫn ở giai đoạn tiếp theo.
+
+## UART/giao thức và command guard — 23/10/2026
+
+Đã có bảy module SystemVerilog mới: uart_rx/tx, crc16_byte, frame_rx/tx,
+command_guard, fpga_link. Wire format/CRC/vector chung nằm trong
+[protocol v1](../firmware/shared/fpga-protocol.md); STATUS31 byte giữ cả status
+encoder. Reference Python dùng `binascii.crc_hqx`, không gọi hàm CRC RTL.
+
+| Testbench mới | Kết quả | Bằng chứng |
+| --- | --- | --- |
+| tb_uart | PASS | 256 giá trị byte x3 baud danh định/+2%/-2%, pha lệch và back-to-back; false start, stop sai, break một lần, reset giữa byte, TX busy/stop |
+| tb_frame_rx | PASS | CRC29B1, 6 vector control và STATUS sai hướng; mutation mọi byte từ version đến CRC; resync/overlap; timeout trước/tại hạn; reset/flush18 vị trí CMD; 10 seed x1.000 trường hợp hỗn hợp |
+| tb_frame_tx | PASS | Vector STATUS31 byte; đổi mọi nguồn snapshot lúc stalled; giữ byte/CRC qua backpressure; báo drop; reset/flush31 vị trí và frame phục hồi |
+| tb_command_guard | PASS | HELLO không cấp quyền, session/sequence gap/wrap/duplicate/old/32767/32768, reserved/duty/chiều sai, ALLOW_REVERSE0/1, reset và context_load ưu tiên |
+| tb_fpga_link | PASS | Tham số27MHz/115200, full-duplex CMD/STATUS, snapshot bất biến, CRC lỗi/duplicate không commit; timeout mặc định2ms/5ms rồi phục hồi |
+
+Đã chạy toàn bộ 11 testbench bằng Icarus/VVP13.0 và 19 test Python; compile
+không warning, test/mã thoát đều PASS. Check cấu trúc/đuôi `.sv`, diff và
+vector chung đạt. Test link thật dài khoảng21,7ms mô phỏng; chưa phải regression
+toàn xe2s hoặc bài watchdog50ms ở kế hoạch safety.
+
+`synth_link.ys` dùng cùng Yosys0.70/generic Gowin như hai bài trước:
+`proc` không latch, `check -assert` không lỗi. Riêng `fpga_link` có **544 FF
+primitive, 847 LUT1–4 cell và 282 ALU cell**. Không có buffer RX/TX32 byte;
+TX giữ một snapshot và RX giữ header/payload nhỏ. Đây chưa phải utilization
+vật lý hoặc tổng hợp toàn lõi; không cộng LUT/ALU để kết luận fit. Ngân sách
+Nano1K (864 FF) rất hẹp khi còn encoder/PWM và safety; cần đo lại sau tích hợp
+và cân nhắc tối ưu/chip khác, chưa xác nhận board1K phù hợp.
+
+Lệnh tái tạo: runner ở README và
+`yosys -s fpga/synth_link.ys`; bản Windows dùng
+`build/toolchain/yowasp/Scripts/yowasp-yosys.exe -s fpga/synth_link.ys`.
+Log/netlist/stat JSON nằm trong build đã ignore. CI chạy cả11 mô phỏng và
+ba script tổng hợp.
+
+Link không có PWM/permit và chưa nối PWM hiện có. Quyền phiên/sequence_base/
+command_enable do mô hình controller trong test cấp, không đến từ HELLO.
+Handshake chống buffer cũ, ARM thực tế, watchdog/FSM và gate độc lập vẫn cần
+thiết kế/kiểm thử ở f10. Chưa có firmware Motion, target, PnR/STA hoặc phép đo
+đường truyền/motor trên board.

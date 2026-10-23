@@ -24,8 +24,14 @@ Runner lấy toàn bộ `fpga/rtl/*.sv` và bật chế độ SystemVerilog `-g2
 Chạy `python tools/run_fpga_tests.py --help`. Cần Icarus/VVP trong PATH hoặc
 truyền đường dẫn bằng `--iverilog`/`--vvp`; Python không cần package ngoài.
 
-Tổng hợp sơ bộ: `yosys -s fpga/synth_encoder.ys` và
-`yosys -s fpga/synth_pwm.ys`, chạy từ root sau khi tạo `fpga/build/`. Có thể
+`fpga_protocol.py` dùng `binascii.crc_hqx` và layout little-endian làm reference
+độc lập RTL. Chạy `python tools/fpga_protocol.py` để đối chiếu vector chung;
+`--write-vectors` chỉ để ghi lại fixture khi chủ động đổi đặc tả. Testbench
+đọc `firmware/shared/fpga-vectors.hex`; unit test phát hiện fixture lệch reference.
+
+Tổng hợp sơ bộ: `yosys -s fpga/synth_encoder.ys`,
+`yosys -s fpga/synth_pwm.ys`, `yosys -s fpga/synth_link.ys`, chạy từ root sau
+khi tạo `fpga/build/`. Có thể
 dùng YoWASP-Yosys trong venv cục bộ thay binary Yosys; bản đã xác minh là
 `yowasp-yosys==0.70.0.0.post1259`. Đây là dependency công cụ tùy chọn cho máy
 phát triển; CI cài Yosys hệ thống. Kết quả chưa bao gồm place-and-route/timing.

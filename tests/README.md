@@ -14,3 +14,6 @@ hoặc timeout; kiểm tra đường dẫn tool tương đối và môi trườn
 Đồng thời kiểm tra compiler nhận đủ nguồn `.sv` và tùy chọn SystemVerilog.
 Test RTL thực nằm ở [fpga/tb](../fpga/tb/README.md), chạy riêng
 bằng `python tools/run_fpga_tests.py` và được yêu cầu trong CI.
+
+`test_fpga_protocol.py` kiểm tra layout/endianness, CRC chuẩn và vector Motion–
+FPGA chung; reference dùng thư viện Python thay vì gọi lại hàm CRC của RTL.
