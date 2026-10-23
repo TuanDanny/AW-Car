@@ -51,3 +51,44 @@ chưa có target/power-on reset riêng hãng.
 
 Thuộc tính ASYNC_REG đánh dấu các FF đồng bộ; vẫn cần kiểm tra mapping và
 constraints đúng công cụ/target. Mô phỏng không chứng minh metastability.
+
+## Liên kết Motion–FPGA
+
+- `uart_rx`: đồng bộ RX hai FF, kiểm tra start giữa bit, nhận 8N1; stop LOW
+  báo framing_error, LOW liên tục 11 bit báo break_error một lần, đợi HIGH
+  để phục hồi. Byte chỉ có nghĩa khi valid một clock.
+- `uart_tx`: ready/valid, chỉ lấy data khi ready; truyền đủ start/8 data/stop,
+  báo done sau stop đầy đủ. Pulse valid khi busy không được xếp hàng.
+- `crc16_byte`: tổ hợp cập nhật CCITT-FALSE từng byte, polynomial1021;
+  parser/serializer bắt đầu bằng FFFF và không tính hai byte preamble.
+- `frame_rx`: nhận type điều khiển01..05, tối đa payload6, CRC/length/type/
+  version đúng mới phát frame_valid. Không đọc trường staging ngoài pulse.
+  Timeout2ms giữa byte/5ms toàn frame; timeout thắng byte đến đúng hạn.
+  Framing/break hoặc flush hủy frame; preamble lồng có thể cần bỏ một frame
+  rồi phục hồi. Không có FIFO frame32 byte.
+- `frame_tx`: đóng băng snapshot/session/state/fault ở handshake snapshot;
+  STATUS31 byte. Busy không nhận mẫu mới, báo snapshot_dropped; không queue.
+  Dữ liệu byte giữ nguyên khi downstream chưa ready, CRC chỉ tiến khi nhận byte.
+- `command_guard`: đúng phiên, sequence mới theo modulo16, duty/flags/chiều
+  hợp lệ và command_enable mới phát command_valid cặp. ALLOW_REVERSE mặc định0.
+  HELLO chỉ đề nghị phiên; ARM_ZERO/CLEAR_FAULT chỉ là yêu cầu cho FSM. DISABLE
+  đúng format/CRC được nhận kể cả phiên cũ để giảm quyền, không đổi mốc sequence.
+- `fpga_link`: nối các khối trên, xuất sự kiện và nhận snapshot; **không có
+  PWM/permit/FSM/watchdog**. Reset rst_n phải nhả đồng bộ ở lớp tích hợp.
+
+UART dùng CLK_HZ/BAUD dương, bộ chia làm tròn `(CLK_HZ + BAUD/2)/BAUD`, ít nhất
+8 tick/bit; mặc định27MHz/115200 =234 tick/bit. Các timeout parser phải >=1
+và đủ dài cho frame/baud cấu hình. Chỉ thay CLK_HZ không tự đổi timeout:
+54000/135000 là tham số đánh giá27MHz, cần đổi cùng clock.
+
+FSM tương lai phải cấp session_active/active_session/sequence_base bằng
+context_load; hủy/đổi phiên cũng pulse context_load. Khi đó parser/TX bị flush,
+guard bỏ sự kiện cùng clock và xóa cặp duty đang lưu. command_enable phải đến
+từ trạng thái ARMED. Không dùng UART/HELLO làm quyền chạy. Event session/sequence
+đã latch cùng pulse; không dùng lại cặp duty nếu không có command_valid mới.
+TX có thể hoàn tất byte UART cũ khi flush: phía Motion phải loại frame thiếu
+CRC/sai phiên, không coi UART byte đang chạy là snapshot mới.
+
+Chi tiết offset/CRC/vector và phần handshake còn phải thiết kế ở
+[wire protocol](../../firmware/shared/fpga-protocol.md). Lõi guard chưa quyết
+định timeout/ARM và không thay thế gate độc lập Motion/E-stop/nguồn.

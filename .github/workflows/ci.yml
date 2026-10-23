@@ -46,3 +46,4 @@ jobs:
         run: |
           yosys -Q -T -l fpga/build/encoder-synth.log -s fpga/synth_encoder.ys
           yosys -Q -T -l fpga/build/pwm-synth.log -s fpga/synth_pwm.ys
+          yosys -Q -T -l fpga/build/link-synth.log -s fpga/synth_link.ys

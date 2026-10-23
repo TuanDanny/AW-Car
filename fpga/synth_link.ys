@@ -1,0 +1,7 @@
+# Generic Gowin mapping only; no exact target or routed timing.
+read_verilog -sv fpga/rtl/crc16_byte.sv fpga/rtl/uart_rx.sv fpga/rtl/uart_tx.sv fpga/rtl/frame_rx.sv fpga/rtl/frame_tx.sv fpga/rtl/command_guard.sv fpga/rtl/fpga_link.sv
+proc
+select -assert-none t:$dlatch t:$adlatch
+synth_gowin -top fpga_link -noiopads -nowidelut -json fpga/build/link_gowin.json
+check -assert
+tee -o fpga/build/link_stat.json stat -json

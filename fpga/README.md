@@ -6,8 +6,9 @@ Toàn bộ nguồn RTL/testbench dùng **SystemVerilog, đuôi `.sv`**; hook/CI 
 đuôi HDL khác. Runner bật `iverilog -g2012`, script tổng hợp bật `read_verilog -sv`.
 
 Trạng thái: đã có RTL/testbench cho reset, encoder X4 hai bánh, snapshot,
-PWM hai kênh và trình tự đổi chiều độc lập driver. Chưa có UART/watchdog,
-adapter driver, target board hoặc báo cáo timing. Xem giao diện ở
+PWM hai kênh, trình tự đổi chiều độc lập driver và UART/parser/CRC/serializer/
+command guard. Chưa có FSM an toàn/watchdog, adapter driver, target board
+hoặc báo cáo timing. Link chưa nối PWM. Xem giao diện ở
 [rtl](rtl/README.md), ca thử ở [tb](tb/README.md).
 
 Chạy từ root sau khi Icarus/VVP có trong PATH:
@@ -29,9 +30,9 @@ python tools/run_fpga_tests.py --iverilog build/toolchain/ucrt64/bin/iverilog.ex
 Kết quả chạy và giới hạn được ghi ở [verification.md](verification.md).
 Chưa được nối lõi PWM này vào motor: cần FSM/watchdog và gate an toàn bên ngoài.
 
-`synth_encoder.ys` và `synth_pwm.ys` kiểm tra latch/lỗi cấu trúc và mapping
+`synth_encoder.ys`, `synth_pwm.ys`, `synth_link.ys` kiểm tra latch/lỗi cấu trúc và mapping
 generic Gowin; chạy từ root sau khi có `fpga/build/` bằng `yosys -s <script>`
-hoặc YoWASP-Yosys. Đã chạy Yosys0.70 cục bộ; CI cũng chạy hai script này.
+hoặc YoWASP-Yosys. Đã chạy Yosys0.70 cục bộ; CI cũng chạy ba script này.
 Chưa có pinout/constraints/PnR/STA đúng chip; cell count sơ bộ không kết luận fit.
 Luồng đề xuất: Icarus/VVP + GTKWave để mô phỏng, Gowin Education để tổng hợp,
 place-and-route và kiểm tra timing đúng chip Tang Nano ứng viên; không cần
@@ -39,3 +40,4 @@ Quartus. Chưa chứng minh toàn lõi fit trên board 1K.
 
 Xem [kế hoạch và nghiệm thu toàn hệ thống](../docs/fpga-drive-plan.md).
 Chi tiết [thiết kế RTL, kiểm thử và thứ tự triển khai](../docs/fpga-rtl-design-test-plan.md).
+Wire format và ranh giới phiên/ARM ở [protocol v1](../firmware/shared/fpga-protocol.md).
