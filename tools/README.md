@@ -15,3 +15,8 @@ File untracked chưa bị ignore cũng được kiểm tra; file build bị igno
 `--staged` kiểm tra snapshot trong Git index; `--feature-branch` kiểm tra tên
 nhánh hiện tại, hoặc nhận tên nhánh làm đối số khi CI checkout detached HEAD.
 CI chạy kiểm tra cấu trúc và test công cụ; đây chưa phải kiểm thử tính năng xe.
+
+`run_fpga_tests.py` biên dịch/chạy testbench Icarus/VVP, dừng khi compile lỗi,
+simulation lỗi hoặc timeout; build/VCD trong `fpga/build/` không commit.
+Chạy `python tools/run_fpga_tests.py --help`. Cần Icarus/VVP trong PATH hoặc
+truyền đường dẫn bằng `--iverilog`/`--vvp`; Python không cần package ngoài.

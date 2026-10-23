@@ -8,8 +8,9 @@ Tác giả: **TuanDanny**. Cộng tác viên: **Minh Nho** và **Nhan Duc**.
 ## Trạng thái
 
 Dự án đang chọn linh kiện, chưa lắp xe thử nghiệm. Kho hiện có khung thư mục,
-tài liệu, quy tắc làm việc và kiểm tra cấu trúc; chưa có firmware, sơ đồ điện
-hay PCB. Chưa có tính năng nào được xác nhận hoạt động trên phần cứng.
+tài liệu, quy tắc làm việc, RTL encoder/snapshot và mô phỏng tự kiểm tra;
+chưa có firmware, sơ đồ điện hay PCB. Chưa có tính năng nào được xác nhận
+hoạt động trên phần cứng. Cách chạy RTL ở [fpga](fpga/README.md).
 
 - Yêu cầu ban đầu: [issue #1](https://github.com/TuanDanny/AW-Car/issues/1).
 - [Rà soát kỹ thuật và kế hoạch hiệu chỉnh](docs/issue-1-technical-review.md):

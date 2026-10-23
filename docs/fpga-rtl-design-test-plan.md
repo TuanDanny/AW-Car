@@ -1,7 +1,8 @@
 # Kế hoạch thiết kế và kiểm thử RTL FPGA
 
-Ngày nghiên cứu: **23/10/2026**. Trạng thái: đề xuất để bàn bạc; chưa viết RTL,
-chưa cài/chạy bộ công cụ mới, chưa có kết quả tài nguyên hoặc timing.
+Ngày nghiên cứu: **23/10/2026**. Đã triển khai/mô phỏng phần reset, encoder và
+snapshot; xem tiến độ hiện tại ở [FPGA](../fpga/README.md). Các phần còn lại
+là kế hoạch; chưa có kết quả tài nguyên toàn lõi hoặc timing.
 Phân tải đã chốt ở [kế hoạch toàn hệ thống](fpga-drive-plan.md).
 
 ## 1. Hướng thực hiện
@@ -53,7 +54,8 @@ và timing; không mặc định kết quả hai bộ công cụ tương đươn
 Lần kiểm tra môi trường này chưa thấy `iverilog`, `vvp`, `verilator`, `yosys`,
 `nextpnr-himbaechel`, `gw_sh` trong PATH hoặc các thư mục công cụ đã dò. Có
 `wsl.exe`, nhưng chưa xác minh distro. Không kết luận phần mềm chưa tồn tại
-ở vị trí khác. Chưa tải/cài phần mềm trong tác vụ lập kế hoạch này.
+ở vị trí khác. Đó là kết quả lúc lập kế hoạch; phiên triển khai đã chuẩn bị
+Icarus 13.0 MSYS2 cục bộ và chạy ba testbench encoder, xem README FPGA.
 
 ## 2. Ranh giới thiết kế và thông số ban đầu
 
