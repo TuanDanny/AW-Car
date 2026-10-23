@@ -1,0 +1,30 @@
+name: Repository checks
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  structure-and-rules:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with:
+          python-version: '3.13'
+      - name: Check repository
+        run: python tools/check_repo.py
+      - name: Check PR branch
+        if: github.event_name == 'pull_request'
+        env:
+          SOURCE_BRANCH: ${{ github.head_ref }}
+        run: python tools/check_repo.py --feature-branch "$SOURCE_BRANCH"
+      - name: Test repository checks
+        run: python -m unittest discover -s tests -v
+      - name: Check whitespace
+        run: git show --format= --check HEAD

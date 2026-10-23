@@ -1,0 +1,21 @@
+# ESP-IDF / generated output
+**/build/
+**/managed_components/
+**/sdkconfig
+**/sdkconfig.old
+node_modules/
+dist/
+.pio/
+
+# Local runtime / editor / secrets
+__pycache__/
+*.py[cod]
+.venv/
+.vscode/
+.idea/
+.env
+.env.*
+!.env.example
+*.log
+.DS_Store
+Thumbs.db
