@@ -1,6 +1,8 @@
 # RTL độc lập hãng
 
-Lõi Verilog dùng một clock domain; không tạo clock bằng logic.
+Toàn bộ lõi dùng SystemVerilog (`.sv`), một clock domain; không tạo clock bằng
+logic. Dùng `logic`, `always_ff` cho thanh ghi, `assign` cho đường tổ hợp đơn
+giản và enum cho FSM. Không dùng khởi tạo biến để thay phép gán liên tục.
 
 - `reset_sync`: reset active-low, assert bất đồng bộ, nhả sau hai cạnh clock.
 - `input_sync_filter`: đồng bộ hai FF rồi lọc cả vector bằng N mẫu ổn định.

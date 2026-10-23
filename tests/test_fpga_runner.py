@@ -55,6 +55,28 @@ class FpgaRunnerTests(unittest.TestCase):
                               runtime_args[3]["PATH"].split(os.pathsep))
                 self.assertEqual(os.environ.get("PATH"), original_path)
 
+    def test_compiler_receives_all_sv_sources_in_systemverilog_mode(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            rtl = root / "fpga" / "rtl"
+            rtl.mkdir(parents=True)
+            sources = [rtl / "encoder.sv", rtl / "pwm.sv"]
+            for source in sources:
+                source.write_text("module example; endmodule\n")
+            with (patch.object(runner, "ROOT", root),
+                  patch.object(runner.shutil, "which", side_effect=lambda name: name),
+                  patch.object(runner.subprocess, "run", return_value=subprocess.CompletedProcess(
+                      ["iverilog"], 0, "test compiler\n", "")),
+                  patch.object(runner, "execute") as execute,
+                  patch("sys.argv", ["run_fpga_tests.py", "--test", "tb_encoder_units"]),
+                  redirect_stdout(io.StringIO())):
+                self.assertEqual(runner.main(), 0)
+                command = execute.call_args_list[0].args[0]
+                self.assertIn("-g2012", command)
+                for source in sources:
+                    self.assertIn(str(source), command)
+                self.assertIn(str(root / "fpga" / "tb" / "tb_encoder_units.sv"), command)
+
 
 if __name__ == "__main__":
     unittest.main()

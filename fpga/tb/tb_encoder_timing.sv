@@ -1,12 +1,12 @@
 `timescale 1ns/1ps
 module tb_encoder_timing;
-    reg clk = 0;
+    logic clk = 0;
     always #18.519 clk = !clk;
-    reg rst_n = 0;
-    wire valid;
-    wire [31:0] left_count, right_count, left_snap, right_snap, stamp;
-    wire [15:0] seq;
-    wire [3:0] status;
+    logic rst_n = 0;
+    logic valid;
+    logic [31:0] left_count, right_count, left_snap, right_snap, stamp;
+    logic [15:0] seq;
+    logic [3:0] status;
     encoder_pair dut (.clk(clk), .rst_n(rst_n), .left_ab(2'b11), .right_ab(2'b10),
         .left_count(left_count), .right_count(right_count), .snapshot_valid(valid),
         .snapshot_left(left_snap), .snapshot_right(right_snap), .snapshot_time(stamp),

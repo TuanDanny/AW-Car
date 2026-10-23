@@ -63,3 +63,27 @@ LUT dùng tài nguyên theo cách pack của chip; không cộng các cột đ�
 LUT4 thực. Cũng chưa gồm UART/CRC/parser/FSM/watchdog, reset/target và giao tiếp
 giữa các khối. Không coi tổng FF của hai bài độc lập là kết quả fit toàn lõi.
 Chưa chạy Gowin, PnR hoặc STA đúng GW1NZ-LV1QN48C6/I5; chưa chọn/mua board.
+
+## Chuyển toàn bộ HDL sang SystemVerilog — 23/10/2026
+
+Đã chuyển cả sáu khối RTL sang `.sv`, dùng `logic`, `always_ff`, `$clog2` có
+giới hạn tối thiểu một bit và enum cho FSM đổi chiều. Sáu testbench cũng dùng
+`.sv`/`logic`. Runner dùng `-g2012`, hai script Yosys dùng `read_verilog -sv`.
+`AGENTS.md` yêu cầu `.sv`; checker được hook/CI gọi chặn đuôi HDL khác, gồm
+file untracked và snapshot đã stage, bỏ qua build đã ignore.
+
+Trên cùng Icarus13.0/Yosys0.70 đã nêu ở trên:
+
+- Cả sáu testbench encoder/PWM PASS, biên dịch không warning.
+- 15 test Python PASS; có ca từ chối đuôi HDL sai, đổi tên chưa stage và kiểm
+  tra runner đưa đủ nguồn `.sv` vào compiler ở chế độ SystemVerilog.
+- Tổng hợp hai khối không latch/lỗi cấu trúc. Cell count giữ nguyên bảng trên.
+- So sánh tương đương cả sáu module với bản Verilog ở `f9471b3`, tham số mặc
+  định: `equiv_status -assert` PASS. Hai phía cùng qua `prep -flatten`,
+  `async2sync`, `opt`, rồi `equiv_make`, `equiv_simple`, `equiv_induct -seq 4`.
+  Đây là kiểm tra logic sau chuẩn hóa reset; reset bất đồng bộ vẫn được thử
+  riêng bằng mô phỏng, không phải bằng chứng metastability/điện áp phần cứng.
+
+Log kiểm tra cục bộ nằm trong `fpga/build/`, không commit. Chưa có kết quả
+Gowin/PnR/timing hoặc chạy trên board; UART/FSM an toàn/watchdog vẫn ở giai
+đoạn tiếp theo.

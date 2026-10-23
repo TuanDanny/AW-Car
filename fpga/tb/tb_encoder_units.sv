@@ -1,21 +1,21 @@
 `timescale 1ns/1ps
 module tb_encoder_units;
-    reg clk = 0;
+    logic clk = 0;
     always #5 clk = !clk;
-    reg arst_n = 0;
-    wire rst_n;
+    logic arst_n = 0;
+    logic rst_n;
     reset_sync reset_dut (.clk(clk), .arst_n(arst_n), .rst_n(rst_n));
-    reg [1:0] raw = 2'b11;
-    wire [1:0] filtered, unfiltered;
-    wire valid, valid_one;
+    logic [1:0] raw = 2'b11;
+    logic [1:0] filtered, unfiltered;
+    logic valid, valid_one;
     input_sync_filter #(.FILTER_N(3)) filter_dut (
         .clk(clk), .rst_n(rst_n), .async_in(raw), .filtered(filtered), .valid(valid));
     input_sync_filter #(.FILTER_N(1)) filter_one (
         .clk(clk), .rst_n(rst_n), .async_in(raw), .filtered(unfiltered), .valid(valid_one));
-    reg sample_valid = 0;
-    reg [1:0] ab = 0;
-    wire [3:0] count, inverted;
-    wire bad, bad_inverted, initialized, initialized_inverted;
+    logic sample_valid = 0;
+    logic [1:0] ab = 0;
+    logic [3:0] count, inverted;
+    logic bad, bad_inverted, initialized, initialized_inverted;
     quadrature_decoder #(.COUNT_WIDTH(4)) decoder (
         .clk(clk), .rst_n(rst_n), .sample_valid(sample_valid), .ab(ab),
         .count(count), .invalid_event(bad), .initialized(initialized));

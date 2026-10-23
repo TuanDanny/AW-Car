@@ -1,20 +1,20 @@
 `timescale 1ns/1ps
 module tb_motor_pwm_pair;
-    reg clk = 0;
-    reg clock_running = 1;
+    logic clk = 0;
+    logic clock_running = 1;
     always #5 if (clock_running) clk = !clk;
-    reg rst_n = 0, enable = 0, valid = 0;
-    reg [15:0] left_command = 0, right_command = 0;
-    reg [1:0] direction_command = 0;
-    wire left, right, interlock, rejected;
-    wire [1:0] direction;
+    logic rst_n = 0, enable = 0, valid = 0;
+    logic [15:0] left_command = 0, right_command = 0;
+    logic [1:0] direction_command = 0;
+    logic left, right, interlock, rejected;
+    logic [1:0] direction;
     motor_pwm_pair #(.PERIOD_CYCLES(17), .ZERO_CYCLES(5), .SETUP_CYCLES(3)) dut (
         .clk(clk), .rst_n(rst_n), .enable(enable), .command_valid(valid),
         .command_left(left_command), .command_right(right_command),
         .command_direction(direction_command), .pwm_left(left), .pwm_right(right),
         .direction(direction), .interlock_active(interlock), .command_rejected(rejected));
     integer zero_ticks = 0, since_direction = 100, changes = 0;
-    reg [1:0] previous_direction = 0;
+    logic [1:0] previous_direction = 0;
     always @(posedge clk) begin
         #1;
         if (!rst_n || !enable) begin zero_ticks = 0; since_direction = 100; end

@@ -1,6 +1,7 @@
 # Mô phỏng RTL
 
-Testbench tự kiểm tra bằng Icarus/VVP; lỗi dùng `$fatal(1, ...)`, mỗi bài có
+Toàn bộ testbench dùng SystemVerilog (`.sv`), biên dịch bằng `iverilog -g2012`.
+Tự kiểm tra bằng Icarus/VVP; lỗi dùng `$fatal(1, ...)`, mỗi bài có
 timeout. Chạy từ root: `python tools/run_fpga_tests.py`. Dùng `--list` để xem
 bài, `--test tb_encoder_pair` để chọn và `--waves` để lưu VCD trong build.
 

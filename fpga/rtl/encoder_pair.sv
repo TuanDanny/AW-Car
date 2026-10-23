@@ -1,43 +1,34 @@
 `timescale 1ns/1ps
 `default_nettype none
 module encoder_pair #(
-    parameter integer COUNT_WIDTH = 32,
-    parameter integer TIME_WIDTH = 32,
-    parameter integer SEQ_WIDTH = 16,
-    parameter integer FILTER_N = 3,
-    parameter integer SNAPSHOT_CYCLES = 270000,
-    parameter integer INVERT_LEFT = 0,
-    parameter integer INVERT_RIGHT = 0
+    parameter int COUNT_WIDTH = 32,
+    parameter int TIME_WIDTH = 32,
+    parameter int SEQ_WIDTH = 16,
+    parameter int FILTER_N = 3,
+    parameter int SNAPSHOT_CYCLES = 270000,
+    parameter int INVERT_LEFT = 0,
+    parameter int INVERT_RIGHT = 0
 ) (
-    input  wire clk,
-    input  wire rst_n,
-    input  wire [1:0] left_ab,
-    input  wire [1:0] right_ab,
-    output wire [COUNT_WIDTH-1:0] left_count,
-    output wire [COUNT_WIDTH-1:0] right_count,
-    output reg snapshot_valid,
-    output reg [COUNT_WIDTH-1:0] snapshot_left,
-    output reg [COUNT_WIDTH-1:0] snapshot_right,
-    output reg [TIME_WIDTH-1:0] snapshot_time,
-    output reg [SEQ_WIDTH-1:0] snapshot_seq,
-    output reg [3:0] snapshot_status
+    input  logic clk,
+    input  logic rst_n,
+    input  logic [1:0] left_ab,
+    input  logic [1:0] right_ab,
+    output logic [COUNT_WIDTH-1:0] left_count,
+    output logic [COUNT_WIDTH-1:0] right_count,
+    output logic snapshot_valid,
+    output logic [COUNT_WIDTH-1:0] snapshot_left,
+    output logic [COUNT_WIDTH-1:0] snapshot_right,
+    output logic [TIME_WIDTH-1:0] snapshot_time,
+    output logic [SEQ_WIDTH-1:0] snapshot_seq,
+    output logic [3:0] snapshot_status
 );
-    function integer bits_for;
-        input integer value;
-        integer v;
-        begin
-            v = value - 1; bits_for = 0;
-            while (v > 0) begin bits_for = bits_for + 1; v = v >> 1; end
-            if (bits_for == 0) bits_for = 1;
-        end
-    endfunction
-    localparam integer TIMER_WIDTH = bits_for(SNAPSHOT_CYCLES);
-    wire [1:0] left_filtered, right_filtered;
-    wire left_valid, right_valid, left_error, right_error;
-    wire left_ready, right_ready;
-    reg [1:0] sticky_error;
-    reg [TIMER_WIDTH-1:0] timer;
-    reg [TIME_WIDTH-1:0] timestamp;
+    localparam int TIMER_WIDTH = (SNAPSHOT_CYCLES > 1) ? $clog2(SNAPSHOT_CYCLES) : 1;
+    logic [1:0] left_filtered, right_filtered;
+    logic left_valid, right_valid, left_error, right_error;
+    logic left_ready, right_ready;
+    logic [1:0] sticky_error;
+    logic [TIMER_WIDTH-1:0] timer;
+    logic [TIME_WIDTH-1:0] timestamp;
     input_sync_filter #(.FILTER_N(FILTER_N)) left_filter (
         .clk(clk), .rst_n(rst_n), .async_in(left_ab),
         .filtered(left_filtered), .valid(left_valid));
@@ -50,7 +41,7 @@ module encoder_pair #(
     quadrature_decoder #(.COUNT_WIDTH(COUNT_WIDTH), .INVERT(INVERT_RIGHT)) right_decoder (
         .clk(clk), .rst_n(rst_n), .sample_valid(right_valid), .ab(right_filtered),
         .count(right_count), .invalid_event(right_error), .initialized(right_ready));
-    always @(posedge clk or negedge rst_n) begin
+    always_ff @(posedge clk or negedge rst_n) begin
         if (!rst_n) begin
             sticky_error <= 0;
             timer <= 0;

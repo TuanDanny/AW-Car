@@ -11,6 +11,7 @@ Dự án đang chọn linh kiện, chưa lắp xe thử nghiệm. Kho hiện có
 tài liệu, quy tắc làm việc, RTL encoder/snapshot/PWM và mô phỏng tự kiểm tra;
 chưa có firmware, sơ đồ điện hay PCB. Chưa có tính năng nào được xác nhận
 hoạt động trên phần cứng. Cách chạy RTL ở [fpga](fpga/README.md).
+Toàn bộ mã HDL dùng SystemVerilog (`.sv`); hook và CI kiểm tra quy ước này.
 
 - Yêu cầu ban đầu: [issue #1](https://github.com/TuanDanny/AW-Car/issues/1).
 - [Rà soát kỹ thuật và kế hoạch hiệu chỉnh](docs/issue-1-technical-review.md):

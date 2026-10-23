@@ -1,31 +1,21 @@
 `timescale 1ns/1ps
 `default_nettype none
 module input_sync_filter #(
-    parameter integer WIDTH = 2,
-    parameter integer FILTER_N = 3
+    parameter int WIDTH = 2,
+    parameter int FILTER_N = 3
 ) (
-    input  wire clk,
-    input  wire rst_n,
-    input  wire [WIDTH-1:0] async_in,
-    output reg  [WIDTH-1:0] filtered,
-    output reg valid
+    input  logic clk,
+    input  logic rst_n,
+    input  logic [WIDTH-1:0] async_in,
+    output logic [WIDTH-1:0] filtered,
+    output logic valid
 );
-    function integer bits_for;
-        input integer value;
-        integer v;
-        begin
-            v = value - 1;
-            bits_for = 0;
-            while (v > 0) begin bits_for = bits_for + 1; v = v >> 1; end
-            if (bits_for == 0) bits_for = 1;
-        end
-    endfunction
-    localparam integer CW = bits_for(FILTER_N + 1);
-    (* ASYNC_REG = "TRUE" *) reg [WIDTH-1:0] meta_ff, sync_ff;
-    reg [1:0] ready;
-    reg [WIDTH-1:0] candidate;
-    reg [CW-1:0] stable;
-    always @(posedge clk or negedge rst_n) begin
+    localparam int CW = ((FILTER_N + 1) > 1) ? $clog2(FILTER_N + 1) : 1;
+    (* ASYNC_REG = "TRUE" *) logic [WIDTH-1:0] meta_ff, sync_ff;
+    logic [1:0] ready;
+    logic [WIDTH-1:0] candidate;
+    logic [CW-1:0] stable;
+    always_ff @(posedge clk or negedge rst_n) begin
         if (!rst_n) begin
             meta_ff <= 0;
             sync_ff <= 0;
