@@ -11,7 +11,8 @@ hoặc trong project MCU nếu bộ test ESP-IDF yêu cầu, rồi ghi lệnh ch
 
 `test_fpga_runner.py` kiểm tra runner không bỏ qua compile lỗi, mã lỗi simulator
 hoặc timeout; kiểm tra đường dẫn tool tương đối và môi trường subprocess.
-Đồng thời kiểm tra compiler nhận đủ nguồn `.sv` và tùy chọn SystemVerilog.
+Đồng thời kiểm tra compiler nhận đủ nguồn `.sv`, tùy chọn SystemVerilog và
+`--full-timing` thực sự chọn clock danh định cho bài top2s.
 Test RTL thực nằm ở [fpga/tb](../fpga/tb/README.md), chạy riêng
 bằng `python tools/run_fpga_tests.py` và được yêu cầu trong CI.
 

@@ -23,6 +23,9 @@ simulation lỗi hoặc timeout; build/VCD trong `fpga/build/` không commit.
 Runner lấy toàn bộ `fpga/rtl/*.sv` và bật chế độ SystemVerilog `-g2012`.
 Chạy `python tools/run_fpga_tests.py --help`. Cần Icarus/VVP trong PATH hoặc
 truyền đường dẫn bằng `--iverilog`/`--vvp`; Python không cần package ngoài.
+`--full-timing --timeout 1800` chạy cả bài top>=2s tại27MHz; mặc định bài dài
+dùng2,7MHz và thêm bài lỗi27MHz. CI bật full-timing, không dùng số liệu scaled
+để xác nhận timing vật lý.
 
 `fpga_protocol.py` dùng `binascii.crc_hqx` và layout little-endian làm reference
 độc lập RTL. Chạy `python tools/fpga_protocol.py` để đối chiếu vector chung;
@@ -30,7 +33,8 @@ truyền đường dẫn bằng `--iverilog`/`--vvp`; Python không cần packag
 đọc `firmware/shared/fpga-vectors.hex`; unit test phát hiện fixture lệch reference.
 
 Tổng hợp sơ bộ: `yosys -s fpga/synth_encoder.ys`,
-`yosys -s fpga/synth_pwm.ys`, `yosys -s fpga/synth_link.ys`, chạy từ root sau
+`yosys -s fpga/synth_pwm.ys`, `yosys -s fpga/synth_link.ys`,
+`yosys -s fpga/synth_drive.ys`, chạy từ root sau
 khi tạo `fpga/build/`. Có thể
 dùng YoWASP-Yosys trong venv cục bộ thay binary Yosys; bản đã xác minh là
 `yowasp-yosys==0.70.0.0.post1259`. Đây là dependency công cụ tùy chọn cho máy

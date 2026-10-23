@@ -11,7 +11,8 @@ import sys
 ROOT = Path(__file__).resolve().parents[1]
 TESTS = ("tb_encoder_units", "tb_encoder_pair", "tb_encoder_timing",
          "tb_pwm_pair", "tb_motor_pwm_pair", "tb_pwm_timing",
-         "tb_uart", "tb_frame_rx", "tb_frame_tx", "tb_command_guard", "tb_fpga_link")
+         "tb_uart", "tb_frame_rx", "tb_frame_tx", "tb_command_guard", "tb_fpga_link",
+         "tb_safety_fsm", "tb_safety_timing", "tb_drive_core", "tb_drive_defaults")
 
 
 def execute(command: list[str], timeout: float, cwd: Path,
@@ -31,6 +32,8 @@ def main() -> int:
     parser.add_argument("--test", action="append", choices=TESTS)
     parser.add_argument("--list", action="store_true")
     parser.add_argument("--waves", action="store_true")
+    parser.add_argument("--full-timing", action="store_true",
+                        help="run the 2-second integrated scenario at nominal 27 MHz")
     parser.add_argument("--timeout", type=float, default=120)
     parser.add_argument("--iverilog", default=os.environ.get("IVERILOG", "iverilog"))
     parser.add_argument("--vvp", default=os.environ.get("VVP", "vvp"))
@@ -58,8 +61,9 @@ def main() -> int:
         for name in args.test or TESTS:
             print(f"RUN {name}", flush=True)
             output = build / f"{name}.vvp"
+            parameters = ["-Ptb_drive_core.SCALE=1"] if args.full_timing and name == "tb_drive_core" else []
             execute([compiler, "-g2012", "-Wall", "-s", name, "-o", str(output),
-                     *sources, str(ROOT / "fpga" / "tb" / f"{name}.sv")], args.timeout, ROOT, tool_env)
+                     *parameters, *sources, str(ROOT / "fpga" / "tb" / f"{name}.sv")], args.timeout, ROOT, tool_env)
             command = [runtime, str(output)]
             if args.waves:
                 command.append("+waves")

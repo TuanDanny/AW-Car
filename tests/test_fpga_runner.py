@@ -77,6 +77,22 @@ class FpgaRunnerTests(unittest.TestCase):
                     self.assertIn(str(source), command)
                 self.assertIn(str(root / "fpga" / "tb" / "tb_encoder_units.sv"), command)
 
+    def test_full_timing_runs_integrated_scenario_at_nominal_clock(self):
+        with tempfile.TemporaryDirectory() as directory:
+            with (patch.object(runner, "ROOT", Path(directory)),
+                  patch.object(runner.shutil, "which", side_effect=lambda name: name),
+                  patch.object(runner.subprocess, "run", return_value=subprocess.CompletedProcess(
+                      ["iverilog"], 0, "test compiler\n", "")),
+                  patch.object(runner, "execute") as execute,
+                  patch("sys.argv", ["run_fpga_tests.py", "--test", "tb_drive_core", "--full-timing"]),
+                  redirect_stdout(io.StringIO())):
+                self.assertEqual(runner.main(), 0)
+                command = execute.call_args_list[0].args[0]
+                self.assertIn("-Ptb_drive_core.SCALE=1", command)
+                self.assertIn("tb_drive_core", command)
+                self.assertEqual(execute.call_args_list[1].args[0][1],
+                                 str(Path(directory) / "fpga" / "build" / "tb_drive_core.vvp"))
+
 
 if __name__ == "__main__":
     unittest.main()

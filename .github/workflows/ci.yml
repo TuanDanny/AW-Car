@@ -41,9 +41,10 @@ jobs:
           sudo apt-get update
           sudo apt-get install --yes iverilog yosys
       - name: Run self-checking RTL tests
-        run: python tools/run_fpga_tests.py
+        run: python tools/run_fpga_tests.py --full-timing --timeout 1800
       - name: Check generic Gowin synthesis
         run: |
           yosys -Q -T -l fpga/build/encoder-synth.log -s fpga/synth_encoder.ys
           yosys -Q -T -l fpga/build/pwm-synth.log -s fpga/synth_pwm.ys
           yosys -Q -T -l fpga/build/link-synth.log -s fpga/synth_link.ys
+          yosys -Q -T -l fpga/build/drive-synth.log -s fpga/synth_drive.ys

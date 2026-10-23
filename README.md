@@ -8,7 +8,7 @@ Tác giả: **TuanDanny**. Cộng tác viên: **Minh Nho** và **Nhan Duc**.
 ## Trạng thái
 
 Dự án đang chọn linh kiện, chưa lắp xe thử nghiệm. Kho hiện có khung thư mục,
-tài liệu, quy tắc làm việc, RTL encoder/snapshot/PWM/UART/giao thức và mô phỏng;
+tài liệu, quy tắc làm việc, RTL encoder/snapshot/PWM/UART/giao thức/FSM/watchdog/top và mô phỏng;
 chưa có firmware, sơ đồ điện hay PCB. Chưa có tính năng nào được xác nhận
 hoạt động trên phần cứng. Cách chạy RTL ở [fpga](fpga/README.md).
 Toàn bộ mã HDL dùng SystemVerilog (`.sv`); hook và CI kiểm tra quy ước này.
@@ -21,7 +21,9 @@ Cấu hình đã chốt ngày 23/10/2026: **2 ESP32-S3, 1 FPGA và 1 mic INMP441
 FPGA đọc encoder và phát PWM cho 2 motor sau; Motion tính PID, điều khiển servo
 và giám sát an toàn. Chưa mua/chốt board FPGA: mô phỏng RTL, đánh giá tài nguyên
 và timing trên chip ứng viên trước. Tang Nano là ứng viên, không phải lựa chọn
-đã xác nhận. Xem [kế hoạch FPGA và toàn hệ thống](docs/fpga-drive-plan.md).
+đã xác nhận. Cho phép nâng lên **Nano 9K** khi 1K thiếu tài nguyên; chưa chốt mua.
+Xem [kế hoạch FPGA và toàn hệ thống](docs/fpga-drive-plan.md) và
+[hợp đồng ARM/gate](firmware/shared/fpga-safety.md).
 
 Mic phục vụ thu giọng nói/lệnh; DoA và tự hướng về người nói được giữ cho nâng
 cấp bằng cụm mic thu đồng bộ. Đồ án hiện hướng tới 3 môn: Tích hợp hệ thống cảm

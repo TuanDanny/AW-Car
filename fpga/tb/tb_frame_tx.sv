@@ -10,6 +10,9 @@ module tb_frame_tx;
     logic [15:0] snapshot_seq = 16'h4321, fault = 16'h100;
     logic [3:0] snapshot_status = 12;
     logic [7:0] safety_state = 2;
+    logic byte_last;
+    logic [31:0] frame_session;
+    logic [7:0] frame_state;
     frame_tx dut (.*);
     logic [255:0] vectors [0:6];
     logic [255:0] expected;
@@ -22,6 +25,8 @@ module tb_frame_tx;
             if (was_stalled && (!byte_valid || byte_data !== held_data)) $fatal(1, "TX changed under backpressure");
             if (byte_valid && byte_ready && check_bytes) begin
                 if (byte_data !== expected[count*8 +: 8]) $fatal(1, "snapshot/CRC byte %d corrupt", count);
+                if (byte_last !== (count == 30) || frame_session !== expected[71:40] ||
+                    frame_state !== expected[207:200]) $fatal(1, "serializer completion metadata");
                 count = count + 1;
                 if (count == 31) count = 0;
             end

@@ -12,7 +12,9 @@ trong [rà soát issue #1](issue-1-technical-review.md).
   lệnh và tự khóa đầu ra khi lệnh Motion quá hạn. PID và servo vẫn ở Motion.
 - Chưa mua FPGA. Viết RTL/testbench trước, dùng kết quả trên chip ứng viên để
   chọn board. Ngân sách board và bộ nạp dưới 500.000đ; tính thêm phụ kiện/ship.
-- Tang Nano là ứng viên; không mặc định bản 1K chứa được toàn bộ RTL.
+- Người dùng đồng ý nâng **Tang Nano 9K** nếu1K không đủ. Mapping toàn lõi
+  hiện vượt ngân sách FF1K; chuyển ứng viên đánh giá sang9K, chưa chốt mua.
+  Giá/phụ kiện và ngân sách phải kiểm tra lại lúc mua, không mặc định9K dưới500.000đ.
 - Nhắm 3 môn: Tích hợp hệ thống cảm biến, Lý thuyết mạch, RTL/FPGA. Bỏ mục tiêu
   môn PCB khuếch đại; loa/IC khuếch đại phục vụ giọng nói vẫn thuộc xe.
 - DoA dành cho nâng cấp, chưa có trong cấu hình 1 mic. Bản chạy đầu chỉ tiến
@@ -80,8 +82,9 @@ FPGA bản đầu; Motion chuyển đổi số đếm sang m/s và tạo giá tr
 Hai liên kết độc lập: Brain-Motion giữ đặc tả lease trong bản rà soát; liên kết
 Motion-FPGA dự kiến UART 3.3 V, 115200 8N1, dây ngắn và chung GND. Ví dụ khung
 tối đa 32 byte mỗi chiều, 100 Hz cần 32.000 bit/s mỗi chiều gồm start/stop,
-dưới 115200 bit/s; vẫn phải đo latency và lỗi khi motor chạy. Đây chưa là wire
-format; phải chốt byte order, CRC, session/sequence wrap và các miền giá trị.
+dưới 115200 bit/s; vẫn phải đo latency và lỗi khi motor chạy. Đã có
+[wire format v1](../firmware/shared/fpga-protocol.md) và
+[GPIO/ARM/gate contract](../firmware/shared/fpga-safety.md).
 
 - Motion gửi duty trái/phải, chiều, yêu cầu arm/disable và sequence của bước
   điều khiển mới. Chỉ lệnh mới/hợp lệ/đúng phiên khi ARMED mới gia hạn watchdog.
@@ -149,10 +152,10 @@ Không chọn board chỉ theo số thanh ghi. Ghi lại cho mỗi chip ứng vi
   sụt áp/nhiễu cho logic và âm thanh, chung GND được bố trí đúng.
 - Tổng chi phí board/bộ nạp/phụ kiện/vận chuyển, nguồn cung và khả năng thay thế.
 
-Đã có RTL reset/encoder/snapshot/PWM/chiều độc lập driver, mô phỏng Icarus và
-tổng hợp sơ bộ Yosys; xem [báo cáo](../fpga/verification.md). Chưa có UART/FSM/
-watchdog, chưa chạy Gowin/PnR/STA đúng chip và chưa chốt board. Kiểm tra công
-cụ qua PATH trước đây không còn phản ánh toolchain cục bộ đã chuẩn bị.
+Đã có RTL reset/encoder/snapshot/PWM/UART/FSM/watchdog và top tích hợp,
+mô phỏng Icarus và mapping generic toàn lõi; xem
+[báo cáo](../fpga/verification.md). Chưa chạy Gowin/PnR/STA đúng chip, chưa
+có firmware Motion/driver adapter/gate thực và chưa chốt mua board.
 
 ## 6. Nghiệm thu theo giai đoạn và 3 môn
 
@@ -179,6 +182,7 @@ cụ qua PATH trước đây không còn phản ánh toolchain cục bộ đã c
 
 ## 7. Nguồn
 
+- [Sipeed: thông số Tang Nano 9K](https://wiki.sipeed.com/hardware/en/tang/Tang-Nano-9K/Nano-9K.html).
 - [Sipeed: thông số Tang Nano 1K](https://wiki.sipeed.com/hardware/en/tang/Tang-Nano-1K/Nano-1k.html).
 - [Sipeed: Gowin IDE, thiết bị được hỗ trợ và Programmer](https://wiki.sipeed.com/hardware/en/tang/common-doc/get_started/install-the-ide.html).
 - [Altera: Quartus Prime](https://www.altera.com/products/software-tools/quartus-prime): trang hãng được tìm qua chỉ mục tìm kiếm; mở trực tiếp trả 403 khi đối chiếu, chưa đọc đầy đủ bảng hỗ trợ chip theo phiên bản.
