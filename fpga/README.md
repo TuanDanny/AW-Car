@@ -12,6 +12,10 @@ adapter driver, target board hoặc báo cáo timing. Hợp đồng GPIO phục 
 và gate ngoài ở [fpga-safety.md](../firmware/shared/fpga-safety.md). Xem giao diện ở
 [rtl](rtl/README.md), ca thử ở [tb](tb/README.md).
 
+Top logic ở `rtl/drive_core.sv`; module con chia theo `common`, `encoder`,
+`pwm`, `link`, `safety`, mỗi nhóm có README. Runner tìm `.sv` đệ quy trong
+`rtl/`; bốn script tổng hợp dùng đường dẫn nhóm tương ứng.
+
 Chạy từ root sau khi Icarus/VVP có trong PATH:
 
 ```sh

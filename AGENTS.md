@@ -27,6 +27,9 @@
 - `firmware/shared`: giao thức/kiểu dữ liệu chung, không phụ thuộc riêng một MCU.
 - `fpga`: RTL đo encoder, PWM motor và watchdog; PID/servo ở Motion. Viết RTL
   độc lập hãng; Quartus chỉ tham khảo cho chip Altera/Intel, Tang Nano dùng Gowin.
+- Trong `fpga/rtl`, top logic `drive_core.sv` ở root; module con phân theo
+  `common/`, `encoder/`, `pwm/`, `link/`, `safety/`, mỗi nhóm có README.
+  Khi chuyển nguồn, cập nhật đường dẫn tổng hợp và runner tìm `.sv` đệ quy.
 - Toàn bộ mã HDL của dự án, gồm RTL và testbench, bắt buộc dùng **SystemVerilog
   với đuôi `.sv`**; không thêm nguồn `.v`, `.vh`, `.svh`, `.vhd` hoặc `.vhdl`.
   RTL dùng `logic`, `always_ff`/`always_comb` đúng vai trò; tổng hợp bằng
