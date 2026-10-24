@@ -21,12 +21,13 @@ module motor_pwm_pair #(
 );
     localparam int WAIT_MAX = ZERO_CYCLES > SETUP_CYCLES ? ZERO_CYCLES : SETUP_CYCLES;
     localparam int WAIT_WIDTH = (WAIT_MAX > 1) ? $clog2(WAIT_MAX) : 1;
+    localparam int VALUE_WIDTH = (PERIOD_CYCLES > 1) ? $clog2(PERIOD_CYCLES + 1) : 1;
     typedef enum logic [1:0] {
         RUN = 2'd0, WAIT_ZERO = 2'd1, WAIT_SETUP = 2'd2, LOAD = 2'd3
     } state_t;
     state_t state;
     logic [WAIT_WIDTH-1:0] wait_count;
-    logic [DUTY_WIDTH-1:0] pending_left, pending_right;
+    logic [VALUE_WIDTH-1:0] pending_left, pending_right;
     logic [1:0] pending_direction;
     logic valid, same_direction, pwm_enable, pwm_command;
     logic [DUTY_WIDTH-1:0] pwm_left_command, pwm_right_command;
@@ -58,7 +59,7 @@ module motor_pwm_pair #(
                 pending_left <= 0; pending_right <= 0; pending_direction <= 0;
             end else if (valid && (state == WAIT_ZERO || state == WAIT_SETUP || !same_direction)) begin
                 // A newer command replaces the whole pending pair and restarts the zero interval.
-                pending_left <= command_left; pending_right <= command_right;
+                pending_left <= VALUE_WIDTH'(command_left); pending_right <= VALUE_WIDTH'(command_right);
                 pending_direction <= command_direction;
                 state <= WAIT_ZERO; wait_count <= ZERO_CYCLES - 1;
             end else begin

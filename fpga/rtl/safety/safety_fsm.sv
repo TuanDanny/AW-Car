@@ -23,24 +23,27 @@ module safety_fsm #(
     output logic [7:0] safety_state,
     output logic [15:0] fault
 );
-    localparam int WW = WATCHDOG_CYCLES > 1 ? $clog2(WATCHDOG_CYCLES) : 1;
-    localparam int HW = HANDSHAKE_CYCLES > 1 ? $clog2(HANDSHAKE_CYCLES) : 1;
-    localparam int CW = CLEAR_CYCLES > 1 ? $clog2(CLEAR_CYCLES) : 1;
-    localparam int MW = CLEAR_HOLD_CYCLES > 1 ? $clog2(CLEAR_HOLD_CYCLES) : 1;
+    localparam int LEASE_MAX = WATCHDOG_CYCLES > HANDSHAKE_CYCLES ? WATCHDOG_CYCLES : HANDSHAKE_CYCLES;
+    localparam int TIMER_MAX = LEASE_MAX > CLEAR_CYCLES ? LEASE_MAX : CLEAR_CYCLES;
+    localparam int TIMER_WIDTH = TIMER_MAX > 1 ? $clog2(TIMER_MAX) : 1;
+    localparam int CLEAR_READY_COUNT = CLEAR_CYCLES - CLEAR_HOLD_CYCLES;
     typedef enum logic [2:0] {DISARMED, HANDSHAKE, ARM_PENDING, ARMED, FAULT, CLEAR_WAIT} state_t;
     typedef enum logic [2:0] {WAIT_LOW, WAIT_HIGH, WAIT_RELEASE, READY, USED} recovery_t;
     state_t state;
     recovery_t recovery;
-    logic [WW-1:0] watchdog_count;
-    logic [HW-1:0] handshake_count;
-    logic [CW-1:0] clear_count;
-    logic [MW-1:0] hold_count;
+    // Recovery/handshake, armed lease and clear occupy mutually exclusive phases.
+    // Every entry loads its own deadline; no prescaling or derived clocks.
+    logic [TIMER_WIDTH-1:0] phase_count;
     logic arm_confirmed, prev_safety, prev_gate;
+    logic watchdog_active, handshake_active, clear_hold_done;
     logic watchdog_due, handshake_due, recovery_start, external_fault;
     assign safety_state = {5'd0, state};
-    assign watchdog_due = (state == ARM_PENDING || state == ARMED) && watchdog_count == 0;
-    assign handshake_due = (state == HANDSHAKE || recovery == WAIT_RELEASE || recovery == READY)
-                           && handshake_count == 0;
+    assign watchdog_active = state == ARM_PENDING || state == ARMED;
+    assign handshake_active = state == HANDSHAKE || recovery == WAIT_RELEASE || recovery == READY;
+    assign watchdog_due = watchdog_active && phase_count == 0;
+    assign handshake_due = handshake_active && phase_count == 0;
+    // Timeout still wins when hold reaches the full clear window (or exceeds it).
+    assign clear_hold_done = CLEAR_HOLD_CYCLES < CLEAR_CYCLES && phase_count <= CLEAR_READY_COUNT;
     assign recovery_start = recovery == WAIT_HIGH && recovery_req && !motion_permit;
     assign external_fault = (!safety_ok && (state != FAULT || prev_safety)) ||
         (!gate_ok && ((state != FAULT && state != CLEAR_WAIT) || prev_gate));
@@ -70,16 +73,14 @@ module safety_fsm #(
         if (!rst_n) begin
             state <= DISARMED; recovery <= WAIT_LOW; fault <= 0;
             context_load <= 0; session_active <= 0; active_session <= 0; sequence_base <= 0;
-            watchdog_count <= 0; handshake_count <= 0; clear_count <= 0; hold_count <= 0;
+            phase_count <= 0;
             arm_confirmed <= 0; prev_safety <= 0; prev_gate <= 0;
         end else begin
             context_load <= 0;
             if (inputs_valid) begin
                 prev_safety <= safety_ok; prev_gate <= gate_ok;
-                if (state == ARM_PENDING || state == ARMED)
-                    if (!watchdog_due) watchdog_count <= watchdog_count - 1'b1;
-                if (state == HANDSHAKE || recovery == WAIT_RELEASE || recovery == READY)
-                    if (!handshake_due) handshake_count <= handshake_count - 1'b1;
+                if ((watchdog_active || handshake_active) && phase_count != 0)
+                    phase_count <= phase_count - 1'b1;
                 if (recovery == WAIT_LOW && !motion_permit && !recovery_req) recovery <= WAIT_HIGH;
                 if (recovery == WAIT_RELEASE && !recovery_req && !motion_permit) recovery <= READY;
 
@@ -96,7 +97,7 @@ module safety_fsm #(
                 else if (handshake_due) trip(16'h0040);
                 else if (recovery_start) begin
                     invalidate; recovery <= WAIT_RELEASE;
-                    handshake_count <= HANDSHAKE_CYCLES - 1;
+                    phase_count <= HANDSHAKE_CYCLES - 1;
                     if (fault != 0) state <= FAULT;
                     else state <= DISARMED;
                 end else if (recovery == WAIT_RELEASE && motion_permit) trip(16'h0008);
@@ -105,7 +106,7 @@ module safety_fsm #(
                     active_session <= event_session; session_active <= 1;
                     sequence_base <= event_sequence; context_load <= 1;
                     recovery <= USED; arm_confirmed <= 0;
-                    handshake_count <= HANDSHAKE_CYCLES - 1;
+                    phase_count <= HANDSHAKE_CYCLES - 1;
                     if (fault != 0) state <= FAULT;
                     else state <= HANDSHAKE;
                 end else begin
@@ -115,7 +116,7 @@ module safety_fsm #(
                             if (motion_permit || recovery_req) trip(16'h0008);
                             else if (arm_zero_request && session_active && !context_load) begin
                                 state <= ARM_PENDING; arm_confirmed <= 0;
-                                watchdog_count <= WATCHDOG_CYCLES - 1;
+                                phase_count <= WATCHDOG_CYCLES - 1;
                             end
                         end
                         ARM_PENDING: begin
@@ -125,19 +126,17 @@ module safety_fsm #(
                             end else if (status_sent && status_session == active_session &&
                                          status_state == 2 && session_active) arm_confirmed <= 1;
                         end
-                        ARMED: if (motor_command) watchdog_count <= WATCHDOG_CYCLES - 1;
+                        ARMED: if (motor_command) phase_count <= WATCHDOG_CYCLES - 1;
                         FAULT: if (clear_fault_request && session_active && !context_load &&
                                    safety_ok && !motion_permit && !recovery_req) begin
-                            state <= CLEAR_WAIT; clear_count <= CLEAR_CYCLES - 1;
-                            hold_count <= CLEAR_HOLD_CYCLES - 1;
+                            state <= CLEAR_WAIT; phase_count <= CLEAR_CYCLES - 1;
                         end
                         CLEAR_WAIT: begin
                             if (motion_permit || recovery_req) trip(16'h0008);
-                            else if (clear_count == 0) trip(16'h0020);
+                            else if (phase_count == 0) trip(16'h0020);
                             else begin
-                                clear_count <= clear_count - 1'b1;
-                                if (hold_count != 0) hold_count <= hold_count - 1'b1;
-                                else if (gate_ok) begin
+                                phase_count <= phase_count - 1'b1;
+                                if (clear_hold_done && gate_ok) begin
                                     fault <= 0; state <= DISARMED; recovery <= WAIT_LOW; invalidate;
                                 end
                             end

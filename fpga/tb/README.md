@@ -18,6 +18,9 @@ bài, `--test tb_encoder_pair` để chọn và `--waves` để lưu VCD trong b
   lệnh lỗi không đổi chiều; disable/reset từng bước chuyển và khi clock đứng.
 - `tb_pwm_timing`: clock27MHz, chu kỳ1.350 tick, duty50/100%, zero27.000 tick,
   setup27 tick và các tham số nhỏ nhất hợp lệ (period/zero/setup=1).
+- `tb_pwm_widths`: period16/1350/2048/65535, duty100%, zero/one và lệnh sai
+  có bit cao (gồm2049 có thể alias thành1 nếu cắt11bit quá sớm); đếm HIGH
+  cả period, so khớp PWM với wrapper motor và xóa duty khi disable.
 - `tb_uart`: host/observer UART độc lập, đủ256 byte ở baud danh định/+2%/-2%,
   pha lệch, back-to-back, false start/stop lỗi/break/reset giữa byte, TX busy.
 - `tb_frame_rx`: CRC chuẩn29B1 và vector chung, mutation từng byte CRC bảo vệ,

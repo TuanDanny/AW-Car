@@ -19,9 +19,9 @@ Toàn bộ mã HDL dùng SystemVerilog (`.sv`); hook và CI kiểm tra quy ướ
 
 Cấu hình đã chốt ngày 23/10/2026: **2 ESP32-S3, 1 FPGA và 1 mic INMP441**.
 FPGA đọc encoder và phát PWM cho 2 motor sau; Motion tính PID, điều khiển servo
-và giám sát an toàn. Chưa mua/chốt board FPGA: mô phỏng RTL, đánh giá tài nguyên
-và timing trên chip ứng viên trước. Tang Nano là ứng viên, không phải lựa chọn
-đã xác nhận. Cho phép nâng lên **Nano 9K** khi 1K thiếu tài nguyên; chưa chốt mua.
+và giám sát an toàn. Board mục tiêu là **Tang Nano 9K**
+(`GW1NR-LV9QN88PC6/I5`), chưa mua. Tối ưu RTL vẫn giữ mục tiêu 9K;
+mô phỏng và tổng hợp sơ bộ chưa thay kết quả fit/timing trên đúng chip.
 Xem [kế hoạch FPGA và toàn hệ thống](docs/fpga-drive-plan.md) và
 [hợp đồng ARM/gate](firmware/shared/fpga-safety.md).
 

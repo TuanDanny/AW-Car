@@ -16,6 +16,11 @@ ngay đầu ra; giữ LOW ít nhất một cạnh clock để xóa active/shadow
 Cấp lại enable nhưng chưa có lệnh mới thì duty vẫn zero. Không nhả/cấp enable
 bất đồng bộ để thay FSM/gate: PWM độc lập không chốt lỗi khi clock đứng.
 
+Cổng lệnh và active duty giữ DUTY_WIDTH bit; thanh ghi nội bộ chỉ dùng
+`max(1, $clog2(PERIOD_CYCLES + 1))` bit (11 bit với1350). Kiểm tra sai miền
+trên toàn bộ lệnh trước khi thu hẹp; trả active duty bằng zero-extension.
+Độ rộng duty phải chứa cả PERIOD_CYCLES để giữ100% khi period là lũy thừa2.
+
 ZERO_CYCLES=27000 (1ms), SETUP_CYCLES=27 (1us) tại27MHz là tham số mô phỏng,
 chưa phải thời gian dừng rotor/dead-time cầu H. Motion phải xác nhận vận tốc
 phù hợp trước đảo chiều; xe bản đầu vẫn chỉ tiến. Adapter driver, gate/FAULT

@@ -240,10 +240,10 @@ khi simulation ổn, không phải dependency chặn bản đầu.
 
 Ứng viên đầu để đo: **Tang Nano 1K / GW1NZ-LV1QN48C6/I5**, 1.152 LUT4, 864 FF,
 clock 27 MHz theo Sipeed. Mapping toàn lõi hiện đã vượt ngân sách FF1K.
-Người dùng đồng ý chuyển sang **Tang Nano9K**, chip **GW1NR-LV9QN88PC6/I5**,
+Board mục tiêu đã chốt **Tang Nano9K**, chip **GW1NR-LV9QN88PC6/I5**,
 8.640 LUT4/6.480 FF, clock27MHz theo [Sipeed](https://wiki.sipeed.com/hardware/en/tang/Tang-Nano-9K/Nano-9K.html)
-(đối chiếu23/10/2026). Đây là ứng viên target tiếp theo; chưa có fit/timing/I/O
-đúng chip, chưa kiểm tra giá hiện tại hoặc chốt mua. Không giảm safety để ép1K.
+(đối chiếu23/10/2026). Tối ưu vẫn giữ mục tiêu9K; chưa có fit/timing/I/O
+đúng chip, chưa kiểm tra giá hiện tại hoặc mua. Không giảm safety để ép1K.
 
 1. Trong Gowin Education tạo project đúng part/package/speed grade; top phải
    có tất cả encoder, UART, PWM, chiều và permit, không bỏ khối để báo fit giả.
@@ -279,7 +279,7 @@ Mô phỏng không chứng minh điện áp, nhiệt, nhiễu, metastability hay
 ## 6. Thứ tự triển khai và cấu trúc khi có mã thật
 
 Mỗi hàng là một phạm vi PR riêng; tên nhánh đề xuất, tạo từ main mới nhất sau
-khi PR trước squash merge. Mã `f07..f13` là gói triển khai dự kiến, không sửa
+khi PR trước squash merge. Mã `f07..f14` là gói triển khai dự kiến, không sửa
 ý nghĩa F01-F06 của yêu cầu sản phẩm hiện tại.
 
 | Thứ tự / nhánh | Việc làm | Bằng chứng để chuyển bước |
@@ -290,11 +290,12 @@ khi PR trước squash merge. Mã `f07..f13` là gói triển khai dự kiến, 
 | 4. `feat/f08-fpga-pwm` | PWM cặp + motor sequencer; bản độc lập mặc định inhibit | Duty/boundary/đổi chiều/reset đạt; đo tài nguyên tăng thêm |
 | 5. `feat/f09-fpga-link` | Đã có UART + parser/CRC/serializer + command guard; không tự ARM | Vector chung, lỗi frame/sequence/session và snapshot TX; handshake thuộc f10 |
 | 6. `feat/f10-fpga-safety` | Đã có FSM/watchdog + top logic và GPIO recovery/STATUS ARM | Test timeout/reconnect/reset, model gate/Motion; chưa có gate/firmware thật |
-| 7. `feat/f11-fpga-target` | Đánh giá target9K, constraints, báo cáo route/timing | Đủ hồ sơ quyết định mua hoặc lý do đổi board |
-| 8. `feat/f12-motion-fpga-link` | Driver giao thức Motion, PID sử dụng snapshot, stale-data inhibit | Kiểm thử hai đầu/mô hình trước, board bench sau khi có phần cứng |
-| 9. `feat/f13-drive-integration` | Driver/nguồn/encoder thật, cảm biến/PID, Brain/Web/servo | Biên bản thử lỗi, tốc độ/quãng dừng và tải đồng thời |
+| 7. `feat/f11-fpga-optimize` | Tối ưu duty/timer, giữ target9K và hợp đồng an toàn | Hồi quy16 bài,14 trường hợp tương đương và tổng hợp trước/sau; xem verification |
+| 8. `feat/f12-fpga-target` | Đánh giá target9K, constraints, báo cáo route/timing | Đủ hồ sơ quyết định mua hoặc lý do đổi board |
+| 9. `feat/f13-motion-fpga-link` | Driver giao thức Motion, PID sử dụng snapshot, stale-data inhibit | Kiểm thử hai đầu/mô hình trước, board bench sau khi có phần cứng |
+| 10. `feat/f14-drive-integration` | Driver/nguồn/encoder thật, cảm biến/PID, Brain/Web/servo | Biên bản thử lỗi, tốc độ/quãng dừng và tải đồng thời |
 
-Bước tiếp theo là f11: wrapper/constraints và Gowin/PnR/STA đúng chip9K.
+Sau PR tối ưu f11, bước tiếp theo là f12: wrapper/constraints và Gowin/PnR/STA đúng chip9K.
 Driver chưa chốt nên adapter chân công suất vẫn để sau; core đã nối đủ logic
 nhưng chưa sẵn sàng điều khiển motor thật. Firmware/gate và thử bàn vẫn bắt buộc.
 

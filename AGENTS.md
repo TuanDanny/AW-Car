@@ -5,7 +5,8 @@
 - Đọc README ở root, README của thư mục liên quan và yêu cầu đang thực hiện.
 - Kiểm tra `git status` và nhánh hiện tại; giữ nguyên thay đổi không thuộc tác vụ.
 - Bản đầu: 2 ESP32-S3, 1 FPGA, 1 INMP441; DoA dành cho nâng cấp.
-  Phân tải và tiêu chí chọn FPGA ở `docs/fpga-drive-plan.md`; chưa chốt board.
+  Phân tải ở `docs/fpga-drive-plan.md`; board mục tiêu Tang Nano 9K, chưa mua
+  và chưa xác nhận fit/timing đúng chip. Tối ưu RTL không đổi mục tiêu về 1K.
 - Trao đổi và báo cáo bằng tiếng Việt, ngắn gọn; nêu giả định ảnh hưởng thiết kế.
 
 ## Nhánh và merge

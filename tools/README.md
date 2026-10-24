@@ -41,3 +41,19 @@ khi tạo `fpga/build/`. Có thể
 dùng YoWASP-Yosys trong venv cục bộ thay binary Yosys; bản đã xác minh là
 `yowasp-yosys==0.70.0.0.post1259`. Đây là dependency công cụ tùy chọn cho máy
 phát triển; CI cài Yosys hệ thống. Kết quả chưa bao gồm place-and-route/timing.
+
+`check_fpga_equivalence.py` so sánh PWM/motor PWM/command guard/safety với một
+revision Git trước tối ưu. Bản baseline phải có trong lịch sử local:
+
+```sh
+python tools/check_fpga_equivalence.py --base 821cfae --yosys <yosys>
+```
+
+Tool tạo bản nguồn/miter/log trong `fpga/build/equivalence/`, không sửa RTL.
+Yosys SAT temporal induction chứng minh đầu ra và quan hệ trạng thái; các
+invariant là assertion được chứng minh, không giả định từ người gọi. Có14
+trường hợp, gồm tham số mặc định, duty power-of-two và timer nhỏ/hold>=clear.
+Reset bất đồng bộ được chuẩn hóa bằng async2sync; vẫn phải mô phỏng reset và
+đo CDC/reset/timing trên board. Đây là phép so sánh phục vụ refactor f11,
+chạy riêng cục bộ; CI chạy regression Icarus/tổng hợp. Khi chủ động đổi chức
+năng, phải xem lại baseline/observation, không coi bản cũ là đặc tả mới.

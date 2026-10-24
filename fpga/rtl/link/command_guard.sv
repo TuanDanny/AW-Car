@@ -28,8 +28,12 @@ module command_guard #(
     output logic [15:0] command_right,
     output logic [1:0] command_direction
 );
+    localparam int VALUE_WIDTH = (PERIOD_CYCLES > 1) ? $clog2(PERIOD_CYCLES + 1) : 1;
+    logic [VALUE_WIDTH-1:0] left_value, right_value;
     logic [15:0] last_sequence, delta;
     logic correct_session, fresh, payload_ok;
+    assign command_left = left_value;
+    assign command_right = right_value;
     assign delta = frame_sequence - last_sequence;
     assign correct_session = session_active && active_session != 0 && frame_session == active_session;
     assign fresh = delta != 0 && !delta[15];
@@ -41,13 +45,13 @@ module command_guard #(
             last_sequence <= 0; hello_request <= 0; arm_zero_request <= 0;
             disable_request <= 0; clear_fault_request <= 0; command_valid <= 0;
             rejected <= 0; event_session <= 0; event_sequence <= 0;
-            command_left <= 0; command_right <= 0; command_direction <= 0;
+            left_value <= 0; right_value <= 0; command_direction <= 0;
         end else begin
             hello_request <= 0; arm_zero_request <= 0; disable_request <= 0;
             clear_fault_request <= 0; command_valid <= 0; rejected <= 0;
             if (context_load) begin
                 last_sequence <= sequence_base;
-                command_left <= 0; command_right <= 0; command_direction <= 0;
+                left_value <= 0; right_value <= 0; command_direction <= 0;
             end else if (frame_valid) begin
                 event_session <= frame_session; event_sequence <= frame_sequence;
                 if (frame_type == 4) disable_request <= 1;
@@ -61,8 +65,8 @@ module command_guard #(
                         5: clear_fault_request <= 1;
                         3: begin
                             command_valid <= 1;
-                            command_left <= frame_payload[31:16];
-                            command_right <= frame_payload[47:32];
+                            left_value <= VALUE_WIDTH'(frame_payload[31:16]);
+                            right_value <= VALUE_WIDTH'(frame_payload[47:32]);
                             command_direction <= frame_payload[9:8];
                         end
                         default: begin end
