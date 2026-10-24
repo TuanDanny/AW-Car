@@ -15,6 +15,9 @@ hoặc timeout; kiểm tra đường dẫn tool tương đối và môi trườn
 `--full-timing` thực sự chọn clock danh định cho bài top2s.
 Nguồn thử gồm top ở root, module lồng nhiều cấp và helper ngoài `rtl/` để
 phát hiện runner bỏ sót thư mục con hoặc lấy nhầm nguồn testbench.
+Test thêm registry đủ testbench, inventory module bỏ qua comment/trùng tên,
+kiểu module từ VVP, marker PASS, JSON/hash và failure khi module mới chưa có
+bài kiểm thử. Module của test lỗi không được tính là đã có bằng chứng PASS.
 Test RTL thực nằm ở [fpga/tb](../fpga/tb/README.md), chạy riêng
 bằng `python tools/run_fpga_tests.py` và được yêu cầu trong CI.
 

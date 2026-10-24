@@ -271,3 +271,104 @@ clock-stop, gate ngoài và phép đo phần cứng vẫn bắt buộc như trư
 
 20 test Python, kiểm tra repo/nhánh và `git diff --check` đạt. Các file sơ đồ
 và liên kết README của tác vụ trước được giữ ngoài thay đổi tối ưu này.
+
+## Mở rộng regression và bằng chứng bao phủ module — 24/10/2026
+
+Nhánh `chore/fpga-regression-coverage`, nền `ec20257` (PR tối ưu #10 đã merge).
+**Không thay đổi nguồn RTL**; bổ sung sáu testbench SystemVerilog, runner báo
+cáo và yêu cầu CI. Cùng Icarus/VVP13.0: **22/22 testbench PASS**, compile không
+warning, cả **15/15 module RTL** được elaborate trong bài thành công.
+
+| Bài mới | Phạm vi đã kiểm tra |
+| --- | --- |
+| tb_common_matrix | Sáu cấu hình (N,WIDTH)=(1,1)/(2,2)/(3,4)/(4,2)/(5,3)/(8,4); scoreboard lịch sử mẫu độc lập; nhiễu N-1/N/N+1, 2.000 thay đổi ngẫu nhiên/cấu hình; reset ở chín pha và khi clock đứng |
+| tb_crc16_matrix | 327.680 so sánh bằng chia đa thức24bit độc lập; đủ65.536 CRC trước với bốn byte0/FF/55/AA; đủ256 byte trên256 seed bổ sung, chưa phải toàn bộ2^24 cặp |
+| tb_guard_sequence | Toàn65.536 delta sequence modulo,32.767 retry duplicate,16 bit điều khiển sai gồm chiều, duty2049/675/1350 và context_load trùng CMD |
+| tb_uart_matrix | Bốn cấu hình divider8/9/16/17, gồm biên làm tròn; đủ256 byte TX/RX mỗi cấu hình; đo từng tick TX/stop/done, busy, reset ở cả10 vị trí ký hiệu và RX phục hồi |
+| tb_frame_tx_random | 10 seed x256 STATUS, trường ngẫu nhiên/đủ256 byte state; packing/CRC reference riêng, nguồn đổi khi stall, metadata đóng băng,5.120 drop không tạo hàng đợi cũ |
+| tb_safety_matrix | Năm cấu hình (watchdog,handshake,clear,hold)=(8,16,8,1)/(32,16,8,3)/(8,16,32,4)/(8,16,5,5)/(8,16,5,6), thêm watchdog1/handshake1; đủ6 state/8 fault bit, deadline, ưu tiên sự kiện, clear và illegal state |
+
+Quét sequence giữ một base cố định và kiểm tra mọi khoảng cách modulo, không
+phải mọi chuỗi traffic dài bất kỳ. FSM kiểm tra sáu trạng thái hợp lệ/tám bit
+fault và những sự kiện đồng thời nêu trong test; không tuyên bố mọi tổ hợp
+trạng thái/đầu vào đều đã được vét cạn. Illegal state được đưa vào bằng
+`$deposit` để kiểm tra nhánh fail-safe, chưa chứng minh chịu SEU trên silicon.
+
+### Ánh xạ toàn bộ RTL sang bằng chứng mô phỏng
+
+Runner lấy tên module khai báo từ nguồn, đối chiếu kiểu module thực trong
+file VVP của bài đã PASS, không suy từ tên file hay tên instance. Bảng dưới
+liệt kê test chính; JSON còn ghi test tích hợp gián tiếp.
+
+| Module RTL | Testbench chính |
+| --- | --- |
+| reset_sync | tb_encoder_units, tb_common_matrix |
+| input_sync_filter | tb_encoder_units, tb_common_matrix, tb_encoder_pair |
+| quadrature_decoder | tb_encoder_units, tb_encoder_pair, tb_encoder_timing |
+| encoder_pair | tb_encoder_pair, tb_encoder_timing |
+| pwm_pair | tb_pwm_pair, tb_pwm_widths, tb_pwm_timing |
+| motor_pwm_pair | tb_motor_pwm_pair, tb_pwm_widths, tb_pwm_timing |
+| uart_rx | tb_uart, tb_uart_matrix |
+| uart_tx | tb_uart, tb_uart_matrix |
+| crc16_byte | tb_crc16_matrix, tb_frame_rx, tb_frame_tx_random |
+| frame_rx | tb_frame_rx, tb_fpga_link |
+| frame_tx | tb_frame_tx, tb_frame_tx_random |
+| command_guard | tb_command_guard, tb_guard_sequence |
+| fpga_link | tb_fpga_link |
+| safety_fsm | tb_safety_fsm, tb_safety_timing, tb_safety_matrix |
+| drive_core | tb_drive_core, tb_drive_defaults |
+
+Chỉ số **15/15 là module được elaborate trong test thành công**, không phải
+100% dòng lệnh/nhánh/toggle/FSM transition hay chứng minh đúng mọi trạng thái.
+Các metric đó chưa được đo. Ca chức năng có assert/scoreboard và counter
+`COVER` riêng; số lượt chạy không tự thay tiêu chí bao phủ yêu cầu.
+
+### Lệnh tái tạo và báo cáo
+
+```powershell
+python tools/run_fpga_tests.py --iverilog build/toolchain/ucrt64/bin/iverilog.exe --vvp build/toolchain/ucrt64/bin/vvp.exe --timeout 1800 --report fpga/build/regression-report.json --require-module-coverage
+```
+
+Bài tích hợp dài cục bộ PASS **2.001,560ms tại2,7MHz,188 STATUS**; bài lỗi
+danh định PASS **225,343ms tại27MHz,11 STATUS**. Các bài encoder/PWM/safety/link
+danh định vẫn chạy cấu hình27MHz. Không chạy lại bài top2s tại27MHz cục bộ
+trong lần mở rộng này: nguồn RTL giữ nguyên PR#10, đã có bằng chứng full-timing
+ở mục tối ưu; CI của PR này chạy lại toàn22 bài với `--full-timing`.
+
+JSON ghi phiên bản compiler, SHA256 từng nguồn RTL/testbench, kết quả/duration,
+module -> test và số ca chức năng. Thất bại/thiếu marker PASS không được tính
+bằng chứng module. `--require-module-coverage` làm CI fail nếu có module mới
+chưa nằm trong bài PASS; đây chỉ là hàng rào tối thiểu, vẫn phải review test
+cho hành vi mới. CI lưu artifact `fpga-regression-evidence` kể cả khi lỗi.
+Build/VCD/JSON là artifact bị ignore, không commit. Unit test Python kiểm
+tra cả báo cáo lỗi, marker, module bị bỏ sót và hash nguồn. **28 test Python
+PASS**, kiểm tra cấu trúc/nhánh và `git diff --check` đạt.
+
+### Thử khả năng phát hiện lỗi
+
+Đã tạo sáu bản nguồn sai trong build tạm, không sửa RTL gốc. Mỗi bản compile
+thành công, sau đó bị bài tương ứng từ chối bằng `$fatal`; compile lỗi hay
+timeout không được tính là phát hiện đúng:
+
+| Sai lệch cố ý | Test phát hiện |
+| --- | --- |
+| Bộ lọc nhận sớm một mẫu | tb_common_matrix |
+| CRC polynomial1021 đổi thành1020 | tb_crc16_matrix |
+| Guard chấp nhận sequence lặp | tb_guard_sequence |
+| TX rút một bit ngắn đi một tick | tb_uart_matrix |
+| STATUS đổi chỗ count hai bánh | tb_frame_tx_random |
+| Watchdog nạp deadline sớm một tick | tb_safety_matrix |
+
+Kết quả6/6 bị từ chối; nguồn mutant/log/result cục bộ ở
+`fpga/build/coverage-mutations/` bị ignore. Đây là negative control cho sáu
+sai lệch cụ thể, không phải mutation score toàn bộ RTL.
+
+### Timing còn phải làm
+
+Chưa có số **Tcd/Tpd ns, setup/hold slack hoặc Fmax sau route**. Yosys generic
+và mô phỏng logic/VCD không tạo bằng chứng này. Bước tiếp theo **f12 target9K**
+thêm wrapper, pin/I/O/clock constraints và chạy Gowin synthesis/PnR/STA đúng
+chip, trước mua board. Clock27MHz có chu kỳ khoảng37,037ns; STA phải kiểm tra
+cả đường min/max, clock, FF setup/hold và corner yêu cầu, không chỉ so một
+đường logic với chu kỳ. Xem [thời điểm và tiêu chí timing](../docs/fpga-rtl-design-test-plan.md#khi-nào-kiểm-tra-tcdtpd-và-timing).
+Chưa thay thử điện/driver/gate/reset/clock-stop trên phần cứng.

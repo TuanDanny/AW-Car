@@ -23,7 +23,10 @@ python tools/run_fpga_tests.py
 ```
 
 Runner nhận `--iverilog` và `--vvp` để dùng đường dẫn cục bộ, `--waves` để lưu
-VCD tại `fpga/build/`. CI chạy mô phỏng trên Linux. Viết lõi độc lập hãng;
+VCD tại `fpga/build/`. Có22 testbench; `--report fpga/build/regression-report.json`
+cùng `--require-module-coverage` xuất bằng chứng module -> test và chặn module
+chưa tham gia bài PASS. Đây chưa phải coverage dòng/nhánh/toggle hoặc timing
+vật lý. CI lưu JSON thành artifact và chạy mô phỏng trên Linux. Viết lõi độc lập hãng;
 chỉ thêm thư mục target khi có wrapper/constraints thực tế.
 
 Với bộ Icarus cục bộ đã chuẩn bị trên máy này, không cần đổi PATH hệ thống:
@@ -45,6 +48,8 @@ hoặc YoWASP-Yosys. Đã chạy Yosys0.70 cục bộ; CI cũng chạy bốn scr
 Chưa có pinout/constraints/PnR/STA đúng chip; cell count sơ bộ không kết luận fit.
 Luồng đề xuất: Icarus/VVP + GTKWave để mô phỏng, Gowin Education để tổng hợp,
 place-and-route và kiểm tra timing đúng chip Tang Nano 9K; không cần Quartus.
+Tcd/Tpd min/max, setup/hold và slack được kiểm tra bằng STA sau route ở bước
+target, trước khi mua board; xem [tiêu chí timing](../docs/fpga-rtl-design-test-plan.md#5-tổng-hợp-và-điều-kiện-quyết-định-mua-board).
 Board mục tiêu **Nano 9K / GW1NR-LV9QN88PC6/I5**, chưa mua hoặc xác nhận
 fit/timing/giá. Tối ưu duty và timer vẫn giữ mục tiêu 9K; số liệu trước/sau
 ở [verification.md](verification.md). Công cụ kiểm chứng tương đương với bản

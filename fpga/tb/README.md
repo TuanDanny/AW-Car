@@ -12,6 +12,19 @@ bài, `--test tb_encoder_pair` để chọn và `--waves` để lưu VCD trong b
   định, mỗi seed 10.000 chuyển hợp lệ mỗi bánh và đối chiếu count độc lập.
 - `tb_encoder_timing`: tham số mặc định, kiểm tra ba chu kỳ snapshot270.000
   tick; mô phỏng clock 27 MHz với độ chính xác ps.
+- `tb_common_matrix`: scoreboard lịch sử mẫu độc lập cho sáu cấu hình lọc
+  N=1/2/3/4/5/8, WIDTH=1..4; nhiễu quanh ngưỡng, 2.000 lần đổi mỗi cấu hình,
+  reset ở chín pha và reset/nhả khi clock đứng.
+- `tb_crc16_matrix`: 327.680 so sánh bằng phép chia đa thức độc lập; toàn bộ
+  65.536 CRC trước với bốn mẫu byte và toàn bộ byte với 256 seed bổ sung.
+- `tb_guard_sequence`: đủ 65.536 khoảng cách sequence modulo, 32.767 lần thử
+  lặp, 16 bit điều khiển sai (gồm chiều), duty có bit cao và context trùng CMD.
+- `tb_uart_matrix`: divider tối thiểu8, lẻ9 và biên làm tròn16/17; đủ256 byte
+  TX/RX mỗi cấu hình, đo từng tick TX, reset ở cả10 vị trí ký hiệu và phục hồi.
+- `tb_frame_tx_random`: 10 seed x256 STATUS có trường ngẫu nhiên, reference
+  packing/CRC riêng, stall, metadata đóng băng và5.120 snapshot bị drop.
+- `tb_safety_matrix`: bảy cấu hình timer, sáu trạng thái/tám bit fault,
+  sự kiện đồng thời, deadline, hold<clear/=clear/>clear và trạng thái bất hợp lệ.
 - `tb_pwm_pair`: duty0/1/giữa/P-1/P, từ chối ngoài miền/disabled, shadow cặp,
   10 seed x 1.000 lệnh và đo số tick HIGH/cạnh/chu kỳ bằng scoreboard.
 - `tb_motor_pwm_pair`: thời gian zero/setup, lệnh thay thế khi đổi chiều,
@@ -47,6 +60,18 @@ bài, `--test tb_encoder_pair` để chọn và `--waves` để lưu VCD trong b
   cùng kịch bản>=2s ở27MHz/115200/20kHz/50ms, CI bật chế độ này.
 - `tb_drive_defaults`: cùng chuỗi lỗi với toàn tham số mặc định27MHz, không
   chạy vòng giữ lệnh2s. Wrapper reuse scenario `.sv`, không sao chép model.
+
+Hiện có **22 testbench**. Lưu báo cáo JSON và buộc mọi module RTL được
+elaborate trong ít nhất một bài PASS bằng:
+
+```sh
+python tools/run_fpga_tests.py --timeout 1800 --report fpga/build/regression-report.json --require-module-coverage
+```
+
+Thêm `--full-timing` để chạy cả bài tích hợp2s ở27MHz như CI. Báo cáo có
+module -> test, số ca `COVER`, phiên bản compiler và SHA256 nguồn. Chỉ test
+thành công có đúng marker PASS mới được tính; kiểm tra này không đo coverage
+dòng/nhánh/toggle. Xem [bằng chứng và giới hạn](../verification.md).
 
 Mô hình test không mô phỏng metastability hoặc nguồn/mức điện áp. Motion/gate
 chỉ là model kiểm chứng hợp đồng, chưa có firmware hoặc sơ đồ điện thực tế. PWM/chiều là tín hiệu logic

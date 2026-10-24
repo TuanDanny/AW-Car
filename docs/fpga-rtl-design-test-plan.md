@@ -69,7 +69,7 @@ riêng. Brain giữ Web, âm thanh và TFT; driver vẫn cấp dòng cho motor.
 
 | Tham số | Giá trị dự kiến | Lý do/điều kiện |
 | --- | --- | --- |
-| Clock lõi | 27 MHz; một clock domain, không PLL bản đầu | Clock onboard Nano 1K; target khác phải đổi tham số/constraints |
+| Clock lõi | 27 MHz; một clock domain, không PLL bản đầu | Clock onboard Nano 9K; đổi clock phải cập nhật tham số/constraints |
 | PWM | Edge-aligned, 20 kHz, chu kỳ 1.350 tick | 27.000.000 / 1.350 = 20.000 Hz; counter 11 bit |
 | Duty | Số nguyên 0..1.350; 0 tắt, 1.350 bật cả chu kỳ | Bước 1/1.350, hơn 10 bit hữu dụng; ngoài miền bị từ chối |
 | Encoder | X4, 2 bộ đếm 32 bit modulo | Motion lấy delta có dấu; cần chứng minh delta giữa mẫu nhỏ hơn 2^31 |
@@ -269,6 +269,33 @@ Nếu chưa có Gowin chạy được và chỉ có Yosys generic, vẫn tiến 
 mô phỏng, nhưng **chưa chốt mua board**. Kết quả Apicula/nextpnr cho đúng chip
 có thể bổ sung bằng chứng; review mức hỗ trợ/timing/constraint trước khi thay
 đường nghiệm thu Gowin. Cell count generic toàn lõi và giới hạn được ghi ở [verification](../fpga/verification.md).
+
+### Khi nào kiểm tra Tcd/Tpd và timing?
+
+Thực hiện ở bước **f12 target9K, trước khi mua board**. Không cần có board
+để chạy synthesis/place-and-route/STA; cần đúng part/package/speed grade,
+wrapper, ràng buộc clock/pin/I/O và thư viện timing của công cụ.
+
+| Giai đoạn | Kiểm tra được | Giới hạn |
+| --- | --- | --- |
+| RTL Icarus hiện tại | Số tick, UART/PWM, deadline, thứ tự reset/ARM/fault | `#delay` trong testbench là kích thích; không cho Tcd/Tpd vật lý |
+| Synthesis đúng chip | Đường logic dài, tài nguyên, ước lượng trễ trước route nếu công cụ có | Chưa gồm đầy đủ dây/clock thực sau route |
+| Place-and-route + STA Gowin | Đường min/max, setup/hold, slack, clock uncertainty/skew, recovery/removal reset khi áp dụng | Phải review clock/constraints/CDC và đường chưa ràng buộc |
+| Sau khi có board | PWM/chiều/gate, điện áp, nhiễu, boot/reset, lỗi mất clock/nguồn | Phép đo bổ sung STA, không thay kiểm tra mọi đường nội bộ |
+
+Tpd là trễ lan truyền cực đại, Tcd là trễ cực tiểu của **đường và điều kiện
+đã xác định**; không có một cặp số duy nhất đại diện mọi đường trong lõi.
+Đường chậm liên quan setup, đường quá nhanh có thể vi phạm hold. STA phải
+tính cả trễ clock-to-Q, logic/dây, yêu cầu FF và clock theo mô hình chip;
+không chỉ so Tpd với chu kỳ37,037ns. Báo cáo cần ghi đường bắt đầu/kết thúc,
+điều kiện phân tích, setup/hold slack và giới hạn tần số; đạt khi mọi check
+bắt buộc không vi phạm ở các corner yêu cầu và exception có căn cứ.
+
+Hiện chưa có wrapper/constraints/Gowin project hoặc STA đúng9K, vì vậy
+**chưa có Tcd/Tpd ns hoặc Fmax được xác nhận**. Không suy ra từ số LUT/FF,
+VCD hay PASS ở testbench27MHz. Regression và ánh xạ15 module được ghi ở
+[verification](../fpga/verification.md); coverage chức năng và timing là hai
+bộ bằng chứng riêng cần hoàn thành.
 
 Sau khi mua: đo PWM/chiều/gate bằng logic analyzer/oscilloscope, cấp xung
 encoder giả rồi thật, rút UART, reset/tắt nguồn từng board, ngắt clock và

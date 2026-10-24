@@ -41,7 +41,14 @@ jobs:
           sudo apt-get update
           sudo apt-get install --yes iverilog yosys
       - name: Run self-checking RTL tests
-        run: python tools/run_fpga_tests.py --full-timing --timeout 1800
+        run: python tools/run_fpga_tests.py --full-timing --timeout 1800 --report fpga/build/regression-report.json --require-module-coverage
+      - name: Upload regression evidence
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: fpga-regression-evidence
+          path: fpga/build/regression-report.json
+          if-no-files-found: error
       - name: Check generic Gowin synthesis
         run: |
           yosys -Q -T -l fpga/build/encoder-synth.log -s fpga/synth_encoder.ys
