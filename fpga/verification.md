@@ -213,3 +213,61 @@ netlist/stat nằm trong `fpga/build/` đã ignore. Chưa có PnR/STA đúng chi
 **20 test Python PASS**, gồm hồi quy nguồn root/lồng hai cấp và helper ngoài
 RTL; kiểm tra repo/nhánh, đường dẫn nguồn và `git diff --check` đạt. Thay đổi
 sơ đồ draw.io đang có được giữ riêng, không thuộc lần phân nhóm này.
+
+## Tối ưu duty và timer, giữ mục tiêu Nano 9K — 24/10/2026
+
+Nhánh `feat/f11-fpga-optimize`, baseline `821cfae`. Không đổi cổng/giao thức,
+clock27MHz, độ rộng encoder/timestamp32, CRC/session/sequence hoặc thứ tự
+ARM/fault/clear. Target vẫn là **Tang Nano 9K / GW1NR-LV9QN88PC6/I5**, chưa mua.
+
+- Thanh ghi duty trong guard/PWM/motor PWM dùng11bit cho miền0..1350,
+  thay vì16bit. Vẫn kiểm tra đủ lệnh16bit trước khi thu hẹp, zero-extend khi
+  xuất; dùng clog2(period+1) để biểu diễn cả duty100% khi period là lũy thừa2.
+- FSM dùng chung một timer23bit cho các pha recovery/handshake, watchdog và
+  clear. Hold clear dùng ngưỡng trên timer đó, thay tổng74bit timer trước.
+  Không chia clock/tick, mỗi pha nạp deadline riêng; timeout vẫn ưu tiên.
+- Giữ snapshot riêng ở encoder và serializer để không thay hợp đồng đóng
+  băng dữ liệu/backpressure. Không bỏ CRC, chống lệnh cũ hoặc đường an toàn.
+
+Cùng Yosys0.70 và bốn script generic Gowin/gw1n như baseline:
+
+| Top | FF trước → sau | LUT1–4 trước → sau | ALU trước → sau |
+| --- | --- | --- | --- |
+| encoder_pair | 266 → 266 | 108 → 108 | 195 → 195 |
+| motor_pwm_pair | 134 → 104 | 303 → 237 | 118 → 108 |
+| fpga_link | 587 → 577 | 838 → 820 | 282 → 282 |
+| drive_core, toàn lõi | **1.122 → 1.031** | **1.608 → 1.497** | **662 → 604** |
+
+Toàn top giảm91FF (8,1%),111LUT cell (6,9%),58ALU cell (8,8%). Không cộng
+các top riêng hoặc cộng LUT/ALU để suy ra utilization vật lý. Bốn synthesis
+không warning/latch, `check -assert` đạt; log `fpga/build/opt-*-synth.log`
+và `opt-drive-step1.log` đã ignore. Chưa có PnR/STA/fit đúng chip9K.
+
+Icarus/VVP13.0:toàn bộ16 testbench PASS, compile không warning, gồm bài
+mới `tb_pwm_widths` với period16/1350/2048/65535, duty0/1/100%, lệnh sai có
+bit cao và disable. Bài mới cũng PASS trên baseline: đây là kiểm tra giữ
+hành vi khi thu hẹp, không phải bằng chứng sửa một lỗi của bản cũ.
+Hai bài top cũng PASS: bài dài **2.010,544ms tại27MHz,189 STATUS**; bài lỗi
+danh định **225,343ms,11 STATUS**. Kiểm tra UART/PWM/encoder, reset, E-stop,
+clock-stop/stale gate đạt; CI tiếp tục chạy full-timing trước merge. Lệnh tái tạo:
+
+```powershell
+python tools/run_fpga_tests.py --iverilog build/toolchain/ucrt64/bin/iverilog.exe --vvp build/toolchain/ucrt64/bin/vvp.exe --full-timing --timeout 1800
+python tools/check_fpga_equivalence.py --base 821cfae --yosys build/toolchain/yowasp/Scripts/yowasp-yosys.exe
+```
+
+Kiểm chứng tương đương: **14 trường hợp PASS** bằng Yosys SAT temporal
+induction, so với nguồn baseline lấy trực tiếp từ Git. Bốn khối sửa đổi được
+so sánh đầu ra và quan hệ thanh ghi; invariant state/recovery/session và
+miền timer là assertion được chứng minh, không phải assumption. Có duty
+power-of-two/full16bit, timer nhỏ, thay đổi pha có timer lớn nhất và
+hold<clear/hold=clear/hold>clear. Hai negative control cố ý làm sai duty và
+nạp watchdog lệch1tick đều bị proof từ chối trong pha có thể đạt tới.
+
+Nguồn instrument/miter/log ở `fpga/build/equivalence/` đã ignore. Proof dùng
+`async2sync`, reset đầu vào ở bước đầu, rồi temporal induction; không chứng
+minh metastability, reset điện hoặc timing sau route. Mô phỏng reset/E-stop/
+clock-stop, gate ngoài và phép đo phần cứng vẫn bắt buộc như trước.
+
+20 test Python, kiểm tra repo/nhánh và `git diff --check` đạt. Các file sơ đồ
+và liên kết README của tác vụ trước được giữ ngoài thay đổi tối ưu này.

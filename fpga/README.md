@@ -8,7 +8,7 @@ Toàn bộ nguồn RTL/testbench dùng **SystemVerilog, đuôi `.sv`**; hook/CI 
 Trạng thái: đã có RTL/testbench cho reset, encoder X4 hai bánh, snapshot,
 PWM hai kênh, trình tự đổi chiều độc lập driver và UART/parser/CRC/serializer/
 command guard, FSM/watchdog và top `drive_core` đã nối link với PWM. Chưa có
-adapter driver, target board hoặc báo cáo timing. Hợp đồng GPIO phục hồi/ARM
+adapter driver, wrapper/constraints cho Tang Nano 9K hoặc báo cáo timing. Hợp đồng GPIO phục hồi/ARM
 và gate ngoài ở [fpga-safety.md](../firmware/shared/fpga-safety.md). Xem giao diện ở
 [rtl](rtl/README.md), ca thử ở [tb](tb/README.md).
 
@@ -44,9 +44,11 @@ generic Gowin; chạy từ root sau khi có `fpga/build/` bằng `yosys -s <scri
 hoặc YoWASP-Yosys. Đã chạy Yosys0.70 cục bộ; CI cũng chạy bốn script này, gồm top hoàn chỉnh.
 Chưa có pinout/constraints/PnR/STA đúng chip; cell count sơ bộ không kết luận fit.
 Luồng đề xuất: Icarus/VVP + GTKWave để mô phỏng, Gowin Education để tổng hợp,
-place-and-route và kiểm tra timing đúng chip Tang Nano ứng viên; không cần
-Quartus. Mapping generic hiện vượt ngân sách FF1K; Nano9K là ứng viên kế tiếp đã được
-người dùng đồng ý, chưa xác nhận fit/timing hoặc giá lúc mua.
+place-and-route và kiểm tra timing đúng chip Tang Nano 9K; không cần Quartus.
+Board mục tiêu **Nano 9K / GW1NR-LV9QN88PC6/I5**, chưa mua hoặc xác nhận
+fit/timing/giá. Tối ưu duty và timer vẫn giữ mục tiêu 9K; số liệu trước/sau
+ở [verification.md](verification.md). Công cụ kiểm chứng tương đương với bản
+trước: `python tools/check_fpga_equivalence.py --base 821cfae --yosys <yosys>`.
 
 Xem [kế hoạch và nghiệm thu toàn hệ thống](../docs/fpga-drive-plan.md).
 Chi tiết [thiết kế RTL, kiểm thử và thứ tự triển khai](../docs/fpga-rtl-design-test-plan.md).

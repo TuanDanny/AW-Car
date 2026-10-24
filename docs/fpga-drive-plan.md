@@ -10,10 +10,10 @@ trong [rà soát issue #1](issue-1-technical-review.md).
 - Giữ 2 ESP32-S3, 1 INMP441, servo lái trước và 2 motor sau có encoder.
 - Thêm 1 FPGA: đọc 2 encoder A/B, phát PWM/chiều quay cho 2 motor sau, kiểm tra
   lệnh và tự khóa đầu ra khi lệnh Motion quá hạn. PID và servo vẫn ở Motion.
-- Chưa mua FPGA. Viết RTL/testbench trước, dùng kết quả trên chip ứng viên để
-  chọn board. Ngân sách board và bộ nạp dưới 500.000đ; tính thêm phụ kiện/ship.
-- Người dùng đồng ý nâng **Tang Nano 9K** nếu1K không đủ. Mapping toàn lõi
-  hiện vượt ngân sách FF1K; chuyển ứng viên đánh giá sang9K, chưa chốt mua.
+- Chưa mua FPGA. Viết RTL/testbench trước, rồi kiểm tra fit/timing đúng chip.
+  Ngân sách ban đầu board và bộ nạp dưới500.000đ; tính thêm phụ kiện/ship.
+- Board mục tiêu đã chốt **Tang Nano 9K / GW1NR-LV9QN88PC6/I5**. Tối ưu
+  RTL để giảm tài nguyên nhưng vẫn dùng9K, không chuyển thiết kế về1K.
   Giá/phụ kiện và ngân sách phải kiểm tra lại lúc mua, không mặc định9K dưới500.000đ.
 - Nhắm 3 môn: Tích hợp hệ thống cảm biến, Lý thuyết mạch, RTL/FPGA. Bỏ mục tiêu
   môn PCB khuếch đại; loa/IC khuếch đại phục vụ giọng nói vẫn thuộc xe.

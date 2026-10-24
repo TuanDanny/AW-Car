@@ -20,6 +20,8 @@ Bảy module SystemVerilog cho UART/giao thức, không chứa PWM/FSM/watchdog:
   và command_enable mới phát command_valid cặp. ALLOW_REVERSE mặc định0.
   HELLO đề nghị phiên; ARM_ZERO/CLEAR_FAULT chỉ yêu cầu FSM. DISABLE đúng
   format/CRC giảm quyền kể cả phiên cũ, không đổi mốc sequence.
+  Duty hợp lệ được lưu bằng độ rộng miền0..PERIOD_CYCLES, rồi zero-extend
+  ra cổng16bit; CRC/reserved/range vẫn kiểm tra đủ, không cắt bit trước guard.
 - `fpga_link.sv`: nối các khối, nhận snapshot/xuất sự kiện; rst_n phải nhả đồng
   bộ ở lớp tích hợp. status_sent chỉ pulse sau stop bit CRC cuối; context_load
   hủy xác nhận đang chờ, không dùng busy serializer làm xác nhận ARM.
