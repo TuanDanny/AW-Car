@@ -303,7 +303,12 @@ Cấu trúc dự kiến dưới `fpga/`, **chỉ tạo khi có file thực tế*
 ```text
 fpga/
   README.md
-  rtl/           # lõi và README.md
+  rtl/           # drive_core.sv và README.md ở root
+    common/      # reset/CDC/lọc input + README.md
+    encoder/     # X4/snapshot + README.md
+    pwm/         # PWM/đổi chiều + README.md
+    link/        # UART/CRC/frame/guard + README.md
+    safety/      # FSM/watchdog + README.md
   tb/            # testbench, model, file list và README.md
   targets/       # README.md, wrapper/constraints theo board + README từng target
   reports/       # README.md, tóm tắt kết quả có commit/tool/part

@@ -60,9 +60,14 @@ class FpgaRunnerTests(unittest.TestCase):
             root = Path(directory)
             rtl = root / "fpga" / "rtl"
             rtl.mkdir(parents=True)
-            sources = [rtl / "encoder.sv", rtl / "pwm.sv"]
+            sources = [rtl / "drive_core.sv", rtl / "encoder" / "encoder.sv",
+                       rtl / "link" / "uart" / "rx.sv"]
             for source in sources:
+                source.parent.mkdir(parents=True, exist_ok=True)
                 source.write_text("module example; endmodule\n")
+            unrelated = root / "fpga" / "tb" / "helper.sv"
+            unrelated.parent.mkdir(parents=True)
+            unrelated.write_text("module test_helper; endmodule\n")
             with (patch.object(runner, "ROOT", root),
                   patch.object(runner.shutil, "which", side_effect=lambda name: name),
                   patch.object(runner.subprocess, "run", return_value=subprocess.CompletedProcess(
@@ -75,6 +80,7 @@ class FpgaRunnerTests(unittest.TestCase):
                 self.assertIn("-g2012", command)
                 for source in sources:
                     self.assertIn(str(source), command)
+                self.assertNotIn(str(unrelated), command)
                 self.assertIn(str(root / "fpga" / "tb" / "tb_encoder_units.sv"), command)
 
     def test_full_timing_runs_integrated_scenario_at_nominal_clock(self):

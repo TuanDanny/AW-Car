@@ -20,7 +20,9 @@ CI chạy kiểm tra cấu trúc và test công cụ; đây chưa phải kiểm 
 
 `run_fpga_tests.py` biên dịch/chạy testbench Icarus/VVP, dừng khi compile lỗi,
 simulation lỗi hoặc timeout; build/VCD trong `fpga/build/` không commit.
-Runner lấy toàn bộ `fpga/rtl/*.sv` và bật chế độ SystemVerilog `-g2012`.
+Runner lấy đệ quy toàn bộ `.sv` trong `fpga/rtl/`, gồm top tại root và các
+nhóm module con; bật chế độ SystemVerilog `-g2012`. Không lấy model/testbench
+ngoài cây `rtl/` vào danh sách nguồn RTL.
 Chạy `python tools/run_fpga_tests.py --help`. Cần Icarus/VVP trong PATH hoặc
 truyền đường dẫn bằng `--iverilog`/`--vvp`; Python không cần package ngoài.
 `--full-timing --timeout 1800` chạy cả bài top>=2s tại27MHz; mặc định bài dài

@@ -187,3 +187,29 @@ GW1NR-LV9QN88PC6/I5,8.640LUT4/6.480FF,27MHz; [nguồn chính thức](https://wik
 đối chiếu23/10/2026. Chưa chốt mua: cần constraints/CDC/reset, Gowin/PnR/STA
 đúng chip, pinout/nguồn/giá. Còn driver/gate, Motion/Brain lease/PID/cảm biến,
 servo và thử quãng dừng trên xe; FSM/top mô phỏng không thay các bước này.
+
+## Phân nhóm thư mục RTL — 24/10/2026
+
+Nhánh `chore/rtl-layout`, nền `6848dbd`. Giữ `drive_core.sv` ở root `rtl/`;
+14 module con chuyển vào common/encoder/pwm/link/safety, mỗi nhóm có README.
+Git nhận đủ14 rename100%; toàn bộ15 nguồn RTL giữ nguyên nội dung. Runner
+tìm `.sv` đệ quy; bốn script Yosys dùng đường dẫn mới, giữ thứ tự nguồn của
+top để mapping generic tái tạo được. Quy ước bố trí đã ghi vào AGENTS.md.
+
+Đã chạy Icarus/VVP13.0 với danh sách nguồn mới: **15 testbench PASS**, compile
+không warning. Chế độ mặc định: bài top dài **2.001,560ms tại2,7MHz**,188 STATUS;
+bài lỗi danh định **225,343ms tại27MHz**,11 STATUS. Không chạy lại bài top2s
+ở27MHz cục bộ trong lần phân nhóm này; kết quả full-timing trước đó ở mục trên.
+
+```powershell
+python tools/run_fpga_tests.py --iverilog build/toolchain/ucrt64/bin/iverilog.exe --vvp build/toolchain/ucrt64/bin/vvp.exe --timeout 1800
+```
+
+YoWASP-Yosys0.70 chạy đủ synth_encoder/pwm/link/drive với nguồn mới: không
+latch, `check -assert` đạt, không warning. Cell count từng khối khớp bản trước;
+toàn top vẫn **1.122FF,1.608 LUT1–4,662ALU**. Log `layout-*-synth.log` và
+netlist/stat nằm trong `fpga/build/` đã ignore. Chưa có PnR/STA đúng chip.
+
+**20 test Python PASS**, gồm hồi quy nguồn root/lồng hai cấp và helper ngoài
+RTL; kiểm tra repo/nhánh, đường dẫn nguồn và `git diff --check` đạt. Thay đổi
+sơ đồ draw.io đang có được giữ riêng, không thuộc lần phân nhóm này.
