@@ -25,8 +25,10 @@ của chủ dự án: trùng hoàn toàn.
 | SHA-256 ZIP source theo commit | f32183298a86e35f6c3d4d81e28d900bb79ba281f199e4e7c3d2995cb1c48a4c |
 
 Đây là source mà upstream công bố cho release trùng binary local, không phải
-mã decompile. Chưa tự tái tạo build giống từng byte, chưa đọc lại flash/OTA
-trên board. Firmware dựng sẵn, ELF, NVS và file build không được commit.
+mã decompile. Chưa tái tạo build giống từng byte với release. Ngày 29/10/2026
+đã đọc flash trước nạp, tự build và chạy tới màn hình kích hoạt; xem
+[bằng chứng build/nạp](docs/aw-car-windows.md). Firmware dựng sẵn, ELF,
+NVS và file build không được commit.
 
 ## Cách nhập source vào AW-Car
 
@@ -56,5 +58,7 @@ không hoàn tất, đã dừng tiến trình thử đó. Đây chưa phải k�
 đạt trên Windows. Cần chạy bộ này trên Linux hoặc xử lý tương thích Windows
 trước khi kết luận baseline đầy đủ đạt; không thay test bằng kết quả giả.
 
-Chưa có ESP-IDF trong PATH tại phiên kiểm tra, chưa compile firmware hoặc
-nạp lại ESP32 từ source. Kiểm tra repo AW-Car không xác nhận runtime của Brain.
+Mốc kiểm tra đầu chưa có ESP-IDF. Ngày 29/10/2026 đã cài ESP-IDF 6.1,
+compile thành công với response file, lưu dependencies.lock, nạp và kiểm
+tra boot qua COM3. Việc này không khắc phục các lỗi host test Windows đã
+nêu và chưa nghiệm thu chất lượng thu/phát âm hoặc hội thoại AI.

@@ -5,6 +5,7 @@ Giữ để build và đối chiếu bản stock; phần cứng AW-Car chưa ngh
 
 Nội dung trực tiếp trong thư mục:
 
+- [Build/nạp và kết quả thử AW-Car trên Windows](aw-car-windows.md).
 - `audio-codec-input-audit.md`
 - `blufi.md`
 - `blufi_zh.md`

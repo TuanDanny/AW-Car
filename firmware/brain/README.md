@@ -15,8 +15,14 @@ build chỉ chọn một board/variant.
 ## Trạng thái
 
 Đây là source stock làm nền phát triển, chưa phải firmware AW-Car đã tích hợp.
-Chưa tự build/nạp từ source, chưa nghiệm thu mic/loa/Wi-Fi/PSRAM, chưa có
-UART Brain–Motion hoặc điều khiển xe. Kết quả hiển thị là do người dùng báo lại.
+Ngày 29/10/2026 đã build bằng ESP-IDF 6.1 và nạp merged image tại 0x0000
+qua COM3, giữ NVS cũ sau khi sao lưu toàn bộ 16 MB flash. Hash dữ liệu ghi
+đã xác minh. Log boot khớp ELF tự build, nhận PSRAM 8 MB, khởi tạo OLED/audio
+và kết nối Wi-Fi; không thấy panic trong 45 giây theo dõi. Người dùng xác
+nhận OLED hiển thị trang/mã kích hoạt và sau đó báo đã hoàn tất thao tác.
+Người dùng xác nhận chưa gắn mic và để kiểm thử thu/phát âm, hội thoại cho
+lần sau. Chưa có UART Brain–Motion hoặc điều khiển xe. Xem
+[hướng dẫn và kết quả Windows](docs/aw-car-windows.md).
 AI gửi yêu cầu chuyển động có giới hạn tới Motion; không ghi PWM trực tiếp.
 DoA giữ cho nâng cấp. Nguồn/bộ nhớ thực của board cần đối chiếu trước khi đổi cấu hình.
 
@@ -31,8 +37,9 @@ python scripts/build.py bread-compact-wifi --name bread-compact-wifi-128x64
 
 Lệnh trên build và đóng gói, không tự nạp board. Kết quả ở build/ bị ignore.
 ESP-IDF Component Manager tải dependency trong main/idf_component.yml;
-giữ dependencies.lock khi lần đầu giải quyết dependency thành công. Bản nguồn
-upstream chưa kèm lockfile để khôi phục chính xác dependency của release.
+giữ dependencies.lock đã tạo từ lần build thành công với 74 dependency,
+gồm SDK. Upstream không kèm lockfile của release; lockfile hiện tại ghi
+phiên bản được dùng cho bản build cục bộ đã thử.
 Không khẳng định binary build mới sẽ giống từng byte khi toolchain, dependency,
 asset hoặc thời gian build khác nhau.
 
@@ -69,8 +76,10 @@ ESP-IDF hoặc phép thử audio, mạng và an toàn trên phần cứng.
 
 ## Thứ tự phát triển F03
 
-1. Cài/xác nhận ESP-IDF 6.1, build lại profile stock, lưu lockfile và log.
-2. Nạp thử khi chủ dự án muốn; kiểm tra OLED, thu/phát âm và kết nối Xiaozhi.
+1. Đã cài ESP-IDF 6.1, build/nạp stock, giữ lockfile và log; cách dùng
+   response file trên Windows nằm trong hướng dẫn ở trên.
+2. Lần sau gắn mic, xác nhận trạng thái sau kích hoạt rồi thử thu/phát âm
+   và hội thoại Xiaozhi; hiện chưa nghiệm thu phần này.
 3. Tạo board/variant AW-Car có danh tính và chính sách OTA riêng; giữ baseline
    stock để đối chiếu. Không sửa pinout board upstream để giả làm board mới.
 4. Thêm UART Brain–Motion và lớp giới hạn lệnh; kiểm thử mất mạng/mất lệnh

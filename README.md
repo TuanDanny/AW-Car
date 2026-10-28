@@ -11,8 +11,11 @@ Dự án đang chọn linh kiện, chưa lắp xe thử nghiệm. Kho hiện có
 tài liệu, quy tắc làm việc, RTL encoder/snapshot/PWM/UART/giao thức/FSM/watchdog/top và mô phỏng;
 đã có source nền Xiaozhi v2.5.2 tại [firmware/brain](firmware/brain/README.md)
 trên nhánh F03, chưa có firmware AW-Car tích hợp, sơ đồ điện hay PCB.
-Chủ dự án đã nạp binary stock và xác nhận OLED hiển thị với GPIO 41/42;
-source nhập vào repo chưa build/nạp lại. Cách chạy RTL ở [fpga](fpga/README.md).
+Ngày 29/10/2026 đã build source bằng ESP-IDF 6.1, nạp tại 0x0000 và xác nhận
+boot/PSRAM/OLED/audio init/Wi-Fi qua log; chủ dự án xác nhận OLED 41/42 hiển
+thị mã kích hoạt và báo đã hoàn tất thao tác. Mic chưa gắn; chủ dự án để
+kiểm thử hội thoại cho lần sau. Chưa tích hợp điều khiển xe. Cách chạy RTL
+ở [fpga](fpga/README.md).
 Toàn bộ mã HDL dùng SystemVerilog (`.sv`); hook và CI kiểm tra quy ước này.
 
 - Yêu cầu ban đầu: [issue #1](https://github.com/TuanDanny/AW-Car/issues/1).
