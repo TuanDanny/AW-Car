@@ -1,10 +1,10 @@
 # Firmware
 
-Hai ứng dụng ESP-IDF độc lập và phần dùng chung; hiện mới có khung thư mục.
+Hai ứng dụng ESP-IDF độc lập và phần dùng chung. Brain đã có source nền
+Xiaozhi v2.5.2 trên nhánh F03; Motion và phần tích hợp AW-Car chưa triển khai.
 
-- [brain](brain/README.md): MCU 1, âm thanh, Xiaozhi, TFT và mạng.
+- [brain](brain/README.md): MCU 1, âm thanh, Xiaozhi, OLED I²C và mạng.
 - [motion](motion/README.md): MCU 2, truyền động và an toàn cục bộ.
 - [shared](shared/README.md): giao thức và kiểu dữ liệu dùng chung.
 
-Chốt SDK/board trước khi thêm CMake và cấu hình build. Khi có mã nguồn, ghi
-lệnh build của từng MCU tại README tương ứng.
+Lệnh build Brain và các giới hạn hiện tại nằm ở README tương ứng.

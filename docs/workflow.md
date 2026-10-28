@@ -2,7 +2,9 @@
 
 `main -> feat/fXX-ten-ngan -> kiểm tra + review -> PR -> squash merge -> main`.
 Mỗi tính năng một nhánh và một commit sau squash; lỗi/tài liệu/setup dùng
-`fix/`, `docs/`, `chore/`. Nhánh setup hiện tại: `chore/repo-setup`.
+`fix/`, `docs/`, `chore/`. Quy tắc chi tiết và cách bảo toàn công việc đang
+dở nằm ở [AGENTS.md](../AGENTS.md). F03 đang phát triển riêng trên
+`feat/f03-xiaozhi-ai`; không trộn truyền động, FPGA hoặc nguồn vào nhánh này.
 
 ## Bắt đầu
 

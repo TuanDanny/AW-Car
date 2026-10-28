@@ -1,0 +1,29 @@
+# Xiaozhi: docs
+
+Thành phần từ Xiaozhi v2.5.2, commit 49b4380b3faa0ceadd28a3e78aaf0f311c46c57e.
+Giữ để build và đối chiếu bản stock; phần cứng AW-Car chưa nghiệm thu.
+
+Nội dung trực tiếp trong thư mục:
+
+- `audio-codec-input-audit.md`
+- `blufi.md`
+- `blufi_zh.md`
+- `code_style.md`
+- `code_style_zh.md`
+- `custom-board.md`
+- `custom-board_zh.md`
+- `glyph-push.md`
+- `glyph-push_zh.md`
+- `mcp-based-graph.jpg`
+- `mcp-protocol.md`
+- `mcp-protocol_zh.md`
+- `mcp-usage.md`
+- `mcp-usage_zh.md`
+- `mqtt-udp.md`
+- `mqtt-udp_zh.md`
+- `notify.md`
+- `releasing.md`
+- `v0/`
+- `v1/`
+- `websocket.md`
+- `websocket_zh.md`
