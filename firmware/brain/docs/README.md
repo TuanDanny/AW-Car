@@ -6,6 +6,8 @@ Giữ để build và đối chiếu bản stock; phần cứng AW-Car chưa ngh
 Nội dung trực tiếp trong thư mục:
 
 - [Build/nạp và kết quả thử AW-Car trên Windows](aw-car-windows.md).
+- [Demo AI điều khiển LED RGB qua giọng nói](ai-rgb-demo.md): phạm vi F03
+  đã chốt, hiện là kế hoạch; mic chưa gắn và chưa triển khai tool RGB.
 - `audio-codec-input-audit.md`
 - `blufi.md`
 - `blufi_zh.md`

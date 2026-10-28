@@ -26,6 +26,11 @@ lần sau. Chưa có UART Brain–Motion hoặc điều khiển xe. Xem
 AI gửi yêu cầu chuyển động có giới hạn tới Motion; không ghi PWM trực tiếp.
 DoA giữ cho nâng cấp. Nguồn/bộ nhớ thực của board cần đối chiếu trước khi đổi cấu hình.
 
+Demo đầu đã chốt: nói với Xiaozhi để bật/tắt/đổi màu RGB trên ESP32-S3,
+chứng minh AI gọi tool điều khiển ngoại vi. Bản stock hiện dùng RGB báo
+trạng thái và lamp GPIO18, chưa có tool RGB đúng yêu cầu. Xem
+[kế hoạch và tiêu chí thử demo](docs/ai-rgb-demo.md); chưa triển khai/nạp mới.
+
 ## Build bản stock
 
 Mở terminal ESP-IDF 6.1 đã có toolchain ESP32-S3, sau đó chạy từ thư mục này:
@@ -78,10 +83,10 @@ ESP-IDF hoặc phép thử audio, mạng và an toàn trên phần cứng.
 
 1. Đã cài ESP-IDF 6.1, build/nạp stock, giữ lockfile và log; cách dùng
    response file trên Windows nằm trong hướng dẫn ở trên.
-2. Lần sau gắn mic, xác nhận trạng thái sau kích hoạt rồi thử thu/phát âm
-   và hội thoại Xiaozhi; hiện chưa nghiệm thu phần này.
-3. Tạo board/variant AW-Car có danh tính và chính sách OTA riêng; giữ baseline
-   stock để đối chiếu. Không sửa pinout board upstream để giả làm board mới.
+2. Chuẩn bị board/variant AW-Car có danh tính/OTA riêng và tool RGB cho demo
+   giọng nói bật/tắt/đổi màu; giữ baseline stock để đối chiếu. Chưa triển khai.
+3. Lần sau gắn mic, thử hội thoại và từng câu điều khiển LED theo kế hoạch;
+   phải có log tool call và LED thực thay đổi, hiện chưa nghiệm thu.
 4. Thêm UART Brain–Motion và lớp giới hạn lệnh; kiểm thử mất mạng/mất lệnh
    trước khi thử chuyển động. Driver/PID/FPGA/nguồn thuộc các nhánh riêng.
 
