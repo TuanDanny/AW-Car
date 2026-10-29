@@ -6,6 +6,8 @@ Giữ để build và đối chiếu bản stock; phần cứng AW-Car chưa ngh
 Nội dung trực tiếp trong thư mục:
 
 - [Build/nạp và kết quả thử AW-Car trên Windows](aw-car-windows.md).
+- [Đo và tối ưu độ trễ, giữ tính năng](latency-test-plan.md): bằng chứng
+  hiện có, marker cần đo, thứ tự tối ưu và bộ kiểm tra trước/sau; chưa nạp tối ưu.
 - [Demo AI điều khiển LED RGB qua giọng nói](ai-rgb-demo.md): phạm vi F03
   profile AW-Car riêng; đã thử đủ bật/tắt và ba màu qua giọng nói tiếng Trung,
   có log callback và xác nhận màu thực; loa chưa gắn.

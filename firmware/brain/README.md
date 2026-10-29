@@ -43,6 +43,11 @@ RGB đạt trong lượt thử này. Trước đó có MQTT/TLS timeout; kết n
 hoạt động lại ở lượt thử thành công, không sửa/nạp thêm firmware.
 Xem [thiết kế, câu nói và kết quả thử](docs/ai-rgb-demo.md).
 
+Đã nghiên cứu [cách đo và tối ưu độ trễ giữ tính năng](docs/latency-test-plan.md):
+tách BOOT, thời điểm thu thật, codec và mạng/AI; ưu tiên đường chờ mạng,
+warmup mic và callback timer. Chưa thay đổi/nạp firmware tối ưu; các mục
+tiêu thời gian và kiểm thử hồi quy trong tài liệu là kế hoạch cần xác minh.
+
 ## Build demo RGB
 
 Trong môi trường ESP-IDF 6.1 đã export, từ thư mục này:
