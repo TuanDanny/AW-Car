@@ -13,8 +13,10 @@ tài liệu, quy tắc làm việc, RTL encoder/snapshot/PWM/UART/giao thức/FS
 trên nhánh F03, chưa có firmware AW-Car tích hợp, sơ đồ điện hay PCB.
 Ngày 29/10/2026 đã build source bằng ESP-IDF 6.1, nạp tại 0x0000 và xác nhận
 boot/PSRAM/OLED/audio init/Wi-Fi qua log; chủ dự án xác nhận OLED 41/42 hiển
-thị mã kích hoạt và báo đã hoàn tất thao tác. Mic chưa gắn; chủ dự án để
-kiểm thử hội thoại cho lần sau. Chưa tích hợp điều khiển xe. Cách chạy RTL
+thị mã kích hoạt và báo đã hoàn tất thao tác. Sau khi gắn INMP441, đã thu
+được văn bản nhận dạng và AI trả lời qua log; chủ dự án xác nhận OLED hiện
+câu nói bằng tiếng Trung và chọn giữ ngôn ngữ này. Loa chưa gắn, chưa thử
+âm thanh trả lời hoặc lệnh RGB. Chưa tích hợp điều khiển xe. Cách chạy RTL
 ở [fpga](fpga/README.md).
 Toàn bộ mã HDL dùng SystemVerilog (`.sv`); hook và CI kiểm tra quy ước này.
 

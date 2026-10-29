@@ -20,8 +20,11 @@ qua COM3, giữ NVS cũ sau khi sao lưu toàn bộ 16 MB flash. Hash dữ liệ
 đã xác minh. Log boot khớp ELF tự build, nhận PSRAM 8 MB, khởi tạo OLED/audio
 và kết nối Wi-Fi; không thấy panic trong 45 giây theo dõi. Người dùng xác
 nhận OLED hiển thị trang/mã kích hoạt và sau đó báo đã hoàn tất thao tác.
-Người dùng xác nhận chưa gắn mic và để kiểm thử thu/phát âm, hội thoại cho
-lần sau. Chưa có UART Brain–Motion hoặc điều khiển xe. Xem
+Sau đó người dùng đã gắn INMP441; log thử 90 giây có 4 lượt văn bản nhận
+dạng và 7 đoạn văn bản AI trả lời bằng tiếng Trung, không thấy panic.
+Người dùng xác nhận OLED hiển thị câu vừa nói và chọn giữ tiếng Trung.
+Loa chưa gắn, chưa nghiệm thu âm thanh trả lời hoặc điều khiển RGB.
+Chưa có UART Brain–Motion hoặc điều khiển xe. Xem
 [hướng dẫn và kết quả Windows](docs/aw-car-windows.md).
 AI gửi yêu cầu chuyển động có giới hạn tới Motion; không ghi PWM trực tiếp.
 DoA giữ cho nâng cấp. Nguồn/bộ nhớ thực của board cần đối chiếu trước khi đổi cấu hình.
@@ -53,7 +56,7 @@ asset hoặc thời gian build khác nhau.
 | Chức năng | GPIO |
 | --- | --- |
 | OLED SDA / SCL | 41 / 42; đã có xác nhận hiển thị |
-| INMP441 WS / SCK / DIN | 4 / 5 / 6; chưa nghiệm thu |
+| INMP441 WS / SCK / DIN | 4 / 5 / 6; đã thử nhận dạng tiếng Trung, L/R nối GND |
 | MAX98357A DOUT / BCLK / LRCK | 7 / 15 / 16; chưa nghiệm thu |
 
 Pinout ở [config.h](main/boards/bread-compact-wifi/config.h). Profile chọn
@@ -85,8 +88,9 @@ ESP-IDF hoặc phép thử audio, mạng và an toàn trên phần cứng.
    response file trên Windows nằm trong hướng dẫn ở trên.
 2. Chuẩn bị board/variant AW-Car có danh tính/OTA riêng và tool RGB cho demo
    giọng nói bật/tắt/đổi màu; giữ baseline stock để đối chiếu. Chưa triển khai.
-3. Lần sau gắn mic, thử hội thoại và từng câu điều khiển LED theo kế hoạch;
-   phải có log tool call và LED thực thay đổi, hiện chưa nghiệm thu.
+3. Mic đã thử nhận dạng tiếng Trung và có văn bản AI trả lời; tiếp theo
+   gắn loa, kiểm tra âm thanh và từng câu điều khiển LED theo kế hoạch.
+   Phải có log tool call và LED thực thay đổi; phần RGB chưa nghiệm thu.
 4. Thêm UART Brain–Motion và lớp giới hạn lệnh; kiểm thử mất mạng/mất lệnh
    trước khi thử chuyển động. Driver/PID/FPGA/nguồn thuộc các nhánh riêng.
 

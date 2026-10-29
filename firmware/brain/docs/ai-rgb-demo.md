@@ -8,7 +8,13 @@ Chưa triển khai điều khiển motor/UART Motion trong demo này.
 ## Trạng thái hiện tại
 
 - Source stock đã build/nạp và hiển thị OLED, kết nối Wi-Fi.
-- Mic INMP441 chưa gắn; chủ dự án để thử giọng nói cho lần sau.
+- Mic INMP441 đã gắn; thử ngày 29/10 có văn bản nhận dạng và AI trả lời
+  bằng tiếng Trung qua log. Chủ dự án xác nhận OLED hiện câu vừa nói và
+  chọn giữ tiếng Trung. Loa chưa gắn; chưa kiểm chứng âm thanh trả lời.
+- Demo dùng nhấn/nhả BOOT một lần để bắt đầu nghe từ chế độ chờ; nói
+  "ni hao" sau khi mở nghe đã có nhận dạng và phản hồi trên OLED. Chưa
+  nghiệm thu đánh thức bằng giọng nói; "ni hao" không phải toàn bộ câu
+  đánh thức của model đang build ("ni hao xiao zhi").
 - Profile bread-compact-wifi khai báo RGB tại GPIO48, dùng SingleLed/WS2812
   với thứ tự GRB; cần kiểm tra LED thực trên board trước khi chốt demo.
 - SingleLed hiện báo trạng thái: nghe đổi đỏ, nói đổi xanh lá, idle tắt.
@@ -32,7 +38,7 @@ cần log gọi tool, callback và quan sát LED thực đúng yêu cầu.
 4. Tham số RGB kiểm tra trong miền 0..255; callback báo lỗi khi driver lỗi,
    trả về trạng thái đã áp dụng khi thành công. Có cách đọc lại trạng thái
    phần mềm để đối chiếu log; trạng thái đó không phải cảm biến đo ánh sáng.
-5. Thử gọi tool ở mức firmware trước, sau đó gắn mic để thử qua hội thoại.
+5. Thử gọi tool ở mức firmware trước, sau đó dùng mic đã gắn để thử qua hội thoại.
 
 Giao diện tool dự kiến, chưa đăng ký trong firmware:
 
@@ -42,7 +48,11 @@ Giao diện tool dự kiến, chưa đăng ký trong firmware:
 | self.rgb_light.set_color | r/g/b: số nguyên 0..255; đặt màu và bật đèn |
 | self.rgb_light.get_state | Đọc trạng thái bật/tắt và màu để kiểm chứng |
 
-## Tiêu chí thử khi đã gắn mic
+## Tiêu chí thử qua mic
+
+Chủ dự án chọn giữ tiếng Trung cho bước thử hiện tại. Các câu tiếng Việt
+dưới đây mô tả ý định cần kiểm tra; có thể nói câu tương đương bằng tiếng
+Trung, ghi lại câu thực tế và kết quả. Chưa nghiệm thu nhận dạng tiếng Việt.
 
 | Câu ví dụ | Kết quả cần quan sát |
 | --- | --- |

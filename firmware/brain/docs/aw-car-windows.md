@@ -111,6 +111,33 @@ Binary tự build khác hash release. Kết quả trên chứng minh build/nạp
 của bản mới, chưa chứng minh tái tạo bit-for-bit binary phát hành hoặc hoàn
 thành tính năng AI.
 
+## Thử mic ngày 29/10/2026
+
+Sau mốc nạp/boot ở trên, chủ dự án đã gắn INMP441 theo profile đang chạy:
+VDD=3V3, GND=GND, WS=GPIO4, SCK=GPIO5, SD=GPIO6, L/R=GND (kênh trái).
+Theo dõi COM3 trong 90 giây, không reset hoặc nạp lại firmware:
+
+- Log chuyển idle -> connecting -> listening, nhiều lần listening/speaking,
+  rồi về idle; có 4 lượt văn bản nhận dạng và 7 đoạn văn bản AI trả lời.
+- Văn bản nhận dạng và trả lời bằng tiếng Trung. Chủ dự án xác nhận OLED
+  hiện câu vừa nói (gồm "ni hao") và chọn giữ tiếng Trung cho bước thử này.
+- Không thấy panic/abort/assert/backtrace trong cửa sổ theo dõi.
+- Loa chưa gắn; trạng thái speaking và văn bản trả lời chưa chứng minh
+  MAX98357A/loa phát âm thanh thực. Chưa nghiệm thu nhận dạng tiếng Việt,
+  độ chính xác trong nhiễu hoặc lệnh RGB/MCP.
+
+Log thô chỉ giữ cục bộ tại build/source-flash/mic-test-20261029-private.log;
+không commit nội dung hội thoại hoặc thông tin thiết bị. Kết quả này xác
+nhận bước thu tiếng/nhận dạng và phản hồi văn bản cho các câu đã thử.
+
+Thao tác demo: từ chế độ chờ, nhấn/nhả BOOT một lần, đợi chuyển sang nghe
+rồi nói. Không giữ BOOT để trò chuyện. Source hiện gọi ToggleChatState()
+khi nhấn nút này; khi idle, hệ thống không gửi mọi câu nói để nhận dạng.
+Build bật CONFIG_USE_AFE_WAKE_WORD và model
+CONFIG_SR_WN_WN9_NIHAOXIAOZHI_TTS ("ni hao xiao zhi"); chưa xác nhận đánh
+thức bằng giọng nói trên board. Demo hiện dùng nút BOOT, không cần chốt
+thử đánh thức để tiếp tục phần RGB.
+
 Build log và dữ liệu thiết bị nằm trong build/ tại root, image/ELF/map ở
 firmware/brain/build/. Kết quả nạp/boot của lần thử hiện tại được ghi trong
 README Brain khi có bằng chứng từ log; hiển thị thực và chất lượng mic/loa
