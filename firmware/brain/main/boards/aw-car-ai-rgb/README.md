@@ -18,6 +18,10 @@ rgb_light.h/.cc sở hữu pixel/RMT và đăng ký ba tool MCP thường, AI c�
 - self.rgb_light.set_color(r,g,b): mỗi kênh 0..255; đặt màu và bật ngay.
 - self.rgb_light.get_state(): trạng thái phần mềm sau lần ghi thành công.
 
+AI hiểu thêm 一号灯 (yī hào dēng) = đỏ, 二号灯 (èr hào dēng) = xanh lá,
+三号灯 (sān hào dēng) = xanh dương qua mô tả set_color. Các câu tên màu
+thông thường vẫn dùng được; alias chỉ là màu của cùng pixel.
+
 LED tắt lúc boot; bật lần đầu dùng trắng 32/32/32. Màu/lệnh giữ trong RAM
 qua nghe/nói/idle, reset về tắt. OLED tiếp tục báo trạng thái. Không đăng ký
 lamp GPIO18, không khởi tạo SingleLed hoặc timer trạng thái cho pixel này.

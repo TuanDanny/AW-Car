@@ -30,7 +30,7 @@ void AwCarRgbLight::RegisterTools(McpServer& server) {
     server.AddTool("self.rgb_light.set_power",
         "控制ESP32板载RGB灯的开关。把灯打开、开灯: on=true; "
         "把灯关掉吧、关灯、熄灯: on=false。开灯恢复上次颜色，首次为白色。"
-        "需要指定颜色（例如把红灯打开）时请直接调用set_color，设置颜色会自动开灯。",
+        "需要指定颜色或编号（例如把红灯打开、打开一号灯）时请直接调用set_color，设置颜色会自动开灯。",
         PropertyList({Property("on", kPropertyTypeBoolean)}),
         [this](const PropertyList& properties) -> ToolResult {
             return SetPower(properties["on"].value<bool>());
@@ -38,6 +38,8 @@ void AwCarRgbLight::RegisterTools(McpServer& server) {
     server.AddTool("self.rgb_light.set_color",
         "设置ESP32板载RGB灯颜色并立即开灯。红灯、把红灯打开: r=255,g=0,b=0; "
         "绿灯、把绿灯打开: r=0,g=255,b=0; 蓝灯、把蓝灯打开: r=0,g=0,b=255。"
+        "也支持编号简称: 一号灯、一号、1号=r255,g0,b0红色; 二号灯、二号、2号=r0,g255,b0绿色; "
+        "三号灯、三号、3号=r0,g0,b255蓝色。编号是同一颗RGB灯的颜色预设，不是多个灯。"
         "支持每个颜色分量0到255。颜色和开关保持到下一条灯控命令，聊天不会覆盖。",
         PropertyList({Property("r", kPropertyTypeInteger, 0, 255),
                       Property("g", kPropertyTypeInteger, 0, 255),

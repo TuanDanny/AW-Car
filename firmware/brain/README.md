@@ -35,8 +35,8 @@ chứng minh AI gọi tool điều khiển ngoại vi. Đã thêm profile
 [aw-car-ai-rgb](main/boards/aw-car-ai-rgb/README.md), ba tool RGB có mô tả
 tiếng Trung; LED giữ lệnh qua nghe/nói/idle. Bản stock giữ nguyên.
 Profile demo đã build/nạp tại 0x0000, giữ NVS mới nhất; log boot có đúng
-ELF mới, ba tool RGB, OLED và chuyển sang idle. Đang kiểm tra từng lệnh
-giọng nói và màu LED thực, chưa kết luận hoàn tất demo.
+ELF mới, ba tool RGB, OLED và chuyển sang idle. Bật/tắt qua AI đã có log và
+người dùng xác nhận; câu đổi màu còn nhận dạng sai, chưa kết luận đủ demo.
 Xem [thiết kế, câu nói và kết quả thử](docs/ai-rgb-demo.md).
 
 ## Build demo RGB
@@ -51,6 +51,7 @@ python scripts/build.py aw-car-ai-rgb --name aw-car-ai-rgb-128x64 --language zh-
 LED GPIO48 mặc định tắt khi boot; OLED vẫn báo trạng thái. Nhấn/nhả BOOT
 để bắt đầu nghe. Ví dụ: 把灯打开 (bật), 把灯关掉吧 (tắt), 把红灯打开 (đỏ),
 把绿灯打开 (xanh lá), 把蓝灯打开 (xanh dương).
+Có thêm cách gọi theo số: 一号灯 (đỏ), 二号灯 (xanh lá), 三号灯 (xanh dương).
 
 ## Build bản stock
 
