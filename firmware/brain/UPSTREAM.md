@@ -49,6 +49,15 @@ NVS và file build không được commit.
 Các lần nâng upstream phải ghi tag/commit mới, so diff và chạy host test,
 build/kiểm thử phần cứng tương ứng; không thay source âm thầm bằng main mới nhất.
 
+## Phần mở rộng AW-Car F03
+
+Board mới main/boards/aw-car-ai-rgb bổ sung demo RGB/MCP tiếng Trung tại
+GPIO48, OLED SSD1306 128x64 và nút BOOT; không sửa nguồn board stock hoặc
+SingleLed. main/CMakeLists.txt và Kconfig.projbuild thêm lựa chọn board
+riêng với danh tính aw-car-ai-rgb / aw-car-ai-rgb-128x64. RGB demo giữ lệnh
+qua trạng thái hội thoại; chi tiết và bằng chứng kiểm tra ở
+[tài liệu demo](docs/ai-rgb-demo.md).
+
 ## Giới hạn kiểm thử tại máy Windows
 
 Lượt đầu chạy đủ 110 host test: 11 lỗi, 1 bỏ qua. Lỗi gồm dọn thư mục tạm

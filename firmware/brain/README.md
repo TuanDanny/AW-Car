@@ -14,7 +14,8 @@ build chỉ chọn một board/variant.
 
 ## Trạng thái
 
-Đây là source stock làm nền phát triển, chưa phải firmware AW-Car đã tích hợp.
+Source stock là nền phát triển; board AW-Car RGB riêng được thêm cho demo F03,
+chưa phải firmware AW-Car tích hợp điều khiển xe.
 Ngày 29/10/2026 đã build bằng ESP-IDF 6.1 và nạp merged image tại 0x0000
 qua COM3, giữ NVS cũ sau khi sao lưu toàn bộ 16 MB flash. Hash dữ liệu ghi
 đã xác minh. Log boot khớp ELF tự build, nhận PSRAM 8 MB, khởi tạo OLED/audio
@@ -30,9 +31,26 @@ AI gửi yêu cầu chuyển động có giới hạn tới Motion; không ghi P
 DoA giữ cho nâng cấp. Nguồn/bộ nhớ thực của board cần đối chiếu trước khi đổi cấu hình.
 
 Demo đầu đã chốt: nói với Xiaozhi để bật/tắt/đổi màu RGB trên ESP32-S3,
-chứng minh AI gọi tool điều khiển ngoại vi. Bản stock hiện dùng RGB báo
-trạng thái và lamp GPIO18, chưa có tool RGB đúng yêu cầu. Xem
-[kế hoạch và tiêu chí thử demo](docs/ai-rgb-demo.md); chưa triển khai/nạp mới.
+chứng minh AI gọi tool điều khiển ngoại vi. Đã thêm profile
+[aw-car-ai-rgb](main/boards/aw-car-ai-rgb/README.md), ba tool RGB có mô tả
+tiếng Trung; LED giữ lệnh qua nghe/nói/idle. Bản stock giữ nguyên.
+Profile demo đã build/nạp tại 0x0000, giữ NVS mới nhất; log boot có đúng
+ELF mới, ba tool RGB, OLED và chuyển sang idle. Đang kiểm tra từng lệnh
+giọng nói và màu LED thực, chưa kết luận hoàn tất demo.
+Xem [thiết kế, câu nói và kết quả thử](docs/ai-rgb-demo.md).
+
+## Build demo RGB
+
+Trong môi trường ESP-IDF 6.1 đã export, từ thư mục này:
+
+```powershell
+$env:CMAKE_NINJA_FORCE_RESPONSE_FILE = '1'
+python scripts/build.py aw-car-ai-rgb --name aw-car-ai-rgb-128x64 --language zh-CN
+```
+
+LED GPIO48 mặc định tắt khi boot; OLED vẫn báo trạng thái. Nhấn/nhả BOOT
+để bắt đầu nghe. Ví dụ: 把灯打开 (bật), 把灯关掉吧 (tắt), 把红灯打开 (đỏ),
+把绿灯打开 (xanh lá), 把蓝灯打开 (xanh dương).
 
 ## Build bản stock
 
@@ -86,8 +104,8 @@ ESP-IDF hoặc phép thử audio, mạng và an toàn trên phần cứng.
 
 1. Đã cài ESP-IDF 6.1, build/nạp stock, giữ lockfile và log; cách dùng
    response file trên Windows nằm trong hướng dẫn ở trên.
-2. Chuẩn bị board/variant AW-Car có danh tính/OTA riêng và tool RGB cho demo
-   giọng nói bật/tắt/đổi màu; giữ baseline stock để đối chiếu. Chưa triển khai.
+2. Đã thêm board/variant AW-Car có danh tính riêng và tool RGB cho demo
+   giọng nói bật/tắt/đổi màu; giữ baseline stock để đối chiếu.
 3. Mic đã thử nhận dạng tiếng Trung và có văn bản AI trả lời; tiếp theo
    gắn loa, kiểm tra âm thanh và từng câu điều khiển LED theo kế hoạch.
    Phải có log tool call và LED thực thay đổi; phần RGB chưa nghiệm thu.

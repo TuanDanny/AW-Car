@@ -5,6 +5,7 @@ Giữ để build và đối chiếu bản stock; phần cứng AW-Car chưa ngh
 
 Nội dung trực tiếp trong thư mục:
 
+- [aw-car-ai-rgb](aw-car-ai-rgb/README.md): demo F03 điều khiển RGB qua MCP.
 - `alientek/`
 - `bread-compact-esp32/`
 - `bread-compact-esp32-lcd/`

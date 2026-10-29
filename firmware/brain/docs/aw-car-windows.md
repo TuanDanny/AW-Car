@@ -142,3 +142,11 @@ Build log và dữ liệu thiết bị nằm trong build/ tại root, image/ELF/
 firmware/brain/build/. Kết quả nạp/boot của lần thử hiện tại được ghi trong
 README Brain khi có bằng chứng từ log; hiển thị thực và chất lượng mic/loa
 cần đối chiếu thêm với người sử dụng.
+
+## Bản demo RGB
+
+Profile aw-car-ai-rgb-128x64 đã build/merge bằng ESP-IDF 6.1, ngôn ngữ
+zh-CN, nạp COM3 tại 0x0000 và xác minh hash. Đã đọc lại toàn bộ 16 MB trước
+khi nạp để giữ NVS hiện tại. Boot khớp ELF mới, RGB48/OLED khởi tạo, ba
+tool được đăng ký và thiết bị chuyển sang idle. Câu nói, hash build và
+kết quả thử LED ở [demo RGB](ai-rgb-demo.md). Loa vẫn chưa gắn.

@@ -16,7 +16,10 @@ boot/PSRAM/OLED/audio init/Wi-Fi qua log; chủ dự án xác nhận OLED 41/42 
 thị mã kích hoạt và báo đã hoàn tất thao tác. Sau khi gắn INMP441, đã thu
 được văn bản nhận dạng và AI trả lời qua log; chủ dự án xác nhận OLED hiện
 câu nói bằng tiếng Trung và chọn giữ ngôn ngữ này. Loa chưa gắn, chưa thử
-âm thanh trả lời hoặc lệnh RGB. Chưa tích hợp điều khiển xe. Cách chạy RTL
+âm thanh trả lời. Source có profile AW-Car RGB riêng với lệnh bật/tắt/đổi
+màu bằng tiếng Trung, giữ màu qua trạng thái hội thoại; kết quả nghiệm thu
+LED ở [tài liệu demo F03](firmware/brain/docs/ai-rgb-demo.md).
+Chưa tích hợp điều khiển xe. Cách chạy RTL
 ở [fpga](fpga/README.md).
 Toàn bộ mã HDL dùng SystemVerilog (`.sv`); hook và CI kiểm tra quy ước này.
 
