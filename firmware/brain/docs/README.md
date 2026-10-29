@@ -7,8 +7,8 @@ Nội dung trực tiếp trong thư mục:
 
 - [Build/nạp và kết quả thử AW-Car trên Windows](aw-car-windows.md).
 - [Demo AI điều khiển LED RGB qua giọng nói](ai-rgb-demo.md): phạm vi F03
-  source có tool RGB và profile AW-Car riêng; mic đã thử nhận dạng tiếng Trung,
-  nghiệm thu LED cần log callback và xác nhận màu thực.
+  profile AW-Car riêng; đã thử đủ bật/tắt và ba màu qua giọng nói tiếng Trung,
+  có log callback và xác nhận màu thực; loa chưa gắn.
 - `audio-codec-input-audit.md`
 - `blufi.md`
 - `blufi_zh.md`

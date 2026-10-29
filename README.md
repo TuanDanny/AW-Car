@@ -17,8 +17,8 @@ thị mã kích hoạt và báo đã hoàn tất thao tác. Sau khi gắn INMP44
 được văn bản nhận dạng và AI trả lời qua log; chủ dự án xác nhận OLED hiện
 câu nói bằng tiếng Trung và chọn giữ ngôn ngữ này. Loa chưa gắn, chưa thử
 âm thanh trả lời. Profile AW-Car RGB có lệnh bật/tắt/đổi màu bằng tiếng
-Trung, giữ màu qua trạng thái hội thoại. Bật/tắt đã có log callback và
-chủ dự án xác nhận LED thực thay đổi; ba màu còn cần thử nhận dạng đúng.
+Trung, giữ màu qua trạng thái hội thoại. Đã thử đủ bật/tắt và ba màu đỏ,
+xanh lá, xanh dương: log callback khớp và chủ dự án xác nhận LED thực đổi màu.
 Xem [kết quả demo F03](firmware/brain/docs/ai-rgb-demo.md).
 Chưa tích hợp điều khiển xe. Cách chạy RTL
 ở [fpga](fpga/README.md).

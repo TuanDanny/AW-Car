@@ -22,9 +22,10 @@ Chưa triển khai điều khiển motor/UART Motion trong demo này.
 - Profile demo không đăng ký lamp GPIO18 hoặc dùng SingleLed; board stock
   bread-compact-wifi được giữ nguyên để đối chiếu.
 - Build/merge và nạp đã thành công; log boot có RGB48, OLED, đăng ký ba
-  tool và chuyển activating -> idle. Bật/tắt đã có log APPLIED và chủ dự
-  án xác nhận LED thực thay đổi. Các câu đổi màu còn bị nhận dạng sai;
-  chưa nghiệm thu đủ ba màu hoặc chất lượng phát âm/thu tiếng.
+  tool và chuyển activating -> idle. Lượt theo dõi tiếp theo đã có đủ
+  APPLIED bật/tắt và ba màu; chủ dự án xác nhận bật được cả ba màu thực.
+  Demo cơ bản AI điều khiển RGB đạt cho các ca đã thử. Chưa đánh giá độ
+  chính xác nhận dạng trong nhiều môi trường hoặc chất lượng phát âm.
 
 ## Thiết kế và cách kiểm tra
 
@@ -101,7 +102,7 @@ thu điều khiển xe hoặc hoàn tất toàn bộ F03.
 | Giữ cấu hình | Có backup toàn bộ 16 MB; trước lần nạp alias đọc lại NVS 0x9000 dài 0x4000 để giữ cấu hình mới nhất, bảng phân vùng trùng nhau |
 | Boot | Đúng tiền tố ELF mới; RGB48 tắt, OLED 41/42, ba tool đã đăng ký; activating -> idle |
 | Kiểm tra repo | check_repo, 28 unittest và git diff --check đạt |
-| Thử giọng nói / LED thực | Bật/tắt có APPLIED và người dùng xác nhận; ba màu còn chờ câu nhận dạng đúng và quan sát thực |
+| Thử giọng nói / LED thực | Đủ APPLIED bật/tắt và ba màu; người dùng xác nhận LED thực đổi đủ ba màu |
 | Host test Linux | 110 test đạt tại source commit 02aa471, gồm alias theo số; lần đầu lỗi thứ tự menu, đã sửa và giữ test |
 
 Backup và image có NVS chỉ lưu cục bộ trong build/, không commit/upload.
@@ -113,9 +114,31 @@ hoặc quy nguyên nhân chỉ từ transcript.
 
 Bản alias đã nạp lại 0x0000, hash xác minh, boot khớp ELF 504c1f32d.
 Lần đầu chờ kiểm tra phiên bản 180 giây chưa vào idle; khởi động lại đã
-vào idle nhưng log có MQTT/TLS connection timeout. Chưa có bằng chứng
-nhận dạng/gọi tool cho ba alias ở lượt này. Không coi timeout mạng là
-kết quả kiểm tra phát âm hoặc màu LED; cần thử lại khi mở được kênh thoại.
+vào idle nhưng log có MQTT/TLS connection timeout. Ở lượt theo dõi tiếp
+theo, kênh thoại đã hoạt động lại và có đủ callback màu; không sửa hoặc
+nạp lại firmware trong lượt khôi phục này. Chưa kết luận nguyên nhân
+timeout; lỗi mạng trước đó không phải kết quả kiểm tra phát âm.
+
+## Lượt thử thành công ngày 29/10/2026
+
+Khi chủ dự án báo nói không được, mở theo dõi COM3 mà không reset/nạp
+board. Log thực tế đã có văn bản nhận dạng, AI trả lời và các callback
+dưới đây. Sau đó chủ dự án báo nghe được và bật được cả ba màu.
+
+| Văn bản nhận dạng thực | Callback ghi thành công | Kết quả |
+| --- | --- | --- |
+| 开灯吧 | power=on, r=32 g=32 b=32 | Bật màu mặc định |
+| 一号灯 | power=on, r=255 g=0 b=0 | Đỏ |
+| 二号的 | power=on, r=0 g=255 b=0 | Xanh lá; AI hiểu alias theo ngữ cảnh dù chữ nhận dạng chưa khớp hoàn toàn |
+| 三号灯 | power=on, r=0 g=0 b=255 | Xanh dương |
+| 把灯关掉啊 | power=off, r=0 g=0 b=255 | Tắt; RGB trong log là màu được nhớ, driver clear pixel |
+
+Không có RGB write failed, lỗi tools/call hoặc panic trong log ghi các
+ca này. Trạng thái nghe/nói tiếp tục chuyển qua lại sau callback. Đây là
+bằng chứng AI gọi tool điều khiển ngoại vi thực, không chỉ trả lời bằng
+văn bản. Get_state, chèn lỗi driver, khôi phục sau reset/mất mạng kéo dài,
+âm thanh loa và điều khiển xe chưa nằm trong kết quả nghiệm thu này.
+Log thô chỉ giữ cục bộ ở build/source-flash/hello-trace-20261029-private.log.
 
 CI source: [110 host test Linux](https://github.com/TuanDanny/AW-Car/actions/runs/40822268669).
 

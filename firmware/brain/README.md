@@ -24,7 +24,8 @@ nhận OLED hiển thị trang/mã kích hoạt và sau đó báo đã hoàn t�
 Sau đó người dùng đã gắn INMP441; log thử 90 giây có 4 lượt văn bản nhận
 dạng và 7 đoạn văn bản AI trả lời bằng tiếng Trung, không thấy panic.
 Người dùng xác nhận OLED hiển thị câu vừa nói và chọn giữ tiếng Trung.
-Loa chưa gắn, chưa nghiệm thu âm thanh trả lời hoặc điều khiển RGB.
+Loa chưa gắn, chưa nghiệm thu âm thanh trả lời. RGB đã thử thành công ở
+lượt kiểm tra tiếp theo được ghi dưới đây.
 Chưa có UART Brain–Motion hoặc điều khiển xe. Xem
 [hướng dẫn và kết quả Windows](docs/aw-car-windows.md).
 AI gửi yêu cầu chuyển động có giới hạn tới Motion; không ghi PWM trực tiếp.
@@ -35,10 +36,11 @@ chứng minh AI gọi tool điều khiển ngoại vi. Đã thêm profile
 [aw-car-ai-rgb](main/boards/aw-car-ai-rgb/README.md), ba tool RGB có mô tả
 tiếng Trung; LED giữ lệnh qua nghe/nói/idle. Bản stock giữ nguyên.
 Profile demo đã build/nạp tại 0x0000, giữ NVS mới nhất; log boot có đúng
-ELF mới, ba tool RGB, OLED và chuyển sang idle. Bật/tắt qua AI đã có log và
-người dùng xác nhận; câu đổi màu còn nhận dạng sai, chưa kết luận đủ demo.
-Lượt nạp alias theo số đã boot đúng ELF; có MQTT/TLS timeout khi kết nối
-máy chủ, nên chưa kiểm tra đủ ba alias qua giọng nói.
+ELF mới, ba tool RGB, OLED và chuyển sang idle. Lượt theo dõi tiếp theo
+đã có đủ callback bật, đỏ 255/0/0, xanh lá 0/255/0, xanh dương 0/0/255 và
+tắt; người dùng xác nhận bật được cả ba màu. Demo cơ bản AI điều khiển
+RGB đạt trong lượt thử này. Trước đó có MQTT/TLS timeout; kết nối đã
+hoạt động lại ở lượt thử thành công, không sửa/nạp thêm firmware.
 Xem [thiết kế, câu nói và kết quả thử](docs/ai-rgb-demo.md).
 
 ## Build demo RGB
@@ -109,9 +111,9 @@ ESP-IDF hoặc phép thử audio, mạng và an toàn trên phần cứng.
    response file trên Windows nằm trong hướng dẫn ở trên.
 2. Đã thêm board/variant AW-Car có danh tính riêng và tool RGB cho demo
    giọng nói bật/tắt/đổi màu; giữ baseline stock để đối chiếu.
-3. Mic đã thử nhận dạng tiếng Trung và có văn bản AI trả lời; tiếp theo
-   gắn loa, kiểm tra âm thanh và từng câu điều khiển LED theo kế hoạch.
-   Phải có log tool call và LED thực thay đổi; phần RGB chưa nghiệm thu.
+3. Mic đã thử nhận dạng tiếng Trung, có văn bản AI trả lời; demo bật/tắt
+   và ba màu RGB đã có log callback cùng xác nhận LED thực. Gắn loa và
+   kiểm tra âm thanh trả lời là bước tiếp theo, chưa nghiệm thu phần này.
 4. Thêm UART Brain–Motion và lớp giới hạn lệnh; kiểm thử mất mạng/mất lệnh
    trước khi thử chuyển động. Driver/PID/FPGA/nguồn thuộc các nhánh riêng.
 

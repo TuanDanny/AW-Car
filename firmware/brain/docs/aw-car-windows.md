@@ -150,3 +150,9 @@ zh-CN, nạp COM3 tại 0x0000 và xác minh hash. Đã đọc lại toàn bộ 
 khi nạp để giữ NVS hiện tại. Boot khớp ELF mới, RGB48/OLED khởi tạo, ba
 tool được đăng ký và thiết bị chuyển sang idle. Câu nói, hash build và
 kết quả thử LED ở [demo RGB](ai-rgb-demo.md). Loa vẫn chưa gắn.
+
+Lượt theo dõi tiếp theo trên cùng firmware đã có callback bật, đỏ, xanh
+lá, xanh dương và tắt, khớp lệnh thoại; chủ dự án xác nhận bật được cả ba
+màu thực. Không reset hoặc nạp lại trong lượt thử thành công. Kết nối
+thoại đã hoạt động lại sau các timeout trước đó; chưa kết luận nguyên nhân
+timeout. Demo RGB cơ bản đạt, chưa nghiệm thu âm thanh loa hoặc điều khiển xe.
