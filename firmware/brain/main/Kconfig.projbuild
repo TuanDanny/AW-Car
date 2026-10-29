@@ -158,6 +158,9 @@ choice BOARD_TYPE
     config BOARD_TYPE_ATK_DNESP32S3M_WIFI
         bool "Alientek ATK-DNESP32S3M Wi-Fi (正点原子)"
         depends on IDF_TARGET_ESP32S3
+    config BOARD_TYPE_AW_CAR_AI_RGB
+        bool "AW-Car AI RGB + SSD1306 128x64"
+        depends on IDF_TARGET_ESP32S3
     config BOARD_TYPE_BREAD_COMPACT_ESP32
         bool "Bread Compact ESP32 DevKit (面包板)"
         depends on IDF_TARGET_ESP32
@@ -172,9 +175,6 @@ choice BOARD_TYPE
         depends on IDF_TARGET_ESP32S3
     config BOARD_TYPE_BREAD_COMPACT_WIFI
         bool "Bread Compact Wi-Fi (面包板)"
-        depends on IDF_TARGET_ESP32S3
-    config BOARD_TYPE_AW_CAR_AI_RGB
-        bool "AW-Car AI RGB + SSD1306 128x64"
         depends on IDF_TARGET_ESP32S3
     config BOARD_TYPE_BREAD_COMPACT_WIFI_LCD
         bool "Bread Compact Wi-Fi + LCD (面包板)"
