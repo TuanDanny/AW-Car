@@ -37,6 +37,8 @@ tiếng Trung; LED giữ lệnh qua nghe/nói/idle. Bản stock giữ nguyên.
 Profile demo đã build/nạp tại 0x0000, giữ NVS mới nhất; log boot có đúng
 ELF mới, ba tool RGB, OLED và chuyển sang idle. Bật/tắt qua AI đã có log và
 người dùng xác nhận; câu đổi màu còn nhận dạng sai, chưa kết luận đủ demo.
+Lượt nạp alias theo số đã boot đúng ELF; có MQTT/TLS timeout khi kết nối
+máy chủ, nên chưa kiểm tra đủ ba alias qua giọng nói.
 Xem [thiết kế, câu nói và kết quả thử](docs/ai-rgb-demo.md).
 
 ## Build demo RGB
