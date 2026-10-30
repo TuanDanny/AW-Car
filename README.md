@@ -29,14 +29,13 @@ Toàn bộ mã HDL dùng SystemVerilog (`.sv`); hook và CI kiểm tra quy ướ
   `feat/f03-xiaozhi-ai`, source upstream đã chốt commit, cấu hình và lộ trình
   kiểm chứng trước tích hợp UART Brain–Motion.
 - [Rà soát kỹ thuật và kế hoạch hiệu chỉnh](docs/issue-1-technical-review.md):
-  các điểm cần sửa trước khi mua linh kiện, kiến trúc đề xuất và tiêu chí nghiệm thu.
+  các điểm cần sửa trước khi mua linh kiện, kiến trúc đề xuất và tiêu chí nghiệm thu;
+  ghi chú F01 về giữ tốc độ, kích đề-pa, quãng đường và mã Gray.
 
-Cấu hình đã chốt ngày 23/10/2026: **2 ESP32-S3, 1 FPGA và 1 mic INMP441**.
-Quyết định ngày 28/10: giữ khung TT 4WD, lái bằng tốc độ hai bên, không dùng
-servo. FPGA hiện đọc hai encoder A/B và phát PWM cho hai nhóm motor;
-mode encoder một OUT mới là kế hoạch. Motion tính PID theo bên và giám sát
-an toàn. Tài liệu cơ khí/phần cứng đang được cập nhật trên nhánh riêng.
-Board mục tiêu là **Tang Nano 9K**
+Cấu hình bản đầu: **2 ESP32-S3, 1 FPGA và 1 mic INMP441**, khung TT 4WD,
+lái bằng tốc độ hai bên, không servo. FPGA đọc encoder và phát PWM cho hai
+nhóm motor; Motion tính PID theo bên và giám sát an toàn. Encoder một OUT
+là kế hoạch; RTL hiện có A/B. Board mục tiêu là **Tang Nano 9K**
 (`GW1NR-LV9QN88PC6/I5`), chưa mua. Tối ưu RTL vẫn giữ mục tiêu 9K;
 mô phỏng và tổng hợp sơ bộ chưa thay kết quả fit/timing trên đúng chip.
 Xem [kế hoạch FPGA và toàn hệ thống](docs/fpga-drive-plan.md) và
@@ -64,8 +63,10 @@ Mỗi thư mục có README giới thiệu. [AGENTS.md](AGENTS.md) là quy tắc
 
 ## Làm việc và kiểm tra
 
-Mỗi tính năng một nhánh `feat/fXX-ten-ngan`, PR vào main và **squash merge** sau
-khi kiểm tra/review đạt. Xem [quy trình Git](docs/workflow.md).
+Hai nhánh làm việc hiện tại: **`feat/f01-fpga-drive`** cho FPGA/truyền động và
+**`feat/f03-xiaozhi-ai`** cho AI. Dùng task/commit để theo dõi từng bước nhỏ;
+PR vào main và **squash merge** sau khi kiểm tra/review đạt.
+Xem [quy trình Git](docs/workflow.md).
 
 ```sh
 git config --local core.hooksPath .githooks

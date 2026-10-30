@@ -57,12 +57,33 @@ bởi lần rà soát này.
 
 | Mã | Kết quả mong muốn | Phạm vi đề xuất |
 | --- | --- | --- |
-| F01 | Di chuyển mượt, đo m/s và km/h | FPGA đọc encoder/phát PWM 2 motor sau; Motion tính PID từng motor và điều khiển servo lái trước |
+| F01 | Di chuyển mượt, đo m/s và km/h, giữ tốc độ khi tải thay đổi | TT 4WD lái bằng tốc độ hai bên; FPGA đọc encoder/phát PWM, Motion chạy PID trái/phải; xem ghi chú bên dưới |
 | F02 | Nâng cấp: xác định hướng người nói, hướng đầu xe về nguồn âm | Hoãn khỏi bản đầu 1 mic; chọn cụm thu đồng bộ, đo độ tin cậy rồi mới cho di chuyển |
 | F03 | Xiaozhi nhận lệnh và phản hồi bằng loa | Bản đầu dùng 1 mic; Brain xử lý tương tác; lệnh chuyển động qua lớp kiểm tra; cảnh báo thiết yếu lưu cục bộ |
 | F04 | Dừng khi gặp vật cản, mép rơi, nghiêng, va chạm hoặc kẹt | Motion quyết định dừng độc lập Brain, khóa driver ngoài UART FPGA; FPGA tự hết hạn lệnh Motion; E-stop độc lập phần mềm |
 | F05 | TFT 2.8 inch: biểu cảm, tốc độ, QR; Dashboard điều khiển/debug | Brain chạy giao diện LVGL và mạng; Dashboard hiển thị cả trạng thái lỗi và độ mới dữ liệu |
 | F06 | Motherboard tích hợp MCU, FPGA/đầu nối FPGA, nguồn, âm thanh | Làm cho cấu hình 2 MCU/1 FPGA/1 mic sau khi nguyên mẫu đạt; DoA nâng cấp có thể cần sửa PCB |
+
+### Ghi chú bổ sung F01 — 30/10/2026
+
+Các ý cần thử, **chưa triển khai/kiểm chứng trên xe**. Áp dụng khung TT 4WD,
+hai nhóm motor trái/phải, không servo lái; thay mô tả Ackermann cũ cho F01.
+
+- **Giữ tốc độ khi lên dốc/tải tăng:** phản hồi encoder, Motion dùng PI/PID
+  tăng/giảm PWM trong giới hạn dòng, nguồn và nhiệt; có chống tích lũy sai số
+  khi đầu ra bão hòa [S10]. Dùng mô hình Laplace để phân tích/hiệu chỉnh;
+  không cam kết giữ tốc độ khi vượt khả năng motor hoặc bánh trượt.
+- **Kích đề-pa:** khi có lệnh chạy hợp lệ và xe đứng yên, tạo cú kích PWM
+  ngắn rồi nội suy giảm mượt về điều khiển tốc độ. Hiệu chỉnh mức/thời gian,
+  chưa chốt 100%; giới hạn dòng/thời gian, kẹt thì dừng, không kích lặp vô hạn.
+  Không tự chạy lúc bật nguồn; dừng an toàn bỏ qua nội suy.
+- **Đi theo quãng đường, ví dụ 2 m:** đếm encoder từ lúc đề-pa, hiệu chuẩn
+  mm/xung, giữ hướng và giảm tốc trước đích; đo sai số thực do trượt/quán tính.
+- **Mã Gray nếu phù hợp:** dùng chuỗi pha khi giải mã encoder A/B [S11];
+  cân nhắc con trỏ Gray nếu sau này có FIFO khác miền clock, kèm đồng bộ và
+  ràng buộc timing. Encoder một OUT đã chọn không tự đo được chiều quay;
+  không ghép OUT hai bánh thành A/B. RTL hiện có A/B, mode một OUT còn phải làm;
+  không đổi mọi bộ đếm sang Gray hoặc coi Gray làm xe đi chính xác hơn.
 
 ## 3. Các điểm cần sửa trong kế hoạch
 
@@ -338,6 +359,8 @@ kế, không phải lỗi đã được sửa trên phần cứng.
 - **[S7]** [Espressif - ESP32-S3 Schematic Checklist](https://docs.espressif.com/projects/esp-hardware-design-guidelines/en/latest/esp32s3/schematic-checklist.html): nguồn, bộ nhớ, GPIO và các chân strapping.
 - **[S8]** [Espressif - ESP32-S3-WROOM-1/1U](https://www.espressif.com/sites/default/files/documentation/esp32-s3-wroom-1_wroom-1u_datasheet_en.pdf): nguồn và biến thể module/anten; cần đối chiếu đúng mã mua thực tế.
 - **[S9]** [Sipeed - Gowin IDE cho Tang](https://wiki.sipeed.com/hardware/en/tang/common-doc/get_started/install-the-ide.html): công cụ, chip được hỗ trợ và Programmer; kết quả chọn chip phải qua đánh giá đúng target.
+- **[S10]** [MathWorks - Anti-Windup Control Using PID Controller Block](https://www.mathworks.com/help/simulink/slref/anti-windup-control-using-a-pid-controller.html): chống tích lũy sai số khi cơ cấu chấp hành bão hòa.
+- **[S11]** [Microchip - Quadrature Encoding](https://onlinedocs.microchip.com/oxy/GUID-954122A4-C243-4CDD-AAB7-64D199581D04-en-US-5/GUID-96E15BCB-15F0-4DC6-876D-66EBF4B40CC7.html): chuỗi Gray A/B và giới hạn của encoder một tín hiệu.
 
 Các tần số, timeout, phân tải, công thức và bài nghiệm thu trong bản này là đề
 xuất kỹ thuật cho AW-Car; datasheet không chứng nhận an toàn hay hiệu năng của

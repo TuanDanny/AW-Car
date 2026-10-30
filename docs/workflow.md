@@ -1,21 +1,26 @@
 # Quy trình Git
 
-`main -> feat/fXX-ten-ngan -> kiểm tra + review -> PR -> squash merge -> main`.
-Mỗi tính năng một nhánh và một commit sau squash; lỗi/tài liệu/setup dùng
-`fix/`, `docs/`, `chore/`. Quy tắc chi tiết và cách bảo toàn công việc đang
-dở nằm ở [AGENTS.md](../AGENTS.md). F03 đang phát triển riêng trên
-`feat/f03-xiaozhi-ai`; không trộn truyền động, FPGA hoặc nguồn vào nhánh này.
+Giai đoạn hiện tại dùng `main` ổn định và hai nhánh phát triển:
+
+| Nhánh | Phần việc |
+| --- | --- |
+| `feat/f01-fpga-drive` | FPGA, truyền động, giao tiếp Motion–FPGA và tài liệu liên quan |
+| `feat/f03-xiaozhi-ai` | AI/Xiaozhi, âm thanh, OLED và tài liệu liên quan |
+
+Dùng lại nhánh phù hợp cho sửa lỗi, tài liệu và tối ưu; theo dõi từng bước
+bằng task/commit. Quy tắc ở [AGENTS.md](../AGENTS.md).
 
 ## Bắt đầu
 
-Kiểm tra `git status`, bảo toàn thay đổi đang có rồi lấy main mới nhất:
+Kiểm tra `git status`, bảo toàn thay đổi đang có rồi lấy thông tin mới nhất:
 
 ```sh
 git fetch origin
-git switch -c feat/f01-drive origin/main
+git switch feat/f01-fpga-drive
 ```
 
-Tên trên là ví dụ; chọn mã tính năng đúng tác vụ. Khi lấy bản setup về lần đầu:
+Nếu nhánh đang được dùng ở worktree khác, làm trong worktree đó. Khi làm AI,
+dùng `feat/f03-xiaozhi-ai`. Không tự tạo thêm nhánh cho mỗi task. Lần setup đầu:
 
 ```sh
 git config --local core.hooksPath .githooks
@@ -23,13 +28,19 @@ git config --local core.hooksPath .githooks
 
 ## Trước khi merge
 
-- Một PR chỉ chứa phạm vi tính năng và sửa đổi cần thiết để tính năng hoạt động.
+- Một PR bàn giao một mốc của FPGA hoặc AI, với diff và kiểm tra rõ ràng.
 - Chạy kiểm tra ở [tools](../tools/README.md), build/test phần mã nguồn đã đổi
   khi có, và ghi rõ phần cần kiểm tra trên phần cứng.
 - Review diff, xử lý lỗi, cập nhật nhánh nếu main thay đổi; chỉ squash merge khi
   các kiểm tra phù hợp đã đạt. Với tác vụ đang bàn bạc/setup, giữ nhánh để xem trước.
-- Sau merge: `git fetch origin`, chuyển về main và `git pull --ff-only` khi cây
-  làm việc sạch; nhánh tiếp theo bắt đầu từ main mới. Không sửa trực tiếp trên main.
+- Sau merge: lấy main mới rồi đồng bộ vào hai nhánh phát triển khi cây làm việc
+  sạch. Không sửa trực tiếp trên main.
+
+## Dọn nhánh cũ
+
+Các PR encoder/PWM/UART/watchdog/tối ưu đã squash vào main. Kiểm tra nội dung
+và sao lưu lịch sử trước khi bỏ tên nhánh cũ. Thay đổi phần cứng/CAD chưa
+commit ở checkout khác phải được giữ nguyên, không tự gộp vào bản đã nghiệm thu.
 
 ## Mức bảo vệ
 

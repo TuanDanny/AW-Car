@@ -14,23 +14,21 @@
 ## Nhánh và merge
 
 - `main` luôn là bản ổn định; tạo nhánh trước khi sửa, không commit/push trực tiếp.
-- **Mỗi tính năng một nhánh riêng** `feat/fXX-ten-ngan`, ví dụ
-  `feat/f03-xiaozhi-ai` cho F03. Một nhánh chỉ chứa mã, tài liệu và kiểm thử
-  phục vụ tính năng đó; không gộp tính năng độc lập dù cùng sửa một thư mục.
-- Trước khi sửa, xác định mã tính năng và nhánh đích; nếu tiếp tục cùng tính
-  năng thì dùng lại nhánh của nó. Khi đổi tính năng, chuyển sang nhánh riêng;
-  không tiếp tục sửa trên nhánh của tính năng trước.
-- Nếu cây làm việc còn thay đổi của tính năng khác, giữ nguyên tại checkout
-  cũ và dùng worktree riêng. Không mang các thay đổi đó sang nhánh mới hoặc
-  commit/push tất cả thay đổi chỉ để làm sạch cây làm việc.
-- Sửa lỗi dùng `fix/ten-loi`, tài liệu dùng `docs/chu-de`, setup dùng `chore/chu-de`.
-- Tạo nhánh từ `origin/main` đã cập nhật; không trộn tính năng độc lập vào một PR.
-- Hoàn tất kiểm tra và review rồi mở PR vào `main`; dùng **squash merge**,
-  mỗi tính năng thành một commit. Sau merge đồng bộ lại main trước tính năng mới.
+- Theo quyết định 30/10/2026, giai đoạn hiện tại chỉ dùng hai nhánh phát triển:
+  `feat/f01-fpga-drive` cho FPGA/truyền động và tài liệu liên quan;
+  `feat/f03-xiaozhi-ai` cho AI/Xiaozhi, âm thanh, OLED và tài liệu liên quan.
+- Dùng lại nhánh đúng phần việc; không tạo thêm nhánh cho từng module, bản sửa
+  lỗi, ghi chú hoặc lần tối ưu. Theo dõi các bước nhỏ bằng task và commit.
+- Giữ thay đổi chưa commit của checkout khác tại chỗ; không đưa công việc
+  phần cứng/CAD đang dở vào một commit chỉ để dọn tên nhánh.
+- Nhánh FPGA giữ nền `origin/main` mới nhất đã chứa các PR RTL; giữ nguyên
+  lịch sử và bản source đã thử của nhánh AI. Chỉ đồng bộ thay đổi chung cần thiết.
+- Hoàn tất kiểm tra và review rồi mở PR vào `main`; dùng **squash merge**.
+  Chỉ merge một mốc đã nghiệm thu; sau đó đồng bộ main về hai nhánh đang dùng.
 - Tác vụ đang bàn bạc/setup chỉ chuẩn bị nhánh để xem trước, chưa merge.
 - Không force-push main, bỏ qua hook/CI hoặc xóa thay đổi của người khác.
-- Khi bàn giao, ghi tên nhánh, commit đã push và kiểm tra đã chạy. Tạo/push
-  nhánh không đồng nghĩa đã merge hoặc đã hoàn tất tính năng.
+- Khi dọn nhánh cũ, kiểm tra phần đã merge và sao lưu commit/thay đổi còn lại
+  trước khi xóa tham chiếu. Báo tên nhánh, commit đã push và kiểm tra khi bàn giao.
 
 ## Cấu trúc và phạm vi
 
