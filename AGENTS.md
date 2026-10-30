@@ -5,6 +5,8 @@
 - Đọc README ở root, README của thư mục liên quan và yêu cầu đang thực hiện.
 - Kiểm tra `git status` và nhánh hiện tại; giữ nguyên thay đổi không thuộc tác vụ.
 - Bản đầu: 2 ESP32-S3, 1 FPGA, 1 INMP441; DoA dành cho nâng cấp.
+  Dùng khung TT 4WD, hai nhóm motor trái/phải, không dùng servo lái.
+  Encoder một OUT là kế hoạch; RTL hiện có A/B chưa hỗ trợ mode mới.
   Phân tải ở `docs/fpga-drive-plan.md`; board mục tiêu Tang Nano 9K, chưa mua
   và chưa xác nhận fit/timing đúng chip. Tối ưu RTL không đổi mục tiêu về 1K.
 - Trao đổi và báo cáo bằng tiếng Việt, ngắn gọn; nêu giả định ảnh hưởng thiết kế.
@@ -12,21 +14,29 @@
 ## Nhánh và merge
 
 - `main` luôn là bản ổn định; tạo nhánh trước khi sửa, không commit/push trực tiếp.
-- Mỗi tính năng một nhánh `feat/fXX-ten-ngan`, ví dụ `feat/f01-drive`.
-- Sửa lỗi dùng `fix/ten-loi`, tài liệu dùng `docs/chu-de`, setup dùng `chore/chu-de`.
-- Tạo nhánh từ `origin/main` đã cập nhật; không trộn tính năng độc lập vào một PR.
-- Hoàn tất kiểm tra và review rồi mở PR vào `main`; dùng **squash merge**,
-  mỗi tính năng thành một commit. Sau merge đồng bộ lại main trước tính năng mới.
+- Theo quyết định 30/10/2026, giai đoạn hiện tại chỉ dùng hai nhánh phát triển:
+  `feat/f01-fpga-drive` cho FPGA/truyền động và tài liệu liên quan;
+  `feat/f03-xiaozhi-ai` cho AI/Xiaozhi, âm thanh, OLED và tài liệu liên quan.
+- Dùng lại nhánh đúng phần việc; không tạo thêm nhánh cho từng module, bản sửa
+  lỗi, ghi chú hoặc lần tối ưu. Theo dõi các bước nhỏ bằng task và commit.
+- Giữ thay đổi chưa commit của checkout khác tại chỗ; không đưa công việc
+  phần cứng/CAD đang dở vào một commit chỉ để dọn tên nhánh.
+- Nhánh FPGA giữ nền `origin/main` mới nhất đã chứa các PR RTL; giữ nguyên
+  lịch sử và bản source đã thử của nhánh AI. Chỉ đồng bộ thay đổi chung cần thiết.
+- Hoàn tất kiểm tra và review rồi mở PR vào `main`; dùng **squash merge**.
+  Chỉ merge một mốc đã nghiệm thu; sau đó đồng bộ main về hai nhánh đang dùng.
 - Tác vụ đang bàn bạc/setup chỉ chuẩn bị nhánh để xem trước, chưa merge.
 - Không force-push main, bỏ qua hook/CI hoặc xóa thay đổi của người khác.
+- Khi dọn nhánh cũ, kiểm tra phần đã merge và sao lưu commit/thay đổi còn lại
+  trước khi xóa tham chiếu. Báo tên nhánh, commit đã push và kiểm tra khi bàn giao.
 
 ## Cấu trúc và phạm vi
 
 - Mỗi thư mục được quản lý trong Git có `README.md` giới thiệu ngắn và trạng thái.
 - Root `README.md` là mục lục chính; `AGENTS.md` là nguồn quy tắc duy nhất.
-- `firmware/brain`: âm thanh, Xiaozhi, TFT, mạng. `firmware/motion`: PID và an toàn.
+- `firmware/brain`: âm thanh, Xiaozhi, OLED I²C, mạng. `firmware/motion`: PID và an toàn.
 - `firmware/shared`: giao thức/kiểu dữ liệu chung, không phụ thuộc riêng một MCU.
-- `fpga`: RTL đo encoder, PWM motor và watchdog; PID/servo ở Motion. Viết RTL
+- `fpga`: RTL đo encoder, PWM motor và watchdog; PID theo hai bên ở Motion. Viết RTL
   độc lập hãng; Quartus chỉ tham khảo cho chip Altera/Intel, Tang Nano dùng Gowin.
 - Trong `fpga/rtl`, top logic `drive_core.sv` ở root; module con phân theo
   `common/`, `encoder/`, `pwm/`, `link/`, `safety/`, mỗi nhóm có README.

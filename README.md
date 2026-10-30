@@ -9,8 +9,9 @@ Tác giả: **TuanDanny**. Cộng tác viên: **Minh Nho** và **Nhan Duc**.
 
 Dự án đang chọn linh kiện, chưa lắp xe thử nghiệm. Kho hiện có khung thư mục,
 tài liệu, quy tắc làm việc, RTL encoder/snapshot/PWM/UART/giao thức/FSM/watchdog/top và mô phỏng;
-chưa có firmware, sơ đồ điện hay PCB. Chưa có tính năng nào được xác nhận
-hoạt động trên phần cứng. Cách chạy RTL ở [fpga](fpga/README.md).
+chưa có firmware Motion hoặc bản xe tích hợp được nghiệm thu. Cách chạy RTL
+ở [fpga](fpga/README.md). Source Xiaozhi và demo AI điều khiển RGB đã thử được
+giữ trên [nhánh AI](https://github.com/TuanDanny/AW-Car/tree/feat/f03-xiaozhi-ai).
 Toàn bộ mã HDL dùng SystemVerilog (`.sv`); hook và CI kiểm tra quy ước này.
 
 - Yêu cầu ban đầu: [issue #1](https://github.com/TuanDanny/AW-Car/issues/1).
@@ -18,9 +19,10 @@ Toàn bộ mã HDL dùng SystemVerilog (`.sv`); hook và CI kiểm tra quy ướ
   các điểm cần sửa trước khi mua linh kiện, kiến trúc đề xuất và tiêu chí nghiệm thu;
   ghi chú F01 về giữ tốc độ, kích đề-pa, quãng đường và mã Gray.
 
-Cấu hình đã chốt ngày 23/10/2026: **2 ESP32-S3, 1 FPGA và 1 mic INMP441**.
-FPGA đọc encoder và phát PWM cho 2 motor sau; Motion tính PID, điều khiển servo
-và giám sát an toàn. Board mục tiêu là **Tang Nano 9K**
+Cấu hình bản đầu: **2 ESP32-S3, 1 FPGA và 1 mic INMP441**, khung TT 4WD,
+lái bằng tốc độ hai bên, không servo. FPGA đọc encoder và phát PWM cho hai
+nhóm motor; Motion tính PID theo bên và giám sát an toàn. Encoder một OUT
+là kế hoạch; RTL hiện có A/B. Board mục tiêu là **Tang Nano 9K**
 (`GW1NR-LV9QN88PC6/I5`), chưa mua. Tối ưu RTL vẫn giữ mục tiêu 9K;
 mô phỏng và tổng hợp sơ bộ chưa thay kết quả fit/timing trên đúng chip.
 Xem [kế hoạch FPGA và toàn hệ thống](docs/fpga-drive-plan.md) và
@@ -48,8 +50,10 @@ Mỗi thư mục có README giới thiệu. [AGENTS.md](AGENTS.md) là quy tắc
 
 ## Làm việc và kiểm tra
 
-Mỗi tính năng một nhánh `feat/fXX-ten-ngan`, PR vào main và **squash merge** sau
-khi kiểm tra/review đạt. Xem [quy trình Git](docs/workflow.md).
+Hai nhánh làm việc hiện tại: **`feat/f01-fpga-drive`** cho FPGA/truyền động và
+**`feat/f03-xiaozhi-ai`** cho AI. Dùng task/commit để theo dõi từng bước nhỏ;
+PR vào main và **squash merge** sau khi kiểm tra/review đạt.
+Xem [quy trình Git](docs/workflow.md).
 
 ```sh
 git config --local core.hooksPath .githooks
