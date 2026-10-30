@@ -15,7 +15,8 @@ Toàn bộ mã HDL dùng SystemVerilog (`.sv`); hook và CI kiểm tra quy ướ
 
 - Yêu cầu ban đầu: [issue #1](https://github.com/TuanDanny/AW-Car/issues/1).
 - [Rà soát kỹ thuật và kế hoạch hiệu chỉnh](docs/issue-1-technical-review.md):
-  các điểm cần sửa trước khi mua linh kiện, kiến trúc đề xuất và tiêu chí nghiệm thu.
+  các điểm cần sửa trước khi mua linh kiện, kiến trúc đề xuất và tiêu chí nghiệm thu;
+  ghi chú F01 về giữ tốc độ, kích đề-pa, quãng đường và mã Gray.
 
 Cấu hình đã chốt ngày 23/10/2026: **2 ESP32-S3, 1 FPGA và 1 mic INMP441**.
 FPGA đọc encoder và phát PWM cho 2 motor sau; Motion tính PID, điều khiển servo
