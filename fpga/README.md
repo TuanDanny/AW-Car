@@ -1,7 +1,8 @@
 # FPGA truyền động
 
-Nơi lưu RTL và testbench cho 2 encoder A/B, PWM 2 motor sau, giao tiếp Motion
-và watchdog/FSM. PID, xử lý cảm biến an toàn và servo lái nằm ở ESP32 Motion.
+Nơi lưu RTL và testbench cho 2 encoder A/B, PWM hai nhóm motor trái/phải,
+giao tiếp Motion và watchdog/FSM. Xe dùng TT 4WD, không servo lái; PID và xử lý
+cảm biến an toàn nằm ở ESP32 Motion. Mode encoder một OUT còn là kế hoạch.
 Toàn bộ nguồn RTL/testbench dùng **SystemVerilog, đuôi `.sv`**; hook/CI chặn
 đuôi HDL khác. Runner bật `iverilog -g2012`, script tổng hợp bật `read_verilog -sv`.
 
@@ -9,8 +10,9 @@ Trạng thái: đã có RTL/testbench cho reset, encoder X4 hai bánh, snapshot,
 PWM hai kênh, trình tự đổi chiều độc lập driver và UART/parser/CRC/serializer/
 command guard, FSM/watchdog và top `drive_core` đã nối link với PWM. Chưa có
 adapter driver, wrapper/constraints cho Tang Nano 9K hoặc báo cáo timing. Hợp đồng GPIO phục hồi/ARM
-và gate ngoài ở [fpga-safety.md](../firmware/shared/fpga-safety.md). Xem giao diện ở
-[rtl](rtl/README.md), ca thử ở [tb](tb/README.md).
+và gate ngoài ở [fpga-safety.md](../firmware/shared/fpga-safety.md). Xem
+[vai trò từng file, luồng tín hiệu và rà soát nhẹ RTL](rtl/README.md),
+ca thử ở [tb](tb/README.md).
 
 Top logic ở `rtl/drive_core.sv`; module con chia theo `common`, `encoder`,
 `pwm`, `link`, `safety`, mỗi nhóm có README. Runner tìm `.sv` đệ quy trong

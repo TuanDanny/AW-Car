@@ -1,4 +1,7 @@
-# PWM hai motor và trình tự đổi chiều
+# PWM hai nhóm motor và trình tự đổi chiều
+
+Hai kênh trái/phải dùng cho hai bên TT 4WD, không phải điều khiển độc lập cả
+bốn motor. Adapter driver phải ánh xạ PWM/chiều sang từng cầu H phù hợp.
 
 - `pwm_pair.sv`: duty trái/phải cập nhật nguyên tử tại boundary; lệnh mới nhất
   thay cặp shadow. Mỗi chu kỳ đúng duty tick HIGH, gồm0/100%; PWM register
