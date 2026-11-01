@@ -16,12 +16,14 @@ module drive_core #(
     parameter int ZERO_CYCLES = 27000,
     parameter int SETUP_CYCLES = 27,
     parameter int FILTER_N = 3,
-    parameter bit ALLOW_REVERSE = 0,
+    parameter bit ALLOW_REVERSE = 1,
+    parameter bit ENCODER_SINGLE_OUT = 1,
     parameter bit INVERT_LEFT = 0,
     parameter bit INVERT_RIGHT = 0
 ) (
     input logic clk, arst_n, rx,
     input logic [1:0] left_ab, right_ab,
+    input logic encoder_left_out, encoder_right_out,
     input logic motion_permit_async, recovery_req_async,
     input logic safety_ok_async, gate_fault_n_async,
     output logic tx, pwm_left, pwm_right,
@@ -55,13 +57,16 @@ module drive_core #(
         .clk(clk), .rst_n(rst_n), .async_in({motion_permit_async, recovery_req_async}),
         .filtered(controls), .valid(inputs_valid));
     encoder_pair #(.FILTER_N(FILTER_N), .SNAPSHOT_CYCLES(SNAPSHOT_CYCLES),
+                   .SINGLE_OUT(ENCODER_SINGLE_OUT),
                    .INVERT_LEFT(INVERT_LEFT), .INVERT_RIGHT(INVERT_RIGHT)) encoders (
         .clk(clk), .rst_n(rst_n), .left_ab(left_ab), .right_ab(right_ab),
+        .left_out(encoder_left_out), .right_out(encoder_right_out),
         .left_count(live_left), .right_count(live_right), .snapshot_valid(snapshot_valid),
         .snapshot_left(snapshot_left), .snapshot_right(snapshot_right), .snapshot_time(snapshot_time),
         .snapshot_seq(snapshot_seq), .snapshot_status(snapshot_status));
     fpga_link #(.CLK_HZ(CLK_HZ), .BAUD(BAUD), .PERIOD_CYCLES(PERIOD_CYCLES),
                 .ALLOW_REVERSE(ALLOW_REVERSE), .INTERBYTE_CYCLES(INTERBYTE_CYCLES),
+                .ENCODER_SINGLE_OUT(ENCODER_SINGLE_OUT),
                 .FRAME_CYCLES(FRAME_CYCLES)) link (
         .clk(clk), .rst_n(rst_n), .rx(rx), .tx(tx), .context_load(context_load),
         .session_active(session_active), .active_session(active_session), .sequence_base(sequence_base),

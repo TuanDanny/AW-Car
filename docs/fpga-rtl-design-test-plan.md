@@ -6,6 +6,11 @@ xem [FPGA](../fpga/README.md). Đã có mapping generic toàn lõi.
 Các phần target/driver/phần cứng vẫn là kế hoạch; chưa có timing sau route.
 Phân tải đã chốt ở [kế hoạch toàn hệ thống](fpga-drive-plan.md).
 
+Cập nhật 01/11/2026: khung TT 4WD, lái vi sai, không servo. Top mặc định
+`ALLOW_REVERSE=1`, `ENCODER_SINGLE_OUT=1`; bộ đếm một OUT là độ lớn không dấu,
+STATUS bit4 báo mode. Các tiêu chí A/B X4 bên dưới áp dụng mode tùy chọn;
+phần một OUT và các ca tiến/lùi/rẽ/quay ở [testbench](../fpga/tb/README.md).
+
 ## 1. Hướng thực hiện
 
 **Không cần Quartus và chưa cần mua board.** Làm trên máy Windows hiện tại:
@@ -62,7 +67,7 @@ Icarus 13.0 MSYS2 cục bộ và chạy ba testbench encoder, xem README FPGA.
 
 FPGA nhận **duty/chiều**, không nhận trực tiếp lệnh giọng nói hay vận tốc.
 FPGA đọc 2 encoder, chốt số đếm, phát PWM/chiều cho driver và tự hết hạn lệnh.
-Motion tính vận tốc/PID, đọc cảm biến, điều khiển servo và có đường khóa driver
+Motion tính vận tốc/PID hai bên, đọc cảm biến, lái vi sai và có đường khóa driver
 riêng. Brain giữ Web, âm thanh và TFT; driver vẫn cấp dòng cho motor.
 
 Đề xuất cấu hình đánh giá đầu tiên, **chưa phải thông số đã nghiệm thu**:
@@ -72,7 +77,7 @@ riêng. Brain giữ Web, âm thanh và TFT; driver vẫn cấp dòng cho motor.
 | Clock lõi | 27 MHz; một clock domain, không PLL bản đầu | Clock onboard Nano 9K; đổi clock phải cập nhật tham số/constraints |
 | PWM | Edge-aligned, 20 kHz, chu kỳ 1.350 tick | 27.000.000 / 1.350 = 20.000 Hz; counter 11 bit |
 | Duty | Số nguyên 0..1.350; 0 tắt, 1.350 bật cả chu kỳ | Bước 1/1.350, hơn 10 bit hữu dụng; ngoài miền bị từ chối |
-| Encoder | X4, 2 bộ đếm 32 bit modulo | Motion lấy delta có dấu; cần chứng minh delta giữa mẫu nhỏ hơn 2^31 |
+| Encoder | Một OUT/cạnh lên, 2 bộ đếm 32 bit modulo; tùy chọn A/B X4 | Motion kiểm tra STATUS bit4: OUT lấy delta không dấu, A/B lấy delta có dấu; không suy chiều đo từ chiều lệnh |
 | Snapshot/lệnh PID | 10 ms / 100 Hz | Chốt đồng thời hai bánh; vòng PID thật còn cần đo jitter |
 | Watchdog chạy | 50 ms từ lệnh mới hợp lệ cuối cùng | 1.350.000 tick, không gia hạn bằng heartbeat/frame lỗi |
 | Motion phát hiện FPGA cũ | 30 ms không nhận snapshot mới đúng phiên; hạ permit trong 1 ms tiếp theo | Mục tiêu phải đo cùng scheduler Motion; frame lặp không làm mới hạn |
@@ -94,6 +99,7 @@ Tất cả timer dùng clock-enable trong domain 27 MHz, không tạo clock bằ
 | Khối dự kiến | Trách nhiệm và giao diện chính |
 | --- | --- |
 | `reset_sync`, `input_sync_filter` | Reset assert bất đồng bộ, nhả đồng bộ; mỗi A/B, RX và tín hiệu ngoài có bộ đồng bộ phù hợp; lọc A/B theo số mẫu ổn định |
+| `pulse_counter` x2 | OUT đã lọc -> count32 không dấu; mẫu đầu chỉ làm mốc; đếm một cạnh lên/xung cả khi thả trôi |
 | `quadrature_decoder` x2 | A/B đã lọc -> count32, lỗi chuyển trạng thái; đếm từng cạnh X4, bảng 16 chuyển trạng thái |
 | `snapshot_timer` | Mỗi 10 ms chốt đồng thời count trái/phải, timestamp, snapshot sequence và trạng thái |
 | `pwm_pair` | Một timebase chung, duty shadow -> active đồng thời tại đầu chu kỳ; output bị khóa khi không được phép |
@@ -105,13 +111,17 @@ Tất cả timer dùng clock-enable trong domain 27 MHz, không tạo clock bằ
 
 ### Encoder và CDC
 
-- Quy ước dương đề xuất: `00 -> 01 -> 11 -> 10 -> 00` là +4 count; có tham số
+- Một OUT là mode mặc định: một xung chỉ tính cạnh lên, không đếm mẫu đầu HIGH.
+  Count tăng không dấu/modulo32 cả khi lùi hoặc motor bị đẩy lúc tắt; không có
+  chiều đo, invalid A/B không áp dụng. Đĩa20 khe trên trục ra cần hiệu chuẩn
+  số xung/vòng, không nhân X4. Công thức RPM/flag mode ở README nhóm encoder.
+- Mode A/B: `00 -> 01 -> 11 -> 10 -> 00` là +4 count; có tham số
   đảo chiều từng bánh theo cách lắp. Giữ nguyên trạng thái không tăng count;
   nhảy hai bit báo invalid, không suy đoán +2/-2.
 - Hai FF đồng bộ mỗi tín hiệu là điểm xuất phát; không đưa tín hiệu ngoài vào
   nhiều đường logic trước khi đồng bộ. Mô phỏng không mô hình hóa metastability;
   cần review cấu trúc, thuộc tính synchronizer và constraint sau mapping.
-- Với PPR là số chu kỳ kênh A trên **trục encoder**, `f_count = 4*PPR*RPM/60`.
+- Riêng A/B, với PPR là số chu kỳ kênh A trên **trục encoder**, `f_count = 4*PPR*RPM/60`.
   Nếu encoder trước hộp số, dùng tốc độ trục motor hoặc nhân đúng tỉ số truyền.
   Không nhân X4 lần nữa nếu datasheet đã ghi CPR sau giải mã.
 - Chọn `FILTER_N` sau khi có PPR/RPM tối đa và dạng xung: khoảng cách ngắn nhất
@@ -135,7 +145,8 @@ Tất cả timer dùng clock-enable trong domain 27 MHz, không tạo clock bằ
 - Đổi chiều: PWM về zero -> chờ khoảng zero đã cấu hình -> đổi chân chiều ->
   chờ setup theo driver -> cho duty mới tại boundary. Hủy lệnh đang chờ nếu có
   disable/fault. Khoảng zero logic không chứng minh rotor đã dừng; Motion phải
-  kiểm tra tốc độ trước khi cho đảo chiều. Bản xe đầu chỉ cho tiến.
+  kiểm tra tốc độ trước khi cho đảo chiều. RTL hiện mở lùi/quay; nghiệm thu
+  cơ khí, dòng đổi chiều và vùng bảo vệ còn là bước thử phần cứng.
 - Không tự thiết kế dead-time cầu H rời ở bản này. Chốt driver và truth table
   trước khi viết adapter; STBY LOW của TB6612FNG là thả trôi, không phải phanh.
 - FSM khởi động DISARMED; ARM cần handshake mới và lệnh zero; ARMED không tự
@@ -158,7 +169,7 @@ Tất cả timer dùng clock-enable trong domain 27 MHz, không tạo clock bằ
   Snapshot mới phải đúng phiên và sequence tiến theo modulo; frame cũ/đảo
   thứ tự không gia hạn. Chốt quy tắc wrap/reset cùng giao thức.
   GPIO permit tĩnh riêng lẻ chưa chống được mọi lỗi treo MCU; đánh giá watchdog
-  ngoài nếu yêu cầu phải bao phủ lỗi chung. Servo vẫn cần phép thử cơ khí riêng.
+  ngoài nếu yêu cầu phải bao phủ lỗi chung. Quãng dừng và trượt ngang cần thử riêng.
 
 ### Giao thức: chốt đặc tả trước khi code parser
 
@@ -207,7 +218,7 @@ sao chép lỗi RTL. Kiểm tra output không X/Z sau khi nhả reset.
 | Nhóm | Ca thử tối thiểu | Điều kiện đạt |
 | --- | --- | --- |
 | Reset/CDC | Boot, reset giữa frame/PWM, nhả reset ở nhiều pha, input ban đầu bất kỳ | Không arm/chạy ngoài ý muốn; permit tắt; đồng bộ/nhả reset đúng cấu trúc |
-| Encoder | Cả 16 chuyển A/B, thuận/ngược, đứng yên, đảo pha, hai bánh khác tốc độ, wrap 32 bit | Count/delta đúng reference; invalid không tự sinh count; đảo chiều đúng quy ước |
+| Encoder | OUT HIGH ban đầu/giữ mức, nhiễu, hai bên khác tốc độ, wrap/reset/snapshot; A/B tùy chọn đủ16 chuyển | OUT đếm cạnh lên không dấu, không tự sinh chiều; A/B giữ count/delta/invalid đúng reference |
 | Filter | Nhiễu quanh ngưỡng N-1/N/N+1 mẫu sau đồng bộ, lệch pha bất đồng bộ; tốc độ 1,5x mục tiêu | Đúng chính sách lọc; không mất/thêm count trong miền đã đặc tả |
 | Snapshot | Cạnh encoder trùng tick, wrap timestamp/sequence, cập nhật count khi TX đang gửi | Hai bánh/timestamp/status cùng snapshot; frame đang gửi không bị thay một phần |
 | PWM | Duty 0/1/giữa/1.349/1.350 và ngoài miền, update sát boundary | Chu kỳ 1.350 tick; số tick HIGH đúng duty; cặp cập nhật nguyên tử; không có xung ngoài lịch |
@@ -293,7 +304,7 @@ bắt buộc không vi phạm ở các corner yêu cầu và exception có căn 
 
 Hiện chưa có wrapper/constraints/Gowin project hoặc STA đúng9K, vì vậy
 **chưa có Tcd/Tpd ns hoặc Fmax được xác nhận**. Không suy ra từ số LUT/FF,
-VCD hay PASS ở testbench27MHz. Regression và ánh xạ15 module được ghi ở
+VCD hay PASS ở testbench27MHz. Regression và ánh xạ module được ghi ở
 [verification](../fpga/verification.md); coverage chức năng và timing là hai
 bộ bằng chứng riêng cần hoàn thành.
 
@@ -305,11 +316,12 @@ Mô phỏng không chứng minh điện áp, nhiệt, nhiễu, metastability hay
 
 ## 6. Thứ tự triển khai và cấu trúc khi có mã thật
 
-Mỗi hàng là một phạm vi PR riêng; tên nhánh đề xuất, tạo từ main mới nhất sau
-khi PR trước squash merge. Mã `f07..f14` là gói triển khai dự kiến, không sửa
-ý nghĩa F01-F06 của yêu cầu sản phẩm hiện tại.
+Mỗi hàng là một mốc công việc, theo dõi bằng task/commit trên nhánh
+`feat/f01-fpga-drive` hiện tại. Các tên nhánh dưới đây thuộc kế hoạch cũ,
+không tạo lại; chỉ dùng hai nhánh FPGA/AI theo AGENTS.md. Mã `f07..f14`
+không sửa ý nghĩa F01-F06 của yêu cầu sản phẩm hiện tại.
 
-| Thứ tự / nhánh | Việc làm | Bằng chứng để chuyển bước |
+| Thứ tự / tên mốc cũ | Việc làm | Bằng chứng để chuyển bước |
 | --- | --- | --- |
 | 1. `docs/fpga-interface-spec` | Chốt driver/truth table, PPR/RPM, reset/handshake/session, frame/CRC, fault policy, khóa lỗi chốt và hạn Motion inhibit | Bảng trường + vector frame chuẩn, FSM, timing/safety contract không còn mơ hồ |
 | 2. `chore/fpga-toolchain` | Cài/xác minh Icarus/Gowin, ghi version, runner mô phỏng và CI tối thiểu | Thiết kế thử có test tự kiểm tra và target synthesis/route chạy được |
@@ -320,10 +332,10 @@ khi PR trước squash merge. Mã `f07..f14` là gói triển khai dự kiến, 
 | 7. `feat/f11-fpga-optimize` | Tối ưu duty/timer, giữ target9K và hợp đồng an toàn | Hồi quy16 bài,14 trường hợp tương đương và tổng hợp trước/sau; xem verification |
 | 8. `feat/f12-fpga-target` | Đánh giá target9K, constraints, báo cáo route/timing | Đủ hồ sơ quyết định mua hoặc lý do đổi board |
 | 9. `feat/f13-motion-fpga-link` | Driver giao thức Motion, PID sử dụng snapshot, stale-data inhibit | Kiểm thử hai đầu/mô hình trước, board bench sau khi có phần cứng |
-| 10. `feat/f14-drive-integration` | Driver/nguồn/encoder thật, cảm biến/PID, Brain/Web/servo | Biên bản thử lỗi, tốc độ/quãng dừng và tải đồng thời |
+| 10. `feat/f14-drive-integration` | Driver/nguồn/encoder thật, cảm biến/PID hai bên, Brain/Web | Biên bản thử lỗi, tốc độ/quãng dừng và tải đồng thời |
 
 Sau PR tối ưu f11, bước tiếp theo là f12: wrapper/constraints và Gowin/PnR/STA đúng chip9K.
-Driver chưa chốt nên adapter chân công suất vẫn để sau; core đã nối đủ logic
+Đã chọn DRV8833 nhưng chưa triển khai/đo adapter chân công suất; core đã nối đủ logic
 nhưng chưa sẵn sàng điều khiển motor thật. Firmware/gate và thử bàn vẫn bắt buộc.
 
 Cấu trúc dự kiến dưới `fpga/`, **chỉ tạo khi có file thực tế**:

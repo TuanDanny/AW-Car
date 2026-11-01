@@ -21,8 +21,9 @@ Toàn bộ mã HDL dùng SystemVerilog (`.sv`); hook và CI kiểm tra quy ướ
 
 Cấu hình bản đầu: **2 ESP32-S3, 1 FPGA và 1 mic INMP441**, khung TT 4WD,
 lái bằng tốc độ hai bên, không servo. FPGA đọc encoder và phát PWM cho hai
-nhóm motor; Motion tính PID theo bên và giám sát an toàn. Encoder một OUT
-là kế hoạch; RTL hiện có A/B. Board mục tiêu là **Tang Nano 9K**
+nhóm motor; Motion tính PID theo bên và giám sát an toàn. RTL mặc định đọc
+encoder một OUT mỗi bên, hỗ trợ tiến/lùi/rẽ/quay tại chỗ; A/B là tùy chọn.
+Số đếm một OUT không cho biết chiều quay thực. Board mục tiêu là **Tang Nano 9K**
 (`GW1NR-LV9QN88PC6/I5`), chưa mua. Tối ưu RTL vẫn giữ mục tiêu 9K;
 mô phỏng và tổng hợp sơ bộ chưa thay kết quả fit/timing trên đúng chip.
 Xem [kế hoạch FPGA và toàn hệ thống](docs/fpga-drive-plan.md) và
@@ -39,7 +40,7 @@ biến, Lý thuyết mạch và RTL/FPGA; đã bỏ mục tiêu môn PCB khuếc
 | [firmware/brain](firmware/brain/README.md) | MCU 1: âm thanh, Xiaozhi, TFT, mạng |
 | [firmware/motion](firmware/motion/README.md) | MCU 2: truyền động, PID, an toàn |
 | [firmware/shared](firmware/shared/README.md) | Giao thức và kiểu dữ liệu chung |
-| [fpga](fpga/README.md) | RTL encoder, PWM 2 motor và watchdog |
+| [fpga](fpga/README.md) | RTL encoder, PWM hai bên motor và watchdog |
 | [dashboard](dashboard/README.md) | Giao diện điều khiển và telemetry |
 | [hardware](hardware/README.md) | BOM, nguồn, cơ khí, sơ đồ và PCB |
 | [docs](docs/README.md) | Yêu cầu, quyết định và kế hoạch thử nghiệm |
@@ -75,10 +76,9 @@ flowchart LR
     TFT["TFT: giao diện và QR"] <--> Brain
     Brain <-->|"UART: lệnh có hạn dùng / trạng thái"| Motion["MCU 2: Motion\nPID, giám sát an toàn"]
     Sensors["Cảm biến an toàn / nguồn"] --> Motion
-    Encoder["Encoder A/B 2 bánh sau"] --> FPGA["FPGA: encoder, PWM, watchdog"]
+    Encoder["2 encoder một OUT: trái/phải"] --> FPGA["FPGA: encoder, PWM, watchdog"]
     Motion <-->|"UART riêng: duty / chiều / arm / số đếm / lỗi"| FPGA
-    FPGA -->|"PWM / chiều quay"| Drive["Driver công suất 2 motor sau"]
-    Motion --> Servo["Servo lái trước"]
+    FPGA -->|"PWM / chiều quay"| Drive["Cầu H cho 4 motor, hai nhóm trái/phải"]
     Motion -->|"Khóa phần cứng độc lập"| Gate["Mạch cho phép driver"]
     FPGA -->|"Cho phép khi hợp lệ"| Gate
     Stop["E-stop / giám sát nguồn"] --> Gate

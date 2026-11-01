@@ -7,13 +7,17 @@ module tb_drive_core #(parameter int SCALE = 10, parameter bit LONG_RUN = 1);
     always #(HALF_NS) if (clock_running) clk=!clk;
     logic arst_n=0, rx=1, tx;
     logic [1:0] left_ab=0, right_ab=0;
+    logic encoder_left_out=0, encoder_right_out=0;
     logic motion_permit_async=0, recovery_req_async=0;
     logic safety_ok_async=1, gate_fault_n_async=0;
     logic pwm_left, pwm_right, fpga_permit, recovery_ack, gate_clear;
     logic [1:0] direction;
     logic [7:0] safety_state;
     logic [15:0] fault;
-    drive_core #(.CLK_HZ(HZ), .PERIOD_CYCLES(1350/SCALE), .SNAPSHOT_CYCLES(270000/SCALE),
+    // Preserve the legacy A/B and forward-only safety regression explicitly.
+    // The current hardware defaults are exercised by tb_drive_maneuvers.
+    drive_core #(.ALLOW_REVERSE(0), .ENCODER_SINGLE_OUT(0),
+        .CLK_HZ(HZ), .PERIOD_CYCLES(1350/SCALE), .SNAPSHOT_CYCLES(270000/SCALE),
         .WATCHDOG_CYCLES(1350000/SCALE), .HANDSHAKE_CYCLES(6750000/SCALE),
         .CLEAR_CYCLES(135000/SCALE), .CLEAR_HOLD_CYCLES(2700/SCALE),
         .INTERBYTE_CYCLES(54000/SCALE), .FRAME_CYCLES(135000/SCALE),

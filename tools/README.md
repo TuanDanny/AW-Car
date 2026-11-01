@@ -30,7 +30,7 @@ dùng2,7MHz và thêm bài lỗi27MHz. CI bật full-timing, không dùng số l
 để xác nhận timing vật lý.
 
 `--report fpga/build/regression-report.json --require-module-coverage` ghi
-kết quả22 bài, module RTL thực được Icarus elaborate trong từng bài PASS,
+kết quả24 bài, module RTL thực được Icarus elaborate trong từng bài PASS,
 số ca `COVER`, SHA256 nguồn và compiler. Runner fail nếu thiếu module hoặc
 marker PASS dù simulator trả mã0; báo cáo ghi cả lỗi/ca chạy chưa xong.
 Đây là kiểm tra module tham gia mô phỏng, chưa đo line/branch/toggle coverage.

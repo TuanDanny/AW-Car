@@ -1,8 +1,17 @@
 # Complete logical top, generic Gowin mapping; no PnR or exact target.
 # Preserve source order so path-only changes keep generic mapping reproducible.
-read_verilog -sv fpga/rtl/link/command_guard.sv fpga/rtl/link/crc16_byte.sv fpga/rtl/drive_core.sv fpga/rtl/encoder/encoder_pair.sv fpga/rtl/link/fpga_link.sv fpga/rtl/link/frame_rx.sv fpga/rtl/link/frame_tx.sv fpga/rtl/common/input_sync_filter.sv fpga/rtl/pwm/motor_pwm_pair.sv fpga/rtl/pwm/pwm_pair.sv fpga/rtl/encoder/quadrature_decoder.sv fpga/rtl/common/reset_sync.sv fpga/rtl/safety/safety_fsm.sv fpga/rtl/link/uart_rx.sv fpga/rtl/link/uart_tx.sv
+read_verilog -sv fpga/rtl/link/command_guard.sv fpga/rtl/link/crc16_byte.sv fpga/rtl/drive_core.sv fpga/rtl/encoder/encoder_pair.sv fpga/rtl/link/fpga_link.sv fpga/rtl/link/frame_rx.sv fpga/rtl/link/frame_tx.sv fpga/rtl/common/input_sync_filter.sv fpga/rtl/pwm/motor_pwm_pair.sv fpga/rtl/pwm/pwm_pair.sv fpga/rtl/encoder/quadrature_decoder.sv fpga/rtl/encoder/pulse_counter.sv fpga/rtl/common/reset_sync.sv fpga/rtl/safety/safety_fsm.sv fpga/rtl/link/uart_rx.sv fpga/rtl/link/uart_tx.sv
+design -save source_modes
 proc
 select -assert-none t:$dlatch t:$adlatch
 synth_gowin -top drive_core -noiopads -nowidelut -json fpga/build/drive_gowin.json
 check -assert
 tee -o fpga/build/drive_stat.json stat -json
+# Keep the optional quadrature configuration synthesizable as well.
+design -load source_modes
+chparam -set ENCODER_SINGLE_OUT 0 drive_core
+proc
+select -assert-none t:$dlatch t:$adlatch
+synth_gowin -top drive_core -noiopads -nowidelut -json fpga/build/drive_ab_gowin.json
+check -assert
+tee -o fpga/build/drive_ab_stat.json stat -json

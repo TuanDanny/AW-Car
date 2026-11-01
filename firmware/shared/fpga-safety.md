@@ -129,5 +129,5 @@ reset có kiểm soát, không bỏ qua rồi tiếp tục PID.
 Lease Brain hết, PID/cảm biến lỗi phải làm Motion ngừng CMD và hạ permit;
 không để tác vụ UART tự phát lại duty. GPIO permit tĩnh chưa chống mọi lỗi
 treo MCU/lỗi chung: watchdog phần cứng ngoài còn phải xét theo thiết kế điện.
-Driver disable có thể thả trôi; servo và quãng dừng phải thử riêng. Chưa có
+Driver disable có thể thả trôi; quãng dừng tiến/lùi/quay phải thử riêng. Chưa có
 adapter driver, sơ đồ gate, PCB, PnR/STA hoặc bằng chứng chạy motor thật.

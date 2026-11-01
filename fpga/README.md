@@ -1,12 +1,12 @@
 # FPGA truyền động
 
-Nơi lưu RTL và testbench cho 2 encoder A/B, PWM hai nhóm motor trái/phải,
+Nơi lưu RTL và testbench cho 2 encoder một OUT, PWM hai nhóm motor trái/phải,
 giao tiếp Motion và watchdog/FSM. Xe dùng TT 4WD, không servo lái; PID và xử lý
-cảm biến an toàn nằm ở ESP32 Motion. Mode encoder một OUT còn là kế hoạch.
+cảm biến an toàn nằm ở ESP32 Motion. Giữ encoder A/B X4 là cấu hình tùy chọn.
 Toàn bộ nguồn RTL/testbench dùng **SystemVerilog, đuôi `.sv`**; hook/CI chặn
 đuôi HDL khác. Runner bật `iverilog -g2012`, script tổng hợp bật `read_verilog -sv`.
 
-Trạng thái: đã có RTL/testbench cho reset, encoder X4 hai bánh, snapshot,
+Trạng thái: đã có RTL/testbench cho reset, encoder một OUT/A-B hai bên, snapshot,
 PWM hai kênh, trình tự đổi chiều độc lập driver và UART/parser/CRC/serializer/
 command guard, FSM/watchdog và top `drive_core` đã nối link với PWM. Chưa có
 adapter driver, wrapper/constraints cho Tang Nano 9K hoặc báo cáo timing. Hợp đồng GPIO phục hồi/ARM
@@ -25,7 +25,7 @@ python tools/run_fpga_tests.py
 ```
 
 Runner nhận `--iverilog` và `--vvp` để dùng đường dẫn cục bộ, `--waves` để lưu
-VCD tại `fpga/build/`. Có22 testbench; `--report fpga/build/regression-report.json`
+VCD tại `fpga/build/`. Có24 testbench; `--report fpga/build/regression-report.json`
 cùng `--require-module-coverage` xuất bằng chứng module -> test và chặn module
 chưa tham gia bài PASS. Đây chưa phải coverage dòng/nhánh/toggle hoặc timing
 vật lý. CI lưu JSON thành artifact và chạy mô phỏng trên Linux. Viết lõi độc lập hãng;
@@ -34,7 +34,7 @@ chỉ thêm thư mục target khi có wrapper/constraints thực tế.
 Với bộ Icarus cục bộ đã chuẩn bị trên máy này, không cần đổi PATH hệ thống:
 
 ```sh
-python tools/run_fpga_tests.py --iverilog build/toolchain/ucrt64/bin/iverilog.exe --vvp build/toolchain/ucrt64/bin/vvp.exe
+python tools/run_fpga_tests.py --iverilog D:/Project/AW-Car/build/toolchain/ucrt64/bin/iverilog.exe --vvp D:/Project/AW-Car/build/toolchain/ucrt64/bin/vvp.exe
 ```
 
 Kết quả chạy và giới hạn được ghi ở [verification.md](verification.md).
@@ -47,6 +47,8 @@ này. Đây là thời gian mô phỏng, thời gian chạy trên máy có thể
 `synth_encoder.ys`, `synth_pwm.ys`, `synth_link.ys`, `synth_drive.ys` kiểm tra latch/lỗi cấu trúc và mapping
 generic Gowin; chạy từ root sau khi có `fpga/build/` bằng `yosys -s <script>`
 hoặc YoWASP-Yosys. Đã chạy Yosys0.70 cục bộ; CI cũng chạy bốn script này, gồm top hoàn chỉnh.
+Script encoder và drive tổng hợp riêng cả mode một OUT mặc định lẫn mode A/B;
+artifact có hậu tố `_ab` thuộc mode A/B.
 Chưa có pinout/constraints/PnR/STA đúng chip; cell count sơ bộ không kết luận fit.
 Luồng đề xuất: Icarus/VVP + GTKWave để mô phỏng, Gowin Education để tổng hợp,
 place-and-route và kiểm tra timing đúng chip Tang Nano 9K; không cần Quartus.
@@ -60,3 +62,29 @@ trước: `python tools/check_fpga_equivalence.py --base 821cfae --yosys <yosys>
 Xem [kế hoạch và nghiệm thu toàn hệ thống](../docs/fpga-drive-plan.md).
 Chi tiết [thiết kế RTL, kiểm thử và thứ tự triển khai](../docs/fpga-rtl-design-test-plan.md).
 Wire format và ranh giới phiên/ARM ở [protocol v1](../firmware/shared/fpga-protocol.md).
+
+## Cấu hình xe hiện tại
+
+`drive_core` mặc định `ALLOW_REVERSE=1`, `ENCODER_SINGLE_OUT=1`.
+Hai đầu vào encoder là `encoder_left_out` và `encoder_right_out`; mỗi cảm biến
+có VCC/GND/OUT. Cổng `left_ab/right_ab` không dùng ở mode này, wrapper nối 0.
+OUT phải có mức điện áp phù hợp bank I/O đã chọn; không nối OUT 5 V trực tiếp
+vào GPIO 3,3 V. Chưa có pinout Tang Nano 9K hoặc xác nhận điện trên module thật.
+
+Duty là số tick HIGH trong 1.350 tick, không phải phần trăm. `direction[0]`
+là bên trái, `[1]` là bên phải; 0 thuận, 1 ngược theo quy ước lắp motor:
+
+| Chuyển động | direction[1:0] | Duty trái/phải ví dụ |
+| --- | --- | --- |
+| Tiến | `00` | 675 / 675 |
+| Lùi | `11` | 675 / 675 |
+| Rẽ trái khi tiến | `00` | 337 / 1012 |
+| Rẽ phải khi tiến | `00` | 1080 / 270 |
+| Quay trái tại chỗ | `01` | 675 / 675 |
+| Quay phải tại chỗ | `10` | 675 / 675 |
+
+Đổi chiều vẫn qua khoảng PWM zero 27.000 tick và setup 27 tick. Khoảng này
+chỉ là liên động logic; chưa chứng minh rotor đã dừng hoặc xe quay đúng góc.
+Một OUT chỉ đo độ lớn chuyển động, đếm cả khi thả trôi; Motion đọc cờ mode
+STATUS bit4 và lấy delta không dấu modulo32 để tính tốc độ. Chưa thể suy ra
+quãng đường có dấu chính xác chỉ từ cảm biến này và chiều lệnh.

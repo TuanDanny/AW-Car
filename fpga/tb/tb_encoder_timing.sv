@@ -7,7 +7,8 @@ module tb_encoder_timing;
     logic [31:0] left_count, right_count, left_snap, right_snap, stamp;
     logic [15:0] seq;
     logic [3:0] status;
-    encoder_pair dut (.clk(clk), .rst_n(rst_n), .left_ab(2'b11), .right_ab(2'b10),
+    encoder_pair #(.SINGLE_OUT(0)) dut (.clk(clk), .rst_n(rst_n), .left_ab(2'b11), .right_ab(2'b10),
+        .left_out(1'b0), .right_out(1'b0),
         .left_count(left_count), .right_count(right_count), .snapshot_valid(valid),
         .snapshot_left(left_snap), .snapshot_right(right_snap), .snapshot_time(stamp),
         .snapshot_seq(seq), .snapshot_status(status));

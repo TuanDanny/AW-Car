@@ -14,10 +14,12 @@ Bảy module SystemVerilog cho UART/giao thức, không chứa PWM/FSM/watchdog:
   byte/5ms toàn frame; timeout thắng byte đúng hạn. Framing/break/flush hủy
   frame; preamble lồng có thể cần bỏ một frame rồi phục hồi. Không có FIFO32byte.
 - `frame_tx.sv`: đóng băng snapshot/session/state/fault ở handshake, STATUS31byte.
+  `ENCODER_SINGLE_OUT` đặt bit4 encoder_status (top hiện tại đặt 1); bit5..7 zero.
   Busy báo snapshot_dropped, không queue. Giữ byte khi downstream chưa ready;
   CRC chỉ tiến khi nhận byte. byte_last/session/state đi cùng snapshot đóng băng.
 - `command_guard.sv`: đúng phiên, sequence mới modulo16, duty/flags/chiều hợp lệ
   và command_enable mới phát command_valid cặp. ALLOW_REVERSE mặc định0.
+  `drive_core` đặt tham số này thành1 để dùng tiến/lùi/quay tại chỗ.
   HELLO đề nghị phiên; ARM_ZERO/CLEAR_FAULT chỉ yêu cầu FSM. DISABLE đúng
   format/CRC giảm quyền kể cả phiên cũ, không đổi mốc sequence.
   Duty hợp lệ được lưu bằng độ rộng miền0..PERIOD_CYCLES, rồi zero-extend

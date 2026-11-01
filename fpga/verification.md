@@ -372,3 +372,83 @@ chip, trước mua board. Clock27MHz có chu kỳ khoảng37,037ns; STA phải k
 cả đường min/max, clock, FF setup/hold và corner yêu cầu, không chỉ so một
 đường logic với chu kỳ. Xem [thời điểm và tiêu chí timing](../docs/fpga-rtl-design-test-plan.md#khi-nào-kiểm-tra-tcdtpd-và-timing).
 Chưa thay thử điện/driver/gate/reset/clock-stop trên phần cứng.
+
+## Tiến/lùi/rẽ/quay và encoder một OUT — 01/11/2026
+
+Nhánh `feat/f01-fpga-drive`, nền `ad6f7d7`. Top mặc định mở `ALLOW_REVERSE=1`
+và `ENCODER_SINGLE_OUT=1`; giữ A/B X4 khi chọn mode 0. Bộ đọc OUT đếm cạnh
+lên không dấu, không biến chiều lệnh thành chiều đo. Hai bài top cũ chọn
+A/B/khóa lùi tường minh để tiếp tục kiểm tra chính sách cũ.
+
+### Các bài mới đã chạy
+
+Icarus/VVP13.0 stable, không có warning khi compile hai bài mới:
+
+| Testbench | Kết quả | Bằng chứng |
+| --- | --- | --- |
+| tb_encoder_single_out | PASS | FILTER_N=1/3/5; 6.000 cặp xung, mốc HIGH/giữ mức, valid bị ngắt, nhiễu hai cực, wrap và snapshot/reset; INVERT không làm OUT đếm ngược |
+| tb_drive_maneuvers | PASS | Toàn tham số mặc định27MHz, 242,443ms; 30 ca PWM/chiều, 20 STATUS đúng snapshot/CRC/bit4; zero/setup, watchdog, E-stop/reset/DISABLE khi lùi/quay |
+
+Mỗi cặp dưới đây được thử với đủ bốn direction `00/01/10/11`. Observer đếm
+trực tiếp hai đầu PWM qua **hai chu kỳ, 2.700 tick**, không chỉ đọc thanh ghi duty:
+
+| Duty trái/phải | HIGH trái/phải đo được | Kết quả cả bốn chiều |
+| --- | --- | --- |
+| 0 / 0 | 0 / 0 | PASS |
+| 1 / 1 | 2 / 2 | PASS |
+| 337 / 1012 | 674 / 2024 | PASS |
+| 675 / 1350 | 1350 / 2700 | PASS |
+| 1080 / 270 | 2160 / 540 | PASS |
+| 1350 / 1350 | 2700 / 2700 | PASS |
+
+Sáu ca bổ sung: một bên đứng yên `0/1350` và `1350/0`, lùi `900/450`
+trước lệnh lỗi, quay trái/phải `1350/1350` trước E-stop/reset và lùi100%
+trước DISABLE. Direction `01` là trái ngược/phải thuận, `10` ngược lại.
+OUT tạo 5/9 xung khi chưa arm, rồi 3/7 xung khi lùi; live count và UART
+STATUS phải đạt 8/16, không giảm theo chiều lệnh. Mẫu đầu HIGH không tạo xung.
+
+Báo cáo hai bài mới: `fpga/build/maneuvers-targeted.json`. Build/report là
+artifact cục bộ bị ignore, chứa SHA256 nguồn và số ca chức năng. Chạy lại bằng:
+
+```sh
+python tools/run_fpga_tests.py --test tb_encoder_single_out --test tb_drive_maneuvers --timeout 300 --report fpga/build/maneuvers-targeted.json
+```
+
+### Tổng hợp hai mode
+
+Yosys/YoWASP0.70, `synth_encoder.ys` và `synth_drive.ys` tổng hợp riêng mode
+OUT mặc định và A/B. Cả bốn cấu hình qua kiểm tra không latch và `check -assert`.
+
+| Khối/mode | FF | LUT1–4 | ALU |
+| --- | --- | --- | --- |
+| encoder_pair, một OUT | 250 | 37 | 131 |
+| encoder_pair, A/B X4 | 266 | 108 | 195 |
+| drive_core, một OUT/lùi mở | 1014 | 1427 | 544 |
+| drive_core, A/B/lùi mở | 1031 | 1486 | 602 |
+
+Log `reverse-single-out-{encoder,drive}-synth.log`, stat/netlist thường là mode
+OUT, hậu tố `_ab` là mode A/B, đều trong `fpga/build/`. Đây là mapping Gowin
+generic, chưa phải fit/PnR/STA đúng chip Nano9K. PWM/chiều vẫn là tín hiệu
+trừu tượng; còn thiếu adapter DRV8833, pinout và phép đo điện/cơ thật.
+
+### Hồi quy toàn bộ sau thay đổi
+
+**24/24 testbench PASS** với `--full-timing`, đủ **16/16 module RTL** được
+elaborate trong bài PASS. Đây không phải coverage dòng/nhánh/toggle.
+`tb_drive_core` đạt **2.010,544ms ở27MHz,189 STATUS**; bài timer mặc định
+`tb_drive_defaults` đạt **225,343ms,11 STATUS**. Các bài cũ tiếp tục kiểm tra
+CRC/session/sequence, PWM, A/B, watchdog/ARM, reset, E-stop và clock-stop/stale gate.
+Bài OUT/PWM mới cũng chạy lại trong lượt hồi quy đầy đủ và đạt cùng 30 ca/20 STATUS.
+
+Báo cáo: `fpga/build/reverse-single-out-regression.json`. SHA256 toàn bộ RTL
+và testbench trong báo cáo đã đối chiếu khớp nguồn bàn giao. Lệnh tái tạo
+(Icarus/VVP trong PATH, hoặc thêm `--iverilog`/`--vvp`):
+
+```sh
+python tools/run_fpga_tests.py --full-timing --timeout 1800 --report fpga/build/reverse-single-out-regression.json --require-module-coverage
+```
+
+`python tools/check_repo.py --feature-branch`, **28 test Python** và
+`git diff --check` đạt. Đã rà diff: chỉ mở cấu hình chiều ở top, thêm nhánh
+đọc OUT và cờ mode; không thay thuật toán PWM/FSM/ARM/watchdog. Chưa nạp lên
+FPGA hoặc chạy motor thật; chưa có constraints/STA trên đúng Nano9K.

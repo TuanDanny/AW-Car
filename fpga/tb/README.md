@@ -12,6 +12,9 @@ bài, `--test tb_encoder_pair` để chọn và `--waves` để lưu VCD trong b
   định, mỗi seed 10.000 chuyển hợp lệ mỗi bánh và đối chiếu count độc lập.
 - `tb_encoder_timing`: tham số mặc định, kiểm tra ba chu kỳ snapshot270.000
   tick; mô phỏng clock 27 MHz với độ chính xác ps.
+- `tb_encoder_single_out`: FILTER_N=1/3/5, 6.000 cặp xung ngẫu nhiên, HIGH ban
+  đầu/giữ mức, nhiễu ngắn cả hai cực, valid bị ngắt, bộ đếm/timestamp/sequence
+  wrap, snapshot nguyên tử và reset HIGH. Inversion A/B không làm count OUT giảm.
 - `tb_common_matrix`: scoreboard lịch sử mẫu độc lập cho sáu cấu hình lọc
   N=1/2/3/4/5/8, WIDTH=1..4; nhiễu quanh ngưỡng, 2.000 lần đổi mỗi cấu hình,
   reset ở chín pha và reset/nhả khi clock đứng.
@@ -58,10 +61,15 @@ bài, `--test tb_encoder_pair` để chọn và `--waves` để lưu VCD trong b
   mô hình Motion stale inhibit30+1ms kể cả metadata snapshot lặp/cũ.
   Mặc định chạy>=2s ở2,7MHz, đổi timer/PWM cùng tỷ lệ; `--full-timing` chạy
   cùng kịch bản>=2s ở27MHz/115200/20kHz/50ms, CI bật chế độ này.
-- `tb_drive_defaults`: cùng chuỗi lỗi với toàn tham số mặc định27MHz, không
+- `tb_drive_defaults`: cùng chuỗi lỗi với timer/PWM mặc định27MHz, không
   chạy vòng giữ lệnh2s. Wrapper reuse scenario `.sv`, không sao chép model.
+  Hai bài cũ chọn A/B/khóa lùi tường minh để giữ bài hồi quy chính sách cũ.
+- `tb_drive_maneuvers`: top không ghi đè tham số, clock27MHz, UART host/CRC và
+  observer độc lập; đếm HIGH cả hai PWM qua hai chu kỳ cho đủ bốn tổ hợp chiều
+  và nhiều duty (0, 1, bất đối xứng, 100%), rẽ với một bên đứng yên. Kiểm tra
+  zero/setup, OUT qua STATUS bit4/CRC, lệnh sai, watchdog, E-stop/reset/DISABLE.
 
-Hiện có **22 testbench**. Lưu báo cáo JSON và buộc mọi module RTL được
+Hiện có **24 testbench**. Lưu báo cáo JSON và buộc mọi module RTL được
 elaborate trong ít nhất một bài PASS bằng:
 
 ```sh

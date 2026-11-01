@@ -32,18 +32,31 @@ Preamble không được escape; byte giống preamble trong nội dung là dữ
 | `80` STATUS | FPGA -> Motion | bảng dưới | 31 |
 
 CMD: flags phải zero, direction chỉ dùng bit0 trái/bit1 phải, 0=thuận,
-1=ngược; bit7..2 phải zero. Duty mặc định 0..1350. Guard bản đầu mặc định
-`ALLOW_REVERSE=0`, loại mọi chiều ngược; chỉ mở tham số này sau nghiệm thu
-driver/motor. Lệnh sai bất kỳ trường nào bị loại cả cặp.
+1=ngược; bit7..2 phải zero. Duty mặc định 0..1350 tick HIGH/chu kỳ, không phải %.
+Top xe `drive_core` mặc định `ALLOW_REVERSE=1`; guard/link dùng độc lập vẫn
+mặc định 0 và có thể khóa lùi bằng cấu hình. Direction `00` tiến, `11` lùi,
+`01` trái ngược/phải thuận (quay trái), `10` trái thuận/phải ngược (quay phải).
+Lệnh sai bất kỳ trường nào bị loại cả cặp. Đổi chiều vẫn qua zero/setup;
+định nghĩa thuận/ngược cần đúng với adapter và cách lắp từng bên motor.
 
 STATUS payload18 byte: left_count32 ở +0, right_count32 ở +4, timestamp32 ở
 +8, snapshot_seq16 ở +12, safety_state8 ở +14, fault16 ở +15,
-encoder_status8 ở +17 (bit0..3 từ encoder_pair; bit7..4 zero).
+encoder_status8 ở +17: bit0/1 invalid A/B sticky trái/phải, bit2/3 đã có mốc,
+bit4 là mode (1=một OUT, 0=A/B X4); bit7..5 zero. Bit4 dùng bit dự phòng của
+v1, không đổi version/length/offset/CRC. Motion phải kiểm tra cờ mode thay vì
+mặc định mọi count đều có dấu.
 Đây là điều chỉnh từ payload17/frame30 trong đề xuất trước để không mất
 trạng thái encoder. Header sequence bằng snapshot_seq, không tăng khi gửi
 lại snapshot cũ. State/fault từ `safety_fsm`; mã và trình tự ARM/clear ở
 [hợp đồng an toàn](fpga-safety.md), link không tự tạo FSM.
 Mỗi frame31 mất khoảng 2,69 ms; 100 Hz chiếm 31.000 bit/s mỗi chiều TX.
+
+Mode một OUT: count32 là số cạnh lên không dấu, modulo2^32; tăng khi có xung
+bất kể chiều lệnh, motor đang bật hay thả trôi. Mẫu đầu không sinh xung.
+Motion lấy delta không dấu modulo32 và chia số xung/vòng đã hiệu chuẩn cùng
+delta timestamp để tính độ lớn tốc độ. Không có thông tin chiều quay thực;
+chiều lệnh chỉ là dự định, không phải phép đo. Invalid bits bằng 0 không chứng
+minh sensor còn hoạt động. A/B giữ quy ước X4/có dấu và cờ lỗi như trước.
 
 ## Parser và giao diện RTL
 

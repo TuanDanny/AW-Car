@@ -6,6 +6,7 @@ module encoder_pair #(
     parameter int SEQ_WIDTH = 16,
     parameter int FILTER_N = 3,
     parameter int SNAPSHOT_CYCLES = 270000,
+    parameter bit SINGLE_OUT = 1,
     parameter int INVERT_LEFT = 0,
     parameter int INVERT_RIGHT = 0
 ) (
@@ -13,6 +14,8 @@ module encoder_pair #(
     input  logic rst_n,
     input  logic [1:0] left_ab,
     input  logic [1:0] right_ab,
+    input  logic left_out,
+    input  logic right_out,
     output logic [COUNT_WIDTH-1:0] left_count,
     output logic [COUNT_WIDTH-1:0] right_count,
     output logic snapshot_valid,
@@ -23,24 +26,44 @@ module encoder_pair #(
     output logic [3:0] snapshot_status
 );
     localparam int TIMER_WIDTH = (SNAPSHOT_CYCLES > 1) ? $clog2(SNAPSHOT_CYCLES) : 1;
-    logic [1:0] left_filtered, right_filtered;
-    logic left_valid, right_valid, left_error, right_error;
+    logic left_error, right_error;
     logic left_ready, right_ready;
     logic [1:0] sticky_error;
     logic [TIMER_WIDTH-1:0] timer;
     logic [TIME_WIDTH-1:0] timestamp;
-    input_sync_filter #(.FILTER_N(FILTER_N)) left_filter (
-        .clk(clk), .rst_n(rst_n), .async_in(left_ab),
-        .filtered(left_filtered), .valid(left_valid));
-    input_sync_filter #(.FILTER_N(FILTER_N)) right_filter (
-        .clk(clk), .rst_n(rst_n), .async_in(right_ab),
-        .filtered(right_filtered), .valid(right_valid));
-    quadrature_decoder #(.COUNT_WIDTH(COUNT_WIDTH), .INVERT(INVERT_LEFT)) left_decoder (
-        .clk(clk), .rst_n(rst_n), .sample_valid(left_valid), .ab(left_filtered),
-        .count(left_count), .invalid_event(left_error), .initialized(left_ready));
-    quadrature_decoder #(.COUNT_WIDTH(COUNT_WIDTH), .INVERT(INVERT_RIGHT)) right_decoder (
-        .clk(clk), .rst_n(rst_n), .sample_valid(right_valid), .ab(right_filtered),
-        .count(right_count), .invalid_event(right_error), .initialized(right_ready));
+    generate if (SINGLE_OUT) begin : single_channel
+        logic left_filtered, right_filtered, left_valid, right_valid;
+        input_sync_filter #(.WIDTH(1), .FILTER_N(FILTER_N)) left_filter (
+            .clk(clk), .rst_n(rst_n), .async_in(left_out),
+            .filtered(left_filtered), .valid(left_valid));
+        input_sync_filter #(.WIDTH(1), .FILTER_N(FILTER_N)) right_filter (
+            .clk(clk), .rst_n(rst_n), .async_in(right_out),
+            .filtered(right_filtered), .valid(right_valid));
+        pulse_counter #(.COUNT_WIDTH(COUNT_WIDTH)) left_decoder (
+            .clk(clk), .rst_n(rst_n), .sample_valid(left_valid), .pulse(left_filtered),
+            .count(left_count), .initialized(left_ready));
+        pulse_counter #(.COUNT_WIDTH(COUNT_WIDTH)) right_decoder (
+            .clk(clk), .rst_n(rst_n), .sample_valid(right_valid), .pulse(right_filtered),
+            .count(right_count), .initialized(right_ready));
+        // No A/B transition diagnostics or measured direction with one OUT.
+        assign left_error = 1'b0;
+        assign right_error = 1'b0;
+    end else begin : quadrature
+        logic [1:0] left_filtered, right_filtered;
+        logic left_valid, right_valid;
+        input_sync_filter #(.FILTER_N(FILTER_N)) left_filter (
+            .clk(clk), .rst_n(rst_n), .async_in(left_ab),
+            .filtered(left_filtered), .valid(left_valid));
+        input_sync_filter #(.FILTER_N(FILTER_N)) right_filter (
+            .clk(clk), .rst_n(rst_n), .async_in(right_ab),
+            .filtered(right_filtered), .valid(right_valid));
+        quadrature_decoder #(.COUNT_WIDTH(COUNT_WIDTH), .INVERT(INVERT_LEFT)) left_decoder (
+            .clk(clk), .rst_n(rst_n), .sample_valid(left_valid), .ab(left_filtered),
+            .count(left_count), .invalid_event(left_error), .initialized(left_ready));
+        quadrature_decoder #(.COUNT_WIDTH(COUNT_WIDTH), .INVERT(INVERT_RIGHT)) right_decoder (
+            .clk(clk), .rst_n(rst_n), .sample_valid(right_valid), .ab(right_filtered),
+            .count(right_count), .invalid_event(right_error), .initialized(right_ready));
+    end endgenerate
     always_ff @(posedge clk or negedge rst_n) begin
         if (!rst_n) begin
             sticky_error <= 0;

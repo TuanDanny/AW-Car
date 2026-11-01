@@ -5,6 +5,7 @@ module fpga_link #(
     parameter int BAUD = 115200,
     parameter int PERIOD_CYCLES = 1350,
     parameter bit ALLOW_REVERSE = 0,
+    parameter bit ENCODER_SINGLE_OUT = 0,
     parameter int INTERBYTE_CYCLES = 54000,
     parameter int FRAME_CYCLES = 135000
 ) (
@@ -89,7 +90,7 @@ module fpga_link #(
         .clear_fault_request(clear_fault_request), .command_valid(command_valid), .rejected(command_rejected),
         .event_session(event_session), .event_sequence(event_sequence),
         .command_left(command_left), .command_right(command_right), .command_direction(command_direction));
-    frame_tx serializer (
+    frame_tx #(.ENCODER_SINGLE_OUT(ENCODER_SINGLE_OUT)) serializer (
         .clk(clk), .rst_n(rst_n), .flush(context_load), .snapshot_valid(snapshot_valid),
         .snapshot_ready(snapshot_ready), .snapshot_dropped(snapshot_dropped),
         .session(session_active ? active_session : 32'd0), .snapshot_left(snapshot_left),

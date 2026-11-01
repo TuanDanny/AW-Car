@@ -1,6 +1,8 @@
 `timescale 1ns/1ps
 `default_nettype none
-module frame_tx (
+module frame_tx #(
+    parameter bit ENCODER_SINGLE_OUT = 0
+) (
     input  logic clk,
     input  logic rst_n,
     input  logic flush,
@@ -62,7 +64,7 @@ module frame_tx (
             snapshot_dropped <= snapshot_valid && !snapshot_ready;
             if (flush) begin busy <= 0; index <= 0; crc <= 16'hffff; end
             else if (snapshot_valid && snapshot_ready) begin
-                payload <= {{4'b0000, snapshot_status}, fault, safety_state,
+                payload <= {{3'b000, ENCODER_SINGLE_OUT, snapshot_status}, fault, safety_state,
                             snapshot_seq, snapshot_time, snapshot_right, snapshot_left};
                 frozen_session <= session;
                 busy <= 1; index <= 0; crc <= 16'hffff;

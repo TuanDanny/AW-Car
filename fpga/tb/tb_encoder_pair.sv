@@ -8,8 +8,9 @@ module tb_encoder_pair;
     logic [3:0] snap_seq, snap_status;
     logic snap_valid;
     encoder_pair #(.COUNT_WIDTH(8), .TIME_WIDTH(8), .SEQ_WIDTH(4),
-        .FILTER_N(3), .SNAPSHOT_CYCLES(7), .INVERT_RIGHT(1)) dut (
+        .FILTER_N(3), .SNAPSHOT_CYCLES(7), .INVERT_RIGHT(1), .SINGLE_OUT(0)) dut (
         .clk(clk), .rst_n(rst_n), .left_ab(left_ab), .right_ab(right_ab),
+        .left_out(1'b0), .right_out(1'b0),
         .left_count(left_count), .right_count(right_count),
         .snapshot_valid(snap_valid), .snapshot_left(snap_left), .snapshot_right(snap_right),
         .snapshot_time(snap_time), .snapshot_seq(snap_seq), .snapshot_status(snap_status));
