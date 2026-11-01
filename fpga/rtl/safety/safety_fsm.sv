@@ -39,7 +39,10 @@ module safety_fsm #(
     logic watchdog_due, handshake_due, recovery_start, external_fault;
     assign safety_state = {5'd0, state};
     assign watchdog_active = state == ARM_PENDING || state == ARMED;
-    assign handshake_active = state == HANDSHAKE || recovery == WAIT_RELEASE || recovery == READY;
+    // A recovery HELLO retains FAULT until CLEAR_FAULT, but its session must
+    // still expire. FAULT without a session may wait indefinitely for GPIO recovery.
+    assign handshake_active = state == HANDSHAKE || (state == FAULT && session_active) ||
+                              recovery == WAIT_RELEASE || recovery == READY;
     assign watchdog_due = watchdog_active && phase_count == 0;
     assign handshake_due = handshake_active && phase_count == 0;
     // Timeout still wins when hold reaches the full clear window (or exceeds it).

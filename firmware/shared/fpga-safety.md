@@ -69,7 +69,12 @@ kiểm thử lại hợp đồng này; mô hình hiện dùng session tăng cho 
 Đường GPIO riêng và permit bổ sung chân I/O so với phương án chỉ có UART.
 
 Nếu đang FAULT: hoàn thành bước 1–3 để có phiên phục hồi, gửi CLEAR_FAULT với
-sequence mới trong khi permit LOW và lỗi vật lý đã hết. FPGA giữ gate_clear
+sequence mới trong khi permit LOW và lỗi vật lý đã hết. Session do HELLO mở
+trong FAULT hết hạn sau250ms tính từ lúc HELLO được nhận, dù state vẫn FAULT.
+CLEAR_FAULT phải đến trước hạn; timeout thắng nếu trùng clock, chốt bit6 và
+hủy phiên. Sau đó phải làm lại GPIO recovery + HELLO, không chỉ gửi lại UART.
+FAULT chưa có phiên/cửa phục hồi đang mở không bị áp timeout người vận hành.
+FPGA giữ gate_clear
 ít nhất 100 us, chờ gate_fault_n HIGH, tối đa 5 ms. Timeout/permit lên/req mới/
 lỗi quay lại sẽ chốt FAULT. Thành công xóa lỗi, hủy phiên và về DISARMED;
 **phải làm lại toàn bộ phục hồi rồi ARM**, không mở motor ngay sau clear.

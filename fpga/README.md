@@ -25,7 +25,7 @@ python tools/run_fpga_tests.py
 ```
 
 Runner nhận `--iverilog` và `--vvp` để dùng đường dẫn cục bộ, `--waves` để lưu
-VCD tại `fpga/build/`. Có25 testbench; `--report fpga/build/regression-report.json`
+VCD tại `fpga/build/`. Có26 testbench; `--report fpga/build/regression-report.json`
 cùng `--require-module-coverage` xuất bằng chứng module -> test và chặn module
 chưa tham gia bài PASS. Đây chưa phải coverage dòng/nhánh/toggle hoặc timing
 vật lý. CI lưu JSON thành artifact và chạy mô phỏng trên Linux. Viết lõi độc lập hãng;

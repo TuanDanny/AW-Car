@@ -555,3 +555,59 @@ python tools/run_fpga_tests.py --timeout 600 --report fpga/build/reversal-40ms-r
 **28 test Python**, kiểm tra repo/nhánh và `git diff --check` đạt. Đã rà
 diff về cặp lệnh mới nhất, ưu tiên disable/reset và hạn watchdog giữ
 nguyên. Kết quả không xác nhận40ms là thời gian cơ khí tốt nhất.
+
+## Sửa deadline phiên phục hồi trong FAULT — 01/11/2026
+
+Nhánh `feat/f01-fpga-drive`, nền `e867100`. Nhận định trong ảnh được kiểm tra
+độc lập và xác nhận là lỗi thật: HELLO trong FAULT cài session/recovery=USED
+nhưng giữ stateFAULT. Điều kiện `handshake_active` cũ không bao gồm trạng thái
+này, làm `phase_count` ngừng giảm; CLEAR_FAULT đúng phiên/sequence có thể
+được nhận sau hạn. Guard kiểm tra phiên/sequence, không tự tính hạn này.
+Lỗi không tự cấp motor_enable, nhưng làm mất giới hạn tuổi của phiên clear.
+
+### Tái hiện trước sửa và kiểm tra sau sửa
+
+Thêm `tb_fault_recovery_deadline.sv`, các đầu vào sự kiện giả định đã qua
+guard. Dùng cùng một testbench cho trước/sau sửa; đối chiếu SHA256 cho thấy
+chỉ file RTL `safety_fsm.sv` khác giữa hai lượt.
+
+- Trước sửa, timer rút gọn H32 đứng ở31. CLEAR tại tuổi32 vẫn đưa state5,
+  session1, fault0002, gate_clear1; test thất bại bằng assertion, không phải
+  lỗi compile hoặc timeout của simulator. Report `fault-recovery-before-fix.json`.
+- Sửa điều kiện đếm để bao gồm `state == FAULT && session_active`; timer vẫn
+  dùng bộ đếm pha chung. Nhánh timeout có sẵn ưu tiên hơn CLEAR_FAULT.
+- Sau sửa chạy H32, H80 và H6.750.000 với clock danh định27MHz; cấu hình cuối
+  dùng đầy đủ timer watchdog/handshake/clear/hold mặc định.
+
+| Thời điểm CLEAR hợp lệ, điều kiện vật lý cho phép | Sau sửa |
+| --- | --- |
+| Trước hạn một tick | Vào CLEAR_WAIT, sau hold trở về DISARMED, hủy phiên; motor vẫn tắt |
+| Đúng hạn | Giữ FAULT, hủy session/context, thêm bit6 timeout, gate_clear0 |
+| Sau hạn năm tick | Không nhận CLEAR; session vẫn vô hiệu, gate_clear0 |
+
+Có9 vị trí deadline qua ba cấu hình; xác nhận FAULT không mở phiên/cửa GPIO
+không tự hết hạn, UART retry không mở lại phiên và GPIO recovery+HELLO mới
+vẫn clear thành công sau timeout. Cả quá trình không tạo quyền chạy motor.
+
+### Hồi quy và giới hạn
+
+Icarus/VVP13.0 stable: **26/26 testbench riêng biệt PASS**, đủ **17/17 module
+RTL** elaborate trong bài PASS. Chạy4 bài safety trước, rồi22 bài còn lại;
+không chạy lặp bài timer250ms. Hai report đều cùng SHA256 RTL/testbench và
+compiler, được gộp có kiểm tra không thiếu/trùng bài thành
+`fpga/build/fault-recovery-regression.json`; report ghi rõ hai nguồn
+`fault-recovery-after-fix.json` và `fault-recovery-regression-rest.json`.
+Mọi report/log/build là artifact cục bộ bị ignore.
+
+```sh
+python tools/run_fpga_tests.py --test tb_fault_recovery_deadline --timeout 300 --report fpga/build/fault-recovery-after-fix.json
+python tools/run_fpga_tests.py --timeout 600 --report fpga/build/fault-recovery-full.json --require-module-coverage
+```
+
+Lệnh thứ hai là cách chạy lại toàn26 bài một lượt. Lượt đã ghi dùng2s clock
+rút gọn2,7MHz và các bài top ngắn27MHz; bài mới chạy deadline250ms tại27MHz.
+Không chạy lại bài tích hợp2s27MHz/full-timing. Yosys/YoWASP0.70 tổng hợp cả
+hai mode top PASS, không latch/`check -assert` không phát hiện lỗi; log
+`fault-recovery-drive-synth.log`. **28 test Python**, kiểm tra repo/nhánh và
+whitespace đạt. Chưa có fit/PnR/STA9K hoặc kiểm tra gate/driver trên board;
+không dùng chứng minh tương đương baseline cũ cho hành vi deadline đã sửa.

@@ -28,6 +28,10 @@ bài, `--test tb_encoder_pair` để chọn và `--waves` để lưu VCD trong b
   packing/CRC riêng, stall, metadata đóng băng và5.120 snapshot bị drop.
 - `tb_safety_matrix`: bảy cấu hình timer, sáu trạng thái/tám bit fault,
   sự kiện đồng thời, deadline, hold<clear/=clear/>clear và trạng thái bất hợp lệ.
+- `tb_fault_recovery_deadline`: HELLO trong FAULT, CLEAR_FAULT trước/đúng/sau
+  hạn ở32/80/6.750.000 tick; cấu hình cuối dùng timer250ms danh định27MHz.
+  Kiểm tra FAULT không phiên chờ vô hạn, hết hạn hủy context, UART không tự
+  mở lại phiên, GPIO recovery mới phục hồi được và không tự cấp quyền motor.
 - `tb_pwm_pair`: duty0/1/giữa/P-1/P, từ chối ngoài miền/disabled, shadow cặp,
   10 seed x 1.000 lệnh và đo số tick HIGH/cạnh/chu kỳ bằng scoreboard.
 - `tb_motor_pwm_pair`: thời gian zero/setup, lệnh thay thế khi đổi chiều,
@@ -79,7 +83,7 @@ bài, `--test tb_encoder_pair` để chọn và `--waves` để lưu VCD trong b
   giữa coast không phục hồi lệnh cũ. Watchdog hết hạn đúng1.350.000 tick từ
   CMD hợp lệ cuối, không tạm dừng theo interlock.
 
-Hiện có **25 testbench**. Lưu báo cáo JSON và buộc mọi module RTL được
+Hiện có **26 testbench**. Lưu báo cáo JSON và buộc mọi module RTL được
 elaborate trong ít nhất một bài PASS bằng:
 
 ```sh
