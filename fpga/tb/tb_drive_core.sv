@@ -11,6 +11,7 @@ module tb_drive_core #(parameter int SCALE = 10, parameter bit LONG_RUN = 1);
     logic motion_permit_async=0, recovery_req_async=0;
     logic safety_ok_async=1, gate_fault_n_async=0;
     logic pwm_left, pwm_right, fpga_permit, recovery_ack, gate_clear;
+    logic drv_left_in1, drv_left_in2, drv_right_in1, drv_right_in2;
     logic [1:0] direction;
     logic [7:0] safety_state;
     logic [15:0] fault;
@@ -146,6 +147,8 @@ module tb_drive_core #(parameter int SCALE = 10, parameter bit LONG_RUN = 1);
         if(fpga_permit && safety_state!=3) $fatal(1,"permit outside ARMED");
         if((pwm_left || pwm_right) && !fpga_permit) $fatal(1,"PWM without permission");
         if(direction!=0) $fatal(1,"forward-only policy");
+        if ({drv_left_in1,drv_left_in2,drv_right_in1,drv_right_in2} !==
+            {pwm_left,1'b0,pwm_right,1'b0}) $fatal(1,"legacy top DRV8833 mapping");
         if(driver_enable && pwm_left) high_ticks=high_ticks+1;
         if(dut.status_sent && (received_crc!==received[247:232] || tx!==1 ||
             dut.status_session!==received[71:40] || dut.status_state!==received[207:200])) $fatal(1,"status_sent before full physical frame");
@@ -196,7 +199,9 @@ module tb_drive_core #(parameter int SCALE = 10, parameter bit LONG_RUN = 1);
         clear_fault; arm_and_run;
         // Short pulse at a clock-independent phase; release never reopens gate.
         #71; safety_ok_async=0; #10;
-        if(driver_enable || fpga_permit || pwm_left || pwm_right) $fatal(1,"E-stop not asynchronous");
+        if(driver_enable || fpga_permit || pwm_left || pwm_right ||
+            drv_left_in1 || drv_left_in2 || drv_right_in1 || drv_right_in2)
+            $fatal(1,"E-stop not asynchronous");
         safety_ok_async=1; #10000;
         if(driver_enable || gate_fault_n_async || safety_state!=4) $fatal(1,"E-stop release resumed");
         clear_fault; arm_and_run;
@@ -214,6 +219,8 @@ module tb_drive_core #(parameter int SCALE = 10, parameter bit LONG_RUN = 1);
         end
         if(stale_trips!=1 || motion_permit_async || driver_enable || $realtime-frozen_fresh<30000000)
             $fatal(1,"independent Motion stale inhibit failed");
+        if (drv_left_in1 || drv_left_in2 || drv_right_in1 || drv_right_in2)
+            $fatal(1,"DRV8833 pins stayed active after stopped-clock inhibit");
         if(stale_trip_time-frozen_fresh<30000000 || stale_trip_time-frozen_fresh>31000000)
             $fatal(1,"Motion didn't inhibit within 30+1 ms of last new snapshot");
         if($realtime-stop_time>36000000) $fatal(1,"clock-stop test scheduling");

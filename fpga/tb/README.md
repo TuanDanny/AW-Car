@@ -37,6 +37,8 @@ bài, `--test tb_encoder_pair` để chọn và `--waves` để lưu VCD trong b
 - `tb_pwm_widths`: period16/1350/2048/65535, duty100%, zero/one và lệnh sai
   có bit cao (gồm2049 có thể alias thành1 nếu cắt11bit quá sớm); đếm HIGH
   cả period, so khớp PWM với wrapper motor và xóa duty khi disable.
+- `tb_drv8833_adapter`: đủ64 tổ hợp reset/enable/PWM/chiều theo bảng TI,
+  kiểm tra thả trôi khi mất quyền/reset không cần clock, không phát11/phanh.
 - `tb_uart`: host/observer UART độc lập, đủ256 byte ở baud danh định/+2%/-2%,
   pha lệch, back-to-back, false start/stop lỗi/break/reset giữa byte, TX busy.
 - `tb_frame_rx`: CRC chuẩn29B1 và vector chung, mutation từng byte CRC bảo vệ,
@@ -68,8 +70,10 @@ bài, `--test tb_encoder_pair` để chọn và `--waves` để lưu VCD trong b
   observer độc lập; đếm HIGH cả hai PWM qua hai chu kỳ cho đủ bốn tổ hợp chiều
   và nhiều duty (0, 1, bất đối xứng, 100%), rẽ với một bên đứng yên. Kiểm tra
   zero/setup, OUT qua STATUS bit4/CRC, lệnh sai, watchdog, E-stop/reset/DISABLE.
+  Giải mã độc lập các chân DRV8833 IN theo bảng cầu H để đếm số tick kích
+  thuận/ngược đúng30 ca duty/chiều; IN phải00 trong interlock và mất quyền.
 
-Hiện có **24 testbench**. Lưu báo cáo JSON và buộc mọi module RTL được
+Hiện có **25 testbench**. Lưu báo cáo JSON và buộc mọi module RTL được
 elaborate trong ít nhất một bài PASS bằng:
 
 ```sh
@@ -83,4 +87,5 @@ dòng/nhánh/toggle. Xem [bằng chứng và giới hạn](../verification.md).
 
 Mô hình test không mô phỏng metastability hoặc nguồn/mức điện áp. Motion/gate
 chỉ là model kiểm chứng hợp đồng, chưa có firmware hoặc sơ đồ điện thực tế. PWM/chiều là tín hiệu logic
-trừu tượng, chưa kiểm tra truth table/phanh của một driver cụ thể.
+trừu tượng; adapter đã kiểm tra bảng IN drive/coast của DRV8833, chưa mô phỏng
+công suất/điện/cơ hoặc nghiệm thu driver thật. Không có chế độ phanh chủ động.

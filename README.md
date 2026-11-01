@@ -8,7 +8,8 @@ Tác giả: **TuanDanny**. Cộng tác viên: **Minh Nho** và **Nhan Duc**.
 ## Trạng thái
 
 Dự án đang chọn linh kiện, chưa lắp xe thử nghiệm. Kho hiện có khung thư mục,
-tài liệu, quy tắc làm việc, RTL encoder/snapshot/PWM/UART/giao thức/FSM/watchdog/top và mô phỏng;
+tài liệu, quy tắc làm việc, RTL encoder/snapshot/PWM/UART/giao thức/FSM/watchdog/top,
+adapter DRV8833 và mô phỏng;
 chưa có firmware Motion hoặc bản xe tích hợp được nghiệm thu. Cách chạy RTL
 ở [fpga](fpga/README.md). Source Xiaozhi và demo AI điều khiển RGB đã thử được
 giữ trên [nhánh AI](https://github.com/TuanDanny/AW-Car/tree/feat/f03-xiaozhi-ai).

@@ -335,7 +335,8 @@ không sửa ý nghĩa F01-F06 của yêu cầu sản phẩm hiện tại.
 | 10. `feat/f14-drive-integration` | Driver/nguồn/encoder thật, cảm biến/PID hai bên, Brain/Web | Biên bản thử lỗi, tốc độ/quãng dừng và tải đồng thời |
 
 Sau PR tối ưu f11, bước tiếp theo là f12: wrapper/constraints và Gowin/PnR/STA đúng chip9K.
-Đã chọn DRV8833 nhưng chưa triển khai/đo adapter chân công suất; core đã nối đủ logic
+Đã có adapter logic DRV8833 drive/coast trong core, còn chờ đo trên driver thật;
+core đã nối đủ logic
 nhưng chưa sẵn sàng điều khiển motor thật. Firmware/gate và thử bàn vẫn bắt buộc.
 
 Cấu trúc dự kiến dưới `fpga/`, **chỉ tạo khi có file thực tế**:

@@ -1,7 +1,7 @@
 `timescale 1ns/1ps
 `default_nettype none
-// Logical top only. Board wrapper must supply POR, pin/clock constraints,
-// default-off independent gate and driver-specific direction/brake mapping.
+// Logical top with DRV8833 drive/coast mapping. Board wrapper must supply POR,
+// pin/clock/I/O constraints and a default-off independent hardware gate.
 module drive_core #(
     parameter int CLK_HZ = 27000000,
     parameter int BAUD = 115200,
@@ -28,6 +28,7 @@ module drive_core #(
     input logic safety_ok_async, gate_fault_n_async,
     output logic tx, pwm_left, pwm_right,
     output logic [1:0] direction,
+    output logic drv_left_in1, drv_left_in2, drv_right_in1, drv_right_in2,
     output logic fpga_permit, recovery_ack, gate_clear,
     output logic [7:0] safety_state,
     output logic [15:0] fault
@@ -104,5 +105,10 @@ module drive_core #(
                         !motion_permit_async && !recovery_req_async;
     assign pwm_left = raw_left && output_allowed;
     assign pwm_right = raw_right && output_allowed;
+    drv8833_adapter driver_pins (
+        .rst_n(arst_n && rst_n), .enable(output_allowed),
+        .pwm_left(pwm_left), .pwm_right(pwm_right), .direction(direction),
+        .drv_left_in1(drv_left_in1), .drv_left_in2(drv_left_in2),
+        .drv_right_in1(drv_right_in1), .drv_right_in2(drv_right_in2));
 endmodule
 `default_nettype wire

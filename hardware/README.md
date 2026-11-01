@@ -2,6 +2,9 @@
 
 Nơi lưu BOM có mã linh kiện, bảng chân, sơ đồ nguồn, cơ khí và thiết kế PCB.
 
+[Giao tiếp DRV8833](drv8833-interface.md): bảng nối bốn chân IN từ FPGA tới
+hai module/bốn motor, chế độ drive/coast và điều kiện STBY/mức logic.
+
 **Cập nhật 01/11/2026:** bốn motor TT của xe là bản **9 V theo thông tin shop
 do chủ dự án cung cấp**; chưa có mã/datasheet hoặc phép đo dòng kẹt tương ứng.
 Các ví dụ nguồn 6 V/6,5 V trước đây không dùng làm định mức của bộ motor này.

@@ -8,8 +8,8 @@ Toàn bộ nguồn RTL/testbench dùng **SystemVerilog, đuôi `.sv`**; hook/CI 
 
 Trạng thái: đã có RTL/testbench cho reset, encoder một OUT/A-B hai bên, snapshot,
 PWM hai kênh, trình tự đổi chiều độc lập driver và UART/parser/CRC/serializer/
-command guard, FSM/watchdog và top `drive_core` đã nối link với PWM. Chưa có
-adapter driver, wrapper/constraints cho Tang Nano 9K hoặc báo cáo timing. Hợp đồng GPIO phục hồi/ARM
+command guard, FSM/watchdog và top `drive_core` đã nối link với PWM/adapter
+DRV8833 drive/coast. Chưa có wrapper/constraints cho Tang Nano 9K hoặc báo cáo timing. Hợp đồng GPIO phục hồi/ARM
 và gate ngoài ở [fpga-safety.md](../firmware/shared/fpga-safety.md). Xem
 [vai trò từng file, luồng tín hiệu và rà soát nhẹ RTL](rtl/README.md),
 ca thử ở [tb](tb/README.md).
@@ -25,7 +25,7 @@ python tools/run_fpga_tests.py
 ```
 
 Runner nhận `--iverilog` và `--vvp` để dùng đường dẫn cục bộ, `--waves` để lưu
-VCD tại `fpga/build/`. Có24 testbench; `--report fpga/build/regression-report.json`
+VCD tại `fpga/build/`. Có25 testbench; `--report fpga/build/regression-report.json`
 cùng `--require-module-coverage` xuất bằng chứng module -> test và chặn module
 chưa tham gia bài PASS. Đây chưa phải coverage dòng/nhánh/toggle hoặc timing
 vật lý. CI lưu JSON thành artifact và chạy mô phỏng trên Linux. Viết lõi độc lập hãng;
@@ -39,6 +39,9 @@ python tools/run_fpga_tests.py --iverilog D:/Project/AW-Car/build/toolchain/ucrt
 
 Kết quả chạy và giới hạn được ghi ở [verification.md](verification.md).
 Chưa nối motor thật: còn cần driver/gate an toàn bên ngoài, target và thử trên bàn.
+`drive_core` có bốn đầu ra `drv_left_in1/in2`, `drv_right_in1/in2` để nối IN
+hai module DRV8833. Bảng nối một module mỗi bên và yêu cầu STBY ở
+[giao tiếp driver](../hardware/drv8833-interface.md); chưa gán số chân board.
 
 Runner mặc định chạy top 2 giây ở clock rút gọn2,7MHz và bài lỗi ở27MHz.
 Dùng `--full-timing --timeout 1800` để chạy cả bài2giây ở27MHz; CI dùng chế độ
@@ -49,6 +52,7 @@ generic Gowin; chạy từ root sau khi có `fpga/build/` bằng `yosys -s <scri
 hoặc YoWASP-Yosys. Đã chạy Yosys0.70 cục bộ; CI cũng chạy bốn script này, gồm top hoàn chỉnh.
 Script encoder và drive tổng hợp riêng cả mode một OUT mặc định lẫn mode A/B;
 artifact có hậu tố `_ab` thuộc mode A/B.
+Script PWM còn tổng hợp riêng adapter để kiểm tra ánh xạ tổ hợp không latch.
 Chưa có pinout/constraints/PnR/STA đúng chip; cell count sơ bộ không kết luận fit.
 Luồng đề xuất: Icarus/VVP + GTKWave để mô phỏng, Gowin Education để tổng hợp,
 place-and-route và kiểm tra timing đúng chip Tang Nano 9K; không cần Quartus.

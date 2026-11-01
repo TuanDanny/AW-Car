@@ -11,6 +11,7 @@ module tb_drive_maneuvers;
     logic motion_permit_async=0, recovery_req_async=0;
     logic safety_ok_async=1, gate_fault_n_async=1;
     logic pwm_left, pwm_right, fpga_permit, recovery_ack, gate_clear;
+    logic drv_left_in1, drv_left_in2, drv_right_in1, drv_right_in2;
     logic [1:0] direction;
     logic [7:0] safety_state;
     logic [15:0] fault;
@@ -97,6 +98,11 @@ module tb_drive_maneuvers;
         #1;
         if ((pwm_left || pwm_right) && (!fpga_permit || safety_state!=3))
             $fatal(1,"maneuvers PWM without ARMED/permit");
+        if ({drv_left_in1,drv_left_in2}===2'b11 || {drv_right_in1,drv_right_in2}===2'b11)
+            $fatal(1,"unexpected DRV8833 brake command");
+        if ((!fpga_permit || dut.interlock_active) &&
+            {drv_left_in1,drv_left_in2,drv_right_in1,drv_right_in2}!==4'b0)
+            $fatal(1,"DRV8833 pins active during inhibit/interlock");
         if (direction!=previous_direction && fpga_permit) begin
             if (pwm_left || pwm_right || quiet_ticks<ZERO-1 || cycles-last_change_cmd<ZERO)
                 $fatal(1,"direction changed without complete zero interval");
@@ -151,19 +157,33 @@ module tb_drive_maneuvers;
         end
     endtask
     integer cases=0;
+    // Independent H-bridge truth-table decoder, not the adapter equations.
+    function automatic integer bridge_drive(input logic [1:0] pins);
+        case (pins)
+            2'b00: bridge_drive=0;
+            2'b10: bridge_drive=1;
+            2'b01: bridge_drive=-1;
+            default: bridge_drive=1000000;
+        endcase
+    endfunction
     task automatic measure(input logic [1:0] dir, input integer dl, input integer dr);
-        integer n, left_high, right_high;
+        integer n, left_high, right_high, left_drive, right_drive;
         begin
             if (direction!==dir || !fpga_permit) $fatal(1,"wrong direction/permit for requested maneuver");
-            left_high=0; right_high=0;
+            left_high=0; right_high=0; left_drive=0; right_drive=0;
             for (n=0;n<2*PERIOD;n=n+1) begin
                 @(posedge clk); #2;
                 if ((^{pwm_left,pwm_right})===1'bx) $fatal(1,"unknown physical PWM output");
                 left_high=left_high+int'(pwm_left); right_high=right_high+int'(pwm_right);
+                left_drive=left_drive+bridge_drive({drv_left_in1,drv_left_in2});
+                right_drive=right_drive+bridge_drive({drv_right_in1,drv_right_in2});
             end
             if (left_high!=2*dl || right_high!=2*dr || direction!==dir)
                 $fatal(1,"duty mismatch dir=%0d expected=%0d/%0d measured=%0d/%0d",
                        dir,dl,dr,left_high/2,right_high/2);
+            if (left_drive!=(dir[0] ? -2*dl : 2*dl) ||
+                right_drive!=(dir[1] ? -2*dr : 2*dr))
+                $fatal(1,"DRV8833 signed drive/coast ticks mismatch dir=%02b",dir);
         end
     endtask
     task automatic maneuver(input logic [1:0] dir, input integer dl, input integer dr);
@@ -211,13 +231,17 @@ module tb_drive_maneuvers;
         clear_fault; arm; maneuver(1,1350,1350);
         // Releasing E-stop must never restore the spin command.
         #71; safety_ok_async=0; #10;
-        if (pwm_left || pwm_right || fpga_permit) $fatal(1,"spin E-stop not asynchronous");
+        if (pwm_left || pwm_right || fpga_permit ||
+            drv_left_in1 || drv_left_in2 || drv_right_in1 || drv_right_in2)
+            $fatal(1,"spin E-stop not asynchronous");
         safety_ok_async=1; #10000;
         if (safety_state!=4 || fpga_permit || gate_fault_n_async) $fatal(1,"E-stop release resumed spin");
         clear_fault; arm; maneuver(2,1350,1350);
         // Reset with Motion permit cached HIGH must not replay a reverse command.
         #7; arst_n=0; #10;
-        if (pwm_left || pwm_right || fpga_permit) $fatal(1,"spin reset not asynchronous");
+        if (pwm_left || pwm_right || fpga_permit ||
+            drv_left_in1 || drv_left_in2 || drv_right_in1 || drv_right_in2)
+            $fatal(1,"spin reset not asynchronous");
         #1000; arst_n=1; #10000;
         send(1,0,0,0); send(2,0,0,0); send(3,3,1350,1350);
         if (fpga_permit || dut.session_active || pwm_left || pwm_right)
@@ -227,6 +251,7 @@ module tb_drive_maneuvers;
             $fatal(1,"DISABLE failed while reversing");
         if (valid_status<10) $fatal(1,"missing single OUT UART telemetry");
         $display("COVER drive_maneuvers.numeric_cases %0d",cases);
+        $display("COVER drive_maneuvers.drv8833_pin_cases %0d",cases);
         $display("COVER drive_maneuvers.direction_combinations 4");
         $display("COVER drive_maneuvers.physical_status %0d",valid_status);
         $display("PASS tb_drive_maneuvers: 27MHz defaults, exact PWM/direction, OUT telemetry, interlock and safety");

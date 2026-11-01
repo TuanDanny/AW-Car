@@ -452,3 +452,51 @@ python tools/run_fpga_tests.py --full-timing --timeout 1800 --report fpga/build/
 `git diff --check` đạt. Đã rà diff: chỉ mở cấu hình chiều ở top, thêm nhánh
 đọc OUT và cờ mode; không thay thuật toán PWM/FSM/ARM/watchdog. Chưa nạp lên
 FPGA hoặc chạy motor thật; chưa có constraints/STA trên đúng Nano9K.
+
+## Adapter chân DRV8833 — 01/11/2026
+
+Nhánh `feat/f01-fpga-drive`, nền `cf3b6df`. Đã đối chiếu
+[TI Rev.E, bảng1/2](https://www.ti.com/lit/ds/symlink/drv8833.pdf): chọn drive/coast,
+thuận PWM/0, ngược0/PWM, mất quyền/reset00. `drv8833_adapter.sv` tổ hợp nối
+trong `drive_core`, thêm bốn output IN trái/phải; không sửa thuật toán
+PWM, đổi chiều, phiên/ARM hoặc watchdog. Một module mỗi bên, mỗi cầu H một
+motor; bảng nối và điều kiện STBY ở
+[giao tiếp driver](../hardware/drv8833-interface.md).
+
+### Mô phỏng đã chạy
+
+Icarus/VVP13.0 stable: **25/25 testbench PASS**, đủ **17/17 module RTL** được
+elaborate trong bài PASS, source SHA256 trong report khớp nguồn bàn giao.
+
+| Bài | Kết quả | Bằng chứng mới |
+| --- | --- | --- |
+| tb_drv8833_adapter | PASS | 64 tổ hợp reset/enable/PWM/chiều;16 lần đổi input khi reset; kéo LOW không cần clock, không phát11 |
+| tb_drive_maneuvers | PASS | 30 ca ở27MHz/20kHz, giải mã bảng cầu H để đếm tick kích thuận/ngược ngay trên IN;00 khi interlock/inhibit, E-stop/reset bất đồng bộ |
+| tb_drive_core | PASS | 2.001,560ms ở2,7MHz,188 STATUS; thêm kiểm tra IN00 sau Motion stale inhibit khi FPGA clock đứng |
+| tb_drive_defaults | PASS | 225,343ms ở27MHz,11 STATUS; cùng chuỗi lỗi và kiểm tra IN |
+
+Các bài encoder/UART/CRC/guard/PWM/FSM còn lại cũng PASS. Lượt này dùng
+runner mặc định: bài2s ở clock rút gọn, hai bài top ngắn ở27MHz. Không chạy
+lại bài2s27MHz với adapter mới; kết quả full-timing ở phần trước thuộc phiên
+bản trước adapter. Chưa mô phỏng analog, lọc xung công suất, nSLEEP wake-up,
+glitch vật lý, dòng/nhiệt hoặc timing sau route.
+
+```sh
+python tools/run_fpga_tests.py --timeout 600 --report fpga/build/drv8833-regression.json --require-module-coverage
+```
+
+Report `drv8833-regression.json` cùng report hai bài mới `drv8833-targeted.json`
+trong `fpga/build/`, là artifact bị ignore. Máy này dùng đường dẫn Icarus/VVP
+ghi ở README FPGA; máy khác cần PATH hoặc `--iverilog`/`--vvp`.
+
+### Tổng hợp và review
+
+Yosys/YoWASP0.70: script PWM và drive PASS kiểm tra không latch/`check -assert`.
+Adapter tổng hợp riêng thành **4 LUT4,0 FF**, không có counter hoặc clock.
+Top một OUT và top A/B đều tổng hợp được. Log `drv8833-{pwm,drive}-synth.log`,
+stat/netlist trong build; đây là mapping Gowin generic, chưa kết luận fit/STA9K.
+
+Đã rà diff và bảng TI: direction bit0 trái/bit1 phải, disable/reset ưu tiên
+00, STBY thuộc gate ngoài và cần thời gian thức trước CMD; các ngõ công suất
+AO/BO không nối chập. **28 test Python**, kiểm tra repo/nhánh và whitespace
+đạt. Chưa gán pin Tang Nano9K, nạp board hoặc đo motor/driver thật.

@@ -12,6 +12,10 @@ bốn motor. Adapter driver phải ánh xạ PWM/chiều sang từng cầu H ph�
   đợi ZERO_CYCLES, đổi chiều, đợi SETUP_CYCLES rồi nạp duty. Lệnh mới trong
   khoảng chờ thay cả cặp và bắt đầu lại khoảng zero; sai miền không đổi
   trình tự đang hợp lệ.
+- `drv8833_adapter.sv`: ánh xạ PWM/chiều thành IN1/IN2 mỗi bên: thuận PWM/0,
+  ngược0/PWM, mất quyền hoặc reset0/0. Dùng drive/coast; không tạo thêm PWM,
+  không chờ đổi chiều lần nữa. Top nối adapter sau lớp quyền chạy; bốn đầu
+  ra `drv_left_in1/in2`, `drv_right_in1/in2` đi tới driver. STBY do gate ngoài.
 
 Mặc định PERIOD_CYCLES=1350, DUTY_WIDTH=16, duty0..1350. enable là quyền chạy
 đồng bộ từ safety_fsm trong drive_core, không phải raw MCU/E-stop. LOW mask
@@ -26,8 +30,9 @@ trên toàn bộ lệnh trước khi thu hẹp; trả active duty bằng zero-ex
 
 ZERO_CYCLES=27000 (1ms), SETUP_CYCLES=27 (1us) tại27MHz là tham số mô phỏng,
 chưa phải thời gian dừng rotor/dead-time cầu H. Motion phải xác nhận vận tốc
-phù hợp trước đảo chiều; xe bản đầu vẫn chỉ tiến. Adapter driver, gate/FAULT
-và watchdog không nằm trong hai module PWM này.
+phù hợp trước đảo chiều. RTL hiện mở tiến/lùi/quay; gate/FAULT và watchdog
+không nằm trong nhóm PWM. Bảng nối module và nguồn tham khảo TI ở
+[giao tiếp DRV8833](../../../hardware/drv8833-interface.md).
 
 PERIOD_CYCLES/ZERO_CYCLES/SETUP_CYCLES >=1; DUTY_WIDTH biểu diễn được cả
 PERIOD_CYCLES. Cùng chiều commit không quá một chu kỳ PWM; sau interlock có
@@ -35,6 +40,6 @@ thêm một clock LOAD. Watchdog ở lớp an toàn quyết định enable; khô
 lõi độc lập trực tiếp vào motor.
 
 Trạng thái: đã mô phỏng duty/boundary/đổi chiều/reset/clock-stop và tổng hợp
-generic; chưa có driver/motor hoặc phép đo thực. Script:
+generic; chưa đo driver/motor thật. Script:
 `yosys -s fpga/synth_pwm.ys`, chạy từ root sau khi có `fpga/build/`.
 Top toàn lõi: [drive_core.sv](../drive_core.sv).

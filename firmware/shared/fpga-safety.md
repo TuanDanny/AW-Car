@@ -49,6 +49,14 @@ chứng minh metastability. Reset ngoài phải thực sự assert khi cấp ngu
    duty vẫn zero cho đến CMD hợp lệ mới. CMD từ PID mới, không phát lại cache.
    Nếu permit lên trước xác nhận STATUS thì FPGA chốt FAULT.
 
+Với DRV8833, nếu gate điều khiển STBY/nSLEEP theo permit, Motion phải bảo đảm
+driver được đưa HIGH đủ ít nhất1ms trước CMD chạy đầu tiên. Chờ từ khi cả
+hai permit thực sự HIGH; ARM_ZERO vẫn giữ duty0. Khoảng chờ nằm trong lease
+50ms đang chạy, không gia hạn watchdog. Adapter không giám sát STBY hoặc
+thay thời gian thức bằng zero/setup khi đảo chiều. Điều kiện điện và bảng nối:
+[giao tiếp DRV8833](../../hardware/drv8833-interface.md). Mô hình hiện kiểm
+tra chân IN, chưa mô phỏng chip ngủ/thức hay nguồn công suất.
+
 Session32 không tự bảo đảm duy nhất sau reset hai đầu và không phải xác thực.
 Motion phải tạo session mới, không tái dùng trong thời gian buffer có thể còn
 dữ liệu cũ, flush buffer và thực hiện đủ GPIO/STATUS handshake. Firmware cần
