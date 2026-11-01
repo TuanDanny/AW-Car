@@ -22,7 +22,7 @@ module tb_drive_core #(parameter int SCALE = 10, parameter bit LONG_RUN = 1);
         .WATCHDOG_CYCLES(1350000/SCALE), .HANDSHAKE_CYCLES(6750000/SCALE),
         .CLEAR_CYCLES(135000/SCALE), .CLEAR_HOLD_CYCLES(2700/SCALE),
         .INTERBYTE_CYCLES(54000/SCALE), .FRAME_CYCLES(135000/SCALE),
-        .ZERO_CYCLES(27000/SCALE), .SETUP_CYCLES((27/SCALE)>0 ? 27/SCALE : 1)) dut (.*);
+        .ZERO_CYCLES(1080000/SCALE), .SETUP_CYCLES((27/SCALE)>0 ? 27/SCALE : 1)) dut (.*);
     // Independent SET-dominant external latch: releasing E-stop/power never
     // clears it. Actual PCB circuit and electrical timing remain to be designed.
     always @(negedge safety_ok_async or posedge gate_clear) begin

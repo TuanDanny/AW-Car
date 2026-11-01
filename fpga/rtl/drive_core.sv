@@ -13,7 +13,7 @@ module drive_core #(
     parameter int CLEAR_HOLD_CYCLES = 2700,
     parameter int INTERBYTE_CYCLES = 54000,
     parameter int FRAME_CYCLES = 135000,
-    parameter int ZERO_CYCLES = 27000,
+    parameter int ZERO_CYCLES = 1080000,
     parameter int SETUP_CYCLES = 27,
     parameter int FILTER_N = 3,
     parameter bit ALLOW_REVERSE = 1,

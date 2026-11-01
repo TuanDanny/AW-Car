@@ -4,6 +4,11 @@ RTL tương ứng: `safety_fsm.sv` và top logic `drive_core.sv`. Wire format v1
 giữ nguyên; tài liệu này chốt GPIO phục hồi, mã STATUS và trách nhiệm hai đầu.
 Đã có mô hình kiểm thử, chưa có firmware Motion hoặc mạch gate thực tế.
 
+Đổi chiều hiện nghỉ PWM40ms và setup1us. Watchdog50ms không tạm dừng trong
+interlock. Motion tiếp tục gửi CMD mới/hợp lệ theo vòng điều khiển; FPGA cập
+nhật mục tiêu đang chờ mà không đếm lại WAIT_ZERO. Khoảng40ms chỉ là giá trị
+thử logic, không thay cho giảm tốc/đo tốc độ và dòng trước đảo chiều trên xe.
+
 ## Tín hiệu ngoài UART
 
 | Tín hiệu logic | Hướng | Vai trò |

@@ -11,6 +11,13 @@ module tb_pwm_timing;
         .command_left(l), .command_right(r), .command_direction(requested_direction),
         .pwm_left(pl), .pwm_right(pr), .direction(direction),
         .interlock_active(interlock), .command_rejected(rejected));
+    logic thirty_left, thirty_right, thirty_hold, thirty_rejected;
+    logic [1:0] thirty_direction;
+    motor_pwm_pair #(.ZERO_CYCLES(810000)) thirty_ms (
+        .clk(clk), .rst_n(rst_n), .enable(enable), .command_valid(valid),
+        .command_left(l), .command_right(r), .command_direction(requested_direction),
+        .pwm_left(thirty_left), .pwm_right(thirty_right), .direction(thirty_direction),
+        .interlock_active(thirty_hold), .command_rejected(thirty_rejected));
     // Minimum supported parameters exercise width calculations and single-cycle waits.
     logic min_left, min_right, min_hold, min_rejected;
     logic [1:0] min_direction;
@@ -41,10 +48,16 @@ module tb_pwm_timing;
         @(posedge clk); #1;
         if (!interlock || pl || pr || min_left) $fatal(1, "direction did not blank");
         @(negedge clk); valid = 0;
-        for (i = 1; i <= 27000; i = i + 1) begin
+        for (i = 1; i <= 1080000; i = i + 1) begin
             @(posedge clk); #1;
-            if (pl || pr) $fatal(1, "PWM during 1ms zero wait");
-            if (direction !== ((i < 27000) ? 0 : 3)) $fatal(1, "zero wait length");
+            if (pl || pr) $fatal(1, "PWM during 40ms zero wait");
+            if (direction !== ((i < 1080000) ? 0 : 3)) $fatal(1, "zero wait length");
+            if (thirty_direction !== ((i < 810000) ? 0 : 3)) $fatal(1,"30ms zero wait length");
+            if (i<=810027) begin
+                if (thirty_left || thirty_right) $fatal(1,"30ms PWM before zero/setup complete");
+            end else if (thirty_right!==1 ||
+                thirty_left!==(((i-810028)%1350)<675) || thirty_hold)
+                $fatal(1,"30ms duty/resume after exact zero/setup deadline");
             if (i >= 4 && (min_direction !== 3 || min_left !== 1 || min_right !== 0))
                 $fatal(1, "single-cycle wait/period parameters");
         end
@@ -54,8 +67,10 @@ module tb_pwm_timing;
         end
         @(posedge clk); #1;
         if (!pl || !pr || interlock) $fatal(1, "pending pair not loaded after setup");
-        $display("PASS tb_pwm_timing: 27MHz, 1350-slot period, 27000+27 waits; minimum parameters");
+        $display("COVER pwm_timing.zero_30ms_ticks 810000");
+        $display("COVER pwm_timing.zero_40ms_ticks 1080000");
+        $display("PASS tb_pwm_timing: 27MHz, 1350-slot period, 30/40ms zero plus 27 setup ticks; minimum parameters");
         $finish;
     end
-    initial begin #2000000; $fatal(1, "timeout tb_pwm_timing"); end
+    initial begin #42000000; $fatal(1, "timeout tb_pwm_timing"); end
 endmodule

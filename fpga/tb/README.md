@@ -32,8 +32,11 @@ bài, `--test tb_encoder_pair` để chọn và `--waves` để lưu VCD trong b
   10 seed x 1.000 lệnh và đo số tick HIGH/cạnh/chu kỳ bằng scoreboard.
 - `tb_motor_pwm_pair`: thời gian zero/setup, lệnh thay thế khi đổi chiều,
   lệnh lỗi không đổi chiều; disable/reset từng bước chuyển và khi clock đứng.
-- `tb_pwm_timing`: clock27MHz, chu kỳ1.350 tick, duty50/100%, zero27.000 tick,
-  setup27 tick và các tham số nhỏ nhất hợp lệ (period/zero/setup=1).
+  Thêm luồng lệnh nhanh hơn khoảng zero để bắt lỗi chờ mãi, và lệnh đổi mục
+  tiêu đúng clock hết hạn zero phải lấy cặp mới nhất.
+- `tb_pwm_timing`: clock27MHz, chu kỳ1.350 tick, duty50/100%, so sánh zero30ms
+  (810.000 tick) và40ms (1.080.000 tick), setup27 tick; đếm đúng thời điểm
+  phục hồi PWM và các tham số nhỏ nhất hợp lệ (period/zero/setup=1).
 - `tb_pwm_widths`: period16/1350/2048/65535, duty100%, zero/one và lệnh sai
   có bit cao (gồm2049 có thể alias thành1 nếu cắt11bit quá sớm); đếm HIGH
   cả period, so khớp PWM với wrapper motor và xóa duty khi disable.
@@ -72,6 +75,9 @@ bài, `--test tb_encoder_pair` để chọn và `--waves` để lưu VCD trong b
   zero/setup, OUT qua STATUS bit4/CRC, lệnh sai, watchdog, E-stop/reset/DISABLE.
   Giải mã độc lập các chân DRV8833 IN theo bảng cầu H để đếm số tick kích
   thuận/ngược đúng30 ca duty/chiều; IN phải00 trong interlock và mất quyền.
+  Trong khoảng40ms nhận CMD mới gần100Hz, kiểm tra không chờ mãi; DISABLE
+  giữa coast không phục hồi lệnh cũ. Watchdog hết hạn đúng1.350.000 tick từ
+  CMD hợp lệ cuối, không tạm dừng theo interlock.
 
 Hiện có **25 testbench**. Lưu báo cáo JSON và buộc mọi module RTL được
 elaborate trong ít nhất một bài PASS bằng:

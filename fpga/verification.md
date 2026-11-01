@@ -500,3 +500,58 @@ stat/netlist trong build; đây là mapping Gowin generic, chưa kết luận fi
 00, STBY thuộc gate ngoài và cần thời gian thức trước CMD; các ngõ công suất
 AO/BO không nối chập. **28 test Python**, kiểm tra repo/nhánh và whitespace
 đạt. Chưa gán pin Tang Nano9K, nạp board hoặc đo motor/driver thật.
+
+## Khoảng nghỉ đảo chiều30/40ms — 01/11/2026
+
+Nhánh `feat/f01-fpga-drive`, nền `77e40a0`. Theo đề xuất nghỉ cơ khí30–40ms,
+đã so sánh hai cấu hình timer; chọn **40ms làm mặc định thử**, chưa kết luận
+tối ưu hoặc đã dừng rotor. Tăng `ZERO_CYCLES` lên1.080.000 tại27MHz, giữ
+`SETUP_CYCLES=27` (1us). Khoảng nghỉ dài nằm trước khi đổi chiều nội bộ.
+
+### Bài thử mới/đã mở rộng
+
+| Cấu hình/ca thử | Bằng chứng | Kết quả |
+| --- | --- | --- |
+| Zero30ms + setup1us | 810.000 tick zero,27 tick setup; kiểm tra đúng clock đổi chiều và số tick PWM sau phục hồi | PASS |
+| Zero40ms + setup1us | 1.080.000 tick zero,27 tick setup và một clock LOAD; thêm cấu hình nhỏ nhất1/1/1 | PASS |
+| Luồng lệnh nhanh trong unit | 12 lệnh thay duty, không giữ zero/setup mãi; lấy mục tiêu đến đúng clock hết zero | PASS |
+| UART top27MHz | 30 ca duty/chiều,24 CMD mới trong các khoảng nghỉ,55 STATUS; bộ đếm nghỉ vẫn hoàn tất khi có CMD gần100Hz | PASS |
+| DISABLE giữa coast | Chờ qua thời điểm hết40ms cũ, IN vẫn00, không phát lại lệnh/duty đang chờ | PASS |
+| Hạn watchdog | FAULT tại đúng1.350.000 tick sau CMD hợp lệ cuối; coast/setup không tạm dừng hoặc kéo dài lease50ms | PASS |
+
+Bài UART kéo dài **601,949ms** ở clock danh định27MHz. Các kết quả là mô
+phỏng số ở chân PWM/IN, không phải phép đo cơ khí, dòng hoặc thời gian
+phanh/thả trôi trên xe. Muốn chọn thời gian thực sự phù hợp phải đo tốc độ
+bánh và dòng đổi chiều theo tải/nguồn; cả30ms lẫn40ms đều chưa được xác nhận
+trên motor thật. STBY wake-up vẫn là điều kiện riêng ở tài liệu driver.
+
+### Thay đổi để khoảng chờ dài hoạt động đúng
+
+Code cũ khởi động lại zero với mỗi CMD trong interlock. Khi đặt40ms nhưng
+CMD đến mỗi10ms, PWM có thể không chạy lại dù watchdog vẫn được gia hạn.
+Nay WAIT_ZERO giữ thời gian coast liên tục, CMD mới thay cặp mục tiêu; clock
+hết hạn lấy cả direction/duty mới nhất. Trong WAIT_SETUP, CMD cùng chiều
+không đếm lại; mục tiêu chiều khác bắt đầu zero mới. DISABLE/reset/mất
+quyền vẫn xóa lệnh chờ ngay, không đổi hợp đồng ARM hoặc watchdog.
+
+Report ba bài mới `reversal-40ms-targeted.json`, log tổng hợp
+`reversal-40ms-{pwm,drive}-synth.log` ở `fpga/build/`, là artifact bị ignore.
+Yosys/YoWASP0.70 tổng hợp PWM và cả hai mode encoder của top thành công,
+không latch/`check -assert` không phát hiện lỗi. Chưa có fit/PnR/STA9K.
+Đây là thay đổi chức năng/thời gian, không áp dụng chứng minh tương đương
+với baseline cũ cho motor sequencer.
+
+### Hồi quy sau thay đổi
+
+**25/25 testbench PASS**, **17/17 module** elaborate trong bài PASS;
+report `fpga/build/reversal-40ms-regression.json` có SHA256 khớp toàn bộ
+RTL/testbench bàn giao. Lượt này dùng runner mặc định: bài2s ở2,7MHz,
+hai bài top ngắn ở27MHz; không chạy lại bài2s27MHz/full-timing.
+
+```sh
+python tools/run_fpga_tests.py --timeout 600 --report fpga/build/reversal-40ms-regression.json --require-module-coverage
+```
+
+**28 test Python**, kiểm tra repo/nhánh và `git diff --check` đạt. Đã rà
+diff về cặp lệnh mới nhất, ưu tiên disable/reset và hạn watchdog giữ
+nguyên. Kết quả không xác nhận40ms là thời gian cơ khí tốt nhất.

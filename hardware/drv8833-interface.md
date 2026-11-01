@@ -25,6 +25,11 @@ nghĩa xe dừng cơ học ngay. `motor_pwm_pair` vẫn chịu trách nhiệm kh
 và setup khi đảo chiều; adapter chỉ ánh xạ tổ hợp, không có counter/FSM/PWM thứ hai.
 Reset/enable LOW kéo bốn IN xuống LOW mà không cần cạnh clock.
 
+Mặc định hiện tại nghỉ zero40ms rồi setup1us. Hai ứng viên30/40ms được thử
+về logic/timer/lệnh mới/watchdog; chưa đủ dữ liệu để gọi giá trị nào tối ưu
+cơ khí. 40ms vẫn cần thử dòng đổi chiều, thời gian giảm tốc và quãng trôi
+trên xe thật; không lấy số đếm timer làm bằng chứng bánh đã dừng.
+
 ## Cách nối bốn motor: một module mỗi bên
 
 Hai cầu H trên cùng module nhận chung lệnh bên đó, nhưng mỗi cầu H nối một

@@ -1,6 +1,6 @@
 `timescale 1ns/1ps
 module tb_drive_maneuvers;
-    localparam int PERIOD=1350, ZERO=27000, SETUP=27;
+    localparam int PERIOD=1350, ZERO=1080000, SETUP=27, WATCHDOG=1350000;
     localparam real HALF_NS=500000000.0/27000000;
     localparam real BIT_NS=1000000000.0/115200;
     logic clk=0;
@@ -89,13 +89,23 @@ module tb_drive_maneuvers;
         end
     endtask
     integer cycles=0, quiet_ticks=0, direction_tick=-1000000, last_change_cmd=-1000000;
+    integer last_valid_command_tick=0, watchdog_deadlines=0, reversal_refreshes=0;
+    logic watchdog_reported=0;
     logic [1:0] previous_direction=0;
     always @(posedge clk) begin
         cycles=cycles+1;
-        if (dut.motor_command && dut.command_direction!=direction) last_change_cmd=cycles;
+        if (dut.motor_command) last_valid_command_tick=cycles;
+        if (dut.motor_command && !dut.interlock_active && dut.command_direction!=direction)
+            last_change_cmd=cycles;
         if (dut.command_valid) accepted=accepted+1;
         if (dut.command_rejected) rejected=rejected+1;
         #1;
+        if (!arst_n || !fault[0]) watchdog_reported=0;
+        else if (!watchdog_reported) begin
+            if (cycles-last_valid_command_tick!=WATCHDOG)
+                $fatal(1,"coast/setup paused or extended the command watchdog");
+            watchdog_reported=1; watchdog_deadlines=watchdog_deadlines+1;
+        end
         if ((pwm_left || pwm_right) && (!fpga_permit || safety_state!=3))
             $fatal(1,"maneuvers PWM without ARMED/permit");
         if ({drv_left_in1,drv_left_in2}===2'b11 || {drv_right_in1,drv_right_in2}===2'b11)
@@ -187,11 +197,22 @@ module tb_drive_maneuvers;
         end
     endtask
     task automatic maneuver(input logic [1:0] dir, input integer dl, input integer dr);
-        integer before_accepted;
+        integer before_accepted, refresh_index, expected_accepts;
+        logic changing_direction;
         begin
-            before_accepted=accepted;
-            send(3,{6'b0,dir},dl,dr); #1200000;
-            if (accepted!=before_accepted+1) $fatal(1,"valid maneuver rejected");
+            before_accepted=accepted; expected_accepts=1;
+            changing_direction=(direction!=dir);
+            send(3,{6'b0,dir},dl,dr);
+            if (changing_direction) begin
+                // Fresh desired commands about every 10 ms must refresh the
+                // lease without restarting the 40 ms zero interval forever.
+                for (refresh_index=0;refresh_index<3;refresh_index=refresh_index+1) begin
+                    #8000000; send(3,{6'b0,dir},dl,dr);
+                    expected_accepts=expected_accepts+1; reversal_refreshes=reversal_refreshes+1;
+                end
+                #12000000;
+            end else #200000;
+            if (accepted!=before_accepted+expected_accepts) $fatal(1,"valid maneuver rejected");
             measure(dir,dl,dr); cases=cases+1;
             $display("CASE dir=%02b L=%0d/1350 R=%0d/1350: exact HIGH ticks PASS",dir,dl,dr);
         end
@@ -217,6 +238,16 @@ module tb_drive_maneuvers;
         end
         maneuver(0,0,1350); // turn left about the stationary left wheels
         maneuver(0,1350,0); // turn right about the stationary right wheels
+        // DISABLE cancels an outstanding reversal; waiting past the original
+        // zero deadline must not resurrect its cached direction/duty.
+        send(3,1,1350,1350); #8000000;
+        if (!dut.interlock_active || direction!=0 || pwm_left || pwm_right)
+            $fatal(1,"40ms reversal failed to stay blank before DISABLE");
+        send(4,0,0,0); #41000000;
+        if (safety_state!=0 || fault!=0 || fpga_permit || pwm_left || pwm_right ||
+            drv_left_in1 || drv_left_in2 || drv_right_in1 || drv_right_in2)
+            $fatal(1,"DISABLE during coast replayed pending command");
+        arm;
         // Active reverse must retain the previous pair on invalid UART traffic.
         maneuver(3,900,450); before_accepted=accepted; before_rejected=rejected;
         frame(3,16'(seq+1),8'h04,0,0,0);
@@ -252,10 +283,13 @@ module tb_drive_maneuvers;
         if (valid_status<10) $fatal(1,"missing single OUT UART telemetry");
         $display("COVER drive_maneuvers.numeric_cases %0d",cases);
         $display("COVER drive_maneuvers.drv8833_pin_cases %0d",cases);
+        $display("COVER drive_maneuvers.reversal_refreshes %0d",reversal_refreshes);
+        $display("COVER drive_maneuvers.disable_during_coast 1");
+        $display("COVER drive_maneuvers.watchdog_deadlines %0d",watchdog_deadlines);
         $display("COVER drive_maneuvers.direction_combinations 4");
         $display("COVER drive_maneuvers.physical_status %0d",valid_status);
         $display("PASS tb_drive_maneuvers: 27MHz defaults, exact PWM/direction, OUT telemetry, interlock and safety");
         $finish;
     end
-    initial begin #350000000; $fatal(1,"timeout tb_drive_maneuvers"); end
+    initial begin #1000000000; $fatal(1,"timeout tb_drive_maneuvers"); end
 endmodule

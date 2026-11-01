@@ -62,6 +62,9 @@ Board mục tiêu **Nano 9K / GW1NR-LV9QN88PC6/I5**, chưa mua hoặc xác nhậ
 fit/timing/giá. Tối ưu duty và timer vẫn giữ mục tiêu 9K; số liệu trước/sau
 ở [verification.md](verification.md). Công cụ kiểm chứng tương đương với bản
 trước: `python tools/check_fpga_equivalence.py --base 821cfae --yosys <yosys>`.
+Baseline này phục vụ refactor giữ chức năng; thay đổi thời gian/quy tắc cập
+nhật interlock hiện tại là thay đổi chức năng, không dùng bằng chứng cũ để
+kết luận tương đương cho phần đó.
 
 Xem [kế hoạch và nghiệm thu toàn hệ thống](../docs/fpga-drive-plan.md).
 Chi tiết [thiết kế RTL, kiểm thử và thứ tự triển khai](../docs/fpga-rtl-design-test-plan.md).
@@ -87,8 +90,9 @@ là bên trái, `[1]` là bên phải; 0 thuận, 1 ngược theo quy ước l�
 | Quay trái tại chỗ | `01` | 675 / 675 |
 | Quay phải tại chỗ | `10` | 675 / 675 |
 
-Đổi chiều vẫn qua khoảng PWM zero 27.000 tick và setup 27 tick. Khoảng này
-chỉ là liên động logic; chưa chứng minh rotor đã dừng hoặc xe quay đúng góc.
+Đổi chiều qua khoảng PWM zero1.080.000 tick (40ms) và setup27 tick (1us).
+Lệnh cập nhật trong zero không khởi động lại bộ đếm; watchdog50ms không tạm
+dừng. Đã có ca so sánh30/40ms, nhưng chưa đo rotor dừng hoặc xe quay đúng góc.
 Một OUT chỉ đo độ lớn chuyển động, đếm cả khi thả trôi; Motion đọc cờ mode
 STATUS bit4 và lấy delta không dấu modulo32 để tính tốc độ. Chưa thể suy ra
 quãng đường có dấu chính xác chỉ từ cảm biến này và chiều lệnh.
