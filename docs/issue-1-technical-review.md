@@ -69,9 +69,11 @@ bởi lần rà soát này.
 Các ý cần thử, **chưa triển khai/kiểm chứng trên xe**. Áp dụng khung TT 4WD,
 hai nhóm motor trái/phải, không servo lái; thay mô tả Ackermann cũ cho F01.
 
-**Cập nhật 01/11/2026:** chủ dự án báo shop xác định motor TT là **9 V**.
-Rà lại phương án pin/rail motor theo [ghi chú phần cứng](../hardware/README.md);
-không dùng các ví dụ 6 V/6,5 V làm định mức. Dòng khởi động/kẹt chưa được đo.
+**Cập nhật 01/11/2026:** motor TT **9 V theo shop**, chủ dự án chọn hướng
+đơn giản **2S cấp trực tiếp VM DRV8833**, chấp nhận điện áp motor thấp hơn
+định mức; không yêu cầu rail motor ổn định 9 V. Nhánh logic vẫn ổn áp riêng.
+Xem [ghi chú phần cứng](../hardware/README.md); cần thử lực khi pin yếu,
+dòng khởi động/kẹt và nhiệt driver trên xe thực.
 
 - **Giữ tốc độ khi lên dốc/tải tăng:** phản hồi encoder, Motion dùng PI/PID
   tăng/giảm PWM trong giới hạn dòng, nguồn và nhiệt; có chống tích lũy sai số
