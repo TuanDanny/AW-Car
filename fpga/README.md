@@ -29,7 +29,7 @@ python tools/run_fpga_tests.py
 ```
 
 Runner nhận `--iverilog` và `--vvp` để dùng đường dẫn cục bộ, `--waves` để lưu
-VCD tại `fpga/build/`. Có30 testbench; `--report fpga/build/regression-report.json`
+VCD tại `fpga/build/`. Có34 testbench; `--report fpga/build/regression-report.json`
 cùng `--require-module-coverage` xuất bằng chứng module -> test và chặn module
 chưa tham gia bài PASS. Đây chưa phải coverage dòng/nhánh/toggle hoặc timing
 vật lý. CI lưu JSON thành artifact và chạy mô phỏng trên Linux. Viết lõi độc lập hãng;
@@ -114,3 +114,12 @@ Dùng `aw_car_top` trong project triển khai xe; script chính là
 không phải top thứ hai chạy đồng thời trong bản nạp. Tên cũ
 `drive_core_single_out` đã đổi thành `aw_car_top` ngày02/11/2026.
 Logical top chưa thay wrapper clock/POR/I/O/constraints đúng Tang Nano9K.
+
+
+## Kiểm tra khi đang chạy
+
+Top chỉ lộ **17 tín hiệu một bit**:9 input (clk/reset/RX/2 encoder/4 safety),
+8 output (TX/4 IN/permit/ack/clear). PWM/DIR/state/fault ở trong lõi, quan sát
+qua UART hoặc testbench; không cần gán chân board cho28 bit debug cũ.
+Protocol v2 có thêm [runtime diagnostics](../firmware/shared/fpga-protocol-v2.md#6-runtime-diagnostics--extension-02112026).
+Không đổi kích thước STATUS. Chưa có constraints/PnR/STA hoặc firmware Motion.

@@ -758,3 +758,77 @@ chưa commit; index chỉ nhận phần tên/chú thích/preview liên quan tác
 Chưa có pin/clock/POR constraints, PnR/STA đúng Tang Nano9K hay thử gate/driver
 trên xe. Top này là logical integration top; kết quả trên là bằng chứng RTL,
 không tuyên bố bitstream nạp board đã đạt nghiệm thu.
+
+## Online diagnostics và mở rộng kiểm thử — 02/11/2026
+
+Thêm `runtime_diagnostics.sv`, bật trong core protocol v2. Theo dõi8 nhóm:
+RX frame lỗi, guard từ chối CMD, mất snapshot do TX busy, snapshot không tạo
+đúng hạn, encoder trái/phải không đổi count khi yêu cầu chạy, PWM reject và
+invariant raw PWM/safety_state. Cờ sticky ở fault[15:8], Safety ở[7:0]. Chỉ
+snapshot stall/invariant khóa đầu ra và yêu cầu reset; các cảnh báo không tự
+kết luận motor kẹt. CLEAR_FAULT không xóa hai chốt critical hoặc lịch sử mới.
+
+Top bỏ28 bit debug ở biên: còn **17 port/17 bit** (9 input/8 output), xác nhận
+trên netlist tổng hợp; PWM/DIR/state/fault ở trong core và telemetry UART.
+Protocol giữ34 byte payload/47 byte frame, dùng các bit fault trước chưa dùng.
+Firmware Motion cần cập nhật phân loại cờ; hiện **chưa có firmware/log trên
+ESP32 thật**. Có decoder Python kiểm tra CRC/sequence và tên lỗi, cùng ví dụ
+cách ghép ESP_LOG vào firmware sau này. Bảng bit ở đặc tả v2 là nguồn chuẩn.
+
+### Kết quả kiểm tra bản hiện tại
+
+- **34/34 testbench PASS,20/20 module** có bài PASS elaborate chúng. Report
+  `fpga/build/diagnostics-regression.json` ghép4 lượt không trùng:targeted4,
+  rest28, full-timing1 và default-timeout1. Cùng compiler; mọi hash nguồn ghi
+  trong report đều khớp mã cuối. Bench timeout mặc định được thêm khi các job
+  khác đang chạy; không thay nguồn RTL hoặc bench cũ, không được compile vào
+  các top khác. Report tổng ghi rõ điều này thay vì giả một lần chạy duy nhất.
+- **60 kịch bản diagnostics** ở limit1/2/16/17/64: cảnh báo không trip, clock
+  biên trước/đúng hạn, idle/duty0/coast không báo encoder giả, count wrap,
+  hai bên độc lập, PWM không enable/interlock, state bất hợp lệ và reset.
+- **24.000 mẫu encoder** đối chiếu bằng timestamp độc lập: valid gaps, age
+  bão hòa, phục hồi period, count wrap ở hai bộ width4 và9.
+- **Default timeout13.500.000tick** chạy ở clock27MHz danh định: không báo
+  sớm, đúng ngưỡng500ms mới cảnh báo, heartbeat snapshot10ms vẫn khỏe, warning
+  không tự khóa driver và lịch sử còn sau khi encoder trở lại.
+- UART integration:CRC sai/session sai thật qua RX, warning về STATUS CRC
+  đúng mà không tự dừng; cố ý tiêm raw PWM vi phạm/interlock và snapshot đứng,
+  kiểm tra4 chân IN tắt, nhận critical flags qua UART. HELLO/ARM/CLEAR/CMD
+  không mở lại chốt critical; reset xóa lịch sử và vẫn không tự ARM. Các lỗi
+  tiêm là phương pháp kiểm thử, không phải tuyên bố tìm thấy bug sản phẩm.
+- `tb_drive_maneuvers` vẫn chạy chính `aw_car_top` ở27MHz,30 ca duty/chiều và
+  chânDRV8833,24 refresh trong coast,53 STATUS; watchdog/reset/E-stop đạt.
+- `tb_drive_core --full-timing` chạy2010,54ms ở27MHz,189 STATUS, UART/PWM/
+  encoder/reset/E-stop/clock-stop/stale gate PASS. Bài nominal ngắn225ms đạt.
+- **47 Python tests PASS**, gồm CRC corruption mọi47 vị trí frame, sai
+  version/length/sequence, phân loại warning/fatal/reset-required; vectors cũ
+  không đổi. Repo/nhánh/index/whitespace checks đạt.
+- **5/5 script tổng hợp generic Gowin PASS**, latch assertions và check-assert
+  đạt; log `diagnostics-*-synth.log`. Top generic:1568FF,1913 LUT1–4,688 ALU.
+  Đây là generic cells, không phải utilization hoặc timing đã route Nano9K.
+- **Equivalence v1** so với8bd4515:modeA/B3506 cells và mộtOUT3492 cells được
+  chứng minh,0 chưa chứng minh. Diagnostics không bật v1. Log/script ở
+  `fpga/build/diagnostics-v1-equivalence/`.
+
+Cách chạy lại:
+
+```sh
+python tools/run_fpga_tests.py --full-timing --timeout 2000 --report fpga/build/diagnostics-rerun.json --require-module-coverage
+python -m unittest discover -s tests
+yosys -s fpga/synth_aw_car.ys
+```
+
+### Đánh giá và giới hạn
+
+**Tự chấm8/10 cho logic và kiểm thử RTL hiện tại**: có phân tầng rõ, giao thức
+kiểm CRC/phiên/lease, fail-closed, kiểm thử ngẫu nhiên/biên/lỗi tiêm và báo
+chẩn đoán. Điểm này là nhận định kỹ thuật, không phải tỷ lệ an toàn/chứng chỉ.
+Chưa cho9–10 vì chưa đo line/branch/toggle coverage, chưa có board constraints,
+PnR/STA đúng chip, firmware Motion nhận log hoặc phép đo gate/encoder/motor thật.
+Không hứa tự phát hiện mọi bug; mất clock/nguồn có thể làm mất cả log, Motion
+và E-stop vẫn phải độc lập. Một OUT không đo chiều thực, encoder timeout500ms
+là ngưỡng cảnh báo cần hiệu chỉnh, không chứng minh motor hỏng hoặc xe dừng.
+
+[Ma trận đưa lên Tang Nano9K](../docs/fpga-bringup-diagnostics.md) ghi từng cổng
+nghiệm thu còn thiếu và thứ tự thử trước nối motor. Không phát hành CST/bitstream
+bằng số chân giả hoặc coi tổng hợp generic là board đã chạy.

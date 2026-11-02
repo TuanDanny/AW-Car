@@ -8,7 +8,8 @@ Tác giả: **TuanDanny**. Cộng tác viên: **Minh Nho** và **Nhan Duc**.
 ## Trạng thái
 
 Top FPGA triển khai là **[`aw_car_top`](fpga/rtl/aw_car_top.sv)**, bọc lõi
-`drive_core`; cấu hình tổng hợp ở [`synth_aw_car.ys`](fpga/synth_aw_car.ys).
+`drive_core`; chẩn đoán khi chạy đi qua STATUS v2 (RX/lệnh/mất mẫu/encoder/invariant),
+không xuất bus debug thành chân board. Cấu hình tổng hợp ở [`synth_aw_car.ys`](fpga/synth_aw_car.ys).
 
 Đồng bộ ngày **02/11/2026**: phần FPGA và encoder một OUT được gom vào
 `feat/f01-fpga-drive`. Bản mặc định dùng **protocol v2: STATUS 34 byte payload,

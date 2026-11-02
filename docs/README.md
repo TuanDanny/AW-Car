@@ -69,3 +69,7 @@ nhiều bộ quy tắc khác nhau.
 [ảnh xem](AW_Car_FPGA_RTL_Block_Review_v2_preview.png) được giữ từ bản
 thiết kế mới xuất hiện trong lúc hợp nhất. Đây là bản review để tiếp tục
 đối chiếu, không thay danh sách cổng/tham số RTL đã kiểm thử.
+
+[Nghiệm thu và chẩn đoán Tang Nano9K](fpga-bringup-diagnostics.md):
+điều kiện trước nạp, ma trận thử trên bàn, nguồn/chân/timing chưa xác nhận và
+log lỗi v2 cho ESP32.

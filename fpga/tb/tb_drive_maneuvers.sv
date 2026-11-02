@@ -17,6 +17,12 @@ module tb_drive_maneuvers;
     // No parameter overrides: exercise the actual 27 MHz hardware defaults,
     // including reverse enabled, single OUT, 20 kHz PWM and 50 ms watchdog.
     aw_car_top dut (.left_out(encoder_left_out), .right_out(encoder_right_out), .*);
+    // Verification observes core diagnostics without consuming board pins.
+    assign pwm_left=dut.core.pwm_left;
+    assign pwm_right=dut.core.pwm_right;
+    assign direction=dut.core.direction;
+    assign safety_state=dut.core.safety_state;
+    assign fault=dut.core.fault;
     always @(negedge safety_ok_async or posedge gate_clear) begin
         if (!safety_ok_async) gate_fault_n_async=0;
         else if (gate_clear && !motion_permit_async && !fpga_permit) gate_fault_n_async=1;
@@ -84,7 +90,7 @@ module tb_drive_maneuvers;
     task automatic clear_fault;
         begin
             recovery; send(5,0,0,0); #200000;
-            if (safety_state!=0 || fault!=0 || fpga_permit) $fatal(1,"maneuvers clear failed");
+            if (safety_state!=0 || fault[7:0]!=0 || fpga_permit) $fatal(1,"maneuvers clear failed");
         end
     endtask
     integer cycles=0, quiet_ticks=0, direction_tick=-1000000, last_change_cmd=-1000000;
@@ -246,7 +252,7 @@ module tb_drive_maneuvers;
         if (!dut.core.interlock_active || direction!=0 || pwm_left || pwm_right)
             $fatal(1,"40ms reversal failed to stay blank before DISABLE");
         send(4,0,0,0); #41000000;
-        if (safety_state!=0 || fault!=0 || fpga_permit || pwm_left || pwm_right ||
+        if (safety_state!=0 || fault[7:0]!=0 || fpga_permit || pwm_left || pwm_right ||
             drv_left_in1 || drv_left_in2 || drv_right_in1 || drv_right_in2)
             $fatal(1,"DISABLE during coast replayed pending command");
         arm;

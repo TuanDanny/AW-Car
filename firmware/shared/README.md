@@ -30,3 +30,7 @@ Python dùng chung; bộ thử serializer đối chiếu từng byte/CRC với v
 `drive_core`/`aw_car_top` dùng v2, STATUS 34 byte/frame 47 byte.
 V1 giữ nguyên vector cũ 18/31 byte; cấu hình tương thích một OUT v1 phải đặt
 `ENCODER_SINGLE_OUT=1, PROTOCOL_VERSION=1` và đọc mode bit4, không có period/age.
+
+Runtime diagnostics dùng fault[15:8] của STATUS v2; fault[7:0] giữ Safety.
+Snapshot stall/invariant cần reset FPGA; các cảnh báo RX/encoder không tự
+khóa motor. Firmware Motion/ESP32 logger thực vẫn cần triển khai theo đặc tả.

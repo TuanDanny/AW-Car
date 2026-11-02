@@ -30,7 +30,7 @@ dùng2,7MHz và thêm bài lỗi27MHz. CI bật full-timing, không dùng số l
 để xác nhận timing vật lý.
 
 `--report fpga/build/regression-report.json --require-module-coverage` ghi
-kết quả30 bài, module RTL thực được Icarus elaborate trong từng bài PASS,
+kết quả34 bài, module RTL thực được Icarus elaborate trong từng bài PASS,
 số ca `COVER`, SHA256 nguồn và compiler. Runner fail nếu thiếu module hoặc
 marker PASS dù simulator trả mã0; báo cáo ghi cả lỗi/ca chạy chưa xong.
 Đây là kiểm tra module tham gia mô phỏng, chưa đo line/branch/toggle coverage.
@@ -73,3 +73,6 @@ không được phép ghi đè ngược lên RTL/tài liệu protocol hiện t�
 
 `generate_fpga_v2_review_block.py` giữ bản generator sơ đồ review v2 độc lập;
 không chạy để ghi đè các chỉnh sửa sơ đồ trong tác vụ hợp nhất.
+
+`fpga_protocol.py --decode-status HEX` xác thực và giải mã47 byte STATUS v2,
+phân loại lỗi Safety/cảnh báo/diagnostic cần reset; không tự cấp quyền chạy xe.

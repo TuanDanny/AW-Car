@@ -37,6 +37,7 @@ thứ tự chạy như các hàm trong chương trình MCU. `drive_core` nối c
 | PWM | [pwm_pair.sv](pwm/pwm_pair.sv) | Tạo hai PWM cùng chu kỳ; áp dụng cặp duty mới ở ranh giới chu kỳ để tránh cập nhật lệch trái/phải. |
 | PWM | [motor_pwm_pair.sv](pwm/motor_pwm_pair.sv) | Bọc quanh `pwm_pair`; khi đổi chiều thì ngắt PWM, đợi khoảng zero, đổi chiều, đợi ổn định rồi nạp duty. |
 | PWM | [drv8833_adapter.sv](pwm/drv8833_adapter.sv) | Đổi PWM/chiều thành hai chân IN mỗi bên theo bảng TI; mất quyền/reset đưa về00 (thả trôi), không thêm bộ tạo PWM. |
+| Safety | [runtime_diagnostics.sv](safety/runtime_diagnostics.sv) | Chẩn đoán sticky khi đang chạy, watchdog snapshot và khóa lỗi invariant; gửi bit qua STATUS v2. |
 | Link | [uart_rx.sv](link/uart_rx.sv) | Nhận bit UART thành byte 8N1; báo stop bit sai hoặc đường RX LOW quá lâu. |
 | Link | [uart_tx.sv](link/uart_tx.sv) | Gửi từng byte thành start bit, 8 bit dữ liệu và stop bit; báo sẵn sàng/gửi xong. |
 | Link | [crc16_byte.sv](link/crc16_byte.sv) | Tính bước CRC16 cho một byte; được cả bộ nhận và bộ gửi khung dùng để kiểm tra lỗi truyền. |
@@ -46,7 +47,7 @@ thứ tự chạy như các hàm trong chương trình MCU. `drive_core` nối c
 | Link | [fpga_link.sv](link/fpga_link.sv) | Ghép UART, CRC, nhận/gửi khung và guard thành một cổng giao tiếp Motion–FPGA; xác nhận STATUS sau khi gửi đủ byte cuối. |
 | Safety | [safety_fsm.sv](safety/safety_fsm.sv) | Quản lý chưa arm/bắt tay/chờ arm/đang arm/lỗi/xóa lỗi; chỉ cho chạy đúng trình tự và hết hạn lệnh thì thu quyền chạy. |
 
-Trạng thái: có 19 module, có testbench và script tổng hợp generic; chưa có target
+Trạng thái: có 20 module, có testbench và script tổng hợp generic; chưa có target
 board/driver thực hoặc báo cáo timing sau route. Runner tìm đệ quy toàn bộ
 `.sv` trong cây này; script tổng hợp ở `fpga/` dùng đường dẫn nhóm tương ứng.
 Testbench vẫn ở [tb](../tb/README.md), ngoài cây nguồn RTL.

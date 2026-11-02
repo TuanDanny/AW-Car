@@ -10,6 +10,9 @@
   không suy chiều đo từ lệnh motor. Giữ A/B là mode tùy chọn.
   Bản một OUT mặc định dùng protocol v2 (STATUS 34 byte, frame 47 byte),
   có period/age; v1 chỉ để tương thích/hồi quy, phải chọn phiên bản tường minh.
+  V2: fault[7:0] là lỗi Safety, fault[15:8] là diagnostic sticky. Chỉ các cờ
+  snapshot stall/invariant (mask 0x8800) yêu cầu reset; không coi mọi cảnh báo
+  encoder/RX là lỗi tự khóa. ESP32 vẫn phải timeout STATUS độc lập.
   Phân tải ở `docs/fpga-drive-plan.md`; board mục tiêu Tang Nano 9K, chưa mua
   và chưa xác nhận fit/timing đúng chip. Tối ưu RTL không đổi mục tiêu về 1K.
 - Trao đổi và báo cáo bằng tiếng Việt, ngắn gọn; nêu giả định ảnh hưởng thiết kế.

@@ -15,6 +15,7 @@ import time
 ROOT = Path(__file__).resolve().parents[1]
 TESTS = ("tb_encoder_units", "tb_encoder_pair", "tb_encoder_timing", "tb_encoder_single_out",
          "tb_pulse_encoder_pair", "tb_single_out_protocol", "tb_single_out_v2_rx", "tb_aw_car_top",
+         "tb_runtime_diagnostics", "tb_encoder_period_random", "tb_diagnostics_uart", "tb_diagnostics_default_timeout",
          "tb_common_matrix", "tb_crc16_matrix", "tb_guard_sequence",
          "tb_uart_matrix", "tb_frame_tx_random",
          "tb_safety_matrix", "tb_fault_recovery_deadline",

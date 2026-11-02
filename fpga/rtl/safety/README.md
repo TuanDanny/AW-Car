@@ -28,3 +28,12 @@ trong [drive_core.sv](../drive_core.sv); đã tổng hợp generic toàn top b�
 Watchdog này cần clock FPGA; Motion phải khóa driver độc lập khi snapshot
 cũ/mất phản hồi, E-stop/gate ngoài không được phụ thuộc clock FPGA.
 Đặc tả đầy đủ: [hợp đồng an toàn](../../../firmware/shared/fpga-safety.md).
+
+
+`runtime_diagnostics.sv` chỉ bật cho protocol v2: ghi sticky flags cho RX/guard/
+TX drop/PWM reject, snapshot quá hạn, encoder không xung khi yêu cầu chạy và
+invariant raw PWM/state. Chỉ snapshot stall/invariant khóa driver và yêu cầu
+reset; cảnh báo encoder không tự kết luận kẹt. Snapshot timeout2×chu kỳ, encoder
+mặc định500ms có thể đổi bằng `ENCODER_STALE_CYCLES`. Được kiểm tra bằng fault
+injection và UART CRC thật trong mô phỏng; không tự phát hiện được mọi bug.
+Ánh xạ bit/điều kiện ESP32 đọc ở [diagnostics v2](../../../firmware/shared/fpga-protocol-v2.md#6-runtime-diagnostics--extension-02112026).

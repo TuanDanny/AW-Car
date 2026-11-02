@@ -1,6 +1,7 @@
 """Independent wire-format reference and shared golden vectors (stdlib only)."""
 import argparse
 import binascii
+import json
 from pathlib import Path
 import struct
 
@@ -8,6 +9,36 @@ ROOT = Path(__file__).resolve().parents[1]
 FIXTURE = ROOT / "firmware" / "shared" / "fpga-vectors.hex"
 FIXTURE_V2 = FIXTURE.with_name("fpga-vectors-v2.hex")
 LENGTHS = {1: 0, 2: 0, 3: 6, 4: 0, 5: 0, 0x80: 18}
+FAULT_NAMES = {
+    0x0001: "COMMAND_WATCHDOG", 0x0002: "SAFETY_HEALTH_OR_GATE",
+    0x0004: "MOTION_PERMIT_LOST", 0x0008: "RECOVERY_ORDER",
+    0x0010: "PWM_REJECTED", 0x0020: "CLEAR_TIMEOUT",
+    0x0040: "HANDSHAKE_TIMEOUT", 0x0080: "SAFETY_STATE_INVALID",
+    0x0100: "RX_FRAME_ERROR", 0x0200: "COMMAND_REJECTED",
+    0x0400: "SNAPSHOT_DROPPED", 0x0800: "SNAPSHOT_STALL",
+    0x1000: "LEFT_ENCODER_NO_EDGE", 0x2000: "RIGHT_ENCODER_NO_EDGE",
+    0x4000: "PWM_REJECT_HISTORY", 0x8000: "INTERNAL_INVARIANT",
+}
+
+
+def decode_status_v2(frame):
+    """Decode one complete CRC-checked STATUS; does not grant Motion permission."""
+    if len(frame) != 47 or frame[:5] != bytes.fromhex("a55a028022"):
+        raise ValueError("expected a complete 47-byte STATUS v2")
+    if binascii.crc_hqx(frame[2:-2], 0xFFFF) != int.from_bytes(frame[-2:], "little"):
+        raise ValueError("STATUS CRC mismatch")
+    keys = ("left_count", "right_count", "timestamp", "snapshot_seq", "safety_state",
+            "fault", "encoder_status", "left_period_ticks", "right_period_ticks",
+            "left_age_ticks", "right_age_ticks")
+    status = dict(zip(keys, struct.unpack("<IIIHBHBIIII", frame[11:-2])))
+    status["session"] = int.from_bytes(frame[5:9], "little")
+    if status["snapshot_seq"] != int.from_bytes(frame[9:11], "little"):
+        raise ValueError("STATUS header/snapshot sequence mismatch")
+    fault = status["fault"]
+    status["fault_names"] = [name for mask, name in FAULT_NAMES.items() if fault & mask]
+    status["requires_fpga_reset"] = bool(fault & 0x8800)
+    status["fatal"] = bool(fault & 0x00FF or fault & 0x8800 or status["safety_state"] >= 4)
+    return status
 
 
 def encode_frame(kind, session, sequence, payload=b"", *, version=1):
@@ -58,7 +89,14 @@ def fixture_text(version=1):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--write-vectors", action="store_true")
+    parser.add_argument("--decode-status", metavar="HEX", help="decode a captured STATUS v2 to JSON")
     args = parser.parse_args()
+    if args.decode_status is not None:
+        try:
+            print(json.dumps(decode_status_v2(bytes.fromhex(args.decode_status)), indent=2))
+        except ValueError as error:
+            parser.exit(1, f"FAIL: {error}\n")
+        return
     for version, fixture in ((1, FIXTURE), (2, FIXTURE_V2)):
         expected = fixture_text(version)
         if args.write_vectors:

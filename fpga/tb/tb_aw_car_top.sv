@@ -13,6 +13,12 @@ module tb_aw_car_top;
     aw_car_top #(.SNAPSHOT_CYCLES(32),
         .HANDSHAKE_CYCLES(270), .CLEAR_CYCLES(135),
         .CLEAR_HOLD_CYCLES(27)) dut (.*);
+    // Verification observes core diagnostics without consuming board pins.
+    assign pwm_left=dut.core.pwm_left;
+    assign pwm_right=dut.core.pwm_right;
+    assign direction=dut.core.direction;
+    assign safety_state=dut.core.safety_state;
+    assign fault=dut.core.fault;
     task automatic ticks(input integer n);
         repeat(n) @(negedge clk);
     endtask

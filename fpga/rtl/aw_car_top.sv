@@ -18,19 +18,18 @@ module aw_car_top #(
     parameter int ZERO_CYCLES = 1080000,
     parameter int SETUP_CYCLES = 27,
     parameter int FILTER_N = 3,
+    parameter int ENCODER_STALE_CYCLES = CLK_HZ / 2,
     parameter bit ALLOW_REVERSE = 1
 ) (
     input logic clk, arst_n, rx,
     input logic left_out, right_out,
     input logic motion_permit_async, recovery_req_async,
     input logic safety_ok_async, gate_fault_n_async,
-    output logic tx, pwm_left, pwm_right,
-    output logic [1:0] direction,
+    output logic tx,
     output logic drv_left_in1, drv_left_in2, drv_right_in1, drv_right_in2,
-    output logic fpga_permit, recovery_ack, gate_clear,
-    output logic [7:0] safety_state,
-    output logic [15:0] fault
+    output logic fpga_permit, recovery_ack, gate_clear
 );
+    // PWM/DIR and status/fault stay internal; telemetry is carried by UART.
     drive_core #(
         .CLK_HZ(CLK_HZ), .BAUD(BAUD), .PERIOD_CYCLES(PERIOD_CYCLES),
         .SNAPSHOT_CYCLES(SNAPSHOT_CYCLES), .WATCHDOG_CYCLES(WATCHDOG_CYCLES),
@@ -38,6 +37,7 @@ module aw_car_top #(
         .CLEAR_HOLD_CYCLES(CLEAR_HOLD_CYCLES), .INTERBYTE_CYCLES(INTERBYTE_CYCLES),
         .FRAME_CYCLES(FRAME_CYCLES), .ZERO_CYCLES(ZERO_CYCLES),
         .SETUP_CYCLES(SETUP_CYCLES), .FILTER_N(FILTER_N),
+        .ENCODER_STALE_CYCLES(ENCODER_STALE_CYCLES),
         .ALLOW_REVERSE(ALLOW_REVERSE), .ENCODER_SINGLE_OUT(1), .PROTOCOL_VERSION(2)
     ) core (
         .clk(clk), .arst_n(arst_n), .rx(rx),
@@ -46,12 +46,11 @@ module aw_car_top #(
         .motion_permit_async(motion_permit_async),
         .recovery_req_async(recovery_req_async),
         .safety_ok_async(safety_ok_async), .gate_fault_n_async(gate_fault_n_async),
-        .tx(tx), .pwm_left(pwm_left), .pwm_right(pwm_right),
-        .direction(direction), .fpga_permit(fpga_permit),
+        .tx(tx), .pwm_left(), .pwm_right(), .direction(), .fpga_permit(fpga_permit),
         .drv_left_in1(drv_left_in1), .drv_left_in2(drv_left_in2),
         .drv_right_in1(drv_right_in1), .drv_right_in2(drv_right_in2),
         .recovery_ack(recovery_ack), .gate_clear(gate_clear),
-        .safety_state(safety_state), .fault(fault)
+        .safety_state(), .fault()
     );
 endmodule
 `default_nettype wire

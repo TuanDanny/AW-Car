@@ -92,7 +92,7 @@ bài, `--test tb_encoder_pair` để chọn và `--waves` để lưu VCD trong b
   giữa coast không phục hồi lệnh cũ. Watchdog hết hạn đúng1.350.000 tick từ
   CMD hợp lệ cuối, không tạm dừng theo interlock.
 
-Hiện có **30 testbench**. Lưu báo cáo JSON và buộc mọi module RTL được
+Hiện có **34 testbench**. Lưu báo cáo JSON và buộc mọi module RTL được
 elaborate trong ít nhất một bài PASS bằng:
 
 ```sh
@@ -108,3 +108,16 @@ Mô hình test không mô phỏng metastability hoặc nguồn/mức điện áp
 chỉ là model kiểm chứng hợp đồng, chưa có firmware hoặc sơ đồ điện thực tế. PWM/chiều là tín hiệu logic
 trừu tượng; adapter đã kiểm tra bảng IN drive/coast của DRV8833, chưa mô phỏng
 công suất/điện/cơ hoặc nghiệm thu driver thật. Không có chế độ phanh chủ động.
+
+
+- `tb_runtime_diagnostics`:60 kịch bản biên ở ngưỡng1/2/16/17/64, phân biệt
+  cảnh báo/lỗi khóa, count wrap, idle/duty0/interlock, trạng thái sai và reset.
+- `tb_encoder_period_random`:24.000 mẫu đối chiếu bằng timestamp độc lập,
+  valid bị ngắt, silence dài, age bão hòa, khôi phục period và wrap count.
+- `tb_diagnostics_uart`:ARM thật trong mô phỏng, CRC sai/session sai qua RX,
+  kiểm tra cờ cảnh báo về STATUS CRC đúng mà không dừng giả; tiêm raw PWM sai/
+  snapshot đứng, kiểm tra4 chân IN tắt, UART không mở lại và reset xóa lịch sử.
+
+- `tb_diagnostics_default_timeout`:ngưỡng encoder mặc định13.500.000 tick
+  (500ms ở27MHz), heartbeat snapshot270.000tick/10ms vẫn khỏe, cảnh báo
+  không phát sớm/không tự khóa và giữ lịch sử khi encoder phục hồi.

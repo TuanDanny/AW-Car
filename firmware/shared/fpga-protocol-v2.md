@@ -62,3 +62,55 @@
 
 - **Encoder → FPGA:** `2× GPIO OUT_L/OUT_R · level 5V→3,3V · FPGA 27MHz · snapshot 100Hz · 1 OUT/bên (không đo chiều)`
 - **Motion ↔ FPGA:** `UART 115200 8N1 · Protocol v2/02 · CMD duty/dir · STATUS payload 34B/frame 47B · CRC16`
+
+## 6. Runtime diagnostics — extension 02/11/2026
+
+Layout vẫn34 byte/47 byte, version02. `fault[7:0]` giữ nguyên lỗi Safety FSM.
+`fault[15:8]` là chẩn đoán mới, sticky từ lúc reset FPGA; HELLO/DISABLE hoặc
+CLEAR_FAULT không xóa lịch sử chẩn đoán. Firmware đọc toàn bộ word16-bit,
+không coi mọi bit cảnh báo là điều kiện FAULT. Đây là mở rộng các bit trước
+đây chưa dùng; firmware v2 cũ cần cập nhật cách phân loại nếu kiểm tra fault==0.
+
+| Mask | Mã | Hành động tại FPGA |
+| --- | --- | --- |
+| 0100 | RX_FRAME_ERROR | Cảnh báo frame/parser/CRC lỗi; lệnh lỗi không được áp dụng |
+| 0200 | COMMAND_REJECTED | Cảnh báo guard từ chối phiên/sequence/duty/chiều |
+| 0400 | SNAPSHOT_DROPPED | Cảnh báo TX đang bận, bỏ mẫu; sequence phản ánh mất mẫu |
+| 0800 | SNAPSHOT_STALL | Không có snapshot trong2×SNAPSHOT_CYCLES; khóa driver, cần reset FPGA |
+| 1000 | LEFT_ENCODER_NO_EDGE | Cảnh báo yêu cầu trái khác0 nhưng không đổi count đủ ngưỡng |
+| 2000 | RIGHT_ENCODER_NO_EDGE | Cảnh báo tương tự bên phải |
+| 4000 | PWM_REJECT_HISTORY | Lưu sự kiện khối PWM từ chối lệnh; Safety FSM vẫn xử lý lỗi PWM riêng |
+| 8000 | INTERNAL_INVARIANT | Raw PWM khi chưa enable/đang interlock, hoặc safety_state ngoài0..5; khóa driver, cần reset |
+
+Encoder timeout mặc định **CLK_HZ/2 =500ms tại27MHz**, không tính thời gian
+DISARMED, duty yêu cầu0 hoặc interlock. Mỗi count mới reset bộ đếm chờ của
+bên tương ứng, kể cả wrap. Đây là cảnh báo, không kết luận cảm biến hỏng hoặc
+motor kẹt: có thể xe chạy rất chậm/tải lớn hoặc dây/đĩa có vấn đề. Motion chọn
+ngưỡng/chính sách theo tốc độ tối thiểu thực, không dùng500ms như cam kết vật lý.
+
+Snapshot stall và invariant là chốt dừng độc lập trong RTL (`diagnostic_stop`),
+chặn `fpga_permit`/4 chân IN và đưa health của Safety FSM xuốngLOW. Sau đó
+Safety FSM có thể chốt thêm bit0002, hủy phiên. Reset xóa chẩn đoán nhưng vẫn
+cần GPIO recovery và ARM mới; UART không được tự xóa hai chốt này.
+
+Mất clock/nguồn/UART hỏng hoàn toàn có thể khiến FPGA **không gửi được log**.
+Motion vẫn phải timeout STATUS mới, hạ permit/khóa gate độc lập; E-stop phần
+cứng không phụ thuộc clock. UART STATUS là log số, không chen chuỗi printf vào
+luồng nhị phân. ESP32 nên in khi state/fault thay đổi, giới hạn tần suất log
+để không làm nghẽn tác vụ điều khiển. Firmware Motion chưa triển khai, chưa
+có log đo từ board thật.
+
+ESP32 chỉ xử lý sau khi CRC/version/length/session/độ mới hợp lệ. Với payload
+34 byte đã kiểm tra, cách lấy trường để ghi console (đoạn ghép vào firmware thật):
+
+```cpp
+uint16_t f = uint16_t(payload[15]) | (uint16_t(payload[16]) << 8);
+ESP_LOGI("fpga", "state=%u fault=0x%04x", unsigned(payload[14]), unsigned(f));
+bool reset_required = (f & 0x8800u) != 0;
+bool safety_fault = (f & 0x00ffu) != 0;
+// Motion còn phải kiểm tra state==ARMED, lease và tuổi STATUS trước khi cho chạy.
+```
+
+Công cụ PC giải mã một frame HEX đã thu, xác thực CRC rồi xuất JSON và tên lỗi:
+`python tools/fpga_protocol.py --decode-status "A5 5A ..."` (thay bằng đủ47 byte).
+Đây không phải firmware ESP32 hoặc công cụ nạp/chạy motor.
