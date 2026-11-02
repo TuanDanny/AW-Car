@@ -7,6 +7,12 @@ Tác giả: **TuanDanny**. Cộng tác viên: **Minh Nho** và **Nhan Duc**.
 
 ## Trạng thái
 
+Đồng bộ ngày **02/11/2026**: phần FPGA và encoder một OUT được gom vào
+`feat/f01-fpga-drive`. Bản mặc định dùng **protocol v2: STATUS 34 byte payload,
+47 byte frame**, có count/period/age; giữ lùi/quay tại chỗ, coast đổi chiều
+40 ms, adapter DRV8833 và hạn phục hồi FAULT. V1 giữ để hồi quy; xem
+[đặc tả v2](firmware/shared/fpga-protocol-v2.md). AI tiếp tục trên nhánh riêng.
+
 Dự án đang chọn linh kiện, chưa lắp xe thử nghiệm. Kho hiện có khung thư mục,
 tài liệu, quy tắc làm việc, RTL encoder/snapshot/PWM/UART/giao thức/FSM/watchdog/top,
 adapter DRV8833 và mô phỏng;
@@ -16,6 +22,16 @@ giữ trên [nhánh AI](https://github.com/TuanDanny/AW-Car/tree/feat/f03-xiaozh
 Toàn bộ mã HDL dùng SystemVerilog (`.sv`); hook và CI kiểm tra quy ước này.
 
 - Yêu cầu ban đầu: [issue #1](https://github.com/TuanDanny/AW-Car/issues/1).
+- [Kiểm tra binary Xiaozhi](docs/xiaozhi-binary-review.md): máy có binary gốc
+  Xiaozhi 2.5.2 cho S3/ESP32; bản S3 khớp từng byte với release chính thức,
+  đã tải source đúng commit để nghiên cứu. Người dùng đã thử hiển thị OLED,
+  chưa tích hợp AW-Car.
+- [Linh kiện đã có và mua từng bước](hardware/components.md): cập nhật 28/10/2026,
+  thay BOM cũ làm mốc kiểm kê; OLED 0,96 inch **I²C**, MPU6050 và 2 ESP32-S3 có Wi-Fi.
+- Sơ đồ tham chiếu ngày 24/10 (còn ghi TFT, chưa cập nhật kiểm kê mới):
+  [ảnh phân công ESP32–FPGA](docs/aw-car-processor-map.png) và
+  [luồng lệnh/phản hồi/an toàn](docs/aw-car-control-flow.png).
+- Tổng quan phân cấp ngày 24/10 (tham chiếu lịch sử): [ảnh tổng quan](docs/aw-car-overview.png).
 - [Rà soát kỹ thuật và kế hoạch hiệu chỉnh](docs/issue-1-technical-review.md):
   các điểm cần sửa trước khi mua linh kiện, kiến trúc đề xuất và tiêu chí nghiệm thu;
   ghi chú F01 về giữ tốc độ, kích đề-pa, quãng đường và mã Gray.
@@ -38,7 +54,7 @@ biến, Lý thuyết mạch và RTL/FPGA; đã bỏ mục tiêu môn PCB khuếc
 
 | Thư mục | Nội dung |
 | --- | --- |
-| [firmware/brain](firmware/brain/README.md) | MCU 1: âm thanh, Xiaozhi, TFT, mạng |
+| [firmware/brain](firmware/brain/README.md) | MCU 1: âm thanh, Xiaozhi, OLED I²C, mạng |
 | [firmware/motion](firmware/motion/README.md) | MCU 2: truyền động, PID, an toàn |
 | [firmware/shared](firmware/shared/README.md) | Giao thức và kiểu dữ liệu chung |
 | [fpga](fpga/README.md) | RTL encoder, PWM hai bên motor và watchdog |
@@ -72,9 +88,9 @@ firmware hoặc phép đo trên xe.
 
 ```mermaid
 flowchart LR
-    Web[Web Dashboard] <--> Brain["MCU 1: Brain\nÂm thanh, Xiaozhi, LVGL, Wi-Fi"]
+    Web[Web Dashboard] <--> Brain["MCU 1: Brain\nÂm thanh, Xiaozhi, OLED, Wi-Fi"]
     Audio["1 mic INMP441 / loa"] <--> Brain
-    TFT["TFT: giao diện và QR"] <--> Brain
+    Display["OLED 0,96 inch I²C\nBiểu cảm / trạng thái"] <--> Brain
     Brain <-->|"UART: lệnh có hạn dùng / trạng thái"| Motion["MCU 2: Motion\nPID, giám sát an toàn"]
     Sensors["Cảm biến an toàn / nguồn"] --> Motion
     Encoder["2 encoder một OUT: trái/phải"] --> FPGA["FPGA: encoder, PWM, watchdog"]
@@ -89,11 +105,13 @@ flowchart LR
 MCU Motion có quyền từ chối lệnh và dừng xe độc lập khi MCU Brain, mạng hoặc AI
 gặp lỗi. FPGA tự hết hạn lệnh Motion; Motion khóa driver nếu FPGA mất phản hồi.
 Mạch khóa driver phải giữ motor tắt cả khi FPGA chưa cấu hình hoặc mất nguồn.
-LVGL là thư viện giao diện; firmware MCU dự kiến dùng ESP-IDF/FreeRTOS.
+Firmware MCU dự kiến dùng ESP-IDF/FreeRTOS. Controller OLED và khả năng dùng
+LVGL/GIF/QR chờ xác minh màn hình; không giữ mặc định yêu cầu TFT cũ.
 
 ## Thứ tự thực hiện
 
-1. Đặc tả RTL/giao tiếp và nguồn, motor/encoder, hình học lái, chế độ dừng.
+1. Đối chiếu đồ đã có; chọn lần lượt encoder/gá cho bộ TT 4WD, driver,
+   nguồn và chế độ dừng theo [kế hoạch mua](hardware/components.md).
 2. Viết RTL độc lập hãng và testbench; mô phỏng cả lỗi và mất/reset từng khối.
 3. Không cần Quartus: mô phỏng bằng Icarus/VVP, tổng hợp, place-and-route và
    kiểm tra timing bằng Gowin Education cho đúng chip Tang Nano ứng viên.
@@ -101,7 +119,7 @@ LVGL là thư viện giao diện; firmware MCU dự kiến dùng ESP-IDF/FreeRTO
    [kế hoạch thiết kế RTL và kiểm thử](docs/fpga-rtl-design-test-plan.md).
 4. Mua sau khi đủ bằng chứng thiết kế; thử FPGA + Motion + driver trên bàn,
    sau đó tích hợp cảm biến/PID, UART Brain và Dashboard ở tốc độ thấp.
-5. Thêm TFT/LVGL và Xiaozhi; cảnh báo thiết yếu phải phát được khi mất Internet.
+5. Tích hợp OLED I²C và Xiaozhi; cảnh báo thiết yếu phải phát được khi mất Internet.
 6. Thiết kế motherboard 2 MCU/1 FPGA/1 mic sau khi nguyên mẫu đạt nghiệm thu.
 7. Nâng cấp DoA: chọn cụm mic, chứng minh thu đồng bộ, rồi thử định hướng/di
    chuyển theo âm; có thể cần sửa phần cứng và PCB.

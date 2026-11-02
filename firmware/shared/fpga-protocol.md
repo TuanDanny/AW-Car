@@ -5,6 +5,21 @@ Liên kết riêng, UART full-duplex 115200 8N1, logic 3,3 V, idle HIGH. Clock
 (+0,16%). Các số nhiều byte và CRC truyền little-endian, UART truyền LSB trước.
 CRC chỉ phát hiện lỗi đường truyền, không xác thực người gửi.
 
+**Phạm vi:** đây là đặc tả v1 tương thích/hồi quy, không phải giao thức mặc
+định của xe từ 02/11/2026. Bản mặc định dùng [v2](fpga-protocol-v2.md).
+Một OUT vẫn có cấu hình tương thích v1 (`PROTOCOL_VERSION=1`, mode bit4),
+nhưng không mang period/age. Theo ưu tiên một OUT ngày
+28/10/2026, [kế hoạch xung đơn](../../docs/single-channel-encoder-plan.md)
+đề xuất v2 báo rõ mode/count không có chiều và period/age. Hiện đã có
+[RTL/frame v2 riêng](fpga-protocol-v2.md) và test mô phỏng; không đổi
+layout/bit dự phòng/vector v1. Firmware Motion v2 và thử thực chưa có;
+không dùng parser v1 để nhận frame v2 hoặc coi A/B có thể nối như một OUT.
+
+Ánh xạ hệ thống ngày 28/10/2026: xe TT 4WD dùng hai nhóm motor trái/phải,
+mỗi nhóm hai motor. CMD vẫn hai duty/chiều, STATUS vẫn hai encoder bánh đại
+diện; không thêm trường hoặc đổi vector v1. Driver/adapter và khả năng phát
+hiện kẹt riêng bốn bánh chưa được kiểm chứng; xem [kiểm kê](../../hardware/components.md).
+
 ## Frame
 
 | Offset | Trường | Số byte |

@@ -41,7 +41,8 @@ snapshot mới.
 
 Trạng thái: đã có reference/vector/testbench và tổng hợp generic; chưa có
 firmware Motion hoặc đo liên kết thực. Xem
-[wire protocol](../../../firmware/shared/fpga-protocol.md) và
+[wire protocol v1](../../../firmware/shared/fpga-protocol.md),
+[wire protocol v2](../../../firmware/shared/fpga-protocol-v2.md) và
 [hợp đồng safety](../../../firmware/shared/fpga-safety.md).
 Script: `yosys -s fpga/synth_link.ys`, chạy từ root sau khi có `fpga/build/`.
 Top toàn lõi: [drive_core.sv](../drive_core.sv).

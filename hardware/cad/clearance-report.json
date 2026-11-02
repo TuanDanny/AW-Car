@@ -1,0 +1,23 @@
+{
+  "status": "PASS",
+  "errors": [],
+  "warnings": [
+    "Seller width is inconsistent: 155mm is described as both outside tires and without tires; verify with ruler",
+    "Geometry envelopes only: electrical, load, tire sweep, cable bend & fastener clearance not validated"
+  ],
+  "chassis_length_mm": 260,
+  "chassis_width_without_tires_mm": 155,
+  "wheelbase_mm": 176,
+  "track_centers_mm": 155.0,
+  "outside_wheel_width_mm": 175.0,
+  "axle_ground_clearance_mm": 0.0,
+  "battery_ground_clearance_mm": 14.0,
+  "top_plate_height_mm": 94,
+  "mass_estimate_g": 807,
+  "estimated_center_xy_mm": [
+    -2.5,
+    0.1
+  ],
+  "microphone_speaker_xy_distance_mm": 213.4,
+  "validation_scope": "provisional geometric envelopes; no physical fit or structural simulation"
+}

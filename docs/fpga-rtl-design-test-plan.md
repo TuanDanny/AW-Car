@@ -68,7 +68,7 @@ Icarus 13.0 MSYS2 cục bộ và chạy ba testbench encoder, xem README FPGA.
 FPGA nhận **duty/chiều**, không nhận trực tiếp lệnh giọng nói hay vận tốc.
 FPGA đọc 2 encoder, chốt số đếm, phát PWM/chiều cho driver và tự hết hạn lệnh.
 Motion tính vận tốc/PID hai bên, đọc cảm biến, lái vi sai và có đường khóa driver
-riêng. Brain giữ Web, âm thanh và TFT; driver vẫn cấp dòng cho motor.
+riêng. Brain giữ Web, âm thanh và OLED I²C; driver vẫn cấp dòng cho motor.
 
 Đề xuất cấu hình đánh giá đầu tiên, **chưa phải thông số đã nghiệm thu**:
 
@@ -185,9 +185,12 @@ CRC phát hiện lỗi truyền, không phải cơ chế xác thực chống k�
 - `HELLO`, `ARM_ZERO`, `CMD`, `DISABLE`, `CLEAR_FAULT`, `STATUS` có type/độ dài cố
   định; reserved bits phải zero. `CMD` dùng payload 6 byte cho flags,
   chiều và hai duty16: frame 19 byte, thời gian truyền khoảng 1,65 ms.
-- STATUS có count32 x2, timestamp32, snapshot sequence16, state8, fault16 và
+- STATUS **v1 tương thích/hồi quy** có count32 x2, timestamp32, snapshot sequence16, state8, fault16 và
   encoder_status8: payload18 byte, frame31 byte, khoảng2,69ms. Offset/vector
   ở đặc tả chung. ARM chờ STATUS ARM_PENDING phát đủ stop bit và Motion permit.
+- STATUS **v2 mặc định một OUT** thêm period32 x2 và age32 x2: payload34 byte,
+  frame47 byte, khoảng4,08ms ở115200. Xem [đặc tả v2](../firmware/shared/fpga-protocol-v2.md);
+  parser chọn đúng phiên bản, không dùng chung ý nghĩa các bit trạng thái.
 - Chỉ `CMD` mới, CRC đúng, phiên đúng, miền đúng **khi ARMED** gia hạn watchdog.
   Sequence16 dùng delta modulo: `0 < delta < 32768`; cho phép mất frame,
   loại duplicate/cũ, thử wrap 65535 -> 0. Watchdog hết là hủy phiên chạy.

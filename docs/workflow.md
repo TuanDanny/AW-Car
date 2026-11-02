@@ -54,3 +54,16 @@ commit ở checkout khác phải được giữ nguyên, không tự gộp vào 
 cho main: yêu cầu PR, chỉ squash merge, yêu cầu status check `structure-and-rules`,
 chặn force-push/xóa main và áp dụng cho người có quyền bỏ qua khi phù hợp.
 Hooks có thể bị bỏ qua; chính ruleset phía GitHub mới chặn push/merge sai từ mọi máy.
+
+## Mốc hợp nhất02/11/2026
+
+Phần encoder một OUT/protocol v2 ở checkout `D:/Project/AW-Car` được hợp nhất
+với các sửa FPGA mới vào `feat/f01-fpga-drive`; nhánh phụ
+`feat/f04-single-out-encoder` được ngừng dùng sau khi sao lưu. Checkout chính
+chuyển sang nhánh FPGA thống nhất. `feat/f03-xiaozhi-ai` giữ source và lịch sử
+đã thử; main chưa nhận mốc hợp nhất này.
+
+Tài liệu, sơ đồ và CAD/PCB concept được giữ để tiếp tục thiết kế, có phân biệt
+trạng thái đã thử/chưa thử. Binary nạp, file build và bản sao lưu của trình vẽ
+vẫn giữ cục bộ. Bản sao working files và Git bundle trước hợp nhất nằm trong
+Git common directory, dưới `codex-backups/consolidate-20261102-*`.

@@ -2,7 +2,8 @@
 `default_nettype none
 module frame_rx #(
     parameter int INTERBYTE_CYCLES = 54000,
-    parameter int FRAME_CYCLES = 135000
+    parameter int FRAME_CYCLES = 135000,
+    parameter int PROTOCOL_VERSION = 1
 ) (
     input  logic clk,
     input  logic rst_n,
@@ -30,7 +31,7 @@ module frame_rx #(
     logic timeout_due, bad_header;
     assign timeout_due = state != SYNC0 &&
         (gap_count == INTERBYTE_CYCLES - 1 || age_count == FRAME_CYCLES - 1);
-    assign bad_header = (index == 0 && byte_data != 1) ||
+    assign bad_header = (index == 0 && byte_data != PROTOCOL_VERSION) ||
         (index == 1 && (byte_data < 1 || byte_data > 5)) ||
         (index == 2 && byte_data != ((frame_type == 3) ? 6 : 0));
     crc16_byte crc_step (.crc(crc), .data(byte_data), .next_crc(next_crc));

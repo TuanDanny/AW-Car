@@ -8,7 +8,8 @@ Top tích hợp đặt ngay root; module con phân theo chức năng:
 ```text
 rtl/
   README.md
-  drive_core.sv               # top logic toàn lõi
+  drive_core.sv               # lõi hỗ trợ mode A/B v1 hoặc 1 OUT v2
+  drive_core_single_out.sv    # top logical 2 chân OUT, v2
   common/                     # reset, đồng bộ và lọc input
   encoder/                    # đếm một OUT hoặc giải mã X4, snapshot hai bên
   pwm/                        # PWM cặp và trình tự đổi chiều
@@ -24,6 +25,8 @@ thứ tự chạy như các hàm trong chương trình MCU. `drive_core` nối c
 | Nhóm | File | Chức năng dễ hiểu |
 | --- | --- | --- |
 | Top | [drive_core.sv](drive_core.sv) | Nối reset, encoder, UART, an toàn, PWM và adapter DRV8833; chặn đầu ra khi mất quyền chạy. Chưa gán chân board cụ thể. |
+| Top | [drive_core_single_out.sv](drive_core_single_out.sv) | Wrapper hai OUT/v2, giữ reverse/40 ms và bốn chân driver của lõi. |
+| Encoder | [pulse_encoder_pair.sv](encoder/pulse_encoder_pair.sv) | Snapshot nguyên tử count/period/age/status cho hai OUT; không đo chiều. |
 | Common | [reset_sync.sv](common/reset_sync.sv) | Đưa reset vào ngay khi tín hiệu reset xuống LOW; chỉ nhả reset sau hai cạnh clock. Top còn dùng khối này để giữ lại sự kiện mất quyền/health LOW. |
 | Common | [input_sync_filter.sv](common/input_sync_filter.sv) | Đưa tín hiệu bên ngoài qua hai tầng thanh ghi, rồi chỉ nhận giá trị mới khi ổn định đủ số mẫu cấu hình. |
 | Encoder | [quadrature_decoder.sv](encoder/quadrature_decoder.sv) | Đọc pha A/B theo chuỗi Gray, đếm X4 tăng/giảm theo chiều; báo chuyển trạng thái hai bit bất thường. |
@@ -36,12 +39,12 @@ thứ tự chạy như các hàm trong chương trình MCU. `drive_core` nối c
 | Link | [uart_tx.sv](link/uart_tx.sv) | Gửi từng byte thành start bit, 8 bit dữ liệu và stop bit; báo sẵn sàng/gửi xong. |
 | Link | [crc16_byte.sv](link/crc16_byte.sv) | Tính bước CRC16 cho một byte; được cả bộ nhận và bộ gửi khung dùng để kiểm tra lỗi truyền. |
 | Link | [frame_rx.sv](link/frame_rx.sv) | Ghép các byte thành khung lệnh; kiểm tra phiên bản, loại, độ dài, timeout và CRC trước khi báo khung hợp lệ. |
-| Link | [frame_tx.sv](link/frame_tx.sv) | Đóng gói snapshot và trạng thái thành khung STATUS 31 byte; giữ nguyên mẫu đang gửi. Nếu đang bận thì báo bỏ mẫu mới. |
+| Link | [frame_tx.sv](link/frame_tx.sv) | Đóng gói snapshot và trạng thái thành khung STATUS v2 47 byte (v1 31 byte); giữ nguyên mẫu đang gửi. Nếu đang bận thì báo bỏ mẫu mới. |
 | Link | [command_guard.sv](link/command_guard.sv) | Kiểm tra đúng phiên, số thứ tự mới, miền duty/chiều và quyền nhận lệnh; tạo yêu cầu chạy/arm/dừng/xóa lỗi cho lớp sau. |
 | Link | [fpga_link.sv](link/fpga_link.sv) | Ghép UART, CRC, nhận/gửi khung và guard thành một cổng giao tiếp Motion–FPGA; xác nhận STATUS sau khi gửi đủ byte cuối. |
 | Safety | [safety_fsm.sv](safety/safety_fsm.sv) | Quản lý chưa arm/bắt tay/chờ arm/đang arm/lỗi/xóa lỗi; chỉ cho chạy đúng trình tự và hết hạn lệnh thì thu quyền chạy. |
 
-Trạng thái: có 17 module, có testbench và script tổng hợp generic; chưa có target
+Trạng thái: có 19 module, có testbench và script tổng hợp generic; chưa có target
 board/driver thực hoặc báo cáo timing sau route. Runner tìm đệ quy toàn bộ
 `.sv` trong cây này; script tổng hợp ở `fpga/` dùng đường dẫn nhóm tương ứng.
 Testbench vẫn ở [tb](../tb/README.md), ngoài cây nguồn RTL.
@@ -94,6 +97,12 @@ PWM, `motor_pwm_pair` để hiểu đổi chiều, rồi `safety_fsm`. Sau đó 
 
 ## Top `drive_core`
 
+Theo quyết định 28/10/2026, hệ thống dùng TT 4WD: hai đầu ra duty/chiều là
+hai nhóm trái/phải, mỗi nhóm hai motor qua adapter DRV8833 đã nối RTL; mạch công suất chưa thử.
+Hai encoder đo hai bánh đại diện, chưa giám sát riêng bốn motor. Đây là ánh
+xạ tích hợp dự kiến, v2 1 OUT đã có RTL/wire format riêng nhưng chưa chứng minh
+4WD đã hoạt động. Xem [kiểm kê](../../hardware/components.md).
+
 Nối reset/CDC, encoder, link, FSM và PWM. Input recovery_req/motion_permit/
 safety_ok/gate_fault_n; output recovery_ack/fpga_permit/gate_clear, UART và
 encoder/PWM/chiều. Cổng state/fault là diagnostic, board wrapper có thể giữ
@@ -121,5 +130,6 @@ Reset ngoài phải assert khi khởi động; chưa có POR/pin/clock constrain
 board hoặc adapter driver. Gate ngoài và Motion stale inhibit là bắt buộc;
 RTL mask không bảo vệ lúc chưa cấu hình hay thay mạch E-stop độc lập.
 Xem [hợp đồng an toàn](../../firmware/shared/fpga-safety.md),
-[wire protocol](../../firmware/shared/fpga-protocol.md) và
+[wire v1](../../firmware/shared/fpga-protocol.md),
+[wire v2](../../firmware/shared/fpga-protocol-v2.md) và
 [bằng chứng kiểm thử](../verification.md).

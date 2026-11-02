@@ -18,6 +18,7 @@ module drive_core #(
     parameter int FILTER_N = 3,
     parameter bit ALLOW_REVERSE = 1,
     parameter bit ENCODER_SINGLE_OUT = 1,
+    parameter int PROTOCOL_VERSION = ENCODER_SINGLE_OUT ? 2 : 1,
     parameter bit INVERT_LEFT = 0,
     parameter bit INVERT_RIGHT = 0
 ) (
@@ -47,6 +48,9 @@ module drive_core #(
     logic [31:0] snapshot_left, snapshot_right, snapshot_time, live_left, live_right;
     logic [15:0] snapshot_seq;
     logic [3:0] snapshot_status;
+    logic [7:0] snapshot_status_ext;
+    logic [31:0] snapshot_left_period, snapshot_right_period;
+    logic [31:0] snapshot_left_age, snapshot_right_age;
     logic raw_left, raw_right, interlock_active;
     logic output_allowed, clear_request;
     reset_sync reset_release (.clk(clk), .arst_n(arst_n), .rst_n(rst_n));
@@ -57,18 +61,37 @@ module drive_core #(
     input_sync_filter #(.WIDTH(2), .FILTER_N(1)) control_sync (
         .clk(clk), .rst_n(rst_n), .async_in({motion_permit_async, recovery_req_async}),
         .filtered(controls), .valid(inputs_valid));
-    encoder_pair #(.FILTER_N(FILTER_N), .SNAPSHOT_CYCLES(SNAPSHOT_CYCLES),
-                   .SINGLE_OUT(ENCODER_SINGLE_OUT),
-                   .INVERT_LEFT(INVERT_LEFT), .INVERT_RIGHT(INVERT_RIGHT)) encoders (
-        .clk(clk), .rst_n(rst_n), .left_ab(left_ab), .right_ab(right_ab),
-        .left_out(encoder_left_out), .right_out(encoder_right_out),
-        .left_count(live_left), .right_count(live_right), .snapshot_valid(snapshot_valid),
-        .snapshot_left(snapshot_left), .snapshot_right(snapshot_right), .snapshot_time(snapshot_time),
-        .snapshot_seq(snapshot_seq), .snapshot_status(snapshot_status));
+    generate
+        if (ENCODER_SINGLE_OUT && PROTOCOL_VERSION == 2) begin : g_single_out
+            pulse_encoder_pair #(.FILTER_N(FILTER_N), .SNAPSHOT_CYCLES(SNAPSHOT_CYCLES)) encoders (
+                .clk(clk), .rst_n(rst_n), .left_out(encoder_left_out), .right_out(encoder_right_out),
+                .left_count(live_left), .right_count(live_right), .snapshot_valid(snapshot_valid),
+                .snapshot_left(snapshot_left), .snapshot_right(snapshot_right),
+                .snapshot_time(snapshot_time), .snapshot_seq(snapshot_seq),
+                .snapshot_status(snapshot_status_ext),
+                .snapshot_left_period(snapshot_left_period), .snapshot_right_period(snapshot_right_period),
+                .snapshot_left_age(snapshot_left_age), .snapshot_right_age(snapshot_right_age));
+            assign snapshot_status = 4'd0; // v1 status not exposed in v2 mode
+        end else begin : g_quadrature
+            encoder_pair #(.FILTER_N(FILTER_N), .SNAPSHOT_CYCLES(SNAPSHOT_CYCLES),
+                           .SINGLE_OUT(ENCODER_SINGLE_OUT), .INVERT_LEFT(INVERT_LEFT), .INVERT_RIGHT(INVERT_RIGHT)) encoders (
+                .clk(clk), .rst_n(rst_n), .left_ab(left_ab), .right_ab(right_ab),
+                .left_out(encoder_left_out), .right_out(encoder_right_out),
+                .left_count(live_left), .right_count(live_right), .snapshot_valid(snapshot_valid),
+                .snapshot_left(snapshot_left), .snapshot_right(snapshot_right),
+                .snapshot_time(snapshot_time), .snapshot_seq(snapshot_seq),
+                .snapshot_status(snapshot_status));
+            assign snapshot_status_ext = 8'd0;
+            assign snapshot_left_period = 32'd0;
+            assign snapshot_right_period = 32'd0;
+            assign snapshot_left_age = 32'd0;
+            assign snapshot_right_age = 32'd0;
+        end
+    endgenerate
     fpga_link #(.CLK_HZ(CLK_HZ), .BAUD(BAUD), .PERIOD_CYCLES(PERIOD_CYCLES),
                 .ALLOW_REVERSE(ALLOW_REVERSE), .INTERBYTE_CYCLES(INTERBYTE_CYCLES),
-                .ENCODER_SINGLE_OUT(ENCODER_SINGLE_OUT),
-                .FRAME_CYCLES(FRAME_CYCLES)) link (
+               .FRAME_CYCLES(FRAME_CYCLES),
+               .PROTOCOL_VERSION(PROTOCOL_VERSION), .ENCODER_SINGLE_OUT(ENCODER_SINGLE_OUT)) link (
         .clk(clk), .rst_n(rst_n), .rx(rx), .tx(tx), .context_load(context_load),
         .session_active(session_active), .active_session(active_session), .sequence_base(sequence_base),
         .command_enable(command_enable), .hello_request(hello_request), .arm_zero_request(arm_zero_request),
@@ -78,7 +101,11 @@ module drive_core #(
         .command_direction(command_direction), .receive_error(receive_error),
         .snapshot_valid(snapshot_valid), .snapshot_ready(snapshot_ready), .snapshot_dropped(snapshot_dropped),
         .snapshot_left(snapshot_left), .snapshot_right(snapshot_right), .snapshot_time(snapshot_time),
-        .snapshot_seq(snapshot_seq), .snapshot_status(snapshot_status), .safety_state(safety_state), .fault(fault),
+        .snapshot_seq(snapshot_seq), .snapshot_status(snapshot_status),
+        .snapshot_status_ext(snapshot_status_ext),
+        .snapshot_left_period(snapshot_left_period), .snapshot_right_period(snapshot_right_period),
+        .snapshot_left_age(snapshot_left_age), .snapshot_right_age(snapshot_right_age),
+        .safety_state(safety_state), .fault(fault),
         .status_sent(status_sent), .status_session(status_session), .status_state(status_state));
     safety_fsm #(.WATCHDOG_CYCLES(WATCHDOG_CYCLES), .HANDSHAKE_CYCLES(HANDSHAKE_CYCLES),
                  .CLEAR_CYCLES(CLEAR_CYCLES), .CLEAR_HOLD_CYCLES(CLEAR_HOLD_CYCLES)) safety (

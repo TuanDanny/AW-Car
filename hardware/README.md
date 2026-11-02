@@ -30,3 +30,8 @@ Chốt dòng kẹt motor, driver, sạc/BMS, các rail, mức logic GPIO và m�
 khi reset/mất nguồn/chưa cấu hình FPGA trước khi mua. FPGA không cấp công suất
 trực tiếp cho motor. Loa vẫn cần nguồn/khối công suất tương ứng.
 Chỉ tách thư mục BOM/schematic/PCB khi có tài liệu thực tế để lưu.
+
+[Kiểm kê linh kiện](components.md), [nguồn](power-plan.md),
+[CAD](cad/README.md) và [PCB concept](pcb/README.md) đã được gom từ checkout
+thiết kế ngày02/11/2026. CAD/PCB còn dùng kích thước giả định, chưa phải bản
+gia công hoặc schematic được nghiệm thu.

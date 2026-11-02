@@ -10,6 +10,15 @@ bài, `--test tb_encoder_pair` để chọn và `--waves` để lưu VCD trong b
 - `tb_encoder_pair`: hai bánh, mốc pha ban đầu khác zero, nhiễu ngắn, sticky
   invalid, snapshot trước cạnh đếm, timer/timestamp/sequence wrap. 10 seed cố
   định, mỗi seed 10.000 chuyển hợp lệ mỗi bánh và đối chiếu count độc lập.
+- `tb_pulse_encoder_pair`: hai OUT độc lập, khởi động HIGH, glitch ngắn,
+  đếm cạnh lên, period/age, timeout, wrap và snapshot count/period/age nguyên tử.
+- `tb_single_out_protocol`: STATUS v2 đúng 47 byte, vector Python độc lập và CRC và 4 field mở rộng,
+  snapshot đóng băng khi backpressure.
+- `tb_single_out_v2_rx`: reject control version v1, nhận version v2 với
+  session/sequence/payload và CRC đúng.
+- `tb_single_out_top`: logical top chỉ 2 chân encoder, đếm xung,
+  từ chối HELLO v1/nhận v2 qua UART, kiểm tra toàn frame STATUS 47B/CRC và
+  gate vẫn OFF khi chưa ARM.
 - `tb_encoder_timing`: tham số mặc định, kiểm tra ba chu kỳ snapshot270.000
   tick; mô phỏng clock 27 MHz với độ chính xác ps.
 - `tb_encoder_single_out`: FILTER_N=1/3/5, 6.000 cặp xung ngẫu nhiên, HIGH ban
@@ -83,7 +92,7 @@ bài, `--test tb_encoder_pair` để chọn và `--waves` để lưu VCD trong b
   giữa coast không phục hồi lệnh cũ. Watchdog hết hạn đúng1.350.000 tick từ
   CMD hợp lệ cuối, không tạm dừng theo interlock.
 
-Hiện có **26 testbench**. Lưu báo cáo JSON và buộc mọi module RTL được
+Hiện có **30 testbench**. Lưu báo cáo JSON và buộc mọi module RTL được
 elaborate trong ít nhất một bài PASS bằng:
 
 ```sh

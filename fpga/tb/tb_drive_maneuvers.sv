@@ -49,7 +49,7 @@ module tb_drive_maneuvers;
         integer length,i;
         begin
             length=kind==3 ? 6 : 0;
-            data=0; data[15:0]=16'h5aa5; data[23:16]=1;
+            data=0; data[15:0]=16'h5aa5; data[23:16]=2;
             data[31:24]=kind; data[39:32]=8'(length);
             data[71:40]=host_session; data[87:72]=number;
             data[103:96]=dir; data[119:104]=16'(dl); data[135:120]=16'(dr);
@@ -123,12 +123,14 @@ module tb_drive_maneuvers;
         previous_direction=direction;
         if (pwm_left || pwm_right) quiet_ticks=0; else quiet_ticks=quiet_ticks+1;
     end
-    logic [175:0] expected [0:65535];
+    logic [303:0] expected [0:65535];
     always @(posedge clk) if (dut.rst_n && !dut.context_load && dut.snapshot_valid && dut.snapshot_ready)
         expected[dut.snapshot_seq]={dut.session_active ? dut.active_session : 32'd0,
-            4'b0001,dut.snapshot_status,fault,safety_state,dut.snapshot_seq,
+            dut.snapshot_right_age,dut.snapshot_left_age,
+            dut.snapshot_right_period,dut.snapshot_left_period,
+            dut.snapshot_status_ext,fault,safety_state,dut.snapshot_seq,
             dut.snapshot_time,dut.snapshot_right,dut.snapshot_left};
-    logic [247:0] received=0;
+    logic [375:0] received=0;
     logic [7:0] observed;
     logic [15:0] received_crc;
     logic [31:0] observed_left=0, observed_right=0;
@@ -137,14 +139,15 @@ module tb_drive_maneuvers;
         @(negedge tx); #(BIT_NS*1.5);
         for (i=0;i<8;i=i+1) begin observed[i]=tx; #(BIT_NS); end
         if (tx!==1) $fatal(1,"maneuvers STATUS stop bit");
-        received={observed,received[247:8]};
-        if (received[15:0]==16'h5aa5 && received[39:16]==24'h128001) begin
+        received={observed,received[375:8]};
+        if (received[15:0]==16'h5aa5 && received[39:16]==24'h228002) begin
             received_crc=16'hffff;
-            for (j=2;j<29;j=j+1) received_crc=crc_byte(received_crc,received[j*8+:8]);
-            if (received_crc==received[247:232]) begin
-                if ({received[71:40],received[231:88]} !== expected[received[87:72]])
+            for (j=2;j<45;j=j+1) received_crc=crc_byte(received_crc,received[j*8+:8]);
+            if (received_crc==received[375:360]) begin
+                if ({received[71:40],received[359:88]} !== expected[received[87:72]])
                     $fatal(1,"maneuvers STATUS snapshot mismatch");
-                if (received[231:224]!==8'h1c) $fatal(1,"single OUT mode/ready/reserved flags");
+                if ((received[231:224] & 8'h9c)!==8'h1c)
+                    $fatal(1,"single OUT v2 mode/ready/unknown direction flags");
                 observed_left=received[119:88]; observed_right=received[151:120];
                 valid_status=valid_status+1;
             end

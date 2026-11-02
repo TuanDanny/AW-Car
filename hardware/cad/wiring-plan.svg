@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1240" height="600" viewBox="0 0 1240 600">
+<defs><marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M 0 0 L 10 5 L 0 10 z" fill="#b94c4e"/></marker><marker id="b" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M 0 0 L 10 5 L 0 10 z" fill="#227dab"/></marker></defs>
+<rect width="1240" height="600" fill="#f8fafc"/><text x="38" y="48" font-family="Arial" font-size="28" font-weight="bold" fill="#18314c">AW-CAR · Tách vùng dây điện (minh hoạ, không phải sơ đồ đấu chân)</text>
+<g font-family="Arial" font-size="17" fill="#152b40">
+<rect x="70" y="104" width="1100" height="380" rx="32" fill="#e7edf4" stroke="#8a9bab" stroke-width="2"/>
+<rect x="107" y="132" width="1024" height="324" rx="22" fill="#fff" stroke="#aebbc7" stroke-dasharray="8 6"/>
+<rect x="496" y="228" width="244" height="134" rx="13" fill="#d8e7fb" stroke="#507fb4"/>
+<text x="539" y="268" font-weight="bold">2S1P + BMS</text><text x="514" y="299">Cầu chì / phân phối</text><text x="518" y="329">đặt thấp, giữa xe</text>
+<rect x="768" y="142" width="154" height="68" rx="10" fill="#e2d5fc" stroke="#8872b5"/><text x="787" y="181">FPGA Nano 9K</text>
+<rect x="276" y="142" width="156" height="68" rx="10" fill="#d7eafc" stroke="#478cc1"/><text x="306" y="181">Brain / UI</text>
+<rect x="276" y="372" width="156" height="68" rx="10" fill="#cdf3ec" stroke="#318a7f"/><text x="294" y="410">Motion / PID</text>
+<rect x="943" y="247" width="161" height="90" rx="10" fill="#fbdadb" stroke="#bb6164"/><text x="968" y="278">2 x DRV8833</text><text x="957" y="306">4 cầu H riêng</text>
+<path d="M 617 228 L 617 163 L 746 163" stroke="#b94c4e" stroke-width="6" fill="none" marker-end="url(#a)"/>
+<path d="M 740 302 L 935 302" stroke="#b94c4e" stroke-width="6" fill="none" marker-end="url(#a)"/>
+<path d="M 1103 292 L 1151 292 L 1151 135 L 1020 135" stroke="#b94c4e" stroke-width="5" fill="none" marker-end="url(#a)"/>
+<path d="M 1103 292 L 1151 292 L 1151 415 L 1020 415" stroke="#b94c4e" stroke-width="5" fill="none" marker-end="url(#a)"/>
+<text x="950" y="121">Motor trái x2</text><text x="949" y="442">Motor phải x2</text>
+<path d="M 617 362 L 617 407 L 450 407" stroke="#227dab" stroke-width="4" fill="none" marker-end="url(#b)"/>
+<path d="M 432 394 L 478 394 L 478 198 L 432 198" stroke="#227dab" stroke-width="4" fill="none" marker-end="url(#b)"/>
+<path d="M 432 407 L 707 407 L 707 198 L 761 198" stroke="#227dab" stroke-width="4" fill="none" marker-end="url(#b)"/>
+<text x="490" y="390" fill="#227dab">5V logic</text><text x="715" y="391" fill="#227dab">UART / GPIO safety</text>
+<path d="M 920 176 L 1011 176 L 1011 247" stroke="#227dab" stroke-width="4" fill="none" marker-end="url(#b)"/>
+<rect x="64" y="253" width="178" height="80" rx="10" fill="#ffe4e1" stroke="#bb6c5b"/><text x="91" y="286" font-weight="bold">E-stop NC</text><text x="81" y="312">Gate chốt lỗi OFF</text>
+<path d="M 242 292 L 943 292" stroke="#b94c4e" stroke-dasharray="10 7" stroke-width="3" marker-end="url(#a)" opacity=".6"/>
+<text x="74" y="530" fill="#b94c4e">ĐỎ: rail motor / inhibit độc lập / dây công suất dọc mép ngoài</text>
+<text x="74" y="561" fill="#227dab">XANH: 5V logic / UART / encoder / cảm biến — bó dây khác, GND chung theo sơ đồ</text>
+</g></svg>

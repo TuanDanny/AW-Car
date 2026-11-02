@@ -14,3 +14,7 @@ Xem [phân tải và an toàn](../../docs/fpga-drive-plan.md).
 
 Trạng thái: chưa có firmware. Cần kiểm thử boot/reset, mất lệnh, lỗi cảm biến,
 kẹt bánh và dừng khẩn cấp trước khi nghiệm thu chuyển động.
+
+Liên kết Brain dùng [đặc tả Brain–Motion](../shared/brain-motion-protocol.md);
+FPGA một OUT mặc định dùng [Motion–FPGA v2](../shared/fpga-protocol-v2.md),
+STATUS34 byte/frame47. Cả firmware parser và PID tích hợp vẫn chưa triển khai.

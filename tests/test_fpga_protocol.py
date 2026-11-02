@@ -1,5 +1,6 @@
 """Check wire layout and shared golden vectors independently of RTL."""
 import binascii
+import struct
 import unittest
 
 from tools import fpga_protocol as protocol
@@ -28,6 +29,28 @@ class FpgaProtocolTests(unittest.TestCase):
             with self.subTest(kind=kind, payload=payload):
                 with self.assertRaises(ValueError):
                     protocol.encode_frame(kind, 1, 1, payload)
+
+    def test_v2_status_layout_and_crc(self):
+        frame = dict(protocol.vectors(2))["status"]
+        self.assertEqual(len(frame), 47)
+        self.assertEqual(frame[:5], bytes.fromhex("a55a028022"))
+        fields = struct.unpack("<IIIHBHBIIII", frame[11:-2])
+        self.assertEqual(fields, (0x11223344, 0x55667788, 0x99AABBCC,
+                                 0x4321, 2, 0x123, 0x3F, 0x10203040,
+                                 0x50607080, 0x90A0B0C0, 0xD0E0F000))
+        self.assertEqual(int.from_bytes(frame[-2:], "little"),
+                         binascii.crc_hqx(frame[2:-2], 0xFFFF))
+        self.assertEqual(protocol.FIXTURE_V2.read_text(encoding="ascii"),
+                         protocol.fixture_text(2))
+        for name, command in protocol.vectors(2):
+            self.assertEqual(command[2], 2, name)
+            self.assertEqual(len(command), 13 + command[4], name)
+
+    def test_protocol_versions_do_not_share_status_lengths(self):
+        for version, payload in ((1, bytes(34)), (2, bytes(18)), (3, bytes(18))):
+            with self.subTest(version=version):
+                with self.assertRaises(ValueError):
+                    protocol.encode_frame(0x80, 1, 1, payload, version=version)
 
 
 if __name__ == "__main__":

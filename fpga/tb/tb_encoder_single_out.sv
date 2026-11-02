@@ -95,6 +95,8 @@ module tb_encoder_single_out;
     always #5 clk=!clk;
     logic rst_n=0, sample_valid=0, pulse=1, initialized;
     logic [3:0] count;
+    logic [31:0] period_ticks, age_ticks;
+    logic edge_seen, period_valid;
     pulse_counter #(.COUNT_WIDTH(4)) unit_dut (.*);
     task automatic sample(input logic level, input logic valid_sample);
         @(negedge clk); pulse=level; sample_valid=valid_sample;

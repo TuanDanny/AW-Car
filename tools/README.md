@@ -30,7 +30,7 @@ dùng2,7MHz và thêm bài lỗi27MHz. CI bật full-timing, không dùng số l
 để xác nhận timing vật lý.
 
 `--report fpga/build/regression-report.json --require-module-coverage` ghi
-kết quả26 bài, module RTL thực được Icarus elaborate trong từng bài PASS,
+kết quả30 bài, module RTL thực được Icarus elaborate trong từng bài PASS,
 số ca `COVER`, SHA256 nguồn và compiler. Runner fail nếu thiếu module hoặc
 marker PASS dù simulator trả mã0; báo cáo ghi cả lỗi/ca chạy chưa xong.
 Đây là kiểm tra module tham gia mô phỏng, chưa đo line/branch/toggle coverage.
@@ -39,11 +39,13 @@ CI bật yêu cầu này và lưu JSON kể cả khi regression thất bại.
 `fpga_protocol.py` dùng `binascii.crc_hqx` và layout little-endian làm reference
 độc lập RTL. Chạy `python tools/fpga_protocol.py` để đối chiếu vector chung;
 `--write-vectors` chỉ để ghi lại fixture khi chủ động đổi đặc tả. Testbench
-đọc `firmware/shared/fpga-vectors.hex`; unit test phát hiện fixture lệch reference.
+đọc `firmware/shared/fpga-vectors.hex` (v1) và `fpga-vectors-v2.hex` (v2);
+unit test phát hiện fixture lệch reference. `encode_frame(..., version=2)`
+tạo frame v2 tường minh, không tự coi STATUS18 byte là v2.
 
 Tổng hợp sơ bộ: `yosys -s fpga/synth_encoder.ys`,
 `yosys -s fpga/synth_pwm.ys`, `yosys -s fpga/synth_link.ys`,
-`yosys -s fpga/synth_drive.ys`, chạy từ root sau
+`yosys -s fpga/synth_drive.ys`, `yosys -s fpga/synth_single_out.ys`, chạy từ root sau
 khi tạo `fpga/build/`. Có thể
 dùng YoWASP-Yosys trong venv cục bộ thay binary Yosys; bản đã xác minh là
 `yowasp-yosys==0.70.0.0.post1259`. Đây là dependency công cụ tùy chọn cho máy
@@ -64,3 +66,7 @@ Reset bất đồng bộ được chuẩn hóa bằng async2sync; vẫn phải m
 đo CDC/reset/timing trên board. Đây là phép so sánh phục vụ refactor f11,
 chạy riêng cục bộ; CI chạy regression Icarus/tổng hợp. Khi chủ động đổi chức
 năng, phải xem lại baseline/observation, không coi bản cũ là đặc tả mới.
+
+`generate_fpga_v4_diagrams.py` là generator sơ đồ tham chiếu được giữ từ
+checkout thiết kế. Chỉ chạy trên bản sao: nhãn cũ và chỉnh tay của sơ đồ
+không được phép ghi đè ngược lên RTL/tài liệu protocol hiện tại.

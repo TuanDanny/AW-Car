@@ -12,6 +12,10 @@
   Snapshot lấy count/timestamp trước cập nhật cùng cạnh; sequence tăng mỗi
   mẫu, snapshot_valid pulse một clock. Status bit0/1 là invalid sticky
   trái/phải, bit2/3 là decoder đã có mốc; reset xóa sticky.
+- `pulse_counter.sv`: một OUT, đếm **cạnh lên** sau mốc khởi tạo,
+  không đếm xung giả nếu boot HIGH. Đếm uint32, period và age; không có chiều.
+- `pulse_encoder_pair.sv`: 2 OUT trái/phải, lọc độc lập, snapshot count /
+  period / age / flags nguyên tử 10ms; dùng bit STATUS **v2** riêng.
 
 Dùng bộ đồng bộ/lọc từ [common](../common/README.md). Mặc định FILTER_N=3,
 count/timestamp32, sequence16, snapshot270.000 tick (10 ms tại27MHz).

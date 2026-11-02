@@ -7,6 +7,7 @@ Toàn bộ nguồn RTL/testbench dùng **SystemVerilog, đuôi `.sv`**; hook/CI 
 đuôi HDL khác. Runner bật `iverilog -g2012`, script tổng hợp bật `read_verilog -sv`.
 
 Trạng thái: đã có RTL/testbench cho reset, encoder một OUT/A-B hai bên, snapshot,
+count/period/age theo protocol v2 mặc định (STATUS 34 byte/frame 47 byte),
 PWM hai kênh, trình tự đổi chiều độc lập driver và UART/parser/CRC/serializer/
 command guard, FSM/watchdog và top `drive_core` đã nối link với PWM/adapter
 DRV8833 drive/coast. Chưa có wrapper/constraints cho Tang Nano 9K hoặc báo cáo timing. Hợp đồng GPIO phục hồi/ARM
@@ -16,7 +17,7 @@ ca thử ở [tb](tb/README.md).
 
 Top logic ở `rtl/drive_core.sv`; module con chia theo `common`, `encoder`,
 `pwm`, `link`, `safety`, mỗi nhóm có README. Runner tìm `.sv` đệ quy trong
-`rtl/`; bốn script tổng hợp dùng đường dẫn nhóm tương ứng.
+`rtl/`; năm script tổng hợp (gồm `synth_single_out.ys`) dùng đường dẫn nhóm tương ứng.
 
 Chạy từ root sau khi Icarus/VVP có trong PATH:
 
@@ -25,7 +26,7 @@ python tools/run_fpga_tests.py
 ```
 
 Runner nhận `--iverilog` và `--vvp` để dùng đường dẫn cục bộ, `--waves` để lưu
-VCD tại `fpga/build/`. Có26 testbench; `--report fpga/build/regression-report.json`
+VCD tại `fpga/build/`. Có30 testbench; `--report fpga/build/regression-report.json`
 cùng `--require-module-coverage` xuất bằng chứng module -> test và chặn module
 chưa tham gia bài PASS. Đây chưa phải coverage dòng/nhánh/toggle hoặc timing
 vật lý. CI lưu JSON thành artifact và chạy mô phỏng trên Linux. Viết lõi độc lập hãng;
@@ -47,9 +48,10 @@ Runner mặc định chạy top 2 giây ở clock rút gọn2,7MHz và bài lỗ
 Dùng `--full-timing --timeout 1800` để chạy cả bài2giây ở27MHz; CI dùng chế độ
 này. Đây là thời gian mô phỏng, thời gian chạy trên máy có thể lâu hơn nhiều.
 
-`synth_encoder.ys`, `synth_pwm.ys`, `synth_link.ys`, `synth_drive.ys` kiểm tra latch/lỗi cấu trúc và mapping
+`synth_encoder.ys`, `synth_pwm.ys`, `synth_link.ys`, `synth_drive.ys` và
+`synth_single_out.ys` dùng kiểm tra latch/lỗi cấu trúc và mapping
 generic Gowin; chạy từ root sau khi có `fpga/build/` bằng `yosys -s <script>`
-hoặc YoWASP-Yosys. Đã chạy Yosys0.70 cục bộ; CI cũng chạy bốn script này, gồm top hoàn chỉnh.
+hoặc YoWASP-Yosys. Đã chạy Yosys0.70 cục bộ; CI cũng chạy năm script này, gồm top hoàn chỉnh.
 Script encoder và drive tổng hợp riêng cả mode một OUT mặc định lẫn mode A/B;
 artifact có hậu tố `_ab` thuộc mode A/B.
 Script PWM còn tổng hợp riêng adapter để kiểm tra ánh xạ tổ hợp không latch.
@@ -68,11 +70,16 @@ kết luận tương đương cho phần đó.
 
 Xem [kế hoạch và nghiệm thu toàn hệ thống](../docs/fpga-drive-plan.md).
 Chi tiết [thiết kế RTL, kiểm thử và thứ tự triển khai](../docs/fpga-rtl-design-test-plan.md).
-Wire format và ranh giới phiên/ARM ở [protocol v1](../firmware/shared/fpga-protocol.md).
+Wire format mặc định ở [protocol v2](../firmware/shared/fpga-protocol-v2.md);
+[v1](../firmware/shared/fpga-protocol.md) giữ cho tương thích/hồi quy.
 
 ## Cấu hình xe hiện tại
 
-`drive_core` mặc định `ALLOW_REVERSE=1`, `ENCODER_SINGLE_OUT=1`.
+`drive_core` mặc định `ALLOW_REVERSE=1`, `ENCODER_SINGLE_OUT=1`,
+`PROTOCOL_VERSION=2`; wrapper `drive_core_single_out` chỉ lộ hai chân OUT
+và bốn chân IN driver, dùng cùng thời gian đổi chiều 40 ms.
+Mode A/B đặt `ENCODER_SINGLE_OUT=0` (mặc định phiên bản tương ứng là v1).
+Cấu hình một OUT v1 cũ cần đặt riêng `PROTOCOL_VERSION=1`, không có period/age.
 Hai đầu vào encoder là `encoder_left_out` và `encoder_right_out`; mỗi cảm biến
 có VCC/GND/OUT. Cổng `left_ab/right_ab` không dùng ở mode này, wrapper nối 0.
 OUT phải có mức điện áp phù hợp bank I/O đã chọn; không nối OUT 5 V trực tiếp

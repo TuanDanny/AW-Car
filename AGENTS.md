@@ -8,6 +8,8 @@
   Dùng khung TT 4WD, hai nhóm motor trái/phải, không dùng servo lái.
   Encoder bản đầu dùng một OUT mỗi bên: RTL đếm cạnh lên không dấu;
   không suy chiều đo từ lệnh motor. Giữ A/B là mode tùy chọn.
+  Bản một OUT mặc định dùng protocol v2 (STATUS 34 byte, frame 47 byte),
+  có period/age; v1 chỉ để tương thích/hồi quy, phải chọn phiên bản tường minh.
   Phân tải ở `docs/fpga-drive-plan.md`; board mục tiêu Tang Nano 9K, chưa mua
   và chưa xác nhận fit/timing đúng chip. Tối ưu RTL không đổi mục tiêu về 1K.
 - Trao đổi và báo cáo bằng tiếng Việt, ngắn gọn; nêu giả định ảnh hưởng thiết kế.
