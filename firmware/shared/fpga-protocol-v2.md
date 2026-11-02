@@ -1,6 +1,6 @@
 # Motion ↔ FPGA protocol v2 — encoder 1 OUT mỗi bên
 
-**Trạng thái:** Có RTL FPGA và mô phỏng unit/serializer/parser/top logic ở `fpga/rtl/drive_core_single_out.sv`; **chưa có firmware ESP32-S3 Motion nhận v2, chưa nạp Tang Nano 9K hoặc đo thực**. Protocol v1 A/B tại [fpga-protocol.md](fpga-protocol.md) vẫn giữ regression; KHÔNG trộn v1/v2.
+**Trạng thái:** Có RTL FPGA và mô phỏng unit/serializer/parser/top logic ở `fpga/rtl/aw_car_top.sv`; **chưa có firmware ESP32-S3 Motion nhận v2, chưa nạp Tang Nano 9K hoặc đo thực**. Protocol v1 A/B tại [fpga-protocol.md](fpga-protocol.md) vẫn giữ regression; KHÔNG trộn v1/v2.
 
 ## 1. Framing và UART
 
@@ -56,7 +56,7 @@
 - GPIO Safety độc lập `motion_permit`, `fpga_permit`, `safety_ok`, `gate_fault_n`, `recovery_req/ack`, `gate_clear` và watchdog CMD **50ms** không đổi. Mất xung encoder không tự mở gate.
 - Motion phải **triển khai parser STATUS v2**, xác nhận version/status bit4 và bit7, xử lý period/age validity, trần tốc độ, xe đứng yên vs đứt dây/đĩa kẹt; firmware hiện chưa triển khai.
 - Chưa có pinout/constraint, PnR/STA cho Tang Nano 9K và mạch gate/driver vật lý; không coi mô phỏng là xe đã hoạt động.
-- V1 golden vectors/bench vẫn giữ. Test v2: `tb_pulse_encoder_pair`, `tb_single_out_protocol`, `tb_single_out_v2_rx`, `tb_single_out_top`.
+- V1 golden vectors/bench vẫn giữ. Test v2: `tb_pulse_encoder_pair`, `tb_single_out_protocol`, `tb_single_out_v2_rx`, `tb_aw_car_top`.
 
 ## 5. Chú thích Draw.io
 

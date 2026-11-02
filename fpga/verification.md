@@ -701,3 +701,60 @@ Chưa có firmware Motion nhận v2, PnR/STA đúng Nano9K, phép đo điện en
 STBY/gate/driver hoặc quãng dừng thực.40ms là cấu hình đã mô phỏng logic,
 không phải kết luận rotor dừng trong40ms. CAD/PCB vẫn là concept với kích
 thước giả định; giữ tài liệu/ảnh lịch sử không có nghĩa chúng đã nghiệm thu.
+
+## Một top triển khai `aw_car_top` — 02/11/2026
+
+Đổi `drive_core_single_out.sv`/module cùng tên thành `aw_car_top.sv`/
+`aw_car_top`. Top triển khai xe chỉ chọn `aw_car_top`; `drive_core` là lõi bên
+trong, vẫn được tổng hợp riêng cho hồi quy A/B/v1. Script chính đổi thành
+`synth_aw_car.ys`, test top thành `tb_aw_car_top`; CI, runner, đặc tả và README
+đã cập nhật. Tên cũ ở các báo cáo lịch sử phía trên chỉ bản trước đổi tên.
+
+Không đổi cổng, tham số hoặc đường nối của wrapper; so sánh token sau bỏ tên
+module/comment khớp baseline8eed762. **18 file RTL còn lại khớp từng byte**.
+Yosys0.70 kiểm chứng tương đương wrapper cũ/mới sau flatten/async2sync:
+
+| Cấu hình | Kết quả | Equivalence cells đã chứng minh/chưa chứng minh |
+| --- | --- | --- |
+| Mặc định27MHz, PWM1350, zero40ms, v2 | PASS | 3929 / 0 |
+| Timer nhỏ, period16, snapshot32, zero8, setup2 | PASS | 3807 / 0 |
+
+Log/script/result cục bộ ở `fpga/build/top-rename-proof/`. Đây là so sánh hai
+mô hình RTL cùng xử lý reset, không thay phép đo CDC/mức điện áp/board.
+
+Bộ hồi quy sau đổi tên **30/30 PASS**, **19/19 module** được elaborate trong
+bài PASS. `top-rename-regression.json` ghép hai lượt không trùng:
+`top-rename-regression-rest.json` (29 bài), `top-rename-full-timing.json`
+(`tb_drive_core`, SCALE=1/27MHz). Cùng compiler và SHA256 toàn bộ RTL/testbench
+khớp bản bàn giao. Lần này **đã chạy đầy đủ `--full-timing`**, không dùng kết
+quả2,7MHz thay cho danh định: top A/B chạy2010,54ms mô phỏng, nhận189 STATUS,
+kiểm tra reset/E-stop/clock-stop/stale gate đạt.
+
+`tb_drive_maneuvers` giờ instantiate **chính `aw_car_top`**, không chỉ lõi.
+Chạy khoảng604,72ms ở27MHz: 30 ca duty/chiều và chânDRV8833, 4 tổ hợp chiều,
+24 lệnh cập nhật trong coast, 53 STATUS v2, watchdog/reset/E-stop/DISABLE đạt.
+`tb_aw_car_top` kiểm tra boot HIGH không tính xung giả, v1 bị loại/v2 được nhận,
+CRC toàn frame47 byte và gate OFF khi chưa ARM.
+
+**5/5 script tổng hợp generic Gowin PASS**: encoder, PWM, link, drive (hai mode),
+aw_car; latch assertion/`check -assert` đạt. Log `top-rename-*-synth.log`.
+**44 Python tests**, vector v1/v2, kiểm tra repo/nhánh/index và whitespace đạt.
+Tên top/script/test cũ không còn là tham chiếu build; chỉ giữ ghi chú migration
+và lịch sử trong tài liệu. Ví dụ chạy lại:
+
+```sh
+python tools/run_fpga_tests.py --full-timing --timeout 1800 --report fpga/build/top-rename-rerun.json --require-module-coverage
+yosys -s fpga/synth_aw_car.ys
+```
+
+Sơ đồ review giữ nguyên geometry, sửa nhãn Top/Core và chú thích lỗi recovery
+đã sửa/adapter nằm trong RTL. Preview tạo bằng generator sẵn có trong thư mục
+build riêng; không ghi đè các bản vẽ đang chỉnh dở. XML0 lỗi, không phát sinh
+cảnh báo mới;66 cảnh báo bố trí cũ còn giữ, không gọi sơ đồ là hoàn hảo. Native
+export bản draw.io Store bị Windows từ chối chạy; không coi preview này là
+native export. Các thay đổi bố cục/xóa/thêm sơ đồ đang có ở checkout vẫn để
+chưa commit; index chỉ nhận phần tên/chú thích/preview liên quan tác vụ.
+
+Chưa có pin/clock/POR constraints, PnR/STA đúng Tang Nano9K hay thử gate/driver
+trên xe. Top này là logical integration top; kết quả trên là bằng chứng RTL,
+không tuyên bố bitstream nạp board đã đạt nghiệm thu.

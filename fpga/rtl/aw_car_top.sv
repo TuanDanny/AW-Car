@@ -1,9 +1,10 @@
 `timescale 1ns/1ps
 `default_nettype none
-// FPGA logical top for the actual two single-OUT IR encoders.
+// Canonical AW-Car integration top: two single-OUT encoders, protocol v2.
+// Pure wiring/configuration around drive_core; no extra registers or clocks.
 // No unused quadrature GPIOs are exposed at the board boundary.
 // Version 2 UART frames only: Motion must explicitly implement v2 decoding.
-module drive_core_single_out #(
+module aw_car_top #(
     parameter int CLK_HZ = 27000000,
     parameter int BAUD = 115200,
     parameter int PERIOD_CYCLES = 1350,

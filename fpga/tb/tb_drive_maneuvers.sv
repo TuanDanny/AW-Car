@@ -6,7 +6,6 @@ module tb_drive_maneuvers;
     logic clk=0;
     always #(HALF_NS) clk=!clk;
     logic arst_n=0, rx=1, tx;
-    logic [1:0] left_ab=0, right_ab=0;
     logic encoder_left_out=1, encoder_right_out=0;
     logic motion_permit_async=0, recovery_req_async=0;
     logic safety_ok_async=1, gate_fault_n_async=1;
@@ -17,7 +16,7 @@ module tb_drive_maneuvers;
     logic [15:0] fault;
     // No parameter overrides: exercise the actual 27 MHz hardware defaults,
     // including reverse enabled, single OUT, 20 kHz PWM and 50 ms watchdog.
-    drive_core dut (.*);
+    aw_car_top dut (.left_out(encoder_left_out), .right_out(encoder_right_out), .*);
     always @(negedge safety_ok_async or posedge gate_clear) begin
         if (!safety_ok_async) gate_fault_n_async=0;
         else if (gate_clear && !motion_permit_async && !fpga_permit) gate_fault_n_async=1;
@@ -70,7 +69,7 @@ module tb_drive_maneuvers;
             recovery_req_async=1; wait(recovery_ack); #10000;
             recovery_req_async=0; wait(!recovery_ack); #6000000;
             host_session=host_session+1; seq=0; send(1,0,0,0); #10000;
-            if (!dut.session_active) $fatal(1,"maneuvers recovery HELLO");
+            if (!dut.core.session_active) $fatal(1,"maneuvers recovery HELLO");
         end
     endtask
     task automatic arm;
@@ -94,11 +93,11 @@ module tb_drive_maneuvers;
     logic [1:0] previous_direction=0;
     always @(posedge clk) begin
         cycles=cycles+1;
-        if (dut.motor_command) last_valid_command_tick=cycles;
-        if (dut.motor_command && !dut.interlock_active && dut.command_direction!=direction)
+        if (dut.core.motor_command) last_valid_command_tick=cycles;
+        if (dut.core.motor_command && !dut.core.interlock_active && dut.core.command_direction!=direction)
             last_change_cmd=cycles;
-        if (dut.command_valid) accepted=accepted+1;
-        if (dut.command_rejected) rejected=rejected+1;
+        if (dut.core.command_valid) accepted=accepted+1;
+        if (dut.core.command_rejected) rejected=rejected+1;
         #1;
         if (!arst_n || !fault[0]) watchdog_reported=0;
         else if (!watchdog_reported) begin
@@ -110,7 +109,7 @@ module tb_drive_maneuvers;
             $fatal(1,"maneuvers PWM without ARMED/permit");
         if ({drv_left_in1,drv_left_in2}===2'b11 || {drv_right_in1,drv_right_in2}===2'b11)
             $fatal(1,"unexpected DRV8833 brake command");
-        if ((!fpga_permit || dut.interlock_active) &&
+        if ((!fpga_permit || dut.core.interlock_active) &&
             {drv_left_in1,drv_left_in2,drv_right_in1,drv_right_in2}!==4'b0)
             $fatal(1,"DRV8833 pins active during inhibit/interlock");
         if (direction!=previous_direction && fpga_permit) begin
@@ -124,12 +123,12 @@ module tb_drive_maneuvers;
         if (pwm_left || pwm_right) quiet_ticks=0; else quiet_ticks=quiet_ticks+1;
     end
     logic [303:0] expected [0:65535];
-    always @(posedge clk) if (dut.rst_n && !dut.context_load && dut.snapshot_valid && dut.snapshot_ready)
-        expected[dut.snapshot_seq]={dut.session_active ? dut.active_session : 32'd0,
-            dut.snapshot_right_age,dut.snapshot_left_age,
-            dut.snapshot_right_period,dut.snapshot_left_period,
-            dut.snapshot_status_ext,fault,safety_state,dut.snapshot_seq,
-            dut.snapshot_time,dut.snapshot_right,dut.snapshot_left};
+    always @(posedge clk) if (dut.core.rst_n && !dut.core.context_load && dut.core.snapshot_valid && dut.core.snapshot_ready)
+        expected[dut.core.snapshot_seq]={dut.core.session_active ? dut.core.active_session : 32'd0,
+            dut.core.snapshot_right_age,dut.core.snapshot_left_age,
+            dut.core.snapshot_right_period,dut.core.snapshot_left_period,
+            dut.core.snapshot_status_ext,fault,safety_state,dut.core.snapshot_seq,
+            dut.core.snapshot_time,dut.core.snapshot_right,dut.core.snapshot_left};
     logic [375:0] received=0;
     logic [7:0] observed;
     logic [15:0] received_crc;
@@ -165,7 +164,7 @@ module tb_drive_maneuvers;
             end
             encoder_left_out=0; encoder_right_out=0; repeat(12) @(negedge clk);
             expected_left=expected_left+nl; expected_right=expected_right+nr;
-            if (dut.live_left!==32'(expected_left) || dut.live_right!==32'(expected_right))
+            if (dut.core.live_left!==32'(expected_left) || dut.core.live_right!==32'(expected_right))
                 $fatal(1,"single OUT count must increase regardless of commanded direction");
         end
     endtask
@@ -224,7 +223,7 @@ module tb_drive_maneuvers;
     initial begin
         if ($test$plusargs("waves")) begin $dumpfile("tb_drive_maneuvers.vcd"); $dumpvars(0,tb_drive_maneuvers); end
         #2000; arst_n=1; #10000;
-        if (pwm_left || pwm_right || fpga_permit || dut.live_left || dut.live_right)
+        if (pwm_left || pwm_right || fpga_permit || dut.core.live_left || dut.core.live_right)
             $fatal(1,"boot or initial HIGH output/count");
         pulses(5,9); arm;
         for (d=0;d<4;d=d+1) begin
@@ -244,7 +243,7 @@ module tb_drive_maneuvers;
         // DISABLE cancels an outstanding reversal; waiting past the original
         // zero deadline must not resurrect its cached direction/duty.
         send(3,1,1350,1350); #8000000;
-        if (!dut.interlock_active || direction!=0 || pwm_left || pwm_right)
+        if (!dut.core.interlock_active || direction!=0 || pwm_left || pwm_right)
             $fatal(1,"40ms reversal failed to stay blank before DISABLE");
         send(4,0,0,0); #41000000;
         if (safety_state!=0 || fault!=0 || fpga_permit || pwm_left || pwm_right ||
@@ -278,10 +277,10 @@ module tb_drive_maneuvers;
             $fatal(1,"spin reset not asynchronous");
         #1000; arst_n=1; #10000;
         send(1,0,0,0); send(2,0,0,0); send(3,3,1350,1350);
-        if (fpga_permit || dut.session_active || pwm_left || pwm_right)
+        if (fpga_permit || dut.core.session_active || pwm_left || pwm_right)
             $fatal(1,"cached UART/GPIO rearmed after spin reset");
         arm; maneuver(3,1350,1350); send(4,0,0,0); #10000;
-        if (fpga_permit || pwm_left || pwm_right || dut.session_active)
+        if (fpga_permit || pwm_left || pwm_right || dut.core.session_active)
             $fatal(1,"DISABLE failed while reversing");
         if (valid_status<10) $fatal(1,"missing single OUT UART telemetry");
         $display("COVER drive_maneuvers.numeric_cases %0d",cases);

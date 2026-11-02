@@ -55,7 +55,7 @@ FPGA mục tiêu vẫn Tang Nano 9K; còn phải fit/timing đúng chip và th�
 ## 2. Cần thay gì trong RTL
 
 RTL quadrature X4 v1 vẫn được giữ để regression. Đã thêm chế độ đếm xung đơn
-trong `drive_core_single_out.sv` và các module pulse mới; hiện kiểm thử mô phỏng:
+trong `aw_car_top.sv` và các module pulse mới; hiện kiểm thử mô phỏng:
 
 1. Đồng bộ/lọc từng OUT; mẫu đầu sau reset chỉ lập mốc, không tạo xung giả
    khi đầu vào khởi động HIGH. Chỉ đếm **một cạnh lên sau lọc mỗi chu kỳ**.

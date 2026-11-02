@@ -1,5 +1,5 @@
 `timescale 1ns/1ps
-module tb_single_out_top;
+module tb_aw_car_top;
     logic clk=0; always #18.519 clk=~clk; // Physical 27 MHz nominal clock
     logic arst_n=0, rx=1, tx;
     logic left_out=1, right_out=1;
@@ -10,7 +10,7 @@ module tb_single_out_top;
     logic drv_left_in1,drv_left_in2,drv_right_in1,drv_right_in2;
     logic [7:0] safety_state;
     logic [15:0] fault;
-    drive_core_single_out #(.SNAPSHOT_CYCLES(32),
+    aw_car_top #(.SNAPSHOT_CYCLES(32),
         .HANDSHAKE_CYCLES(270), .CLEAR_CYCLES(135),
         .CLEAR_HOLD_CYCLES(27)) dut (.*);
     task automatic ticks(input integer n);
@@ -118,7 +118,7 @@ module tb_single_out_top;
         for(j=2;j<45;j=j+1) status_crc=crc_step(status_crc,first_status[j]);
         if(first_status[45]!==status_crc[7:0] || first_status[46]!==status_crc[15:8])
             $fatal(1,"v2 full STATUS UART CRC mismatch");
-        $display("PASS tb_single_out_top: 2 encoder pins, v1 reject/v2 UART RX, full 47B STATUS TX/CRC, fail-closed gate");
+        $display("PASS tb_aw_car_top: 2 encoder pins, v1 reject/v2 UART RX, full 47B STATUS TX/CRC, fail-closed gate");
         $finish;
     end
     initial begin #10000000; $fatal(1,"single-OUT top timeout"); end

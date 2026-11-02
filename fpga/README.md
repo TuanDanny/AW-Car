@@ -9,15 +9,18 @@ Toàn bộ nguồn RTL/testbench dùng **SystemVerilog, đuôi `.sv`**; hook/CI 
 Trạng thái: đã có RTL/testbench cho reset, encoder một OUT/A-B hai bên, snapshot,
 count/period/age theo protocol v2 mặc định (STATUS 34 byte/frame 47 byte),
 PWM hai kênh, trình tự đổi chiều độc lập driver và UART/parser/CRC/serializer/
-command guard, FSM/watchdog và top `drive_core` đã nối link với PWM/adapter
+command guard, FSM/watchdog và lõi `drive_core` đã nối link với PWM/adapter
 DRV8833 drive/coast. Chưa có wrapper/constraints cho Tang Nano 9K hoặc báo cáo timing. Hợp đồng GPIO phục hồi/ARM
 và gate ngoài ở [fpga-safety.md](../firmware/shared/fpga-safety.md). Xem
 [vai trò từng file, luồng tín hiệu và rà soát nhẹ RTL](rtl/README.md),
 ca thử ở [tb](tb/README.md).
 
-Top logic ở `rtl/drive_core.sv`; module con chia theo `common`, `encoder`,
+Top triển khai duy nhất là **`rtl/aw_car_top.sv`**. Top này bọc một instance
+`drive_core`, cố định một OUT/v2 và nối các cổng bên ngoài; không thêm thanh ghi.
+`drive_core.sv` là lõi độc lập board, vẫn tổng hợp riêng để hồi quy A/B/v1.
+Module con chia theo `common`, `encoder`,
 `pwm`, `link`, `safety`, mỗi nhóm có README. Runner tìm `.sv` đệ quy trong
-`rtl/`; năm script tổng hợp (gồm `synth_single_out.ys`) dùng đường dẫn nhóm tương ứng.
+`rtl/`; năm script tổng hợp (gồm `synth_aw_car.ys`) dùng đường dẫn nhóm tương ứng.
 
 Chạy từ root sau khi Icarus/VVP có trong PATH:
 
@@ -49,7 +52,7 @@ Dùng `--full-timing --timeout 1800` để chạy cả bài2giây ở27MHz; CI d
 này. Đây là thời gian mô phỏng, thời gian chạy trên máy có thể lâu hơn nhiều.
 
 `synth_encoder.ys`, `synth_pwm.ys`, `synth_link.ys`, `synth_drive.ys` và
-`synth_single_out.ys` dùng kiểm tra latch/lỗi cấu trúc và mapping
+`synth_aw_car.ys` dùng kiểm tra latch/lỗi cấu trúc và mapping
 generic Gowin; chạy từ root sau khi có `fpga/build/` bằng `yosys -s <script>`
 hoặc YoWASP-Yosys. Đã chạy Yosys0.70 cục bộ; CI cũng chạy năm script này, gồm top hoàn chỉnh.
 Script encoder và drive tổng hợp riêng cả mode một OUT mặc định lẫn mode A/B;
@@ -76,7 +79,7 @@ Wire format mặc định ở [protocol v2](../firmware/shared/fpga-protocol-v2.
 ## Cấu hình xe hiện tại
 
 `drive_core` mặc định `ALLOW_REVERSE=1`, `ENCODER_SINGLE_OUT=1`,
-`PROTOCOL_VERSION=2`; wrapper `drive_core_single_out` chỉ lộ hai chân OUT
+`PROTOCOL_VERSION=2`; wrapper `aw_car_top` chỉ lộ hai chân OUT
 và bốn chân IN driver, dùng cùng thời gian đổi chiều 40 ms.
 Mode A/B đặt `ENCODER_SINGLE_OUT=0` (mặc định phiên bản tương ứng là v1).
 Cấu hình một OUT v1 cũ cần đặt riêng `PROTOCOL_VERSION=1`, không có period/age.
@@ -103,3 +106,11 @@ dừng. Đã có ca so sánh30/40ms, nhưng chưa đo rotor dừng hoặc xe qua
 Một OUT chỉ đo độ lớn chuyển động, đếm cả khi thả trôi; Motion đọc cờ mode
 STATUS bit4 và lấy delta không dấu modulo32 để tính tốc độ. Chưa thể suy ra
 quãng đường có dấu chính xác chỉ từ cảm biến này và chiều lệnh.
+
+## Chọn top và build
+
+Dùng `aw_car_top` trong project triển khai xe; script chính là
+`fpga/synth_aw_car.ys`. `synth_drive.ys` kiểm tra riêng lõi và mode A/B,
+không phải top thứ hai chạy đồng thời trong bản nạp. Tên cũ
+`drive_core_single_out` đã đổi thành `aw_car_top` ngày02/11/2026.
+Logical top chưa thay wrapper clock/POR/I/O/constraints đúng Tang Nano9K.

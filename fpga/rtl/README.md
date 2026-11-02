@@ -3,13 +3,15 @@
 Lõi SystemVerilog (`.sv`), một clock domain, không tạo clock bằng logic.
 RTL dùng `logic`, `always_ff` cho thanh ghi, `assign` cho tổ hợp đơn giản và
 enum cho FSM. Không dùng khởi tạo biến thay phép gán liên tục.
-Top tích hợp đặt ngay root; module con phân theo chức năng:
+Top tích hợp **duy nhất cho bản triển khai là `aw_car_top`**, đặt ngay root
+và chứa một instance `drive_core`. Lõi không phụ thuộc chân board; module con
+phân theo chức năng:
 
 ```text
 rtl/
   README.md
-  drive_core.sv               # lõi hỗ trợ mode A/B v1 hoặc 1 OUT v2
-  drive_core_single_out.sv    # top logical 2 chân OUT, v2
+  drive_core.sv               # lõi chung, tổng hợp riêng để kiểm thử
+  aw_car_top.sv               # top triển khai, 2 OUT/v2; bọc drive_core
   common/                     # reset, đồng bộ và lọc input
   encoder/                    # đếm một OUT hoặc giải mã X4, snapshot hai bên
   pwm/                        # PWM cặp và trình tự đổi chiều
@@ -24,8 +26,8 @@ thứ tự chạy như các hàm trong chương trình MCU. `drive_core` nối c
 
 | Nhóm | File | Chức năng dễ hiểu |
 | --- | --- | --- |
-| Top | [drive_core.sv](drive_core.sv) | Nối reset, encoder, UART, an toàn, PWM và adapter DRV8833; chặn đầu ra khi mất quyền chạy. Chưa gán chân board cụ thể. |
-| Top | [drive_core_single_out.sv](drive_core_single_out.sv) | Wrapper hai OUT/v2, giữ reverse/40 ms và bốn chân driver của lõi. |
+| Core | [drive_core.sv](drive_core.sv) | Nối reset, encoder, UART, an toàn, PWM và adapter DRV8833; chặn đầu ra khi mất quyền chạy. Chưa gán chân board cụ thể. |
+| Top | [aw_car_top.sv](aw_car_top.sv) | Wrapper hai OUT/v2, giữ reverse/40 ms và bốn chân driver của lõi. |
 | Encoder | [pulse_encoder_pair.sv](encoder/pulse_encoder_pair.sv) | Snapshot nguyên tử count/period/age/status cho hai OUT; không đo chiều. |
 | Common | [reset_sync.sv](common/reset_sync.sv) | Đưa reset vào ngay khi tín hiệu reset xuống LOW; chỉ nhả reset sau hai cạnh clock. Top còn dùng khối này để giữ lại sự kiện mất quyền/health LOW. |
 | Common | [input_sync_filter.sv](common/input_sync_filter.sv) | Đưa tín hiệu bên ngoài qua hai tầng thanh ghi, rồi chỉ nhận giá trị mới khi ổn định đủ số mẫu cấu hình. |

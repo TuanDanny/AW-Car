@@ -16,7 +16,7 @@ bài, `--test tb_encoder_pair` để chọn và `--waves` để lưu VCD trong b
   snapshot đóng băng khi backpressure.
 - `tb_single_out_v2_rx`: reject control version v1, nhận version v2 với
   session/sequence/payload và CRC đúng.
-- `tb_single_out_top`: logical top chỉ 2 chân encoder, đếm xung,
+- `tb_aw_car_top`: logical top chỉ 2 chân encoder, đếm xung,
   từ chối HELLO v1/nhận v2 qua UART, kiểm tra toàn frame STATUS 47B/CRC và
   gate vẫn OFF khi chưa ARM.
 - `tb_encoder_timing`: tham số mặc định, kiểm tra ba chu kỳ snapshot270.000
@@ -82,7 +82,7 @@ bài, `--test tb_encoder_pair` để chọn và `--waves` để lưu VCD trong b
 - `tb_drive_defaults`: cùng chuỗi lỗi với timer/PWM mặc định27MHz, không
   chạy vòng giữ lệnh2s. Wrapper reuse scenario `.sv`, không sao chép model.
   Hai bài cũ chọn A/B/khóa lùi tường minh để giữ bài hồi quy chính sách cũ.
-- `tb_drive_maneuvers`: top không ghi đè tham số, clock27MHz, UART host/CRC và
+- `tb_drive_maneuvers`: dùng chính `aw_car_top` không ghi đè tham số, clock27MHz, UART host/CRC và
   observer độc lập; đếm HIGH cả hai PWM qua hai chu kỳ cho đủ bốn tổ hợp chiều
   và nhiều duty (0, 1, bất đối xứng, 100%), rẽ với một bên đứng yên. Kiểm tra
   zero/setup, OUT qua STATUS bit4/CRC, lệnh sai, watchdog, E-stop/reset/DISABLE.

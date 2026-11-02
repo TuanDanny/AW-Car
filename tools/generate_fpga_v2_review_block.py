@@ -2,7 +2,7 @@
 """Generate a standalone, editable Draw.io REVIEW schematic for AW-Car FPGA v2.
 
 Intentional isolation: NEVER writes to the V3/V4 Draw.io files.
-Source of truth: drive_core_single_out.sv, drive_core.sv, fpga_link.sv,
+Source of truth: aw_car_top.sv, drive_core.sv, fpga_link.sv,
 firmware/shared/fpga-protocol-v2.md. All port directions are left to right.
 """
 
@@ -156,7 +156,7 @@ def main():
     for id_, y, h in [("lane_cmd",163,430),("lane_safe",653,405),("lane_fb",1110,332)]:
         rect(id_, 32, y, 2575, h)
     text("title", 52, 31, 2180, 48, "AW-CAR  |  FPGA RTL — SIGNAL & MODULE BLOCK DIAGRAM", 30, bold=True)
-    text("subtitle",52,85,2050,42,"Logical top: drive_core_single_out.sv → drive_core.sv  |  27 MHz  |  UART v2 115200 8N1  |  Encoder: 1 OUT / side",16,"muted")
+    text("subtitle",52,85,2050,42,"Top: aw_car_top.sv  |  Core: drive_core.sv  |  27 MHz  |  UART v2 115200 8N1  |  Encoder: 1 OUT / side",16,"muted")
     text("io_headers",56,144,2500,24,"INPUT  (external, left)                                      FPGA RTL PROCESSING  (clocked, central)                                                               OUTPUT  (right)",15,"muted",True)
     for k,y,label in [("lc",177,"01  CONTROL PATH  •  MOTION CMD → FPGA MOTOR OUTPUT"),("ls",667,"02  CLOCK / RESET + SAFETY CONTROL  •  INDEPENDENT GPIO AUTHORITY"),("lf",1124,"03  FEEDBACK PATH  •  ENCODER SNAPSHOT → STATUS UART")]:
         text(k,52,y,2510,30,label,17,"muted",True)
@@ -177,7 +177,7 @@ def main():
             for x,y in e.points:ET.SubElement(pts,"mxPoint",x=str(x),y=str(y))
     text("clk_global", 755, 954, 1040, 36, "clk[27 MHz], rst_n are shared by all synchronous RTL blocks (not separate generated clocks).",15,"slate")
     text("tx_note",54,1476,2480,27,"RTL scope: PWM/DIR are logical outputs; IN1/IN2 mapping, default-OFF gate, power driver, board POR, pinout/STA are OUTSIDE this RTL.",15,"amber")
-    text("v2_note",54,1508,2480,30,"Protocol v2: STATUS 34-byte payload / 47-byte frame. Encoder single-OUT does NOT measure actual direction. Known safety recovery-timeout P1 remains open.",14,"muted")
+    text("v2_note",54,1508,2480,30,"Protocol v2: STATUS 34-byte payload / 47-byte frame. Encoder single-OUT does NOT measure actual direction. Recovery-timeout fix is in RTL; physical validation is pending.",14,"muted")
     OUTPUT.write_bytes(ET.tostring(mxfile,encoding="utf-8",xml_declaration=True))
     create_preview()
     # Round-trip validation and no 'TV1/TV2/TV3' ownership labels.
@@ -211,7 +211,7 @@ def create_preview():
     for y,h in [(163,430),(653,405),(1110,332)]:
         d.rounded_rectangle((32,y,2607,y+h),radius=15,fill=COLORS["panel"],outline=COLORS["border"],width=2)
     d.text((52,31),"AW-CAR | FPGA RTL — SIGNAL & MODULE BLOCK DIAGRAM",font=font(31,True),fill=COLORS["text"])
-    d.text((52,88),"Top: drive_core_single_out.sv  →  drive_core.sv  |  Clock 27 MHz  |  UART v2 115200 8N1  |  1 OUT / encoder",font=mid,fill=COLORS["muted"])
+    d.text((52,88),"Top: aw_car_top.sv  |  Core: drive_core.sv  |  Clock 27 MHz  |  UART v2 115200 8N1  |  1 OUT / encoder",font=mid,fill=COLORS["muted"])
     d.text((52,141),"INPUT (external, left)                         FPGA RTL PROCESSING (central)                                                   OUTPUT (right)",font=font(16,True),fill=COLORS["muted"])
     for y,txt in [(177,"01  CONTROL PATH · MOTION CMD → FPGA MOTOR OUTPUT"),(667,"02  CLOCK / RESET + SAFETY CONTROL · INDEPENDENT GPIO AUTHORITY"),(1124,"03  FEEDBACK PATH · ENCODER SNAPSHOT → STATUS UART")]:
         d.text((52,y),txt,font=font(18,True),fill=COLORS["muted"])
@@ -255,8 +255,8 @@ def create_preview():
             d.text((n.x+(n.w-(bb[2]-bb[0]))/2,n.y+offset),line,font=f,fill=COLORS["muted"])
             offset+=21
     d.text((755,967),"clk / rst_n to all synchronous RTL blocks",font=mid,fill=COLORS["slate"])
-    d.text((54,1475),"RTL ONLY: PWM/DIR are logic outputs; IN1/IN2 driver adapter, independent gate and board pins are outside this RTL.",font=font(16,True),fill=COLORS["amber"])
-    d.text((54,1506),"v2 STATUS = 34 B payload / 47 B frame · single-OUT encoder has no direction · Safety recovery-timeout P1 still open",font=mid,fill=COLORS["muted"])
+    d.text((54,1475),"RTL: DRV8833 IN1/IN2 adapter is inside drive_core; independent hardware gate and board pin constraints remain external.",font=font(16,True),fill=COLORS["amber"])
+    d.text((54,1506),"v2 STATUS = 34 B payload / 47 B frame · single-OUT encoder has no direction · Recovery-timeout fix tested in RTL; physical validation pending",font=mid,fill=COLORS["muted"])
     image.save(PREVIEW,optimize=True)
 
 

@@ -45,7 +45,7 @@ tạo frame v2 tường minh, không tự coi STATUS18 byte là v2.
 
 Tổng hợp sơ bộ: `yosys -s fpga/synth_encoder.ys`,
 `yosys -s fpga/synth_pwm.ys`, `yosys -s fpga/synth_link.ys`,
-`yosys -s fpga/synth_drive.ys`, `yosys -s fpga/synth_single_out.ys`, chạy từ root sau
+`yosys -s fpga/synth_drive.ys`, `yosys -s fpga/synth_aw_car.ys`, chạy từ root sau
 khi tạo `fpga/build/`. Có thể
 dùng YoWASP-Yosys trong venv cục bộ thay binary Yosys; bản đã xác minh là
 `yowasp-yosys==0.70.0.0.post1259`. Đây là dependency công cụ tùy chọn cho máy

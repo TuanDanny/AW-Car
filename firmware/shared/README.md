@@ -27,6 +27,6 @@ quadrature và thêm period/age cho tốc độ thấp; xem
 RTL v2 có mô phỏng và [vector golden v2](fpga-vectors-v2.hex) từ công cụ
 Python dùng chung; bộ thử serializer đối chiếu từng byte/CRC với vector này.
 **Chưa có firmware Motion hoặc đo kiểm trên board thật**. Mặc định
-`drive_core`/`drive_core_single_out` dùng v2, STATUS 34 byte/frame 47 byte.
+`drive_core`/`aw_car_top` dùng v2, STATUS 34 byte/frame 47 byte.
 V1 giữ nguyên vector cũ 18/31 byte; cấu hình tương thích một OUT v1 phải đặt
 `ENCODER_SINGLE_OUT=1, PROTOCOL_VERSION=1` và đọc mode bit4, không có period/age.
