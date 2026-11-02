@@ -64,3 +64,8 @@ sơ đồ cũ để chỉnh/xuất lại cùng nhau sau khi chốt cơ khí và 
 
 Quy tắc dành cho agent nằm ở [AGENTS.md](../AGENTS.md); không sao chép thành
 nhiều bộ quy tắc khác nhau.
+
+[Sơ đồ review RTL v2](AW_Car_FPGA_RTL_Block_Review_v2.drawio) và
+[ảnh xem](AW_Car_FPGA_RTL_Block_Review_v2_preview.png) được giữ từ bản
+thiết kế mới xuất hiện trong lúc hợp nhất. Đây là bản review để tiếp tục
+đối chiếu, không thay danh sách cổng/tham số RTL đã kiểm thử.

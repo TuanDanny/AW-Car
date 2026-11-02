@@ -70,3 +70,6 @@ năng, phải xem lại baseline/observation, không coi bản cũ là đặc t�
 `generate_fpga_v4_diagrams.py` là generator sơ đồ tham chiếu được giữ từ
 checkout thiết kế. Chỉ chạy trên bản sao: nhãn cũ và chỉnh tay của sơ đồ
 không được phép ghi đè ngược lên RTL/tài liệu protocol hiện tại.
+
+`generate_fpga_v2_review_block.py` giữ bản generator sơ đồ review v2 độc lập;
+không chạy để ghi đè các chỉnh sửa sơ đồ trong tác vụ hợp nhất.
