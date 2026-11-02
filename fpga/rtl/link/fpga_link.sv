@@ -5,8 +5,10 @@ module fpga_link #(
     parameter int BAUD = 115200,
     parameter int PERIOD_CYCLES = 1350,
     parameter bit ALLOW_REVERSE = 0,
+    parameter bit ENCODER_SINGLE_OUT = 0,
     parameter int INTERBYTE_CYCLES = 54000,
-    parameter int FRAME_CYCLES = 135000
+    parameter int FRAME_CYCLES = 135000,
+    parameter int PROTOCOL_VERSION = 1
 ) (
     input  logic clk,
     input  logic rst_n,
@@ -37,6 +39,11 @@ module fpga_link #(
     input  logic [31:0] snapshot_time,
     input  logic [15:0] snapshot_seq,
     input  logic [3:0] snapshot_status,
+    input  logic [7:0] snapshot_status_ext,
+    input  logic [31:0] snapshot_left_period,
+    input  logic [31:0] snapshot_right_period,
+    input  logic [31:0] snapshot_left_age,
+    input  logic [31:0] snapshot_right_age,
     input  logic [7:0] safety_state,
     input  logic [15:0] fault,
     output logic status_sent,
@@ -75,7 +82,8 @@ module fpga_link #(
     uart_rx #(.CLK_HZ(CLK_HZ), .BAUD(BAUD)) receiver (
         .clk(clk), .rst_n(rst_n), .rx(rx), .data(rx_byte), .valid(rx_valid),
         .framing_error(framing_error), .break_error(break_error));
-    frame_rx #(.INTERBYTE_CYCLES(INTERBYTE_CYCLES), .FRAME_CYCLES(FRAME_CYCLES)) parser (
+    frame_rx #(.INTERBYTE_CYCLES(INTERBYTE_CYCLES), .FRAME_CYCLES(FRAME_CYCLES),
+               .PROTOCOL_VERSION(PROTOCOL_VERSION)) parser (
         .clk(clk), .rst_n(rst_n), .flush(context_load), .byte_data(rx_byte),
         .byte_valid(rx_valid), .byte_error(framing_error || break_error),
         .frame_valid(frame_valid), .frame_error(receive_error), .frame_type(kind),
@@ -89,12 +97,16 @@ module fpga_link #(
         .clear_fault_request(clear_fault_request), .command_valid(command_valid), .rejected(command_rejected),
         .event_session(event_session), .event_sequence(event_sequence),
         .command_left(command_left), .command_right(command_right), .command_direction(command_direction));
-    frame_tx serializer (
+    frame_tx #(.ENCODER_SINGLE_OUT(ENCODER_SINGLE_OUT),
+                .PROTOCOL_VERSION(PROTOCOL_VERSION)) serializer (
         .clk(clk), .rst_n(rst_n), .flush(context_load), .snapshot_valid(snapshot_valid),
         .snapshot_ready(snapshot_ready), .snapshot_dropped(snapshot_dropped),
         .session(session_active ? active_session : 32'd0), .snapshot_left(snapshot_left),
         .snapshot_right(snapshot_right), .snapshot_time(snapshot_time), .snapshot_seq(snapshot_seq),
-        .snapshot_status(snapshot_status), .safety_state(safety_state), .fault(fault),
+        .snapshot_status(snapshot_status), .snapshot_status_ext(snapshot_status_ext),
+        .snapshot_left_period(snapshot_left_period), .snapshot_right_period(snapshot_right_period),
+        .snapshot_left_age(snapshot_left_age), .snapshot_right_age(snapshot_right_age),
+        .safety_state(safety_state), .fault(fault),
         .byte_valid(tx_valid), .byte_ready(tx_ready), .byte_data(tx_byte),
         .byte_last(tx_last), .frame_session(serialized_session), .frame_state(serialized_state));
     uart_tx #(.CLK_HZ(CLK_HZ), .BAUD(BAUD)) transmitter (

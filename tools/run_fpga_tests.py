@@ -13,13 +13,15 @@ import sys
 import time
 
 ROOT = Path(__file__).resolve().parents[1]
-TESTS = ("tb_encoder_units", "tb_encoder_pair", "tb_encoder_timing",
+TESTS = ("tb_encoder_units", "tb_encoder_pair", "tb_encoder_timing", "tb_encoder_single_out",
+         "tb_pulse_encoder_pair", "tb_single_out_protocol", "tb_single_out_v2_rx", "tb_aw_car_top",
+         "tb_runtime_diagnostics", "tb_encoder_period_random", "tb_diagnostics_uart", "tb_diagnostics_default_timeout",
          "tb_common_matrix", "tb_crc16_matrix", "tb_guard_sequence",
          "tb_uart_matrix", "tb_frame_tx_random",
-         "tb_safety_matrix",
-         "tb_pwm_pair", "tb_motor_pwm_pair", "tb_pwm_timing", "tb_pwm_widths",
+         "tb_safety_matrix", "tb_fault_recovery_deadline",
+         "tb_pwm_pair", "tb_motor_pwm_pair", "tb_pwm_timing", "tb_pwm_widths", "tb_drv8833_adapter",
          "tb_uart", "tb_frame_rx", "tb_frame_tx", "tb_command_guard", "tb_fpga_link",
-         "tb_safety_fsm", "tb_safety_timing", "tb_drive_core", "tb_drive_defaults")
+         "tb_safety_fsm", "tb_safety_timing", "tb_drive_core", "tb_drive_defaults", "tb_drive_maneuvers")
 
 
 def execute(command: list[str], timeout: float, cwd: Path,

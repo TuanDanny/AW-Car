@@ -1,0 +1,161 @@
+# AW-Car illustrative color materials — not mechanical part definitions
+newmtl plate
+Kd 0.66275 0.83922 0.91765
+Ka 0.2 0.2 0.2
+Ks 0.1 0.1 0.1
+Ns 16
+d 0.5
+
+newmtl stand
+Kd 0.75294 0.64706 0.43529
+Ka 0.2 0.2 0.2
+Ks 0.1 0.1 0.1
+Ns 16
+d 1.0
+
+newmtl wheel
+Kd 0.14510 0.16078 0.19216
+Ka 0.2 0.2 0.2
+Ks 0.1 0.1 0.1
+Ns 16
+d 1.0
+
+newmtl hub
+Kd 0.92549 0.71373 0.16863
+Ka 0.2 0.2 0.2
+Ks 0.1 0.1 0.1
+Ns 16
+d 1.0
+
+newmtl motor
+Kd 0.92157 0.69020 0.16863
+Ka 0.2 0.2 0.2
+Ks 0.1 0.1 0.1
+Ns 16
+d 1.0
+
+newmtl battery
+Kd 0.21569 0.44314 0.80392
+Ka 0.2 0.2 0.2
+Ks 0.1 0.1 0.1
+Ns 16
+d 1.0
+
+newmtl brain
+Kd 0.16471 0.44314 0.81176
+Ka 0.2 0.2 0.2
+Ks 0.1 0.1 0.1
+Ns 16
+d 1.0
+
+newmtl motion
+Kd 0.09804 0.66275 0.61569
+Ka 0.2 0.2 0.2
+Ks 0.1 0.1 0.1
+Ns 16
+d 1.0
+
+newmtl fpga
+Kd 0.40784 0.31373 0.67059
+Ka 0.2 0.2 0.2
+Ks 0.1 0.1 0.1
+Ns 16
+d 1.0
+
+newmtl driver
+Kd 0.81961 0.29020 0.30980
+Ka 0.2 0.2 0.2
+Ks 0.1 0.1 0.1
+Ns 16
+d 1.0
+
+newmtl screen
+Kd 0.10588 0.57255 0.74118
+Ka 0.2 0.2 0.2
+Ks 0.1 0.1 0.1
+Ns 16
+d 1.0
+
+newmtl sensor
+Kd 0.19608 0.69412 0.72549
+Ka 0.2 0.2 0.2
+Ks 0.1 0.1 0.1
+Ns 16
+d 1.0
+
+newmtl speaker
+Kd 0.33333 0.37647 0.44314
+Ka 0.2 0.2 0.2
+Ks 0.1 0.1 0.1
+Ns 16
+d 1.0
+
+newmtl estop
+Kd 0.87843 0.21569 0.25490
+Ka 0.2 0.2 0.2
+Ks 0.1 0.1 0.1
+Ns 16
+d 1.0
+
+newmtl power
+Kd 0.89804 0.61569 0.19216
+Ka 0.2 0.2 0.2
+Ks 0.1 0.1 0.1
+Ns 16
+d 1.0
+
+newmtl safety
+Kd 0.92941 0.37255 0.24706
+Ka 0.2 0.2 0.2
+Ks 0.1 0.1 0.1
+Ns 16
+d 1.0
+
+newmtl wire_motor
+Kd 0.84314 0.25098 0.23922
+Ka 0.2 0.2 0.2
+Ks 0.1 0.1 0.1
+Ns 16
+d 1.0
+
+newmtl wire_signal
+Kd 0.19608 0.64706 0.89412
+Ka 0.2 0.2 0.2
+Ks 0.1 0.1 0.1
+Ns 16
+d 1.0
+
+newmtl wire_ground
+Kd 0.21961 0.21961 0.26275
+Ka 0.2 0.2 0.2
+Ks 0.1 0.1 0.1
+Ns 16
+d 1.0
+
+newmtl axle
+Kd 0.62353 0.67059 0.72157
+Ka 0.2 0.2 0.2
+Ks 0.1 0.1 0.1
+Ns 16
+d 1.0
+
+newmtl encoder_disc
+Kd 0.15686 0.17647 0.21569
+Ka 0.2 0.2 0.2
+Ks 0.1 0.1 0.1
+Ns 16
+d 1.0
+
+newmtl pcb
+Kd 0.11765 0.50980 0.45098
+Ka 0.2 0.2 0.2
+Ks 0.1 0.1 0.1
+Ns 16
+d 1.0
+
+newmtl pcb_power
+Kd 0.09412 0.43529 0.34902
+Ka 0.2 0.2 0.2
+Ks 0.1 0.1 0.1
+Ns 16
+d 1.0

@@ -55,3 +55,4 @@ jobs:
           yosys -Q -T -l fpga/build/pwm-synth.log -s fpga/synth_pwm.ys
           yosys -Q -T -l fpga/build/link-synth.log -s fpga/synth_link.ys
           yosys -Q -T -l fpga/build/drive-synth.log -s fpga/synth_drive.ys
+          yosys -Q -T -l fpga/build/aw-car-synth.log -s fpga/synth_aw_car.ys

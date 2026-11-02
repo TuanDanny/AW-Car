@@ -372,3 +372,463 @@ chip, trước mua board. Clock27MHz có chu kỳ khoảng37,037ns; STA phải k
 cả đường min/max, clock, FF setup/hold và corner yêu cầu, không chỉ so một
 đường logic với chu kỳ. Xem [thời điểm và tiêu chí timing](../docs/fpga-rtl-design-test-plan.md#khi-nào-kiểm-tra-tcdtpd-và-timing).
 Chưa thay thử điện/driver/gate/reset/clock-stop trên phần cứng.
+
+## Tiến/lùi/rẽ/quay và encoder một OUT — 01/11/2026
+
+Nhánh `feat/f01-fpga-drive`, nền `ad6f7d7`. Top mặc định mở `ALLOW_REVERSE=1`
+và `ENCODER_SINGLE_OUT=1`; giữ A/B X4 khi chọn mode 0. Bộ đọc OUT đếm cạnh
+lên không dấu, không biến chiều lệnh thành chiều đo. Hai bài top cũ chọn
+A/B/khóa lùi tường minh để tiếp tục kiểm tra chính sách cũ.
+
+### Các bài mới đã chạy
+
+Icarus/VVP13.0 stable, không có warning khi compile hai bài mới:
+
+| Testbench | Kết quả | Bằng chứng |
+| --- | --- | --- |
+| tb_encoder_single_out | PASS | FILTER_N=1/3/5; 6.000 cặp xung, mốc HIGH/giữ mức, valid bị ngắt, nhiễu hai cực, wrap và snapshot/reset; INVERT không làm OUT đếm ngược |
+| tb_drive_maneuvers | PASS | Toàn tham số mặc định27MHz, 242,443ms; 30 ca PWM/chiều, 20 STATUS đúng snapshot/CRC/bit4; zero/setup, watchdog, E-stop/reset/DISABLE khi lùi/quay |
+
+Mỗi cặp dưới đây được thử với đủ bốn direction `00/01/10/11`. Observer đếm
+trực tiếp hai đầu PWM qua **hai chu kỳ, 2.700 tick**, không chỉ đọc thanh ghi duty:
+
+| Duty trái/phải | HIGH trái/phải đo được | Kết quả cả bốn chiều |
+| --- | --- | --- |
+| 0 / 0 | 0 / 0 | PASS |
+| 1 / 1 | 2 / 2 | PASS |
+| 337 / 1012 | 674 / 2024 | PASS |
+| 675 / 1350 | 1350 / 2700 | PASS |
+| 1080 / 270 | 2160 / 540 | PASS |
+| 1350 / 1350 | 2700 / 2700 | PASS |
+
+Sáu ca bổ sung: một bên đứng yên `0/1350` và `1350/0`, lùi `900/450`
+trước lệnh lỗi, quay trái/phải `1350/1350` trước E-stop/reset và lùi100%
+trước DISABLE. Direction `01` là trái ngược/phải thuận, `10` ngược lại.
+OUT tạo 5/9 xung khi chưa arm, rồi 3/7 xung khi lùi; live count và UART
+STATUS phải đạt 8/16, không giảm theo chiều lệnh. Mẫu đầu HIGH không tạo xung.
+
+Báo cáo hai bài mới: `fpga/build/maneuvers-targeted.json`. Build/report là
+artifact cục bộ bị ignore, chứa SHA256 nguồn và số ca chức năng. Chạy lại bằng:
+
+```sh
+python tools/run_fpga_tests.py --test tb_encoder_single_out --test tb_drive_maneuvers --timeout 300 --report fpga/build/maneuvers-targeted.json
+```
+
+### Tổng hợp hai mode
+
+Yosys/YoWASP0.70, `synth_encoder.ys` và `synth_drive.ys` tổng hợp riêng mode
+OUT mặc định và A/B. Cả bốn cấu hình qua kiểm tra không latch và `check -assert`.
+
+| Khối/mode | FF | LUT1–4 | ALU |
+| --- | --- | --- | --- |
+| encoder_pair, một OUT | 250 | 37 | 131 |
+| encoder_pair, A/B X4 | 266 | 108 | 195 |
+| drive_core, một OUT/lùi mở | 1014 | 1427 | 544 |
+| drive_core, A/B/lùi mở | 1031 | 1486 | 602 |
+
+Log `reverse-single-out-{encoder,drive}-synth.log`, stat/netlist thường là mode
+OUT, hậu tố `_ab` là mode A/B, đều trong `fpga/build/`. Đây là mapping Gowin
+generic, chưa phải fit/PnR/STA đúng chip Nano9K. PWM/chiều vẫn là tín hiệu
+trừu tượng; còn thiếu adapter DRV8833, pinout và phép đo điện/cơ thật.
+
+### Hồi quy toàn bộ sau thay đổi
+
+**24/24 testbench PASS** với `--full-timing`, đủ **16/16 module RTL** được
+elaborate trong bài PASS. Đây không phải coverage dòng/nhánh/toggle.
+`tb_drive_core` đạt **2.010,544ms ở27MHz,189 STATUS**; bài timer mặc định
+`tb_drive_defaults` đạt **225,343ms,11 STATUS**. Các bài cũ tiếp tục kiểm tra
+CRC/session/sequence, PWM, A/B, watchdog/ARM, reset, E-stop và clock-stop/stale gate.
+Bài OUT/PWM mới cũng chạy lại trong lượt hồi quy đầy đủ và đạt cùng 30 ca/20 STATUS.
+
+Báo cáo: `fpga/build/reverse-single-out-regression.json`. SHA256 toàn bộ RTL
+và testbench trong báo cáo đã đối chiếu khớp nguồn bàn giao. Lệnh tái tạo
+(Icarus/VVP trong PATH, hoặc thêm `--iverilog`/`--vvp`):
+
+```sh
+python tools/run_fpga_tests.py --full-timing --timeout 1800 --report fpga/build/reverse-single-out-regression.json --require-module-coverage
+```
+
+`python tools/check_repo.py --feature-branch`, **28 test Python** và
+`git diff --check` đạt. Đã rà diff: chỉ mở cấu hình chiều ở top, thêm nhánh
+đọc OUT và cờ mode; không thay thuật toán PWM/FSM/ARM/watchdog. Chưa nạp lên
+FPGA hoặc chạy motor thật; chưa có constraints/STA trên đúng Nano9K.
+
+## Adapter chân DRV8833 — 01/11/2026
+
+Nhánh `feat/f01-fpga-drive`, nền `cf3b6df`. Đã đối chiếu
+[TI Rev.E, bảng1/2](https://www.ti.com/lit/ds/symlink/drv8833.pdf): chọn drive/coast,
+thuận PWM/0, ngược0/PWM, mất quyền/reset00. `drv8833_adapter.sv` tổ hợp nối
+trong `drive_core`, thêm bốn output IN trái/phải; không sửa thuật toán
+PWM, đổi chiều, phiên/ARM hoặc watchdog. Một module mỗi bên, mỗi cầu H một
+motor; bảng nối và điều kiện STBY ở
+[giao tiếp driver](../hardware/drv8833-interface.md).
+
+### Mô phỏng đã chạy
+
+Icarus/VVP13.0 stable: **25/25 testbench PASS**, đủ **17/17 module RTL** được
+elaborate trong bài PASS, source SHA256 trong report khớp nguồn bàn giao.
+
+| Bài | Kết quả | Bằng chứng mới |
+| --- | --- | --- |
+| tb_drv8833_adapter | PASS | 64 tổ hợp reset/enable/PWM/chiều;16 lần đổi input khi reset; kéo LOW không cần clock, không phát11 |
+| tb_drive_maneuvers | PASS | 30 ca ở27MHz/20kHz, giải mã bảng cầu H để đếm tick kích thuận/ngược ngay trên IN;00 khi interlock/inhibit, E-stop/reset bất đồng bộ |
+| tb_drive_core | PASS | 2.001,560ms ở2,7MHz,188 STATUS; thêm kiểm tra IN00 sau Motion stale inhibit khi FPGA clock đứng |
+| tb_drive_defaults | PASS | 225,343ms ở27MHz,11 STATUS; cùng chuỗi lỗi và kiểm tra IN |
+
+Các bài encoder/UART/CRC/guard/PWM/FSM còn lại cũng PASS. Lượt này dùng
+runner mặc định: bài2s ở clock rút gọn, hai bài top ngắn ở27MHz. Không chạy
+lại bài2s27MHz với adapter mới; kết quả full-timing ở phần trước thuộc phiên
+bản trước adapter. Chưa mô phỏng analog, lọc xung công suất, nSLEEP wake-up,
+glitch vật lý, dòng/nhiệt hoặc timing sau route.
+
+```sh
+python tools/run_fpga_tests.py --timeout 600 --report fpga/build/drv8833-regression.json --require-module-coverage
+```
+
+Report `drv8833-regression.json` cùng report hai bài mới `drv8833-targeted.json`
+trong `fpga/build/`, là artifact bị ignore. Máy này dùng đường dẫn Icarus/VVP
+ghi ở README FPGA; máy khác cần PATH hoặc `--iverilog`/`--vvp`.
+
+### Tổng hợp và review
+
+Yosys/YoWASP0.70: script PWM và drive PASS kiểm tra không latch/`check -assert`.
+Adapter tổng hợp riêng thành **4 LUT4,0 FF**, không có counter hoặc clock.
+Top một OUT và top A/B đều tổng hợp được. Log `drv8833-{pwm,drive}-synth.log`,
+stat/netlist trong build; đây là mapping Gowin generic, chưa kết luận fit/STA9K.
+
+Đã rà diff và bảng TI: direction bit0 trái/bit1 phải, disable/reset ưu tiên
+00, STBY thuộc gate ngoài và cần thời gian thức trước CMD; các ngõ công suất
+AO/BO không nối chập. **28 test Python**, kiểm tra repo/nhánh và whitespace
+đạt. Chưa gán pin Tang Nano9K, nạp board hoặc đo motor/driver thật.
+
+## Khoảng nghỉ đảo chiều30/40ms — 01/11/2026
+
+Nhánh `feat/f01-fpga-drive`, nền `77e40a0`. Theo đề xuất nghỉ cơ khí30–40ms,
+đã so sánh hai cấu hình timer; chọn **40ms làm mặc định thử**, chưa kết luận
+tối ưu hoặc đã dừng rotor. Tăng `ZERO_CYCLES` lên1.080.000 tại27MHz, giữ
+`SETUP_CYCLES=27` (1us). Khoảng nghỉ dài nằm trước khi đổi chiều nội bộ.
+
+### Bài thử mới/đã mở rộng
+
+| Cấu hình/ca thử | Bằng chứng | Kết quả |
+| --- | --- | --- |
+| Zero30ms + setup1us | 810.000 tick zero,27 tick setup; kiểm tra đúng clock đổi chiều và số tick PWM sau phục hồi | PASS |
+| Zero40ms + setup1us | 1.080.000 tick zero,27 tick setup và một clock LOAD; thêm cấu hình nhỏ nhất1/1/1 | PASS |
+| Luồng lệnh nhanh trong unit | 12 lệnh thay duty, không giữ zero/setup mãi; lấy mục tiêu đến đúng clock hết zero | PASS |
+| UART top27MHz | 30 ca duty/chiều,24 CMD mới trong các khoảng nghỉ,55 STATUS; bộ đếm nghỉ vẫn hoàn tất khi có CMD gần100Hz | PASS |
+| DISABLE giữa coast | Chờ qua thời điểm hết40ms cũ, IN vẫn00, không phát lại lệnh/duty đang chờ | PASS |
+| Hạn watchdog | FAULT tại đúng1.350.000 tick sau CMD hợp lệ cuối; coast/setup không tạm dừng hoặc kéo dài lease50ms | PASS |
+
+Bài UART kéo dài **601,949ms** ở clock danh định27MHz. Các kết quả là mô
+phỏng số ở chân PWM/IN, không phải phép đo cơ khí, dòng hoặc thời gian
+phanh/thả trôi trên xe. Muốn chọn thời gian thực sự phù hợp phải đo tốc độ
+bánh và dòng đổi chiều theo tải/nguồn; cả30ms lẫn40ms đều chưa được xác nhận
+trên motor thật. STBY wake-up vẫn là điều kiện riêng ở tài liệu driver.
+
+### Thay đổi để khoảng chờ dài hoạt động đúng
+
+Code cũ khởi động lại zero với mỗi CMD trong interlock. Khi đặt40ms nhưng
+CMD đến mỗi10ms, PWM có thể không chạy lại dù watchdog vẫn được gia hạn.
+Nay WAIT_ZERO giữ thời gian coast liên tục, CMD mới thay cặp mục tiêu; clock
+hết hạn lấy cả direction/duty mới nhất. Trong WAIT_SETUP, CMD cùng chiều
+không đếm lại; mục tiêu chiều khác bắt đầu zero mới. DISABLE/reset/mất
+quyền vẫn xóa lệnh chờ ngay, không đổi hợp đồng ARM hoặc watchdog.
+
+Report ba bài mới `reversal-40ms-targeted.json`, log tổng hợp
+`reversal-40ms-{pwm,drive}-synth.log` ở `fpga/build/`, là artifact bị ignore.
+Yosys/YoWASP0.70 tổng hợp PWM và cả hai mode encoder của top thành công,
+không latch/`check -assert` không phát hiện lỗi. Chưa có fit/PnR/STA9K.
+Đây là thay đổi chức năng/thời gian, không áp dụng chứng minh tương đương
+với baseline cũ cho motor sequencer.
+
+### Hồi quy sau thay đổi
+
+**25/25 testbench PASS**, **17/17 module** elaborate trong bài PASS;
+report `fpga/build/reversal-40ms-regression.json` có SHA256 khớp toàn bộ
+RTL/testbench bàn giao. Lượt này dùng runner mặc định: bài2s ở2,7MHz,
+hai bài top ngắn ở27MHz; không chạy lại bài2s27MHz/full-timing.
+
+```sh
+python tools/run_fpga_tests.py --timeout 600 --report fpga/build/reversal-40ms-regression.json --require-module-coverage
+```
+
+**28 test Python**, kiểm tra repo/nhánh và `git diff --check` đạt. Đã rà
+diff về cặp lệnh mới nhất, ưu tiên disable/reset và hạn watchdog giữ
+nguyên. Kết quả không xác nhận40ms là thời gian cơ khí tốt nhất.
+
+## Sửa deadline phiên phục hồi trong FAULT — 01/11/2026
+
+Nhánh `feat/f01-fpga-drive`, nền `e867100`. Nhận định trong ảnh được kiểm tra
+độc lập và xác nhận là lỗi thật: HELLO trong FAULT cài session/recovery=USED
+nhưng giữ stateFAULT. Điều kiện `handshake_active` cũ không bao gồm trạng thái
+này, làm `phase_count` ngừng giảm; CLEAR_FAULT đúng phiên/sequence có thể
+được nhận sau hạn. Guard kiểm tra phiên/sequence, không tự tính hạn này.
+Lỗi không tự cấp motor_enable, nhưng làm mất giới hạn tuổi của phiên clear.
+
+### Tái hiện trước sửa và kiểm tra sau sửa
+
+Thêm `tb_fault_recovery_deadline.sv`, các đầu vào sự kiện giả định đã qua
+guard. Dùng cùng một testbench cho trước/sau sửa; đối chiếu SHA256 cho thấy
+chỉ file RTL `safety_fsm.sv` khác giữa hai lượt.
+
+- Trước sửa, timer rút gọn H32 đứng ở31. CLEAR tại tuổi32 vẫn đưa state5,
+  session1, fault0002, gate_clear1; test thất bại bằng assertion, không phải
+  lỗi compile hoặc timeout của simulator. Report `fault-recovery-before-fix.json`.
+- Sửa điều kiện đếm để bao gồm `state == FAULT && session_active`; timer vẫn
+  dùng bộ đếm pha chung. Nhánh timeout có sẵn ưu tiên hơn CLEAR_FAULT.
+- Sau sửa chạy H32, H80 và H6.750.000 với clock danh định27MHz; cấu hình cuối
+  dùng đầy đủ timer watchdog/handshake/clear/hold mặc định.
+
+| Thời điểm CLEAR hợp lệ, điều kiện vật lý cho phép | Sau sửa |
+| --- | --- |
+| Trước hạn một tick | Vào CLEAR_WAIT, sau hold trở về DISARMED, hủy phiên; motor vẫn tắt |
+| Đúng hạn | Giữ FAULT, hủy session/context, thêm bit6 timeout, gate_clear0 |
+| Sau hạn năm tick | Không nhận CLEAR; session vẫn vô hiệu, gate_clear0 |
+
+Có9 vị trí deadline qua ba cấu hình; xác nhận FAULT không mở phiên/cửa GPIO
+không tự hết hạn, UART retry không mở lại phiên và GPIO recovery+HELLO mới
+vẫn clear thành công sau timeout. Cả quá trình không tạo quyền chạy motor.
+
+### Hồi quy và giới hạn
+
+Icarus/VVP13.0 stable: **26/26 testbench riêng biệt PASS**, đủ **17/17 module
+RTL** elaborate trong bài PASS. Chạy4 bài safety trước, rồi22 bài còn lại;
+không chạy lặp bài timer250ms. Hai report đều cùng SHA256 RTL/testbench và
+compiler, được gộp có kiểm tra không thiếu/trùng bài thành
+`fpga/build/fault-recovery-regression.json`; report ghi rõ hai nguồn
+`fault-recovery-after-fix.json` và `fault-recovery-regression-rest.json`.
+Mọi report/log/build là artifact cục bộ bị ignore.
+
+```sh
+python tools/run_fpga_tests.py --test tb_fault_recovery_deadline --timeout 300 --report fpga/build/fault-recovery-after-fix.json
+python tools/run_fpga_tests.py --timeout 600 --report fpga/build/fault-recovery-full.json --require-module-coverage
+```
+
+Lệnh thứ hai là cách chạy lại toàn26 bài một lượt. Lượt đã ghi dùng2s clock
+rút gọn2,7MHz và các bài top ngắn27MHz; bài mới chạy deadline250ms tại27MHz.
+Không chạy lại bài tích hợp2s27MHz/full-timing. Yosys/YoWASP0.70 tổng hợp cả
+hai mode top PASS, không latch/`check -assert` không phát hiện lỗi; log
+`fault-recovery-drive-synth.log`. **28 test Python**, kiểm tra repo/nhánh và
+whitespace đạt. Chưa có fit/PnR/STA9K hoặc kiểm tra gate/driver trên board;
+không dùng chứng minh tương đương baseline cũ cho hành vi deadline đã sửa.
+
+## Báo cáo nhánh thử một OUT/v2 trước khi gộp — 01/11/2026
+
+Phần này giữ số liệu của checkout v2 trước hợp nhất; 26 bài/18 module và
+số cell ở đây không phải inventory hoặc kết quả của bản hợp nhất02/11.
+Kết quả chạy lại bản hợp nhất nằm ở mục cuối tài liệu.
+
+Đã bổ sung `pulse_counter.sv`, `pulse_encoder_pair.sv` và logical top
+`drive_core_single_out.sv` cho **hai cảm biến hồng ngoại chỉ có OUT**.
+Vẫn giữ quadrature A/B và wire format v1 cho regression riêng;
+top single-OUT chỉ nhận lệnh `version=02` và trả STATUS 47 byte.
+Wire layout/flags/tuổi xung ở
+[protocol v2](../firmware/shared/fpga-protocol-v2.md).
+
+**Mô phỏng Icarus/VVP v13_0:** đã chạy 26/26 testbench PASS, bao gồm:
+
+| Testbench mới | Kết quả | Nội dung |
+|---|---|---|
+| `tb_pulse_encoder_pair` | PASS | Startup HIGH, glitch, đếm cạnh lên từng bên, period/age timeout, count wrap, atomic snapshot |
+| `tb_single_out_protocol` | PASS | STATUS v2 47 byte, CRC, 4 trường uint32 mở rộng, đóng băng qua backpressure |
+| `tb_single_out_v2_rx` | PASS | Từ chối control v1, chấp nhận version2 và kiểm tra CRC/session/field |
+| `tb_single_out_top` | PASS | Hai chân OUT duy nhất, v1 HELLO bị loại/v2 được nhận qua UART 27MHz, kiểm tra STATUS 47 byte qua UART thật trong mô phỏng (header, count, status, CRC), HELLO không cấp permit, default-off gate |
+
+Hồi quy còn có top v1 `tb_drive_core` (2s ở 2,7MHz) và
+`tb_drive_defaults` (225ms ở 27MHz), cả hai PASS.
+`--require-module-coverage`: **18/18 module** xuất hiện trong
+testbench PASS. File kết quả: `fpga/build/regression-single-out.json`.
+Chạy `python tools/check_repo.py`, `git diff --check` và 42 Python
+unit tests: PASS.
+
+**Tổng hợp generic Gowin** với YoWASP-Yosys 0.70: hai script
+`synth_drive.ys` (top v1) và `synth_single_out.ys` (top v2)
+đều trả mã 0, `proc`/latch assertions/`check -assert` đạt.
+So sánh khi chạy cùng toolchain và mã hiện tại:
+
+| Top | FF (DFFC+DFFCE+DFFP+DFFPE) | LUT1–4 cell | ALU cell |
+|---|---:|---:|---:|
+| v1 `drive_core` | 1.032 | 1.493 | 616 |
+| v2 `drive_core_single_out` | **1.412** | **1.709** | 615 |
+
+Đây là **generic cell counts**, không phải utilization/timing thực trên Tang Nano
+9K, không thay thế place-and-route/STA. Firmware Motion vẫn **chưa giải mã
+v2**, chưa có board pinout/I/O level/POR/gate vật lý, chưa kiểm thử xung và
+quãng dừng thực; **không tuyên bố xe chạy được từ mô phỏng**.
+
+## Hợp nhất FPGA/một OUT v2 — 02/11/2026
+
+Hợp nhất phần đang sửa tại checkout `D:/Project/AW-Car` (nền094b37c) vào
+`feat/f01-fpga-drive` trên nền a239328. Không chọn nguyên cây cũ thay thế cây
+mới: giữ nguyên `safety_fsm.sv`, `motor_pwm_pair.sv` và `drv8833_adapter.sv`
+đã có, gồm hạn phiên HELLO trong FAULT, zero40ms không bị gia hạn bởi CMD mới,
+setup27tick, lùi/quay tại chỗ và bốn đầu ra IN driver.
+
+Mặc định một OUT dùng v2, STATUS34/frame47; thêm period/age snapshot nguyên tử.
+Wrapper hai OUT dùng cùng reverse/zero/driver của lõi. A/B v1 và mode tương
+thích một OUT/v1 vẫn chọn tường minh; wire/vector v1 không đổi. Reference Python
+có version2 và fixture riêng `fpga-vectors-v2.hex`; serializer so từng byte
+với golden độc lập, không chỉ dùng CRC cùng thuật toán trong testbench.
+
+Bằng chứng chạy lại sau khi gộp:
+
+- **30/30 testbench PASS**, **19/19 module** có bài PASS elaborate chúng.
+  Báo cáo `fpga/build/consolidate-regression.json` ghép hai lượt không trùng:
+  `consolidate-targeted.json` (8 bài), `consolidate-regression-rest.json` (22 bài).
+  Đã kiểm tra cùng compiler và SHA256 toàn bộ RTL/testbench khớp mã bàn giao.
+- Bài một OUT/v2 mặc định `tb_drive_maneuvers` chạy27MHz, khoảng604,72ms mô
+  phỏng: 30 ca số liệu/PWM, 30 ca chân DRV8833, cả4 tổ hợp chiều, 24 lần cập
+  nhật trong chờ đổi chiều, 53 STATUS qua UART; watchdog/E-stop/reset/DISABLE đạt.
+- Top A/B v1:2s ở2,7MHz và225,34ms ở27MHz PASS. Bài deadline FAULT chạy cả
+  HANDSHAKE6750000tick/250ms và kiểm tra trước/đúng/sau hạn. Không chạy lại
+  chế độ tích hợp2s27MHz `--full-timing` trong lượt hợp nhất này.
+- **5/5 script tổng hợp generic Gowin PASS**: encoder, PWM/adapter, link,
+  drive (một OUT/v2 và A/B/v1), single_out wrapper. Latch assertion và
+  `check -assert` đạt; log `fpga/build/consolidate-*-synth.log`.
+- **44 Python unit tests PASS**; gồm protocol v1/v2 và bộ kiểm tra CAD/PCB
+  concept được giữ từ checkout thiết kế. Kiểm tra repo/nhánh/index và
+  `git diff --check` đạt; các link Markdown cục bộ hợp lệ.
+
+Ví dụ chạy lại toàn bộ, với Icarus/VVP có trong PATH:
+
+```sh
+python tools/run_fpga_tests.py --timeout 600 --report fpga/build/consolidate-rerun.json --require-module-coverage
+python tools/fpga_protocol.py
+python -m unittest discover -s tests
+```
+
+Chưa có firmware Motion nhận v2, PnR/STA đúng Nano9K, phép đo điện encoder,
+STBY/gate/driver hoặc quãng dừng thực.40ms là cấu hình đã mô phỏng logic,
+không phải kết luận rotor dừng trong40ms. CAD/PCB vẫn là concept với kích
+thước giả định; giữ tài liệu/ảnh lịch sử không có nghĩa chúng đã nghiệm thu.
+
+## Một top triển khai `aw_car_top` — 02/11/2026
+
+Đổi `drive_core_single_out.sv`/module cùng tên thành `aw_car_top.sv`/
+`aw_car_top`. Top triển khai xe chỉ chọn `aw_car_top`; `drive_core` là lõi bên
+trong, vẫn được tổng hợp riêng cho hồi quy A/B/v1. Script chính đổi thành
+`synth_aw_car.ys`, test top thành `tb_aw_car_top`; CI, runner, đặc tả và README
+đã cập nhật. Tên cũ ở các báo cáo lịch sử phía trên chỉ bản trước đổi tên.
+
+Không đổi cổng, tham số hoặc đường nối của wrapper; so sánh token sau bỏ tên
+module/comment khớp baseline8eed762. **18 file RTL còn lại khớp từng byte**.
+Yosys0.70 kiểm chứng tương đương wrapper cũ/mới sau flatten/async2sync:
+
+| Cấu hình | Kết quả | Equivalence cells đã chứng minh/chưa chứng minh |
+| --- | --- | --- |
+| Mặc định27MHz, PWM1350, zero40ms, v2 | PASS | 3929 / 0 |
+| Timer nhỏ, period16, snapshot32, zero8, setup2 | PASS | 3807 / 0 |
+
+Log/script/result cục bộ ở `fpga/build/top-rename-proof/`. Đây là so sánh hai
+mô hình RTL cùng xử lý reset, không thay phép đo CDC/mức điện áp/board.
+
+Bộ hồi quy sau đổi tên **30/30 PASS**, **19/19 module** được elaborate trong
+bài PASS. `top-rename-regression.json` ghép hai lượt không trùng:
+`top-rename-regression-rest.json` (29 bài), `top-rename-full-timing.json`
+(`tb_drive_core`, SCALE=1/27MHz). Cùng compiler và SHA256 toàn bộ RTL/testbench
+khớp bản bàn giao. Lần này **đã chạy đầy đủ `--full-timing`**, không dùng kết
+quả2,7MHz thay cho danh định: top A/B chạy2010,54ms mô phỏng, nhận189 STATUS,
+kiểm tra reset/E-stop/clock-stop/stale gate đạt.
+
+`tb_drive_maneuvers` giờ instantiate **chính `aw_car_top`**, không chỉ lõi.
+Chạy khoảng604,72ms ở27MHz: 30 ca duty/chiều và chânDRV8833, 4 tổ hợp chiều,
+24 lệnh cập nhật trong coast, 53 STATUS v2, watchdog/reset/E-stop/DISABLE đạt.
+`tb_aw_car_top` kiểm tra boot HIGH không tính xung giả, v1 bị loại/v2 được nhận,
+CRC toàn frame47 byte và gate OFF khi chưa ARM.
+
+**5/5 script tổng hợp generic Gowin PASS**: encoder, PWM, link, drive (hai mode),
+aw_car; latch assertion/`check -assert` đạt. Log `top-rename-*-synth.log`.
+**44 Python tests**, vector v1/v2, kiểm tra repo/nhánh/index và whitespace đạt.
+Tên top/script/test cũ không còn là tham chiếu build; chỉ giữ ghi chú migration
+và lịch sử trong tài liệu. Ví dụ chạy lại:
+
+```sh
+python tools/run_fpga_tests.py --full-timing --timeout 1800 --report fpga/build/top-rename-rerun.json --require-module-coverage
+yosys -s fpga/synth_aw_car.ys
+```
+
+Sơ đồ review giữ nguyên geometry, sửa nhãn Top/Core và chú thích lỗi recovery
+đã sửa/adapter nằm trong RTL. Preview tạo bằng generator sẵn có trong thư mục
+build riêng; không ghi đè các bản vẽ đang chỉnh dở. XML0 lỗi, không phát sinh
+cảnh báo mới;66 cảnh báo bố trí cũ còn giữ, không gọi sơ đồ là hoàn hảo. Native
+export bản draw.io Store bị Windows từ chối chạy; không coi preview này là
+native export. Các thay đổi bố cục/xóa/thêm sơ đồ đang có ở checkout vẫn để
+chưa commit; index chỉ nhận phần tên/chú thích/preview liên quan tác vụ.
+
+Chưa có pin/clock/POR constraints, PnR/STA đúng Tang Nano9K hay thử gate/driver
+trên xe. Top này là logical integration top; kết quả trên là bằng chứng RTL,
+không tuyên bố bitstream nạp board đã đạt nghiệm thu.
+
+## Online diagnostics và mở rộng kiểm thử — 02/11/2026
+
+Thêm `runtime_diagnostics.sv`, bật trong core protocol v2. Theo dõi8 nhóm:
+RX frame lỗi, guard từ chối CMD, mất snapshot do TX busy, snapshot không tạo
+đúng hạn, encoder trái/phải không đổi count khi yêu cầu chạy, PWM reject và
+invariant raw PWM/safety_state. Cờ sticky ở fault[15:8], Safety ở[7:0]. Chỉ
+snapshot stall/invariant khóa đầu ra và yêu cầu reset; các cảnh báo không tự
+kết luận motor kẹt. CLEAR_FAULT không xóa hai chốt critical hoặc lịch sử mới.
+
+Top bỏ28 bit debug ở biên: còn **17 port/17 bit** (9 input/8 output), xác nhận
+trên netlist tổng hợp; PWM/DIR/state/fault ở trong core và telemetry UART.
+Protocol giữ34 byte payload/47 byte frame, dùng các bit fault trước chưa dùng.
+Firmware Motion cần cập nhật phân loại cờ; hiện **chưa có firmware/log trên
+ESP32 thật**. Có decoder Python kiểm tra CRC/sequence và tên lỗi, cùng ví dụ
+cách ghép ESP_LOG vào firmware sau này. Bảng bit ở đặc tả v2 là nguồn chuẩn.
+
+### Kết quả kiểm tra bản hiện tại
+
+- **34/34 testbench PASS,20/20 module** có bài PASS elaborate chúng. Report
+  `fpga/build/diagnostics-regression.json` ghép4 lượt không trùng:targeted4,
+  rest28, full-timing1 và default-timeout1. Cùng compiler; mọi hash nguồn ghi
+  trong report đều khớp mã cuối. Bench timeout mặc định được thêm khi các job
+  khác đang chạy; không thay nguồn RTL hoặc bench cũ, không được compile vào
+  các top khác. Report tổng ghi rõ điều này thay vì giả một lần chạy duy nhất.
+- **60 kịch bản diagnostics** ở limit1/2/16/17/64: cảnh báo không trip, clock
+  biên trước/đúng hạn, idle/duty0/coast không báo encoder giả, count wrap,
+  hai bên độc lập, PWM không enable/interlock, state bất hợp lệ và reset.
+- **24.000 mẫu encoder** đối chiếu bằng timestamp độc lập: valid gaps, age
+  bão hòa, phục hồi period, count wrap ở hai bộ width4 và9.
+- **Default timeout13.500.000tick** chạy ở clock27MHz danh định: không báo
+  sớm, đúng ngưỡng500ms mới cảnh báo, heartbeat snapshot10ms vẫn khỏe, warning
+  không tự khóa driver và lịch sử còn sau khi encoder trở lại.
+- UART integration:CRC sai/session sai thật qua RX, warning về STATUS CRC
+  đúng mà không tự dừng; cố ý tiêm raw PWM vi phạm/interlock và snapshot đứng,
+  kiểm tra4 chân IN tắt, nhận critical flags qua UART. HELLO/ARM/CLEAR/CMD
+  không mở lại chốt critical; reset xóa lịch sử và vẫn không tự ARM. Các lỗi
+  tiêm là phương pháp kiểm thử, không phải tuyên bố tìm thấy bug sản phẩm.
+- `tb_drive_maneuvers` vẫn chạy chính `aw_car_top` ở27MHz,30 ca duty/chiều và
+  chânDRV8833,24 refresh trong coast,53 STATUS; watchdog/reset/E-stop đạt.
+- `tb_drive_core --full-timing` chạy2010,54ms ở27MHz,189 STATUS, UART/PWM/
+  encoder/reset/E-stop/clock-stop/stale gate PASS. Bài nominal ngắn225ms đạt.
+- **47 Python tests PASS**, gồm CRC corruption mọi47 vị trí frame, sai
+  version/length/sequence, phân loại warning/fatal/reset-required; vectors cũ
+  không đổi. Repo/nhánh/index/whitespace checks đạt.
+- **5/5 script tổng hợp generic Gowin PASS**, latch assertions và check-assert
+  đạt; log `diagnostics-*-synth.log`. Top generic:1568FF,1913 LUT1–4,688 ALU.
+  Đây là generic cells, không phải utilization hoặc timing đã route Nano9K.
+- **Equivalence v1** so với8bd4515:modeA/B3506 cells và mộtOUT3492 cells được
+  chứng minh,0 chưa chứng minh. Diagnostics không bật v1. Log/script ở
+  `fpga/build/diagnostics-v1-equivalence/`.
+
+Cách chạy lại:
+
+```sh
+python tools/run_fpga_tests.py --full-timing --timeout 2000 --report fpga/build/diagnostics-rerun.json --require-module-coverage
+python -m unittest discover -s tests
+yosys -s fpga/synth_aw_car.ys
+```
+
+### Đánh giá và giới hạn
+
+**Tự chấm8/10 cho logic và kiểm thử RTL hiện tại**: có phân tầng rõ, giao thức
+kiểm CRC/phiên/lease, fail-closed, kiểm thử ngẫu nhiên/biên/lỗi tiêm và báo
+chẩn đoán. Điểm này là nhận định kỹ thuật, không phải tỷ lệ an toàn/chứng chỉ.
+Chưa cho9–10 vì chưa đo line/branch/toggle coverage, chưa có board constraints,
+PnR/STA đúng chip, firmware Motion nhận log hoặc phép đo gate/encoder/motor thật.
+Không hứa tự phát hiện mọi bug; mất clock/nguồn có thể làm mất cả log, Motion
+và E-stop vẫn phải độc lập. Một OUT không đo chiều thực, encoder timeout500ms
+là ngưỡng cảnh báo cần hiệu chỉnh, không chứng minh motor hỏng hoặc xe dừng.
+
+[Ma trận đưa lên Tang Nano9K](../docs/fpga-bringup-diagnostics.md) ghi từng cổng
+nghiệm thu còn thiếu và thứ tự thử trước nối motor. Không phát hành CST/bitstream
+bằng số chân giả hoặc coi tổng hợp generic là board đã chạy.

@@ -1,15 +1,25 @@
 # Kế hoạch FPGA và toàn hệ thống
 
-Ngày chốt phân tải: **23/10/2026**. Đây là kế hoạch kiến trúc; tiến độ RTL và
+Ngày chốt phân tải: **23/10/2026**, cập nhật TT 4WD/một OUT **01/11/2026**.
+Đây là kế hoạch kiến trúc; tiến độ RTL và
 bằng chứng mô phỏng/tổng hợp sơ bộ ở [FPGA](../fpga/README.md). Chưa có phép
 đo phần cứng. Tài liệu này cập nhật phương án trước
 trong [rà soát issue #1](issue-1-technical-review.md).
 
+**Cập nhật phần cứng 28/10/2026:** đã có hai ESP32-S3 có Wi-Fi (chủ dự án ghi
+`R16N8`, chưa xác minh mã/bộ nhớ), OLED 0,96 inch **I²C**, INMP441, MPU6050 và
+bộ khung acrylic/4 motor/4 bánh/4 đĩa mã. Xem
+[kiểm kê và mua từng bước](../hardware/components.md). Đã nhận diện dạng TT,
+khung bốn bánh cố định; chủ dự án chọn **4WD lái bằng tốc độ hai bên**, bỏ
+servo/Ackermann. Đĩa chưa chứng minh encoder A/B. Dùng đồ đã có làm đầu vào chọn phần
+còn thiếu, không giữ N20/MG90S/TB6612FNG như SKU bắt buộc.
+
 ## 1. Quyết định và giới hạn
 
-- Giữ 2 ESP32-S3, 1 INMP441, servo lái trước và 2 motor sau có encoder.
-- Thêm 1 FPGA: đọc 2 encoder A/B, phát PWM/chiều quay cho 2 motor sau, kiểm tra
-  lệnh và tự khóa đầu ra khi lệnh Motion quá hạn. PID và servo vẫn ở Motion.
+- Giữ 2 ESP32-S3, 1 INMP441, khung TT 4WD, hai nhóm motor trái/phải, không servo.
+- Thêm 1 FPGA: đọc 2 encoder một OUT, phát PWM/chiều cho hai nhóm motor, kiểm tra
+  lệnh và tự khóa đầu ra khi lệnh Motion quá hạn. PID và lái vi sai ở Motion.
+  Một OUT chỉ đo độ lớn tốc độ; A/B X4 giữ làm mode nâng cấp có chiều đo.
 - Chưa mua FPGA. Viết RTL/testbench trước, rồi kiểm tra fit/timing đúng chip.
   Ngân sách ban đầu board và bộ nạp dưới500.000đ; tính thêm phụ kiện/ship.
 - Board mục tiêu đã chốt **Tang Nano 9K / GW1NR-LV9QN88PC6/I5**. Tối ưu
@@ -17,48 +27,52 @@ trong [rà soát issue #1](issue-1-technical-review.md).
   Giá/phụ kiện và ngân sách phải kiểm tra lại lúc mua, không mặc định9K dưới500.000đ.
 - Nhắm 3 môn: Tích hợp hệ thống cảm biến, Lý thuyết mạch, RTL/FPGA. Bỏ mục tiêu
   môn PCB khuếch đại; loa/IC khuếch đại phục vụ giọng nói vẫn thuộc xe.
-- DoA dành cho nâng cấp, chưa có trong cấu hình 1 mic. Bản chạy đầu chỉ tiến
-  trong vùng bảo vệ đã thử; mở lùi sau khi có cảm biến/vùng bảo vệ phù hợp.
+- DoA dành cho nâng cấp, chưa có trong cấu hình 1 mic. RTL hiện mở tiến/lùi,
+  rẽ hai bên và quay tại chỗ; chạy xe thật phải nghiệm thu driver, dòng đổi
+  chiều và vùng bảo vệ tương ứng. Mô phỏng chưa chứng minh an toàn cơ khí.
 
 ## 2. Phân công toàn hệ thống
 
 | Khối | Trách nhiệm | Dữ liệu/đầu ra chính |
 | --- | --- | --- |
-| Dashboard | Một phiên điều khiển, dead-man/lease, hiển thị tốc độ, nguồn, lỗi và độ mới dữ liệu | Yêu cầu vận tốc/góc lái; không gửi duty trực tiếp |
-| Brain ESP32-S3 | Web/Wi-Fi, TFT/LVGL/QR, 1 mic, Xiaozhi, loa, cảnh báo thiết yếu cục bộ; phân xử Web/giọng nói | Lệnh chuyển động có giới hạn/hạn dùng tới Motion qua UART |
-| Motion ESP32-S3 | Đọc cảm biến, kiểm tra lease, tính tốc độ và PID 2 bánh, hình học lái, servo, arm/fault và an toàn | Duty/chiều/quyền chạy tới FPGA; khóa driver phần cứng; telemetry tới Brain |
+| Dashboard | Một phiên điều khiển, dead-man/lease, hiển thị tốc độ, nguồn, lỗi và độ mới dữ liệu | Yêu cầu vận tốc thẳng/tốc độ quay; không gửi duty trực tiếp |
+| Brain ESP32-S3 | Web/Wi-Fi, OLED I²C (LVGL/QR chờ xác minh), 1 mic, Xiaozhi, loa, cảnh báo thiết yếu cục bộ; phân xử Web/giọng nói | Lệnh chuyển động có giới hạn/hạn dùng tới Motion qua UART |
+| Motion ESP32-S3 | Đọc cảm biến, kiểm tra lease, tính độ lớn tốc độ và PID hai bên, lái vi sai, arm/fault và an toàn | Duty/chiều/quyền chạy tới FPGA; khóa driver phần cứng; telemetry tới Brain |
 | FPGA | Đồng bộ/giải mã encoder, chốt số đếm, timer, PWM 2 kênh, parser, watchdog và FSM | PWM/chiều tới driver; số đếm, sequence, lỗi/trạng thái tới Motion |
-| Driver công suất | Cầu H cấp dòng motor theo tín hiệu logic; chế độ phanh/thả trôi theo datasheet | Điện áp/dòng cho 2 motor; chọn theo dòng kẹt và nhiệt thực |
-| Servo/cơ khí | Lái trước trong giới hạn đã hiệu chuẩn, hình học Ackermann cần kiểm chứng | Góc lái và bán kính quay; xe không quay tại chỗ |
+| Driver công suất | Hai module DRV8833, mỗi cầu H điều khiển một motor; mỗi bên nhận chung yêu cầu PWM/chiều | Điện áp/dòng cho 4 motor; chọn theo dòng kẹt và nhiệt thực |
+| Cơ khí TT 4WD | Rẽ bằng chênh tốc độ hai bên; quay tại chỗ bằng hai bên ngược chiều | Bán kính quay/góc thực cần đo vì bánh cố định có trượt ngang |
 | Cảm biến | ToF/vật cản, phản xạ nền/mép rơi, IMU, lực va chạm, dòng/nguồn, môi trường theo BOM chốt | Mẫu có tuổi/hợp lệ; Motion quyết định mức nghiêm trọng |
-| Nguồn và mạch dừng | Pin, sạc đúng hóa học, BMS, cầu chì, rail motor/servo/logic/âm thanh/FPGA, khóa driver | Cấp nguồn đủ dòng; E-stop và trạng thái tắt mặc định độc lập phần mềm |
+| Nguồn và mạch dừng | Pin 2S cấp thẳng VM DRV8833 theo phương án nguồn hiện tại, BMS/sạc/cầu chì; rail logic/âm thanh/FPGA riêng, khóa driver | Cấp nguồn đủ dòng; E-stop và trạng thái tắt mặc định độc lập phần mềm |
 
 ```mermaid
 flowchart LR
-    Web[Web Dashboard] <--> Brain[Brain: âm thanh, TFT, Wi-Fi]
+    Web[Web Dashboard] <--> Brain[Brain: âm thanh, OLED I²C, Wi-Fi]
     Audio[1 mic / loa và khuếch đại] <--> Brain
-    Brain <-->|UART: yêu cầu / trạng thái| Motion[Motion: PID, servo, an toàn]
+    Brain <-->|UART: yêu cầu / trạng thái| Motion[Motion: PID hai bên, an toàn]
     Sensors[Cảm biến / nguồn] --> Motion
-    Motion --> Servo[Servo lái]
     Motion <-->|UART riêng: lệnh / số đếm / lỗi| FPGA[FPGA: encoder, PWM, watchdog]
-    Encoder[2 encoder A/B] --> FPGA
+    Encoder[2 encoder một OUT] --> FPGA
     FPGA -->|PWM / chiều| Driver[Driver công suất]
-    Driver --> Motors[2 motor sau]
+    Driver --> Motors[4 motor TT: hai nhóm trái/phải]
     Motion -->|Cho phép riêng| Gate[Mạch khóa driver]
     FPGA -->|Cho phép riêng| Gate
     Stop[E-stop / nguồn hợp lệ] --> Gate
     Gate --> Driver
 ```
 
-FPGA không thay driver, Motion hay nguồn công suất. PWM servo vẫn do Motion
-phát; không chuyển xử lý âm thanh, mạng, PID hay toàn bộ cảm biến sang FPGA.
+FPGA không thay driver, Motion hay nguồn công suất; không chuyển xử lý âm
+thanh, mạng, PID hay toàn bộ cảm biến sang FPGA.
 
 ## 3. Phạm vi RTL đầu tiên
 
+Bảng bên dưới ghi yêu cầu kiểm chứng **baseline A/B v1** đã có trước quyết định
+encoder một OUT. Mode v2 hiện bổ sung đếm cạnh lên, period/age, status không
+biết chiều và STATUS 47B; xem [wire v2](../firmware/shared/fpga-protocol-v2.md).
+
 | Module chức năng | Yêu cầu kiểm chứng |
 | --- | --- |
-| Đồng bộ và lọc encoder | Tín hiệu A/B bất đồng bộ qua bộ đồng bộ; ngưỡng lọc không loại xung hợp lệ ở RPM cao nhất |
-| Giải mã 2 encoder | Đếm có dấu/chiều, quy ước x1/x2/x4 rõ ràng, phát hiện chuyển trạng thái bất thường; quy định wrap và lấy delta |
+| Đồng bộ và lọc encoder | OUT bất đồng bộ qua hai FF và lọc; không loại xung hợp lệ ở RPM cao nhất; A/B là mode tùy chọn |
+| Đếm 2 encoder | Một cạnh lên/xung, mẫu đầu chỉ làm mốc, không dấu/modulo32; STATUS bit4 báo mode; không suy chiều đo từ chiều lệnh. A/B giữ X4/invalid |
 | Timer và snapshot | Chốt đồng thời số đếm 2 bánh, sequence và trạng thái; không trộn nửa cũ/nửa mới trong frame |
 | PWM 2 kênh | Tần số/độ phân giải tham số hóa, duty 0%/100% rõ ràng, chặn ngoài miền; cập nhật cặp lệnh ở ranh giới chu kỳ |
 | Điều khiển chiều | Lệnh tiến/lùi/phanh theo driver đã chọn; đổi chiều phải về trạng thái dừng và qua trình tự chuyển đã kiểm chứng |
@@ -105,8 +119,7 @@ dưới 115200 bit/s; vẫn phải đo latency và lỗi khi motor chạy. Đã 
   chính đường UART đang lỗi rồi mặc định đã dừng. Xét watchdog phần cứng độc
   lập theo phân tích lỗi, đặc biệt lỗi chung khiến cả hai khối không phản ứng.
 - E-stop khóa driver/cắt năng lượng motor độc lập Brain, Motion và clock FPGA.
-  Servo có chính sách giữ góc/ngừng xung/ngắt nguồn theo phép thử cơ khí; không
-  mặc định đánh lái về giữa đột ngột là an toàn.
+  Đo quãng dừng thực cho tiến/lùi/quay; driver disable có thể thả trôi.
 
 | Tình huống | Phản ứng cần chứng minh |
 | --- | --- |
@@ -146,9 +159,13 @@ Không chọn board chỉ theo số thanh ghi. Ghi lại cho mỗi chip ứng vi
   không lấy synthesis đơn thuần thay kết quả sau bố trí/định tuyến.
 - Điện áp từng bank IO, mức ngõ ra encoder/driver; encoder 5 V cần giao tiếp
   phù hợp. Không cấp dòng motor qua FPGA, MCU hoặc breadboard.
+  Sơ đồ Nano 9K 3672 cấp BANK0/1/2=3,3 V và BANK3=1,8 V. Ưu tiên chân bank
+  3,3 V cho encoder qua chuyển mức 5->3,3 V, UART Motion và GPIO driver/an
+  toàn; không mặc định mọi I/O là 1,8 V hoặc CST tự đổi rail board. Xác minh
+  revision và bảng chân thực trước chốt, chưa gán pin trong tác vụ tài liệu.
 - Clock, bộ nạp, phần mềm/license, khả năng lưu cấu hình và tự chạy khi cấp
   nguồn không có máy tính; không lấy user flash làm số đo bộ nhớ cấu hình.
-- Nguồn và dòng tiêu thụ theo board; rail motor/servo riêng phù hợp tải, chống
+- Nguồn và dòng tiêu thụ theo board; rail motor/logic riêng phù hợp tải, chống
   sụt áp/nhiễu cho logic và âm thanh, chung GND được bố trí đúng.
 - Tổng chi phí board/bộ nạp/phụ kiện/vận chuyển, nguồn cung và khả năng thay thế.
 
@@ -161,16 +178,18 @@ có firmware Motion/driver adapter/gate thực và chưa chốt mua board.
 
 1. Đặc tả: chốt trạng thái, giao thức, đơn vị, tần số/độ phân giải, timeout,
    tiêu chí sai số/tốc độ/quãng dừng và motor/encoder/driver ứng viên.
-2. RTL: mô phỏng tick tiến/lùi, xung nhiễu, trạng thái A/B sai, đếm wrap,
+2. RTL: mô phỏng xung OUT khi tiến/lùi/thả trôi, xung nhiễu, A/B tùy chọn, đếm wrap,
    snapshot nhất quán, duty biên, đổi chiều, CRC/length/session/sequence lỗi,
    timeout, reset giữa khung/PWM và không tự chạy lại. Mô hình MCU/driver kiểm
    tra hành vi hai đầu; thử clock đứng phải quan sát cả đường inhibit ngoài FPGA.
 3. Tổng hợp: lưu tool/version, mã chip, tham số, constraints, tài nguyên,
    cảnh báo và timing sau place-and-route; sửa trước khi mua.
+   Đối chiếu song song bộ xe/encoder, driver và nguồn theo bảng linh kiện;
+   chưa mua FPGA hoặc driver chỉ dựa trên tên MCU.
 4. Trên bàn: xung encoder giả rồi encoder thật, đo PWM/chiều và trạng thái gate,
    rút UART, reset/tắt từng board theo mọi thứ tự; motor ban đầu nhấc khỏi đất.
-5. Tích hợp: PID, servo, cảm biến và hình học lái; thử quãng dừng, kẹt/quá dòng,
-   nguồn yếu và tải đồng thời Wi-Fi/TFT/loa/motor; Dashboard báo dữ liệu cũ/lỗi.
+5. Tích hợp: PID hai bên, cảm biến và lái vi sai; thử quãng dừng, kẹt/quá dòng,
+   nguồn yếu và tải đồng thời Wi-Fi/OLED/loa/motor; Dashboard báo dữ liệu cũ/lỗi.
 6. Motherboard sau khi nguyên mẫu đạt; ghi lại sơ đồ nguồn/mức logic/gate và kết
    quả nhiễu/nhiệt. DoA là giai đoạn riêng sau bản đầu.
 

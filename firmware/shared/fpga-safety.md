@@ -4,6 +4,11 @@ RTL tương ứng: `safety_fsm.sv` và top logic `drive_core.sv`. Wire format v1
 giữ nguyên; tài liệu này chốt GPIO phục hồi, mã STATUS và trách nhiệm hai đầu.
 Đã có mô hình kiểm thử, chưa có firmware Motion hoặc mạch gate thực tế.
 
+Đổi chiều hiện nghỉ PWM40ms và setup1us. Watchdog50ms không tạm dừng trong
+interlock. Motion tiếp tục gửi CMD mới/hợp lệ theo vòng điều khiển; FPGA cập
+nhật mục tiêu đang chờ mà không đếm lại WAIT_ZERO. Khoảng40ms chỉ là giá trị
+thử logic, không thay cho giảm tốc/đo tốc độ và dòng trước đảo chiều trên xe.
+
 ## Tín hiệu ngoài UART
 
 | Tín hiệu logic | Hướng | Vai trò |
@@ -49,6 +54,14 @@ chứng minh metastability. Reset ngoài phải thực sự assert khi cấp ngu
    duty vẫn zero cho đến CMD hợp lệ mới. CMD từ PID mới, không phát lại cache.
    Nếu permit lên trước xác nhận STATUS thì FPGA chốt FAULT.
 
+Với DRV8833, nếu gate điều khiển STBY/nSLEEP theo permit, Motion phải bảo đảm
+driver được đưa HIGH đủ ít nhất1ms trước CMD chạy đầu tiên. Chờ từ khi cả
+hai permit thực sự HIGH; ARM_ZERO vẫn giữ duty0. Khoảng chờ nằm trong lease
+50ms đang chạy, không gia hạn watchdog. Adapter không giám sát STBY hoặc
+thay thời gian thức bằng zero/setup khi đảo chiều. Điều kiện điện và bảng nối:
+[giao tiếp DRV8833](../../hardware/drv8833-interface.md). Mô hình hiện kiểm
+tra chân IN, chưa mô phỏng chip ngủ/thức hay nguồn công suất.
+
 Session32 không tự bảo đảm duy nhất sau reset hai đầu và không phải xác thực.
 Motion phải tạo session mới, không tái dùng trong thời gian buffer có thể còn
 dữ liệu cũ, flush buffer và thực hiện đủ GPIO/STATUS handshake. Firmware cần
@@ -56,7 +69,12 @@ kiểm thử lại hợp đồng này; mô hình hiện dùng session tăng cho 
 Đường GPIO riêng và permit bổ sung chân I/O so với phương án chỉ có UART.
 
 Nếu đang FAULT: hoàn thành bước 1–3 để có phiên phục hồi, gửi CLEAR_FAULT với
-sequence mới trong khi permit LOW và lỗi vật lý đã hết. FPGA giữ gate_clear
+sequence mới trong khi permit LOW và lỗi vật lý đã hết. Session do HELLO mở
+trong FAULT hết hạn sau250ms tính từ lúc HELLO được nhận, dù state vẫn FAULT.
+CLEAR_FAULT phải đến trước hạn; timeout thắng nếu trùng clock, chốt bit6 và
+hủy phiên. Sau đó phải làm lại GPIO recovery + HELLO, không chỉ gửi lại UART.
+FAULT chưa có phiên/cửa phục hồi đang mở không bị áp timeout người vận hành.
+FPGA giữ gate_clear
 ít nhất 100 us, chờ gate_fault_n HIGH, tối đa 5 ms. Timeout/permit lên/req mới/
 lỗi quay lại sẽ chốt FAULT. Thành công xóa lỗi, hủy phiên và về DISARMED;
 **phải làm lại toàn bộ phục hồi rồi ARM**, không mở motor ngay sau clear.
@@ -129,5 +147,5 @@ reset có kiểm soát, không bỏ qua rồi tiếp tục PID.
 Lease Brain hết, PID/cảm biến lỗi phải làm Motion ngừng CMD và hạ permit;
 không để tác vụ UART tự phát lại duty. GPIO permit tĩnh chưa chống mọi lỗi
 treo MCU/lỗi chung: watchdog phần cứng ngoài còn phải xét theo thiết kế điện.
-Driver disable có thể thả trôi; servo và quãng dừng phải thử riêng. Chưa có
+Driver disable có thể thả trôi; quãng dừng tiến/lùi/quay phải thử riêng. Chưa có
 adapter driver, sơ đồ gate, PCB, PnR/STA hoặc bằng chứng chạy motor thật.

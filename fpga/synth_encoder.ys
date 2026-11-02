@@ -1,7 +1,15 @@
 # Run from repository root after creating fpga/build.
-read_verilog -sv fpga/rtl/common/input_sync_filter.sv fpga/rtl/encoder/quadrature_decoder.sv fpga/rtl/encoder/encoder_pair.sv
+read_verilog -sv fpga/rtl/common/input_sync_filter.sv fpga/rtl/encoder/quadrature_decoder.sv fpga/rtl/encoder/pulse_counter.sv fpga/rtl/encoder/encoder_pair.sv
+design -save source_modes
 proc
 select -assert-none t:$dlatch t:$adlatch
 synth_gowin -top encoder_pair -noiopads -nowidelut -json fpga/build/encoder_gowin.json
 check -assert
 tee -o fpga/build/encoder_stat.json stat -json
+design -load source_modes
+chparam -set SINGLE_OUT 0 encoder_pair
+proc
+select -assert-none t:$dlatch t:$adlatch
+synth_gowin -top encoder_pair -noiopads -nowidelut -json fpga/build/encoder_ab_gowin.json
+check -assert
+tee -o fpga/build/encoder_ab_stat.json stat -json

@@ -23,3 +23,8 @@ bằng `python tools/run_fpga_tests.py` và được yêu cầu trong CI.
 
 `test_fpga_protocol.py` kiểm tra layout/endianness, CRC chuẩn và vector Motion–
 FPGA chung; reference dùng thư viện Python thay vì gọi lại hàm CRC của RTL.
+
+`test_fpga_protocol.py` có cả v1/v2, kiểm tra field offset/CRC/độ dài và
+từ chối phối nhầm STATUS18/34 byte. `test_aw_car_cad.py` và
+`test_aw_car_pcb_concept.py` kiểm tra dữ liệu hình học/connector concept,
+không chứng minh lắp vừa hoặc sơ đồ điện an toàn trên xe thực.

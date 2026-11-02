@@ -1,0 +1,7 @@
+# Single-OUT top. Generic Gowin synthesis, not board place/route or timing.
+read_verilog -sv fpga/rtl/link/command_guard.sv fpga/rtl/link/crc16_byte.sv fpga/rtl/drive_core.sv fpga/rtl/aw_car_top.sv fpga/rtl/encoder/encoder_pair.sv fpga/rtl/encoder/pulse_counter.sv fpga/rtl/encoder/pulse_encoder_pair.sv fpga/rtl/link/fpga_link.sv fpga/rtl/link/frame_rx.sv fpga/rtl/link/frame_tx.sv fpga/rtl/common/input_sync_filter.sv fpga/rtl/pwm/motor_pwm_pair.sv fpga/rtl/pwm/drv8833_adapter.sv fpga/rtl/pwm/pwm_pair.sv fpga/rtl/encoder/quadrature_decoder.sv fpga/rtl/common/reset_sync.sv fpga/rtl/safety/safety_fsm.sv fpga/rtl/safety/runtime_diagnostics.sv fpga/rtl/link/uart_rx.sv fpga/rtl/link/uart_tx.sv
+proc
+select -assert-none t:$dlatch t:$adlatch
+synth_gowin -top aw_car_top -noiopads -nowidelut -json fpga/build/aw_car_gowin.json
+check -assert
+tee -o fpga/build/aw_car_stat.json stat -json

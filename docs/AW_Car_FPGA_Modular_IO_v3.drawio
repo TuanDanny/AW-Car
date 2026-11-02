@@ -1,0 +1,332 @@
+<mxfile host="Electron" agent="drawio-skill-3.4.3" pages="3">
+  <diagram id="io" name="01 - INPUT OUTPUT">
+    <mxGraphModel dx="1885" dy="1121" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1920" pageHeight="1080" background="#FFFFFF" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="hdr_io" parent="1" style="text;html=1;whiteSpace=wrap;align=left;verticalAlign=middle;fillColor=none;strokeColor=none;fontColor=#162C45;fontFamily=Arial;fontSize=29;" value="&lt;b&gt;AW CAR | FPGA INPUT &amp; OUTPUT&lt;/b&gt;" vertex="1">
+          <mxGeometry height="54" width="1830" x="45" y="18" as="geometry" />
+        </mxCell>
+        <mxCell id="sub_io" parent="1" style="text;html=1;whiteSpace=wrap;align=left;verticalAlign=middle;fillColor=none;strokeColor=none;fontColor=#566778;fontFamily=Arial;fontSize=15;" value="Cổng top drive_core.sv:23–31 • CLK 27 MHz • 2 nhóm motor trái/phải • đúng RTL hiện tại" vertex="1">
+          <mxGeometry height="38" width="1830" x="45" y="76" as="geometry" />
+        </mxCell>
+        <mxCell id="in_head" parent="1" style="text;html=1;whiteSpace=wrap;align=left;verticalAlign=middle;fillColor=none;strokeColor=none;fontColor=#2563EB;fontFamily=Arial;fontSize=18;" value="&lt;b&gt;INPUT VÀO FPGA&lt;/b&gt;" vertex="1">
+          <mxGeometry height="35" width="330" x="150" y="170" as="geometry" />
+        </mxCell>
+        <mxCell id="out_head" parent="1" style="text;html=1;whiteSpace=wrap;align=left;verticalAlign=middle;fillColor=none;strokeColor=none;fontColor=#16856A;fontFamily=Arial;fontSize=18;" value="&lt;b&gt;OUTPUT RA KHỎI FPGA&lt;/b&gt;" vertex="1">
+          <mxGeometry height="35" width="340" x="1600" y="170" as="geometry" />
+        </mxCell>
+        <mxCell id="in_uart" parent="1" style="rounded=1;arcSize=12;whiteSpace=wrap;html=1;align=center;verticalAlign=middle;spacing=9;fillColor=#F4EEFF;strokeColor=#7C3AED;fontColor=#162C45;fontSize=15;fontFamily=Arial;strokeWidth=1.6;" value="&lt;b style=&quot;font-size:17px&quot;&gt;ESP32-S3 Motion&lt;/b&gt;&lt;br/&gt;&lt;font color=&quot;#64748B&quot; style=&quot;font-size:12px&quot;&gt;UART RX 115200 8N1&lt;/font&gt;&lt;br/&gt;&lt;font color=&quot;#334155&quot; style=&quot;font-size:13px&quot;&gt;rx [1]&lt;br/&gt;HELLO / ARM_ZERO / CMD&lt;/font&gt;" vertex="1">
+          <mxGeometry height="126" width="341" x="54" y="224" as="geometry" />
+        </mxCell>
+        <mxCell id="in_gpio" parent="1" style="rounded=1;arcSize=12;whiteSpace=wrap;html=1;align=center;verticalAlign=middle;spacing=9;fillColor=#FFF4DF;strokeColor=#B77913;fontColor=#162C45;fontSize=15;fontFamily=Arial;strokeWidth=1.6;" value="&lt;b style=&quot;font-size:17px&quot;&gt;GPIO an toàn&lt;/b&gt;&lt;br/&gt;&lt;font color=&quot;#64748B&quot; style=&quot;font-size:12px&quot;&gt;Tín hiệu từ Motion + gate&lt;/font&gt;&lt;br/&gt;&lt;font color=&quot;#334155&quot; style=&quot;font-size:13px&quot;&gt;motion_permit_async [1]&lt;br/&gt;recovery_req_async [1]&lt;br/&gt;safety_ok_async [1]&lt;br/&gt;gate_fault_n_async [1]&lt;/font&gt;" vertex="1">
+          <mxGeometry height="174" width="341" x="54" y="405" as="geometry" />
+        </mxCell>
+        <mxCell id="in_clock" parent="1" style="rounded=1;arcSize=12;whiteSpace=wrap;html=1;align=center;verticalAlign=middle;spacing=9;fillColor=#F5F7FA;strokeColor=#CAD6E0;fontColor=#162C45;fontSize=15;fontFamily=Arial;strokeWidth=1.6;" value="&lt;b style=&quot;font-size:17px&quot;&gt;Clock / Reset&lt;/b&gt;&lt;br/&gt;&lt;font color=&quot;#64748B&quot; style=&quot;font-size:12px&quot;&gt;Hệ thống&lt;/font&gt;&lt;br/&gt;&lt;font color=&quot;#334155&quot; style=&quot;font-size:13px&quot;&gt;clk [1] • 27 MHz&lt;br/&gt;arst_n [1] • active LOW&lt;/font&gt;" vertex="1">
+          <mxGeometry height="105" width="341" x="54" y="636" as="geometry" />
+        </mxCell>
+        <mxCell id="in_enc" parent="1" style="rounded=1;arcSize=12;whiteSpace=wrap;html=1;align=center;verticalAlign=middle;spacing=9;fillColor=#E6F6EE;strokeColor=#16856A;fontColor=#162C45;fontSize=15;fontFamily=Arial;strokeWidth=1.6;" value="&lt;b style=&quot;font-size:17px&quot;&gt;Encoder ngoài&lt;/b&gt;&lt;br/&gt;&lt;font color=&quot;#64748B&quot; style=&quot;font-size:12px&quot;&gt;2 cảm biến A/B v1&lt;/font&gt;&lt;br/&gt;&lt;font color=&quot;#334155&quot; style=&quot;font-size:13px&quot;&gt;left_ab[1:0] • 2 bit&lt;br/&gt;right_ab[1:0] • 2 bit&lt;/font&gt;" vertex="1">
+          <mxGeometry height="126" width="341" x="54" y="809" as="geometry" />
+        </mxCell>
+        <mxCell id="core" parent="1" style="rounded=1;arcSize=12;whiteSpace=wrap;html=1;align=center;verticalAlign=middle;spacing=9;fillColor=#E9F1FF;strokeColor=#2563EB;fontColor=#162C45;fontSize=20;fontFamily=Arial;strokeWidth=2.8;" value="&lt;b style=&quot;font-size:17px&quot;&gt;drive_core.sv  —  TOP FPGA&lt;/b&gt;&lt;br/&gt;&lt;font color=&quot;#64748B&quot; style=&quot;font-size:12px&quot;&gt;15 module SystemVerilog • 1 clock domain&lt;/font&gt;&lt;br/&gt;&lt;font color=&quot;#334155&quot; style=&quot;font-size:13px&quot;&gt;&lt;br/&gt;TV1 • Reset/CDC + Safety FSM • watchdog 50ms&lt;br/&gt;TV2 • UART RX/TX + CRC16 + command guard&lt;br/&gt;TV3 • PWM 20kHz + Encoder snapshot 10ms&lt;br/&gt;&lt;br/&gt;IN → kiểm tra → xử lý đồng bộ → OUT&lt;br/&gt;&lt;br/&gt;Trang 2: giao diện giữa module&lt;br/&gt;Trang 3: cây phân cấp 15 module&lt;/font&gt;" vertex="1">
+          <mxGeometry height="672" width="722" x="596" y="243" as="geometry" />
+        </mxCell>
+        <mxCell id="out_motor" parent="1" style="rounded=1;arcSize=12;whiteSpace=wrap;html=1;align=center;verticalAlign=middle;spacing=9;fillColor=#E6F6EE;strokeColor=#16856A;fontColor=#162C45;fontSize=15;fontFamily=Arial;strokeWidth=1.6;" value="&lt;b style=&quot;font-size:17px&quot;&gt;Motor signals&lt;/b&gt;&lt;br/&gt;&lt;font color=&quot;#64748B&quot; style=&quot;font-size:12px&quot;&gt;Đến adapter + 2 × DRV8833&lt;/font&gt;&lt;br/&gt;&lt;font color=&quot;#334155&quot; style=&quot;font-size:13px&quot;&gt;pwm_left [1], pwm_right [1]&lt;br/&gt;direction[1:0] [2]&lt;/font&gt;" vertex="1">
+          <mxGeometry height="145" width="333" x="1555" y="224" as="geometry" />
+        </mxCell>
+        <mxCell id="out_gate" parent="1" style="rounded=1;arcSize=12;whiteSpace=wrap;html=1;align=center;verticalAlign=middle;spacing=9;fillColor=#FFF4DF;strokeColor=#B77913;fontColor=#162C45;fontSize=15;fontFamily=Arial;strokeWidth=1.6;" value="&lt;b style=&quot;font-size:17px&quot;&gt;Safe GPIO&lt;/b&gt;&lt;br/&gt;&lt;font color=&quot;#64748B&quot; style=&quot;font-size:12px&quot;&gt;Đến Motion / gate&lt;/font&gt;&lt;br/&gt;&lt;font color=&quot;#334155&quot; style=&quot;font-size:13px&quot;&gt;fpga_permit [1]&lt;br/&gt;recovery_ack [1]&lt;br/&gt;gate_clear [1]&lt;/font&gt;" vertex="1">
+          <mxGeometry height="142" width="333" x="1555" y="420" as="geometry" />
+        </mxCell>
+        <mxCell id="out_diag" parent="1" style="rounded=1;arcSize=12;whiteSpace=wrap;html=1;align=center;verticalAlign=middle;spacing=9;fillColor=#E9F1FF;strokeColor=#2563EB;fontColor=#162C45;fontSize=15;fontFamily=Arial;strokeWidth=1.6;" value="&lt;b style=&quot;font-size:17px&quot;&gt;Diagnostic&lt;/b&gt;&lt;br/&gt;&lt;font color=&quot;#64748B&quot; style=&quot;font-size:12px&quot;&gt;Có thể dùng nội bộ&lt;/font&gt;&lt;br/&gt;&lt;font color=&quot;#334155&quot; style=&quot;font-size:13px&quot;&gt;safety_state[7:0] [8]&lt;br/&gt;fault[15:0] [16]&lt;/font&gt;" vertex="1">
+          <mxGeometry height="130" width="333" x="1555" y="613" as="geometry" />
+        </mxCell>
+        <mxCell id="out_uart" parent="1" style="rounded=1;arcSize=12;whiteSpace=wrap;html=1;align=center;verticalAlign=middle;spacing=9;fillColor=#F4EEFF;strokeColor=#7C3AED;fontColor=#162C45;fontSize=15;fontFamily=Arial;strokeWidth=1.6;" value="&lt;b style=&quot;font-size:17px&quot;&gt;ESP32 Motion&lt;/b&gt;&lt;br/&gt;&lt;font color=&quot;#64748B&quot; style=&quot;font-size:12px&quot;&gt;UART TX 115200 8N1&lt;/font&gt;&lt;br/&gt;&lt;font color=&quot;#334155&quot; style=&quot;font-size:13px&quot;&gt;tx [1] • STATUS&lt;br/&gt;count + state + fault&lt;/font&gt;" vertex="1">
+          <mxGeometry height="125" width="333" x="1555" y="809" as="geometry" />
+        </mxCell>
+        <mxCell id="i1" edge="1" parent="1" source="in_uart" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;endArrow=blockThin;endFill=1;strokeColor=#7C3AED;strokeWidth=2.25;fontSize=12;fontColor=#162C45;fontFamily=Arial;labelBackgroundColor=#FFFFFF;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.16;entryDx=0;entryDy=0;" target="core" value="rx">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="i2" edge="1" parent="1" source="in_gpio" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;endArrow=blockThin;endFill=1;strokeColor=#B77913;strokeWidth=2.25;fontSize=12;fontColor=#162C45;fontFamily=Arial;labelBackgroundColor=#FFFFFF;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.4;entryDx=0;entryDy=0;" target="core" value="GPIO">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="i3" edge="1" parent="1" source="in_clock" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;endArrow=blockThin;endFill=1;strokeColor=#566778;strokeWidth=2.25;fontSize=12;fontColor=#162C45;fontFamily=Arial;labelBackgroundColor=#FFFFFF;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.65;entryDx=0;entryDy=0;" target="core" value="clk / reset">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="i4" edge="1" parent="1" source="in_enc" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;endArrow=blockThin;endFill=1;strokeColor=#16856A;strokeWidth=2.25;fontSize=12;fontColor=#162C45;fontFamily=Arial;labelBackgroundColor=#FFFFFF;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.84;entryDx=0;entryDy=0;" target="core" value="A/B">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="o1" edge="1" parent="1" source="core" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;endArrow=blockThin;endFill=1;strokeColor=#16856A;strokeWidth=2.25;fontSize=12;fontColor=#162C45;fontFamily=Arial;labelBackgroundColor=#FFFFFF;exitX=1;exitY=0.16;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" target="out_motor" value="PWM / DIR">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="o2" edge="1" parent="1" source="core" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;endArrow=blockThin;endFill=1;strokeColor=#B77913;strokeWidth=2.25;fontSize=12;fontColor=#162C45;fontFamily=Arial;labelBackgroundColor=#FFFFFF;exitX=1;exitY=0.4;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" target="out_gate" value="permit / ack">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="o3" edge="1" parent="1" source="core" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;endArrow=blockThin;endFill=1;strokeColor=#2563EB;strokeWidth=2.25;fontSize=12;fontColor=#162C45;fontFamily=Arial;labelBackgroundColor=#FFFFFF;exitX=1;exitY=0.65;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" target="out_diag" value="state / fault">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="o4" edge="1" parent="1" source="core" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;endArrow=blockThin;endFill=1;strokeColor=#7C3AED;strokeWidth=2.25;fontSize=12;fontColor=#162C45;fontFamily=Arial;labelBackgroundColor=#FFFFFF;exitX=1;exitY=0.84;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" target="out_uart" value="tx">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="p1note" parent="1" style="rounded=1;arcSize=12;whiteSpace=wrap;html=1;align=center;verticalAlign=middle;spacing=9;fillColor=#FFF4DF;strokeColor=#E8C17B;fontColor=#162C45;fontSize=15;fontFamily=Arial;strokeWidth=1.6;" value="&lt;b&gt;LƯU Ý:&lt;/b&gt; Core chỉ có 2 kênh PWM + 2 encoder A/B, không phải 4 PWM độc lập. Mạch adapter PWM/DIR → DRV8833 và gate E-stop độc lập chưa được triển khai; encoder V2 một OUT chưa có RTL." vertex="1">
+          <mxGeometry height="70" width="1833" x="55" y="982" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+  <diagram id="dataflow" name="02 - MODULE DATAFLOW">
+    <mxGraphModel dx="2049" dy="1219" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="2060" pageHeight="1130" background="#FFFFFF" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="hdr_dataflow" parent="1" style="text;html=1;whiteSpace=wrap;align=left;verticalAlign=middle;fillColor=none;strokeColor=none;fontColor=#162C45;fontFamily=Arial;fontSize=29;" value="&lt;b&gt;AW CAR | MODULE HÓA &amp; ĐƯỜNG DỮ LIỆU&lt;/b&gt;" vertex="1">
+          <mxGeometry height="54" width="1970" x="45" y="18" as="geometry" />
+        </mxCell>
+        <mxCell id="sub_dataflow" parent="1" style="text;html=1;whiteSpace=wrap;align=left;verticalAlign=middle;fillColor=none;strokeColor=none;fontColor=#566778;fontFamily=Arial;fontSize=15;" value="Module RTL từ drive_core.sv:49–101 • Tín hiệu giữa TV1 / TV2 / TV3 • Thiết bị bên ngoài viền nét đứt" vertex="1">
+          <mxGeometry height="38" width="1970" x="45" y="76" as="geometry" />
+        </mxCell>
+        <mxCell id="external_left" parent="1" style="text;html=1;whiteSpace=wrap;align=left;verticalAlign=middle;fillColor=none;strokeColor=none;fontColor=#566778;fontFamily=Arial;fontSize=18;" value="&lt;b&gt;BÊN NGOÀI&lt;/b&gt;" vertex="1">
+          <mxGeometry height="34" width="325" x="41" y="142" as="geometry" />
+        </mxCell>
+        <mxCell id="inside" parent="1" style="text;html=1;whiteSpace=wrap;align=left;verticalAlign=middle;fillColor=none;strokeColor=none;fontColor=#2563EB;fontFamily=Arial;fontSize=18;" value="&lt;b&gt;BÊN TRONG FPGA&lt;/b&gt;" vertex="1">
+          <mxGeometry height="34" width="1130" x="467" y="142" as="geometry" />
+        </mxCell>
+        <mxCell id="external_right" parent="1" style="text;html=1;whiteSpace=wrap;align=left;verticalAlign=middle;fillColor=none;strokeColor=none;fontColor=#566778;fontFamily=Arial;fontSize=18;" value="&lt;b&gt;BÊN NGOÀI&lt;/b&gt;" vertex="1">
+          <mxGeometry height="34" width="380" x="1647" y="142" as="geometry" />
+        </mxCell>
+        <mxCell id="fpga" parent="1" style="rounded=1;arcSize=2;whiteSpace=wrap;html=1;align=center;verticalAlign=middle;spacing=9;fillColor=#FAFCFF;strokeColor=#9EC2F7;fontColor=#162C45;fontSize=15;fontFamily=Arial;strokeWidth=2.5;" value="" vertex="1">
+          <mxGeometry height="755" width="1138" x="452" y="195" as="geometry" />
+        </mxCell>
+        <mxCell id="link" parent="fpga" style="rounded=1;arcSize=12;whiteSpace=wrap;html=1;align=center;verticalAlign=middle;spacing=9;fillColor=#F4EEFF;strokeColor=#7C3AED;fontColor=#162C45;fontSize=15;fontFamily=Arial;strokeWidth=1.6;" value="&lt;b style=&quot;font-size:17px&quot;&gt;TV2 · fpga_link.sv&lt;/b&gt;&lt;br/&gt;&lt;font color=&quot;#64748B&quot; style=&quot;font-size:12px&quot;&gt;uart_rx + frame_rx + CRC16&lt;/font&gt;&lt;br/&gt;&lt;font color=&quot;#334155&quot; style=&quot;font-size:13px&quot;&gt;command_guard • validate CMD&lt;br/&gt;events / duty / direction&lt;/font&gt;" vertex="1">
+          <mxGeometry height="153" width="292" x="45" y="67" as="geometry" />
+        </mxCell>
+        <mxCell id="safety" parent="fpga" style="rounded=1;arcSize=12;whiteSpace=wrap;html=1;align=center;verticalAlign=middle;spacing=9;fillColor=#E9F1FF;strokeColor=#2563EB;fontColor=#162C45;fontSize=15;fontFamily=Arial;strokeWidth=1.6;" value="&lt;b style=&quot;font-size:17px&quot;&gt;TV1 · safety_fsm.sv&lt;/b&gt;&lt;br/&gt;&lt;font color=&quot;#64748B&quot; style=&quot;font-size:12px&quot;&gt;6 states + watchdog 50ms&lt;/font&gt;&lt;br/&gt;&lt;font color=&quot;#334155&quot; style=&quot;font-size:13px&quot;&gt;session • command_enable&lt;br/&gt;motor_enable • fault&lt;/font&gt;" vertex="1">
+          <mxGeometry height="153" width="266" x="429" y="67" as="geometry" />
+        </mxCell>
+        <mxCell id="motor" parent="fpga" style="rounded=1;arcSize=12;whiteSpace=wrap;html=1;align=center;verticalAlign=middle;spacing=9;fillColor=#E6F6EE;strokeColor=#16856A;fontColor=#162C45;fontSize=15;fontFamily=Arial;strokeWidth=1.6;" value="&lt;b style=&quot;font-size:17px&quot;&gt;TV3 · motor_pwm_pair.sv&lt;/b&gt;&lt;br/&gt;&lt;font color=&quot;#64748B&quot; style=&quot;font-size:12px&quot;&gt;pwm_pair • PWM 20kHz&lt;/font&gt;&lt;br/&gt;&lt;font color=&quot;#334155&quot; style=&quot;font-size:13px&quot;&gt;DIR interlock • output gating&lt;/font&gt;" vertex="1">
+          <mxGeometry height="153" width="297" x="794" y="67" as="geometry" />
+        </mxCell>
+        <mxCell id="common" parent="fpga" style="rounded=1;arcSize=12;whiteSpace=wrap;html=1;align=center;verticalAlign=middle;spacing=9;fillColor=#E9F1FF;strokeColor=#7EA7E5;fontColor=#162C45;fontSize=15;fontFamily=Arial;strokeWidth=1.6;" value="&lt;b style=&quot;font-size:17px&quot;&gt;TV1 · COMMON&lt;/b&gt;&lt;br/&gt;&lt;font color=&quot;#64748B&quot; style=&quot;font-size:12px&quot;&gt;reset_sync / input_sync_filter&lt;/font&gt;&lt;br/&gt;&lt;font color=&quot;#334155&quot; style=&quot;font-size:13px&quot;&gt;rst_n, GPIO sync, inputs_valid&lt;/font&gt;" vertex="1">
+          <mxGeometry height="129" width="262" x="438" y="323" as="geometry" />
+        </mxCell>
+        <mxCell id="encoder" parent="fpga" style="rounded=1;arcSize=12;whiteSpace=wrap;html=1;align=center;verticalAlign=middle;spacing=9;fillColor=#E6F6EE;strokeColor=#16856A;fontColor=#162C45;fontSize=15;fontFamily=Arial;strokeWidth=1.6;" value="&lt;b style=&quot;font-size:17px&quot;&gt;TV3 · encoder_pair.sv&lt;/b&gt;&lt;br/&gt;&lt;font color=&quot;#64748B&quot; style=&quot;font-size:12px&quot;&gt;quadrature_decoder ×2&lt;/font&gt;&lt;br/&gt;&lt;font color=&quot;#334155&quot; style=&quot;font-size:13px&quot;&gt;snapshot_valid + counts 32b&lt;br/&gt;timestamp / sequence&lt;/font&gt;" vertex="1">
+          <mxGeometry height="142" width="293" x="45" y="564" as="geometry" />
+        </mxCell>
+        <mxCell id="status" parent="fpga" style="rounded=1;arcSize=12;whiteSpace=wrap;html=1;align=center;verticalAlign=middle;spacing=9;fillColor=#F4EEFF;strokeColor=#7C3AED;fontColor=#162C45;fontSize=15;fontFamily=Arial;strokeWidth=1.6;" value="&lt;b style=&quot;font-size:17px&quot;&gt;TV2 · STATUS TX&lt;/b&gt;&lt;br/&gt;&lt;font color=&quot;#64748B&quot; style=&quot;font-size:12px&quot;&gt;frame_tx + uart_tx + CRC16&lt;/font&gt;&lt;br/&gt;&lt;font color=&quot;#334155&quot; style=&quot;font-size:13px&quot;&gt;31 byte, trả encoder / fault&lt;/font&gt;" vertex="1">
+          <mxGeometry height="142" width="297" x="438" y="564" as="geometry" />
+        </mxCell>
+        <mxCell id="motion" parent="1" style="rounded=1;arcSize=12;whiteSpace=wrap;html=1;align=center;verticalAlign=middle;spacing=9;fillColor=#F5F7FA;strokeColor=#A7B3C0;fontColor=#162C45;fontSize=15;fontFamily=Arial;strokeWidth=1.6;dashed=1;dashPattern=6 4;" value="&lt;b style=&quot;font-size:17px&quot;&gt;ESP32-S3 Motion&lt;/b&gt;&lt;br/&gt;&lt;font color=&quot;#64748B&quot; style=&quot;font-size:12px&quot;&gt;Gửi UART CMD / nhận STATUS&lt;/font&gt;&lt;br/&gt;&lt;font color=&quot;#334155&quot; style=&quot;font-size:13px&quot;&gt;rx → FPGA; tx ← FPGA&lt;/font&gt;" vertex="1">
+          <mxGeometry height="120" width="335" x="37" y="246" as="geometry" />
+        </mxCell>
+        <mxCell id="safein" parent="1" style="rounded=1;arcSize=12;whiteSpace=wrap;html=1;align=center;verticalAlign=middle;spacing=9;fillColor=#FFF4DF;strokeColor=#B77913;fontColor=#162C45;fontSize=15;fontFamily=Arial;strokeWidth=1.6;dashed=1;dashPattern=6 4;" value="&lt;b style=&quot;font-size:17px&quot;&gt;External safety&lt;/b&gt;&lt;br/&gt;&lt;font color=&quot;#64748B&quot; style=&quot;font-size:12px&quot;&gt;4 inputs: permit / recovery&lt;/font&gt;&lt;br/&gt;&lt;font color=&quot;#334155&quot; style=&quot;font-size:13px&quot;&gt;safety_ok / gate_fault_n&lt;/font&gt;" vertex="1">
+          <mxGeometry height="141" width="335" x="37" y="471" as="geometry" />
+        </mxCell>
+        <mxCell id="clockin" parent="1" style="rounded=1;arcSize=12;whiteSpace=wrap;html=1;align=center;verticalAlign=middle;spacing=9;fillColor=#F5F7FA;strokeColor=#A7B3C0;fontColor=#162C45;fontSize=15;fontFamily=Arial;strokeWidth=1.6;dashed=1;dashPattern=6 4;" value="&lt;b style=&quot;font-size:17px&quot;&gt;Clock / Reset&lt;/b&gt;&lt;br/&gt;&lt;font color=&quot;#64748B&quot; style=&quot;font-size:12px&quot;&gt;clk 27MHz / arst_n&lt;/font&gt;" vertex="1">
+          <mxGeometry height="92" width="335" x="37" y="673" as="geometry" />
+        </mxCell>
+        <mxCell id="sensorin" parent="1" style="rounded=1;arcSize=12;whiteSpace=wrap;html=1;align=center;verticalAlign=middle;spacing=9;fillColor=#E6F6EE;strokeColor=#16856A;fontColor=#162C45;fontSize=15;fontFamily=Arial;strokeWidth=1.6;dashed=1;dashPattern=6 4;" value="&lt;b style=&quot;font-size:17px&quot;&gt;2 encoders&lt;/b&gt;&lt;br/&gt;&lt;font color=&quot;#64748B&quot; style=&quot;font-size:12px&quot;&gt;left_ab / right_ab (A/B)&lt;/font&gt;&lt;br/&gt;&lt;font color=&quot;#334155&quot; style=&quot;font-size:13px&quot;&gt;Một bánh đại diện mỗi bên&lt;/font&gt;" vertex="1">
+          <mxGeometry height="113" width="335" x="37" y="837" as="geometry" />
+        </mxCell>
+        <mxCell id="driver" parent="1" style="rounded=1;arcSize=12;whiteSpace=wrap;html=1;align=center;verticalAlign=middle;spacing=9;fillColor=#FFF4DF;strokeColor=#B77913;fontColor=#162C45;fontSize=15;fontFamily=Arial;strokeWidth=1.6;dashed=1;dashPattern=6 4;" value="&lt;b style=&quot;font-size:17px&quot;&gt;Driver ngoài FPGA&lt;/b&gt;&lt;br/&gt;&lt;font color=&quot;#64748B&quot; style=&quot;font-size:12px&quot;&gt;Adapter + Gate + 2 × DRV8833&lt;/font&gt;&lt;br/&gt;&lt;font color=&quot;#334155&quot; style=&quot;font-size:13px&quot;&gt;PWM/DIR → IN1/IN2&lt;br/&gt;Mạch độc lập chưa hoàn thiện&lt;/font&gt;" vertex="1">
+          <mxGeometry height="153" width="368" x="1656" y="244" as="geometry" />
+        </mxCell>
+        <mxCell id="safeout" parent="1" style="rounded=1;arcSize=12;whiteSpace=wrap;html=1;align=center;verticalAlign=middle;spacing=9;fillColor=#E9F1FF;strokeColor=#2563EB;fontColor=#162C45;fontSize=15;fontFamily=Arial;strokeWidth=1.6;dashed=1;dashPattern=6 4;" value="&lt;b style=&quot;font-size:17px&quot;&gt;Gate / Diagnostics&lt;/b&gt;&lt;br/&gt;&lt;font color=&quot;#64748B&quot; style=&quot;font-size:12px&quot;&gt;fpga_permit • recovery_ack&lt;/font&gt;&lt;br/&gt;&lt;font color=&quot;#334155&quot; style=&quot;font-size:13px&quot;&gt;gate_clear • safety_state • fault&lt;/font&gt;" vertex="1">
+          <mxGeometry height="131" width="368" x="1656" y="512" as="geometry" />
+        </mxCell>
+        <mxCell id="txout" parent="1" style="rounded=1;arcSize=12;whiteSpace=wrap;html=1;align=center;verticalAlign=middle;spacing=9;fillColor=#F4EEFF;strokeColor=#7C3AED;fontColor=#162C45;fontSize=15;fontFamily=Arial;strokeWidth=1.6;dashed=1;dashPattern=6 4;" value="&lt;b style=&quot;font-size:17px&quot;&gt;ESP32-S3 Motion&lt;/b&gt;&lt;br/&gt;&lt;font color=&quot;#64748B&quot; style=&quot;font-size:12px&quot;&gt;Nhận UART STATUS&lt;/font&gt;&lt;br/&gt;&lt;font color=&quot;#334155&quot; style=&quot;font-size:13px&quot;&gt;Encoder snapshot + lỗi + trạng thái&lt;/font&gt;" vertex="1">
+          <mxGeometry height="148" width="368" x="1656" y="790" as="geometry" />
+        </mxCell>
+        <mxCell id="s1" edge="1" parent="1" source="motion" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;endArrow=blockThin;endFill=1;strokeColor=#7C3AED;strokeWidth=2.25;fontSize=12;fontColor=#162C45;fontFamily=Arial;labelBackgroundColor=#FFFFFF;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" target="link" value="UART RX">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="s2" edge="1" parent="1" source="link" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;endArrow=blockThin;endFill=1;strokeColor=#7C3AED;strokeWidth=2.25;fontSize=11;fontColor=#162C45;fontFamily=Arial;labelBackgroundColor=#FFFFFF;exitX=1;exitY=0.55;exitDx=0;exitDy=0;entryX=0;entryY=0.55;entryDx=0;entryDy=0;" target="safety" value="request / valid">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="s3" edge="1" parent="1" source="safety" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;endArrow=blockThin;endFill=1;strokeColor=#2563EB;strokeWidth=2.25;fontSize=12;fontColor=#162C45;fontFamily=Arial;labelBackgroundColor=#FFFFFF;exitX=1;exitY=0.6;exitDx=0;exitDy=0;entryX=0;entryY=0.6;entryDx=0;entryDy=0;" target="motor" value="motor_enable">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="s4" edge="1" parent="1" source="motor" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;endArrow=blockThin;endFill=1;strokeColor=#16856A;strokeWidth=2.25;fontSize=12;fontColor=#162C45;fontFamily=Arial;labelBackgroundColor=#FFFFFF;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" target="driver" value="PWM / DIR">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="s5" edge="1" parent="1" source="link" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;endArrow=blockThin;endFill=1;strokeColor=#7C3AED;strokeWidth=2.25;fontSize=11;fontColor=#162C45;fontFamily=Arial;labelBackgroundColor=#FFFFFF;exitX=0.5;exitY=0;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" target="motor" value="duty L/R + dir">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="644" y="231" />
+              <mxPoint x="1400" y="231" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="s6" edge="1" parent="1" source="safein" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;endArrow=blockThin;endFill=1;strokeColor=#B77913;strokeWidth=2.25;fontSize=12;fontColor=#162C45;fontFamily=Arial;labelBackgroundColor=#FFFFFF;exitX=1;exitY=0.58;exitDx=0;exitDy=0;entryX=0;entryY=0.65;entryDx=0;entryDy=0;" target="common" value="GPIO safety">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="s7" edge="1" parent="1" source="common" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;endArrow=blockThin;endFill=1;strokeColor=#2563EB;strokeWidth=2.25;fontSize=12;fontColor=#162C45;fontFamily=Arial;labelBackgroundColor=#FFFFFF;exitX=0.6;exitY=0;exitDx=0;exitDy=0;entryX=0.55;entryY=1;entryDx=0;entryDy=0;" target="safety" value="rst_n / GPIO">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="s8" edge="1" parent="1" source="clockin" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;endArrow=blockThin;endFill=1;strokeColor=#566778;strokeWidth=2.25;fontSize=11;fontColor=#162C45;fontFamily=Arial;labelBackgroundColor=#FFFFFF;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.9;entryDx=0;entryDy=0;" target="common" value="clk / rst">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="418" y="661" />
+              <mxPoint x="844" y="661" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="s9" edge="1" parent="1" source="sensorin" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;endArrow=blockThin;endFill=1;strokeColor=#16856A;strokeWidth=2.25;fontSize=12;fontColor=#162C45;fontFamily=Arial;labelBackgroundColor=#FFFFFF;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.55;entryDx=0;entryDy=0;" target="encoder" value="A/B">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="s10" edge="1" parent="1" source="encoder" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;endArrow=blockThin;endFill=1;strokeColor=#16856A;strokeWidth=2.25;fontSize=12;fontColor=#162C45;fontFamily=Arial;labelBackgroundColor=#FFFFFF;exitX=1;exitY=0.55;exitDx=0;exitDy=0;entryX=0;entryY=0.55;entryDx=0;entryDy=0;" target="status" value="snapshot">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="s11" edge="1" parent="1" source="status" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;endArrow=blockThin;endFill=1;strokeColor=#7C3AED;strokeWidth=2.25;fontSize=12;fontColor=#162C45;fontFamily=Arial;labelBackgroundColor=#FFFFFF;exitX=1;exitY=0.76;exitDx=0;exitDy=0;entryX=0;entryY=0.56;entryDx=0;entryDy=0;" target="txout" value="tx UART">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1312" y="868" />
+              <mxPoint x="1622" y="868" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="s12" edge="1" parent="1" source="safety" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;endArrow=blockThin;endFill=1;strokeColor=#2563EB;strokeWidth=2.25;fontSize=11;fontColor=#162C45;fontFamily=Arial;labelBackgroundColor=#FFFFFF;exitX=1;exitY=0.95;exitDx=0;exitDy=0;entryX=0;entryY=0.28;entryDx=0;entryDy=0;" target="safeout" value="permit / fault">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1616" y="456" />
+              <mxPoint x="1616" y="554" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="contract" parent="1" style="rounded=1;arcSize=12;whiteSpace=wrap;html=1;align=center;verticalAlign=middle;spacing=9;fillColor=#EEF5FF;strokeColor=#8AB5E8;fontColor=#162C45;fontSize=14;fontFamily=Arial;strokeWidth=1.6;" value="&lt;b&gt;CONTRACT MODULE&lt;/b&gt;&lt;br/&gt;TV1 ? TV2: context_load / session / command_enable&lt;br/&gt;TV2 ? TV1: status_sent / session / state&lt;br/&gt;TV3 ? TV1: pwm_rejected&lt;br/&gt;TV3 ? TV2: encoder snapshot; TV1 ? TV2: state / fault" vertex="1">
+          <mxGeometry height="197" width="322" x="1238" y="547" as="geometry" />
+        </mxCell>
+        <mxCell id="warning" parent="1" style="rounded=1;arcSize=12;whiteSpace=wrap;html=1;align=center;verticalAlign=middle;spacing=9;fillColor=#FFF4DF;strokeColor=#E0B977;fontColor=#162C45;fontSize=15;fontFamily=Arial;strokeWidth=1.6;" value="&lt;b&gt;PHẠM VI:&lt;/b&gt; ESP32 Motion làm PID; FPGA chỉ tiếp nhận duty/dir hợp lệ và phát PWM. Gate ngoài phải tắt motor được dù clock FPGA dừng. Encoder A/B trong RTL khác cảm biến V2 1-OUT dự kiến." vertex="1">
+          <mxGeometry height="80" width="1983" x="41" y="1007" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+  <diagram id="hierarchy" name="03 - ALL 15 RTL MODULES">
+    <mxGraphModel grid="1" page="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" pageScale="1" pageWidth="2110" pageHeight="1020" background="#FFFFFF" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="hdr_hierarchy" parent="1" style="text;html=1;whiteSpace=wrap;align=left;verticalAlign=middle;fillColor=none;strokeColor=none;fontColor=#162C45;fontFamily=Arial;fontSize=29;" value="&lt;b&gt;AW CAR | CÂY PHÂN CẤP 15 MODULE RTL&lt;/b&gt;" vertex="1">
+          <mxGeometry height="54" width="2020" x="45" y="18" as="geometry" />
+        </mxCell>
+        <mxCell id="sub_hierarchy" parent="1" style="text;html=1;whiteSpace=wrap;align=left;verticalAlign=middle;fillColor=none;strokeColor=none;fontColor=#566778;fontFamily=Arial;fontSize=15;" value="15 module definitions: 1 TOP + 2 Common + 1 Safety + 7 Link + 2 PWM + 2 Encoder; bố trí theo chủ sở hữu" vertex="1">
+          <mxGeometry height="38" width="2020" x="45" y="76" as="geometry" />
+        </mxCell>
+        <mxCell id="top" parent="1" style="rounded=1;arcSize=12;whiteSpace=wrap;html=1;align=center;verticalAlign=middle;spacing=9;fillColor=#E9F1FF;strokeColor=#2563EB;fontColor=#162C45;fontSize=15;fontFamily=Arial;strokeWidth=2.5;" value="&lt;b style=&quot;font-size:17px&quot;&gt;drive_core.sv · TOP&lt;/b&gt;&lt;br/&gt;&lt;font color=&quot;#64748B&quot; style=&quot;font-size:12px&quot;&gt;TV1 tích hợp 5 nhóm RTL&lt;/font&gt;&lt;br/&gt;&lt;font color=&quot;#334155&quot; style=&quot;font-size:13px&quot;&gt;UART / FSM / PWM / Encoder / reset&lt;/font&gt;" vertex="1">
+          <mxGeometry height="104" width="494" x="775" y="114" as="geometry" />
+        </mxCell>
+        <mxCell id="comm" parent="1" style="rounded=1;arcSize=4;whiteSpace=wrap;html=1;align=center;verticalAlign=middle;spacing=9;fillColor=#E9F1FF;strokeColor=#2563EB;fontColor=#162C45;fontSize=15;fontFamily=Arial;strokeWidth=2;" value="" vertex="1">
+          <mxGeometry height="530" width="336" x="40" y="355" as="geometry" />
+        </mxCell>
+        <mxCell id="comm_title" parent="comm" style="text;html=1;whiteSpace=wrap;align=center;verticalAlign=middle;fillColor=none;strokeColor=none;fontColor=#162C45;fontFamily=Arial;fontSize=19;" value="&lt;b&gt;TV1 · COMMON&lt;/b&gt;" vertex="1">
+          <mxGeometry height="46" width="296" x="20" y="12" as="geometry" />
+        </mxCell>
+        <mxCell id="rs" parent="comm" style="rounded=1;arcSize=12;whiteSpace=wrap;html=1;align=center;verticalAlign=middle;spacing=9;fillColor=#FFFFFF;strokeColor=#A7B5C5;fontColor=#162C45;fontSize=13;fontFamily=Arial;strokeWidth=1.6;" value="&lt;b style=&quot;font-size:17px&quot;&gt;reset_sync.sv&lt;/b&gt;&lt;br/&gt;&lt;font color=&quot;#64748B&quot; style=&quot;font-size:12px&quot;&gt;&lt;/font&gt;&lt;br/&gt;&lt;font color=&quot;#334155&quot; style=&quot;font-size:13px&quot;&gt;Async assert • sync release&lt;/font&gt;" vertex="1">
+          <mxGeometry height="104" width="290" x="22" y="124" as="geometry" />
+        </mxCell>
+        <mxCell id="isf" parent="comm" style="rounded=1;arcSize=12;whiteSpace=wrap;html=1;align=center;verticalAlign=middle;spacing=9;fillColor=#FFFFFF;strokeColor=#A7B5C5;fontColor=#162C45;fontSize=13;fontFamily=Arial;strokeWidth=1.6;" value="&lt;b style=&quot;font-size:17px&quot;&gt;input_sync_filter.sv&lt;/b&gt;&lt;br/&gt;&lt;font color=&quot;#64748B&quot; style=&quot;font-size:12px&quot;&gt;&lt;/font&gt;&lt;br/&gt;&lt;font color=&quot;#334155&quot; style=&quot;font-size:13px&quot;&gt;Debounce / sample sync&lt;/font&gt;" vertex="1">
+          <mxGeometry height="104" width="290" x="22" y="285" as="geometry" />
+        </mxCell>
+        <mxCell id="saf" parent="1" style="rounded=1;arcSize=4;whiteSpace=wrap;html=1;align=center;verticalAlign=middle;spacing=9;fillColor=#E9F1FF;strokeColor=#2563EB;fontColor=#162C45;fontSize=15;fontFamily=Arial;strokeWidth=2;" value="" vertex="1">
+          <mxGeometry height="530" width="300" x="421" y="355" as="geometry" />
+        </mxCell>
+        <mxCell id="saf_title" parent="saf" style="text;html=1;whiteSpace=wrap;align=center;verticalAlign=middle;fillColor=none;strokeColor=none;fontColor=#162C45;fontFamily=Arial;fontSize=19;" value="&lt;b&gt;TV1 · SAFETY&lt;/b&gt;" vertex="1">
+          <mxGeometry height="46" width="260" x="20" y="12" as="geometry" />
+        </mxCell>
+        <mxCell id="fsm" parent="saf" style="rounded=1;arcSize=12;whiteSpace=wrap;html=1;align=center;verticalAlign=middle;spacing=9;fillColor=#FFFFFF;strokeColor=#A7B5C5;fontColor=#162C45;fontSize=13;fontFamily=Arial;strokeWidth=1.6;" value="&lt;b style=&quot;font-size:17px&quot;&gt;safety_fsm.sv&lt;/b&gt;&lt;br/&gt;&lt;font color=&quot;#64748B&quot; style=&quot;font-size:12px&quot;&gt;&lt;/font&gt;&lt;br/&gt;&lt;font color=&quot;#334155&quot; style=&quot;font-size:13px&quot;&gt;DISARMED / HANDSHAKE&lt;br/&gt;ARM_PENDING / ARMED&lt;br/&gt;FAULT / CLEAR_WAIT&lt;/font&gt;" vertex="1">
+          <mxGeometry height="175" width="256" x="22" y="175" as="geometry" />
+        </mxCell>
+        <mxCell id="lnk" parent="1" style="rounded=1;arcSize=4;whiteSpace=wrap;html=1;align=center;verticalAlign=middle;spacing=9;fillColor=#F4EEFF;strokeColor=#7C3AED;fontColor=#162C45;fontSize=15;fontFamily=Arial;strokeWidth=2;" value="" vertex="1">
+          <mxGeometry height="530" width="535" x="755" y="355" as="geometry" />
+        </mxCell>
+        <mxCell id="lnk_title" parent="lnk" style="text;html=1;whiteSpace=wrap;align=center;verticalAlign=middle;fillColor=none;strokeColor=none;fontColor=#162C45;fontFamily=Arial;fontSize=19;" value="&lt;b&gt;TV2 · LINK&lt;/b&gt;" vertex="1">
+          <mxGeometry height="46" width="495" x="20" y="12" as="geometry" />
+        </mxCell>
+        <mxCell id="fl" parent="lnk" style="rounded=1;arcSize=12;whiteSpace=wrap;html=1;align=center;verticalAlign=middle;spacing=9;fillColor=#FFFFFF;strokeColor=#A7B5C5;fontColor=#162C45;fontSize=13;fontFamily=Arial;strokeWidth=1.6;" value="&lt;b style=&quot;font-size:17px&quot;&gt;fpga_link.sv&lt;/b&gt;&lt;br/&gt;&lt;font color=&quot;#64748B&quot; style=&quot;font-size:12px&quot;&gt;&lt;/font&gt;&lt;br/&gt;&lt;font color=&quot;#334155&quot; style=&quot;font-size:13px&quot;&gt;Wrapper UART + protocol + STATUS&lt;/font&gt;" vertex="1">
+          <mxGeometry height="70" width="487" x="24" y="84" as="geometry" />
+        </mxCell>
+        <mxCell id="ur" parent="lnk" style="rounded=1;arcSize=12;whiteSpace=wrap;html=1;align=center;verticalAlign=middle;spacing=9;fillColor=#FFFFFF;strokeColor=#A7B5C5;fontColor=#162C45;fontSize=13;fontFamily=Arial;strokeWidth=1.6;" value="&lt;b style=&quot;font-size:17px&quot;&gt;uart_rx.sv&lt;/b&gt;&lt;br/&gt;&lt;font color=&quot;#64748B&quot; style=&quot;font-size:12px&quot;&gt;&lt;/font&gt;&lt;br/&gt;&lt;font color=&quot;#334155&quot; style=&quot;font-size:13px&quot;&gt;Receive 8N1&lt;/font&gt;" vertex="1">
+          <mxGeometry height="74" width="227" x="24" y="178" as="geometry" />
+        </mxCell>
+        <mxCell id="fr" parent="lnk" style="rounded=1;arcSize=12;whiteSpace=wrap;html=1;align=center;verticalAlign=middle;spacing=9;fillColor=#FFFFFF;strokeColor=#A7B5C5;fontColor=#162C45;fontSize=13;fontFamily=Arial;strokeWidth=1.6;" value="&lt;b style=&quot;font-size:17px&quot;&gt;frame_rx.sv&lt;/b&gt;&lt;br/&gt;&lt;font color=&quot;#64748B&quot; style=&quot;font-size:12px&quot;&gt;&lt;/font&gt;&lt;br/&gt;&lt;font color=&quot;#334155&quot; style=&quot;font-size:13px&quot;&gt;Parse CRC&lt;/font&gt;" vertex="1">
+          <mxGeometry height="74" width="227" x="281" y="178" as="geometry" />
+        </mxCell>
+        <mxCell id="cg" parent="lnk" style="rounded=1;arcSize=12;whiteSpace=wrap;html=1;align=center;verticalAlign=middle;spacing=9;fillColor=#FFFFFF;strokeColor=#A7B5C5;fontColor=#162C45;fontSize=13;fontFamily=Arial;strokeWidth=1.6;" value="&lt;b style=&quot;font-size:17px&quot;&gt;command_guard.sv&lt;/b&gt;&lt;br/&gt;&lt;font color=&quot;#64748B&quot; style=&quot;font-size:12px&quot;&gt;&lt;/font&gt;&lt;br/&gt;&lt;font color=&quot;#334155&quot; style=&quot;font-size:13px&quot;&gt;Validate session, seq, duty, direction&lt;/font&gt;" vertex="1">
+          <mxGeometry height="70" width="484" x="24" y="277" as="geometry" />
+        </mxCell>
+        <mxCell id="ft" parent="lnk" style="rounded=1;arcSize=12;whiteSpace=wrap;html=1;align=center;verticalAlign=middle;spacing=9;fillColor=#FFFFFF;strokeColor=#A7B5C5;fontColor=#162C45;fontSize=13;fontFamily=Arial;strokeWidth=1.6;" value="&lt;b style=&quot;font-size:17px&quot;&gt;frame_tx.sv&lt;/b&gt;&lt;br/&gt;&lt;font color=&quot;#64748B&quot; style=&quot;font-size:12px&quot;&gt;&lt;/font&gt;&lt;br/&gt;&lt;font color=&quot;#334155&quot; style=&quot;font-size:13px&quot;&gt;Pack STATUS&lt;/font&gt;" vertex="1">
+          <mxGeometry height="70" width="227" x="24" y="374" as="geometry" />
+        </mxCell>
+        <mxCell id="ut" parent="lnk" style="rounded=1;arcSize=12;whiteSpace=wrap;html=1;align=center;verticalAlign=middle;spacing=9;fillColor=#FFFFFF;strokeColor=#A7B5C5;fontColor=#162C45;fontSize=13;fontFamily=Arial;strokeWidth=1.6;" value="&lt;b style=&quot;font-size:17px&quot;&gt;uart_tx.sv&lt;/b&gt;&lt;br/&gt;&lt;font color=&quot;#64748B&quot; style=&quot;font-size:12px&quot;&gt;&lt;/font&gt;&lt;br/&gt;&lt;font color=&quot;#334155&quot; style=&quot;font-size:13px&quot;&gt;Transmit 8N1&lt;/font&gt;" vertex="1">
+          <mxGeometry height="70" width="227" x="281" y="374" as="geometry" />
+        </mxCell>
+        <mxCell id="crc" parent="lnk" style="rounded=1;arcSize=12;whiteSpace=wrap;html=1;align=center;verticalAlign=middle;spacing=9;fillColor=#FFFFFF;strokeColor=#A7B5C5;fontColor=#162C45;fontSize=13;fontFamily=Arial;strokeWidth=1.6;" value="&lt;b style=&quot;font-size:17px&quot;&gt;crc16_byte.sv&lt;/b&gt;&lt;br/&gt;&lt;font color=&quot;#64748B&quot; style=&quot;font-size:12px&quot;&gt;&lt;/font&gt;&lt;br/&gt;&lt;font color=&quot;#334155&quot; style=&quot;font-size:13px&quot;&gt;Shared CRC16 RX/TX&lt;/font&gt;" vertex="1">
+          <mxGeometry height="60" width="260" x="140" y="459" as="geometry" />
+        </mxCell>
+        <mxCell id="pwm" parent="1" style="rounded=1;arcSize=4;whiteSpace=wrap;html=1;align=center;verticalAlign=middle;spacing=9;fillColor=#E6F6EE;strokeColor=#16856A;fontColor=#162C45;fontSize=15;fontFamily=Arial;strokeWidth=2;" value="" vertex="1">
+          <mxGeometry height="530" width="323" x="1325" y="355" as="geometry" />
+        </mxCell>
+        <mxCell id="pwm_title" parent="pwm" style="text;html=1;whiteSpace=wrap;align=center;verticalAlign=middle;fillColor=none;strokeColor=none;fontColor=#162C45;fontFamily=Arial;fontSize=19;" value="&lt;b&gt;TV3 · PWM&lt;/b&gt;" vertex="1">
+          <mxGeometry height="46" width="283" x="20" y="12" as="geometry" />
+        </mxCell>
+        <mxCell id="mp" parent="pwm" style="rounded=1;arcSize=12;whiteSpace=wrap;html=1;align=center;verticalAlign=middle;spacing=9;fillColor=#FFFFFF;strokeColor=#A7B5C5;fontColor=#162C45;fontSize=13;fontFamily=Arial;strokeWidth=1.6;" value="&lt;b style=&quot;font-size:17px&quot;&gt;motor_pwm_pair.sv&lt;/b&gt;&lt;br/&gt;&lt;font color=&quot;#64748B&quot; style=&quot;font-size:12px&quot;&gt;&lt;/font&gt;&lt;br/&gt;&lt;font color=&quot;#334155&quot; style=&quot;font-size:13px&quot;&gt;Direction + interlock&lt;/font&gt;" vertex="1">
+          <mxGeometry height="116" width="283" x="20" y="130" as="geometry" />
+        </mxCell>
+        <mxCell id="pp" parent="pwm" style="rounded=1;arcSize=12;whiteSpace=wrap;html=1;align=center;verticalAlign=middle;spacing=9;fillColor=#FFFFFF;strokeColor=#A7B5C5;fontColor=#162C45;fontSize=13;fontFamily=Arial;strokeWidth=1.6;" value="&lt;b style=&quot;font-size:17px&quot;&gt;pwm_pair.sv&lt;/b&gt;&lt;br/&gt;&lt;font color=&quot;#64748B&quot; style=&quot;font-size:12px&quot;&gt;&lt;/font&gt;&lt;br/&gt;&lt;font color=&quot;#334155&quot; style=&quot;font-size:13px&quot;&gt;2 channel PWM 20kHz&lt;/font&gt;" vertex="1">
+          <mxGeometry height="116" width="283" x="20" y="294" as="geometry" />
+        </mxCell>
+        <mxCell id="enc" parent="1" style="rounded=1;arcSize=4;whiteSpace=wrap;html=1;align=center;verticalAlign=middle;spacing=9;fillColor=#E6F6EE;strokeColor=#16856A;fontColor=#162C45;fontSize=15;fontFamily=Arial;strokeWidth=2;" value="" vertex="1">
+          <mxGeometry height="530" width="390" x="1680" y="355" as="geometry" />
+        </mxCell>
+        <mxCell id="enc_title" parent="enc" style="text;html=1;whiteSpace=wrap;align=center;verticalAlign=middle;fillColor=none;strokeColor=none;fontColor=#162C45;fontFamily=Arial;fontSize=19;" value="&lt;b&gt;TV3 · ENCODER&lt;/b&gt;" vertex="1">
+          <mxGeometry height="46" width="350" x="20" y="12" as="geometry" />
+        </mxCell>
+        <mxCell id="ep" parent="enc" style="rounded=1;arcSize=12;whiteSpace=wrap;html=1;align=center;verticalAlign=middle;spacing=9;fillColor=#FFFFFF;strokeColor=#A7B5C5;fontColor=#162C45;fontSize=13;fontFamily=Arial;strokeWidth=1.6;" value="&lt;b style=&quot;font-size:17px&quot;&gt;encoder_pair.sv&lt;/b&gt;&lt;br/&gt;&lt;font color=&quot;#64748B&quot; style=&quot;font-size:12px&quot;&gt;&lt;/font&gt;&lt;br/&gt;&lt;font color=&quot;#334155&quot; style=&quot;font-size:13px&quot;&gt;Count + snapshot 10ms&lt;/font&gt;" vertex="1">
+          <mxGeometry height="116" width="350" x="20" y="130" as="geometry" />
+        </mxCell>
+        <mxCell id="qd" parent="enc" style="rounded=1;arcSize=12;whiteSpace=wrap;html=1;align=center;verticalAlign=middle;spacing=9;fillColor=#FFFFFF;strokeColor=#A7B5C5;fontColor=#162C45;fontSize=13;fontFamily=Arial;strokeWidth=1.6;" value="&lt;b style=&quot;font-size:17px&quot;&gt;quadrature_decoder.sv&lt;/b&gt;&lt;br/&gt;&lt;font color=&quot;#64748B&quot; style=&quot;font-size:12px&quot;&gt;&lt;/font&gt;&lt;br/&gt;&lt;font color=&quot;#334155&quot; style=&quot;font-size:13px&quot;&gt;X4 A/B, two instances&lt;/font&gt;" vertex="1">
+          <mxGeometry height="116" width="350" x="20" y="294" as="geometry" />
+        </mxCell>
+        <mxCell id="tree_comm" edge="1" parent="1" source="top" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;endArrow=blockThin;endFill=1;strokeColor=#2563EB;strokeWidth=2.25;fontSize=12;fontColor=#162C45;fontFamily=Arial;labelBackgroundColor=#FFFFFF;exitX=0.05;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" target="comm" value="">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="799.7" y="260" />
+              <mxPoint x="208" y="260" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="tree_saf" edge="1" parent="1" source="top" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;endArrow=blockThin;endFill=1;strokeColor=#2563EB;strokeWidth=2.25;fontSize=12;fontColor=#162C45;fontFamily=Arial;labelBackgroundColor=#FFFFFF;exitX=0.28;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" target="saf" value="">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="571" y="301" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="tree_lnk" edge="1" parent="1" source="top" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;endArrow=blockThin;endFill=1;strokeColor=#7C3AED;strokeWidth=2.25;fontSize=12;fontColor=#162C45;fontFamily=Arial;labelBackgroundColor=#FFFFFF;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" target="lnk" value="">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1022.5" y="301" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="tree_pwm" edge="1" parent="1" source="top" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;endArrow=blockThin;endFill=1;strokeColor=#16856A;strokeWidth=2.25;fontSize=12;fontColor=#162C45;fontFamily=Arial;labelBackgroundColor=#FFFFFF;exitX=0.72;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" target="pwm" value="">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1486.5" y="301" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="tree_enc" edge="1" parent="1" source="top" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;endArrow=blockThin;endFill=1;strokeColor=#16856A;strokeWidth=2.25;fontSize=12;fontColor=#162C45;fontFamily=Arial;labelBackgroundColor=#FFFFFF;exitX=0.95;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" target="enc" value="">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1244.3" y="260" />
+              <mxPoint x="1875" y="260" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="treefoot" parent="1" style="rounded=1;arcSize=12;whiteSpace=wrap;html=1;align=center;verticalAlign=middle;spacing=9;fillColor=#F5F7FA;strokeColor=#CAD6E0;fontColor=#162C45;fontSize=14;fontFamily=Arial;strokeWidth=1.6;" value="&lt;b&gt;Chú thích:&lt;/b&gt; Đây là cây module theo thư mục, không phải sơ đồ mỗi instance. input_sync_filter còn được encoder_pair sử dụng; crc16_byte được frame_rx + frame_tx dùng chung logic." vertex="1">
+          <mxGeometry height="60" width="2025" x="42" y="929" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

@@ -3,7 +3,7 @@
 module motor_pwm_pair #(
     parameter int PERIOD_CYCLES = 1350,
     parameter int DUTY_WIDTH = 16,
-    parameter int ZERO_CYCLES = 27000,
+    parameter int ZERO_CYCLES = 1080000,
     parameter int SETUP_CYCLES = 27
 ) (
     input  logic clk,
@@ -57,20 +57,28 @@ module motor_pwm_pair #(
             if (!enable) begin
                 state <= RUN; wait_count <= 0; direction <= 0;
                 pending_left <= 0; pending_right <= 0; pending_direction <= 0;
-            end else if (valid && (state == WAIT_ZERO || state == WAIT_SETUP || !same_direction)) begin
-                // A newer command replaces the whole pending pair and restarts the zero interval.
-                pending_left <= VALUE_WIDTH'(command_left); pending_right <= VALUE_WIDTH'(command_right);
-                pending_direction <= command_direction;
-                state <= WAIT_ZERO; wait_count <= ZERO_CYCLES - 1;
             end else begin
+                if (valid) begin
+                    pending_left <= VALUE_WIDTH'(command_left);
+                    pending_right <= VALUE_WIDTH'(command_right);
+                    pending_direction <= command_direction;
+                end
+                // PWM remains off throughout WAIT_ZERO. Fresh commands update
+                // the target without restarting that uninterrupted coast time.
+                // A different direction after it was latched in setup/load
+                // starts a new zero interval; same-direction refreshes do not.
                 case (state)
                     WAIT_ZERO: if (wait_count == 0) begin
-                        direction <= pending_direction;
+                        direction <= valid ? command_direction : pending_direction;
                         state <= WAIT_SETUP; wait_count <= SETUP_CYCLES - 1;
                     end else wait_count <= wait_count - 1'b1;
-                    WAIT_SETUP: if (wait_count == 0) state <= LOAD;
+                    WAIT_SETUP: if (valid && !same_direction) begin
+                        state <= WAIT_ZERO; wait_count <= ZERO_CYCLES - 1;
+                    end else if (wait_count == 0) state <= LOAD;
                         else wait_count <= wait_count - 1'b1;
-                    LOAD: state <= RUN;
+                    RUN, LOAD: if (valid && !same_direction) begin
+                        state <= WAIT_ZERO; wait_count <= ZERO_CYCLES - 1;
+                    end else state <= RUN;
                     default: state <= RUN;
                 endcase
             end

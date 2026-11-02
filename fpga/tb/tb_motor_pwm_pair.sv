@@ -49,7 +49,7 @@ module tb_motor_pwm_pair;
             if (hl != l || hr != r) $fatal(1, "motor pair duty mismatch %d/%d %d/%d", hl,l,hr,r);
         end
     endtask
-    integer delay_ticks;
+    integer delay_ticks, refresh_index;
     initial begin
         if ($test$plusargs("waves")) begin $dumpfile("tb_motor_pwm_pair.vcd"); $dumpvars(0, tb_motor_pwm_pair); end
         repeat (3) @(negedge clk); rst_n = 1;
@@ -69,6 +69,22 @@ module tb_motor_pwm_pair;
         command(0, 17, 1); // Supersede while direction setup is pending.
         measure(0, 17);
         if (direction !== 1) $fatal(1, "setup replacement lost");
+        // Repeated fresh commands faster than ZERO_CYCLES must not starve
+        // the transition. Latest duties still win once PWM resumes.
+        command(17, 17, 0); measure(17, 17);
+        command(1, 2, 3);
+        for (refresh_index=1; refresh_index<=12; refresh_index=refresh_index+1)
+            command(refresh_index, 17-refresh_index, 3);
+        if (direction!==3 || interlock) $fatal(1,"fresh commands restarted zero/setup forever");
+        measure(12, 5);
+        // The command accepted exactly at zero expiration supplies the new
+        // direction as well as both duties, without a stale-target pulse.
+        command(17, 17, 0); measure(17, 17);
+        command(9, 9, 1);
+        repeat(3) @(negedge clk);
+        command(4, 12, 2);
+        if (direction!==2) $fatal(1,"latest direction at zero deadline lost");
+        measure(4, 12);
         // Disable at every phase of a direction change; never resurrect queued duty.
         for (delay_ticks = 0; delay_ticks <= 10; delay_ticks = delay_ticks + 1) begin
             command(17, 17, 0); measure(17, 17);
@@ -105,7 +121,9 @@ module tb_motor_pwm_pair;
         repeat (2) @(negedge clk); rst_n = 1;
         measure(0, 0);
         if (changes < 4) $fatal(1, "missing direction coverage");
-        $display("PASS tb_motor_pwm_pair: zero/setup, latest pair, invalid, disable/reset each phase");
+        $display("COVER motor_pwm_pair.refresh_during_reversal 12");
+        $display("COVER motor_pwm_pair.zero_deadline_replacement 1");
+        $display("PASS tb_motor_pwm_pair: zero/setup, nonstarving refresh/latest pair, invalid, disable/reset each phase");
         $finish;
     end
     initial begin #200000; $fatal(1, "timeout tb_motor_pwm_pair"); end

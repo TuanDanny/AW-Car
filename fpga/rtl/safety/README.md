@@ -13,9 +13,14 @@ mới hợp lệ khi ARMED gia hạn watchdog; heartbeat/STATUS/frame cũ không
 Handshake/recovery, watchdog và clear dùng chung một bộ đếm theo pha vì các
 pha không chạy đồng thời; mỗi lần vào pha đều nạp deadline riêng. Hold clear
 dùng ngưỡng trên chính bộ đếm đó, không dùng prescaler hoặc clock sinh thêm.
+Sau HELLO khi đang FAULT, session phục hồi vẫn có deadline handshake250ms
+dù state chưa chuyển sang HANDSHAKE. Hết hạn hủy phiên, chốt bit timeout và
+cần GPIO recovery mới; CLEAR_FAULT đúng tick hết hạn cũng bị loại. FAULT
+chưa mở phiên/cửa recovery nào được phép chờ người vận hành vô hạn.
 Tại27MHz,74bit timer cũ còn23bit; timeout vẫn thắng lệnh/gate tới đúng hạn.
-Hold bằng hoặc dài hơn clear window không thể clear thành công. Tính tương
-đương và invariant phiên/recovery được kiểm bằng công cụ ở `tools/`.
+Hold bằng hoặc dài hơn clear window không thể clear thành công. Bằng chứng
+tương đương ở lần tối ưu trước không áp dụng cho bản sửa deadline FAULT;
+test hồi quy mới kiểm tra trước/đúng/sau hạn cả với timer250ms danh định.
 
 Trạng thái: đã mô phỏng trạng thái, timeout/biên deadline/reset và tích hợp
 trong [drive_core.sv](../drive_core.sv); đã tổng hợp generic toàn top bằng
@@ -23,3 +28,12 @@ trong [drive_core.sv](../drive_core.sv); đã tổng hợp generic toàn top b�
 Watchdog này cần clock FPGA; Motion phải khóa driver độc lập khi snapshot
 cũ/mất phản hồi, E-stop/gate ngoài không được phụ thuộc clock FPGA.
 Đặc tả đầy đủ: [hợp đồng an toàn](../../../firmware/shared/fpga-safety.md).
+
+
+`runtime_diagnostics.sv` chỉ bật cho protocol v2: ghi sticky flags cho RX/guard/
+TX drop/PWM reject, snapshot quá hạn, encoder không xung khi yêu cầu chạy và
+invariant raw PWM/state. Chỉ snapshot stall/invariant khóa driver và yêu cầu
+reset; cảnh báo encoder không tự kết luận kẹt. Snapshot timeout2×chu kỳ, encoder
+mặc định500ms có thể đổi bằng `ENCODER_STALE_CYCLES`. Được kiểm tra bằng fault
+injection và UART CRC thật trong mô phỏng; không tự phát hiện được mọi bug.
+Ánh xạ bit/điều kiện ESP32 đọc ở [diagnostics v2](../../../firmware/shared/fpga-protocol-v2.md#6-runtime-diagnostics--extension-02112026).
