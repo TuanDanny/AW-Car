@@ -188,6 +188,11 @@ Có một `self.car.move` qua giọng nói bị `WRONG_MODE` khi đang Manual,
 chưa chứng minh mọi tình huống backend hoặc chuyển động vật lý. Chưa có
 Motion nên không gọi lái/ARM/PID/motor là đã nghiệm thu.
 
+Lượt theo dõi tiếp thêm180giây:3 lần ghi RGB, không thêm lỗi WS payload
+hoặc crash. Có một lần TCP recv104 (peer reset); người dùng xác nhận đã
+khóa màn hình/chuyển ứng dụng/tải lại Safari. Vì vậy không tính lần này
+là tự ngắt khi Safari đang mở ổn định. Không reset/nạp trong hai lượt này.
+
 Điểm UI cần bổ sung trước nghiệm thu Motion: `app.mjs/onclose` hiện ẩn
 dashboard nhưng chưa xóa nhãn quyền chạy ở header. Khi Manual đã ARM rồi
 mất Web, nhãn có thể còn giá trị cũ dù lõi đã thu quyền. Không ảnh hưởng
