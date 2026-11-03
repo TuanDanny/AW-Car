@@ -75,6 +75,16 @@ class WebTests(unittest.IsolatedAsyncioTestCase):
         self.assertIsNone(s["battery_mv"])
         self.assertEqual(s["data_source"], "mock")
 
+    async def test_os_memory_sampler_does_not_report_a_false_zero(self):
+        await self.login()
+        await self.client.post("/api/lab", json={"op": "advance", "ms": 5000})
+        for _ in range(20):
+            if self.sim.memory_samples:
+                break
+            await asyncio.sleep(0.005)
+        self.assertTrue(self.sim.memory_samples)
+        self.assertGreater(self.sim.memory_samples[-1][1], 0)
+
     async def test_auth_origin_and_exclusive_websocket(self):
         r = await self.client.post("/api/login", json={"pin": "wrong"})
         self.assertEqual(r.status, 403)

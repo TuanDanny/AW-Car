@@ -27,11 +27,19 @@ FPGA hoặc motor thật trong vòng kiểm thử. Không nạp ESP32 trong mố
 | HTTP/JSON/auth/Origin/một WS | `tests/test_brain_web.py` | Đạt; sai kiểu số không được coi là lệnh hợp lệ |
 | Internet/mất Web theo mode | C++/HTTP và computer use | Đạt trong giả lập |
 | RGB, transcript, không có telemetry | HTTP + browser | Đạt; số đo chưa có là null/“Chưa có dữ liệu” |
-| Repository và quy tắc | `python tools/check_repo.py`, unittest, diff check | Đang chốt kết quả cuối |
+| Repository và quy tắc | `python tools/check_repo.py`, unittest, diff check | Đạt |
 
-Full host regression hiện gồm 71 ca Python và 3 ca Node; báo cáo cuối cập
-nhật khi hoàn tất build/soak và CI. Không dùng thời gian thực Windows làm
-clock cho các kiểm tra biên chức năng; bài soak bên dưới đo thời gian thực.
+Full host regression cuối gồm **72 ca Python và 3 ca Node, đều đạt**.
+Có 10.000 thao tác ngẫu nhiên kiểm bất biến không quyền → mục tiêu 0.
+Không dùng thời gian thực Windows làm clock cho kiểm tra biên chức năng;
+bài soak bên dưới đo thời gian thực.
+
+[CI Linux của source 33023d7](https://github.com/TuanDanny/AW-Car/actions/runs/41603932025/job/125809002156)
+đạt 71 ca Python, 3 ca Node và toàn bộ **110 ca upstream Xiaozhi**.
+Ca thứ 72 bổ sung kiểm tra bộ lấy số đo RAM Win64 sau đó. Chạy 110 ca trên
+Windows gặp 11 lỗi môi trường (dọn temporary cwd/runner bash), không gọi
+lần chạy đó đạt; CI Linux là bằng chứng hồi quy upstream. CI repository
+cũng đạt; RTL không bị sửa trong mốc này.
 
 ## Computer use
 
@@ -43,6 +51,11 @@ Thao tác qua trình duyệt thật, cùng asset phục vụ từ Brain:
   Manual vẫn dùng được khi Internet giả lập bị ngắt.
 - AI vẫn giữ thời hạn khi Web refresh; hết 5 phút tự DISARMED.
 - Trang thứ hai bị từ chối; AI mất Internet thu quyền và về DISARMED.
+- Manual mất STATUS: nút lái khóa, target 0, không gọi dữ liệu cũ là số đo mới.
+
+![Dashboard desktop, chưa cho phép chạy](brain-dashboard-desktop.png)
+
+![Dashboard điện thoại 390×844](brain-dashboard-mobile.png)
 
 Ảnh/log cục bộ: `build/brain/cua/desktop-ai.png`, `mobile-ai.png`,
 `mobile-manual.png`, `mobile-ai-offline.png`, `second-dashboard-rejected.png`
@@ -53,8 +66,27 @@ ngắt touch thực từ hệ điều hành/điện thoại trong computer use.
 ## Tải và độ trễ
 
 Bài cuối dùng `tools/brain_soak.py --seconds 1800` qua WebSocket localhost,
-20 lệnh/giây, cùng lõi C++. JSON kết quả ở `build/brain/soak-release.json`;
-đang chạy đủ 30 phút trên thời gian thực, không tua clock.
+20 lệnh/giây, cùng lõi C++. **Đạt:** 1800,242 giây thực, 36.000 MOVE,
+36.002 ACK (gồm ARM/STOP), 36.000 mẫu UART; không reject, không mất quyền
+ngoài dự kiến, không tua clock. Mỗi hướng và neutral có ít nhất 5.140 lệnh.
+Raw JSON: `build/brain/soak-release.json`, SHA-256
+`996ef0555c907e200cf7cc189550ef9a240d2b08119f00fe2cc3258c0e2dd6d3`.
+
+| Chặng đo trên PC (ms) | p50 | p95 | p99 | max |
+| --- | ---: | ---: | ---: | ---: |
+| Handler JSON → mock nhận UART | 0,134 | 0,246 | 0,432 | 27,451 |
+| WebSocket gửi → nhận ACK Brain | 0,828 | 3,386 | 13,043 | 60,283 |
+
+Tối đa 2 request chờ ACK; hàng mục tiêu UART tối đa 1, trace 256/256,
+buffer độ trễ 36.000/40.000. Client Python tracemalloc cuối 1.315.445 byte,
+peak 1.400.185 byte. Đây không phải heap ESP32.
+
+RAM server theo bộ đếm hệ điều hành: working set 45.178.880–46.305.280
+byte trong 142 mẫu cuối khoảng 11 phút 47 giây; peak lifetime process
+46.305.280 byte. File `build/brain/soak-memory.ndjson` ghi timestamp/PID.
+Bộ lấy RAM nội bộ của lần soak trả 0 do ctypes cắt HANDLE Win64: các mẫu
+đó **không hợp lệ**, đã sửa và thêm hồi quy. Không dùng 0 làm bằng chứng
+không tốn RAM; dữ liệu OS thay thế chỉ bao phủ khoảng quan sát nêu trên.
 
 Hai bài trước trên bản lõi cũ nhận một STALE đầu phiên vì challenge chưa
 được đổi cùng epoch. Đã sửa và thêm hồi quy; không dùng hai bài đó để gọi
@@ -67,10 +99,19 @@ driver, heap free/min và dư stack để đo tiếp trên board; hiện chưa c
 
 ## Build và phần còn phải nghiệm thu
 
-AW-Car đã build/merge image thành công bằng ESP-IDF 6.1. Stock build và
-CI Linux đang kiểm tra hồi quy; cập nhật hash/kết quả cuối sau khi hoàn tất.
-Binary ở `firmware/brain/build/merged-binary.bin`, offset 0x0000. Binary,
-sdkconfig và log build được ignore, không đẩy bí mật/NVS vào Git.
+ESP-IDF 6.1 build AW-Car **và stock bread-compact-wifi đều đạt**. Image
+AW-Car tương ứng source `33023d7`, chưa nạp. Các artifact cục bộ:
+
+| Artifact | Byte | SHA-256 |
+| --- | ---: | --- |
+| `firmware/brain/build/merged-binary.bin`, offset 0x0000 | 8.949.619 | `8c431f97208a4a6372e6d07dc4bc12423b2abe8a1ed0e1e9d1d31ba5145814b1` |
+| `firmware/brain/build/xiaozhi.bin` | 2.660.352 | `85a842b811c36dd8766cadab50684ec61fede9979739810f21bb67310e030282` |
+| `firmware/brain/build/stock/xiaozhi.bin` | 2.583.840 | `922aa67b51847a329ef6b107c581b887f1d805f6debb4910588062c1fad36aac` |
+
+Log `build/brain/firmware-build-release.log` và `firmware-build-stock.log`.
+Binary, sdkconfig và log build được ignore. Build không ghi NVS; lần nạp
+merged image sau này phải backup/giữ hoặc phục hồi NVS theo hướng dẫn,
+vì các vùng trống trong merged image không tự bảo toàn dữ liệu đã lưu.
 
 Chưa nghiệm thu: AP+STA/WPA2/PIN OLED trên board, mic/I²S/loa/RGB/BOOT sau
 tích hợp, UART vật lý 17/18, stack/heap/độ trễ ESP32, metadata SID/STT thực
