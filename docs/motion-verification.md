@@ -1,6 +1,7 @@
 # Bằng chứng Motion 0.1
 
-Ngày 03/11/2026, nhánh `codex/esp32-s3-motion` từ main `094b37c`.
+Triển khai theo quyết định 03/11/2026, chốt báo cáo 04/11/2026. Nhánh
+`codex/esp32-s3-motion` từ main `094b37c`.
 Brain PR #13 giữ draft. [Contract](motion-plan.md),
 [firmware](../firmware/motion/README.md), [dây/gate](../hardware/motion-wiring.md).
 Không merge main; không đưa CAD hoặc toàn bộ RTL/Brain vào nhánh Motion.
@@ -69,8 +70,24 @@ Bài soak chức năng 30 phút/36.000 lệnh trên core digest cuối không fa
 Report phân biệt wall-time với thời gian giả lập và giữ history/status256.
 Bộ đo RSS ban đầu tạo lại kiểu ctypes mỗi mẫu gây tăng RAM của chính bộ đo;
 đã sửa tạo kiểu/hàm một lần. Số RAM từ lượt cũ không dùng để kết luận leak.
-Lượt paced với bộ đo sửa đang chạy tại build/motion/soak-verified-memory.json;
-chưa dùng số RAM của lượt này cho tới khi đủ30phút và ghi kết quả bên dưới.
+Lượt paced cuối với bộ đo sửa **đã đạt**, report local ignored ở
+build/motion/soak-verified-memory.json:
+
+| Chỉ số host | Kết quả |
+| --- | ---: |
+| Wall-time / thời gian mô phỏng | 1800.007s / 1800s |
+| Lệnh / bước điều khiển / fault | 36,000 / 1,800,000 / 0 |
+| Nhận lệnh + core step + mock TX p50 / p95 / p99 | 75.8 / 173.3 / 280.4µs |
+| Max của cùng phép đo | 9721.2µs |
+| RSS process Python+C++, min–max | 19.35–21.34MiB |
+| RSS trong 5 phút cuối, min–max | 21.06–21.34MiB |
+| Mẫu RAM / history / status capacity | 1800 / 256 / 256 |
+
+RAM này gồm deque latency và danh sách mẫu của công cụ PC; không phải heap
+ESP32. Không lấy max/p95 host làm số đo UART/FreeRTOS hoặc thời gian motor.
+Native binary SHA256 `fe176e6b84c4bb7ceb5a60a25462f7677d6f52f54c8b9cbc082a0bc32ba2773f`;
+harness SHA256 `7cb62ad7f638d8785848f1e2fc41327da32a0e0ee902151b2d11fabc6378e1f8`.
+Lõi firmware không đổi trong lượt soak; report/hash khớp nguồn cuối.
 
 Computer use với cùng asset/C++ Brain đã thử FAULT→Xóa lỗi→DISARMED, chưa ARM;
 socket đóng khi ARMED giả lập xóa nhãn quyền và khóa nút. Viewport hẹp không
@@ -79,7 +96,11 @@ tràn ngang, không JS error. Ảnh và chi tiết ở
 không phải dashboard trên xe.
 
 CI Motion thêm job ghép hai core/RTL với commit peer cố định và smoke load
-30s thời gian ảo; không gọi smoke là endurance. Build ESP-IDF được thực hiện
+30s thời gian ảo; không gọi smoke là endurance. Ba job của
+[CI code Motion 774052e](https://github.com/TuanDanny/AW-Car/actions/runs/41679151855)
+đều đạt: structure-and-rules, motion-peer-integration và fpga-simulation.
+[CI Brain 545f5ae](https://github.com/TuanDanny/AW-Car/actions/runs/41679580448)
+cũng đạt; commit Brain này chỉ bổ sung tài liệu so với peer dacf143 đã pin. Build ESP-IDF được thực hiện
 cục bộ, không coi CI cấu trúc thay build MCU. Các test CLI Xiaozhi gốc chạy
 trên Windows có11 lỗi harness (xóa thư mục tạm đang là cwd/chạy entrypoint
 POSIX),1 skip; nhóm CLI này đạt trên Ubuntu trong CI Brain ở cùng commit.

@@ -7,7 +7,7 @@ encoder một OUT mỗi bên và phát PWM. DoA dành cho nâng cấp.
 
 Tác giả: **TuanDanny**. Cộng tác viên: **Minh Nho** và **Nhan Duc**.
 
-## Trạng thái ngày 03/11/2026
+## Trạng thái mốc 03–04/11/2026
 
 Đây là nhánh **codex/esp32-s3-motion**, tạo từ main `094b37c`. Motion 0.1 có
 hai UART, vòng hở, kích đề-pa, chờ đảo chiều, lease và khóa driver độc lập.
