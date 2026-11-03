@@ -46,9 +46,11 @@ $env:CMAKE_NINJA_FORCE_RESPONSE_FILE='1'
 python scripts/build.py aw-car-ai-rgb --name aw-car-ai-rgb-128x64 --language zh-CN
 ```
 
-Merged image ở build/merged-binary.bin, offset0x0000. Chưa nạp trong mốc
-giả lập; nạp thật cần backup/giữ NVS theo hướng dẫn Windows. Loa, AP+STA và
-UART vật lý chưa nghiệm thu. [Chạy simulator/USB–UART peer](../../../dashboard/README.md).
+Merged image ở build/merged-binary.bin, offset0x0000. Sau mốc giả lập,
+đã nạp COM3 ngày03/11/2026, sao lưu 16 MB và giữ NVS. Boot/PSRAM/OLED/audio
+init và AP+STA đã kiểm tra; chưa thử HTTP/WS từ client AP, âm thanh thực
+hoặc UART Motion. [Bằng chứng](../../../docs/brain-dashboard-verification.md),
+[chạy simulator/USB–UART peer](../../../dashboard/README.md).
 
 Report/log build/ảnh computer use ở build/brain của root, binary/credentials
 không commit. Báo cáo bàn giao phân biệt host RTT/handler→mock-UART với độ

@@ -51,5 +51,6 @@ Giữ console/USB Brain riêng, chưa nối driver/motor.
 ```
 
 Peer chỉ xác thực BM-v1/lease, số đo tốc độ/pin invalid. Profile mặc định
-`AWCAR_MOTION_IS_SIMULATED=y` để ghi nhãn giả lập. Chưa thử UART vật lý
-hoặc nạp firmware mới.
+`AWCAR_MOTION_IS_SIMULATED=y` để ghi nhãn giả lập. Brain đã được nạp ngày
+03/11/2026, kiểm tra boot/AP+STA; chưa thử UART vật lý hoặc peer Motion.
+Xem [bằng chứng](../docs/brain-dashboard-verification.md).

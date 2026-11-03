@@ -33,7 +33,8 @@ Runtime dùng AP+STA riêng, Web tại192.168.4.1. PIN hiển thị OLED, WPA2 A
 có mật khẩu riêng trong NVS. UART1 TX17/RX18 là cấu hình chưa thử header thật.
 Chế độ Manual/AI và quy trình Cho phép/DỪNG theo
 [contract](../../../../../dashboard/web-brain-protocol.md). Mặc định Motion
-giả lập; chưa nạp firmware mới hoặc xác minh metadata cloud. Thiếu session
+giả lập; firmware mới đã nạp/boot ngày03/11/2026, chưa xác minh metadata cloud.
+Thiếu session
 envelope/STT phù hợp thì move bị khóa. Giữ các tool RGB cũ và nguồn pixel duy nhất.
 
 Build từ firmware/brain trong môi trường ESP-IDF 6.1 đã export:

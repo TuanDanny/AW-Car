@@ -10,8 +10,10 @@ Tác giả: **TuanDanny**. Cộng tác viên: **Minh Nho** và **Nhan Duc**.
 Mốc 03/11/2026 trên nhánh AI: đã có source dashboard Manual/AI, AP+STA,
 lõi Brain độc lập RTOS, UART BM-v1 và Motion PC test peer. Firmware đã build;
 kiểm thử host theo [hướng dẫn dashboard](dashboard/README.md) và
-[thiết kế Brain](firmware/brain/docs/dashboard-brain.md). **Chưa nạp bản mới,
-chưa nghiệm thu Wi-Fi/UART/audio/metadata AI trên board hoặc motor thật**.
+[thiết kế Brain](firmware/brain/docs/dashboard-brain.md). Đã nạp bản mới qua
+COM3 tại 0x0000, giữ NVS; boot/PSRAM/OLED/audio init, AP+STA và WPA2 beacon
+đã kiểm tra. **Chưa nghiệm thu thao tác Web/âm thanh/metadata AI thật,
+UART Brain–Motion hoặc motor**.
 Xem [bằng chứng kiểm thử Brain/dashboard](docs/brain-dashboard-verification.md).
 Các kết quả 29/10 bên dưới là baseline phần cứng, không thay nghiệm thu bản mới.
 

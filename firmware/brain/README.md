@@ -17,8 +17,11 @@ build chỉ chọn một board/variant.
 Ngày03/11/2026 bổ sung dashboard Manual/AI, AP+STA, UART Brain–Motion và
 control core/VoiceGate dùng chung firmware–host. Có PC serial peer, không
 phải firmware Motion thật. Xem [contract và cách chạy](../../dashboard/README.md)
-và [thiết kế/kiểm chứng](docs/dashboard-brain.md). Bản mới chỉ build/test giả
-lập; chưa nạp board, chưa kiểm metadata backend live hoặc AP+STA thực.
+và [thiết kế/kiểm chứng](docs/dashboard-brain.md). Bản mới đã nạp COM3 tại
+0x0000, xác minh hash và giữ nguyên NVS trước boot. Log 60 giây khớp ELF,
+nhận PSRAM 8 MB, OLED/audio init, AP+STA, HTTP bind AP và idle; không panic.
+PC quét thấy AP WPA2. Thao tác Web, metadata backend và thu/phát âm sau
+tích hợp vẫn chờ người dùng thử; UART Motion chưa nối.
 
 Source stock là nền phát triển; board AW-Car RGB riêng được thêm cho demo F03,
 chưa phải firmware AW-Car tích hợp điều khiển xe.

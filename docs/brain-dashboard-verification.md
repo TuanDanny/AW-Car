@@ -2,7 +2,8 @@
 
 Nhánh `feat/f03-xiaozhi-ai`, phát triển từ baseline `112914e`. Mốc này kiểm
 chứng Brain/dashboard với PC Motion test peer. Không có firmware Motion/PID,
-FPGA hoặc motor thật trong vòng kiểm thử. Không nạp ESP32 trong mốc này.
+FPGA hoặc motor thật trong vòng kiểm thử. Mốc giả lập không nạp ESP32;
+sau đó người dùng yêu cầu nạp board, kết quả bổ sung ở cuối tài liệu.
 
 ## Mã và môi trường
 
@@ -113,10 +114,38 @@ Binary, sdkconfig và log build được ignore. Build không ghi NVS; lần n�
 merged image sau này phải backup/giữ hoặc phục hồi NVS theo hướng dẫn,
 vì các vùng trống trong merged image không tự bảo toàn dữ liệu đã lưu.
 
-Chưa nghiệm thu: AP+STA/WPA2/PIN OLED trên board, mic/I²S/loa/RGB/BOOT sau
-tích hợp, UART vật lý 17/18, stack/heap/độ trễ ESP32, metadata SID/STT thực
-của backend, Motion/FPGA/gate/motor. Thiếu metadata thì tool move khóa;
-không bỏ guard để demo. Build và giả lập không thay các phép thử này.
+Chưa nghiệm thu: giao dịch HTTP/WS từ client AP, PIN OLED đọc thực,
+mic/loa/RGB/BOOT sau tích hợp, UART vật lý 17/18, stack/heap/độ trễ ESP32,
+metadata SID/STT thực của backend, Motion/FPGA/gate/motor. Thiếu metadata
+thì tool move khóa; không bỏ guard để demo. Build/boot và giả lập không
+thay các phép thử này.
+
+## Bổ sung: nạp board theo yêu cầu người dùng
+
+Ngày 03/11/2026 đã nạp board ESP32-S3 đang cắm tại COM3, offset **0x0000**:
+
+- Đọc/sao lưu đủ 16 MB flash trước khi ghi. Bảng phân vùng thiết bị khớp
+  image. Tạo bản merged cục bộ chỉ thay NVS 0x9000–0xCFFF bằng dữ liệu cũ.
+- Esptool 5.6.0 xác minh hash sau ghi. Đọc lại 16 KB NVS khi còn ở bootloader
+  khớp từng byte với bản trước ghi; app boot sau đó có thể lưu namespace mới.
+- Theo dõi boot 60 giây: ELF khớp
+  `ad405476290a1bed8abdc2f067ea5b654cf59ffb0c273e65463f5ef882b60768`,
+  PSRAM 8 MB, SSD1306 41/42, simplex I²S/audio codec và RGB48 khởi tạo.
+- Có đủ ba tool RGB và ba tool `self.car.*`; HTTP server bind interface AP.
+  AP+STA hoạt động, STA nhận IP bằng cấu hình đã lưu; app về idle.
+- DHCP AP dùng 192.168.4.1; PC quét thấy AP WPA2-Personal/CCMP. HTTP không
+  đáp ứng trên IP STA trong phép thử, đúng thiết kế chỉ phục vụ interface AP.
+- Không có panic/assert/abort/backtrace/stack overflow trong 60 giây đã ghi.
+
+Backup/image giữ NVS/log thô chỉ lưu cục bộ trong
+`build/board-flash-20261103-154521/`, không commit/upload thông tin thiết bị.
+Nguồn firmware không đổi so với image đã build ở trên. Không có peer Motion
+trên UART trong lần thử này nên chưa xác nhận ARM hoặc áp dụng chuyển động.
+
+Người dùng thử tiếp: giữ BOOT lâu để xem Wi-Fi/mật khẩu và PIN OLED, nối
+Wi-Fi xe rồi mở `http://192.168.4.1`. PIN sinh trên board, khác mã giả lập
+123456. Có thể thử RGB và nhấn/nhả BOOT ngắn để nói; lái chỉ mở khi Motion
+phản hồi hợp lệ.
 
 Hướng dẫn chạy: [dashboard](../dashboard/README.md),
 [thiết kế Brain](../firmware/brain/docs/dashboard-brain.md),
