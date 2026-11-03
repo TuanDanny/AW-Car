@@ -1,54 +1,52 @@
 # AW-Car
 
-Xe robot 4 bánh dùng ESP32-S3, hướng tới điều khiển qua Web Dashboard
-và tương tác giọng nói Xiaozhi. Định hướng nguồn âm thanh là tính năng nâng cấp.
+Xe TT 4WD dùng **hai ESP32-S3, Tang Nano 9K và một INMP441**. Hai nhóm
+motor trái/phải lái bằng chênh lệch tốc độ, không có servo lái. Brain phụ trách
+Xiaozhi, Web, OLED I²C và âm thanh; Motion giữ quyền truyền động; FPGA đọc
+encoder một OUT mỗi bên và phát PWM. DoA dành cho nâng cấp.
 
 Tác giả: **TuanDanny**. Cộng tác viên: **Minh Nho** và **Nhan Duc**.
 
-## Trạng thái
+## Trạng thái ngày 03/11/2026
 
-Dự án đang chọn linh kiện, chưa lắp xe thử nghiệm. Kho hiện có khung thư mục,
-tài liệu, quy tắc làm việc, RTL encoder/snapshot/PWM/UART/giao thức/FSM/watchdog/top và mô phỏng;
-chưa có firmware, sơ đồ điện hay PCB. Chưa có tính năng nào được xác nhận
-hoạt động trên phần cứng. Cách chạy RTL ở [fpga](fpga/README.md).
-Toàn bộ mã HDL dùng SystemVerilog (`.sv`); hook và CI kiểm tra quy ước này.
+Đây là nhánh **codex/esp32-s3-motion**, tạo từ main `094b37c`. Motion 0.1 có
+hai UART, vòng hở, kích đề-pa, chờ đảo chiều, lease và khóa driver độc lập.
+Đã build ESP-IDF 6.1 và thử console/NVS/đầu ra mặc định LOW trên COM7.
+**Bản nạp mặc định khóa driver, từ chối ARM.** PID và cảm biến để mốc tiếp.
 
-- Yêu cầu ban đầu: [issue #1](https://github.com/TuanDanny/AW-Car/issues/1).
-- [Rà soát kỹ thuật và kế hoạch hiệu chỉnh](docs/issue-1-technical-review.md):
-  các điểm cần sửa trước khi mua linh kiện, kiến trúc đề xuất và tiêu chí nghiệm thu.
+Brain/dashboard phát triển riêng ở `feat/f03-xiaozhi-ai`, PR #13 giữ draft;
+mic/OLED/RGB và Safari đã được thử trước đó. Bản Brain bổ sung Xóa lỗi trong
+mốc Motion mới build/giả lập, chưa nạp lại board Brain.
 
-Cấu hình đã chốt ngày 23/10/2026: **2 ESP32-S3, 1 FPGA và 1 mic INMP441**.
-FPGA đọc encoder và phát PWM cho 2 motor sau; Motion tính PID, điều khiển servo
-và giám sát an toàn. Board mục tiêu là **Tang Nano 9K**
-(`GW1NR-LV9QN88PC6/I5`), chưa mua. Tối ưu RTL vẫn giữ mục tiêu 9K;
-mô phỏng và tổng hợp sơ bộ chưa thay kết quả fit/timing trên đúng chip.
-Xem [kế hoạch FPGA và toàn hệ thống](docs/fpga-drive-plan.md) và
-[hợp đồng ARM/gate](firmware/shared/fpga-safety.md).
+**RTL trong nền main của checkout này còn bản cũ.** Motion yêu cầu protocol
+v2/encoder một OUT của `feat/f01-fpga-drive` (`7ab91b2` trong lần co-sim),
+không tự fallback v1. Không lấy RTL baseline ở checkout này để nạp ghép.
+Tang Nano 9K đã có; chưa nghiệm thu CST/PnR/STA hoặc UART/gate/motor thật.
 
-Mic phục vụ thu giọng nói/lệnh; DoA và tự hướng về người nói được giữ cho nâng
-cấp bằng cụm mic thu đồng bộ. Đồ án hiện hướng tới 3 môn: Tích hợp hệ thống cảm
-biến, Lý thuyết mạch và RTL/FPGA; đã bỏ mục tiêu môn PCB khuếch đại.
+- [Kế hoạch Motion](docs/motion-plan.md), [bằng chứng kiểm thử](docs/motion-verification.md).
+- [Đấu nối và gate](hardware/motion-wiring.md), [BM-v1](firmware/shared/brain-motion-protocol.md),
+  [Motion–FPGA v2](firmware/shared/fpga-protocol-v2.md).
+- [Issue #1](https://github.com/TuanDanny/AW-Car/issues/1) và
+  [kế hoạch toàn hệ thống](docs/fpga-drive-plan.md).
 
-## Cấu trúc thư mục
+## Cấu trúc
 
 | Thư mục | Nội dung |
 | --- | --- |
-| [firmware/brain](firmware/brain/README.md) | MCU 1: âm thanh, Xiaozhi, TFT, mạng |
-| [firmware/motion](firmware/motion/README.md) | MCU 2: truyền động, PID, an toàn |
-| [firmware/shared](firmware/shared/README.md) | Giao thức và kiểu dữ liệu chung |
-| [fpga](fpga/README.md) | RTL encoder, PWM 2 motor và watchdog |
-| [dashboard](dashboard/README.md) | Giao diện điều khiển và telemetry |
-| [hardware](hardware/README.md) | BOM, nguồn, cơ khí, sơ đồ và PCB |
-| [docs](docs/README.md) | Yêu cầu, quyết định và kế hoạch thử nghiệm |
-| [tests](tests/README.md) | Kiểm thử tự động |
-| [tools](tools/README.md) | Công cụ kiểm tra và phát triển |
+| [firmware/brain](firmware/brain/README.md) | Brain/Xiaozhi, phát triển ở nhánh AI |
+| [firmware/motion](firmware/motion/README.md) | ESP-IDF, core C++ và adapter FreeRTOS/UART/GPIO |
+| [firmware/shared](firmware/shared/README.md) | Codec và hợp đồng hai liên kết UART |
+| [fpga](fpga/README.md) | RTL baseline; bản v2 triển khai ở nhánh FPGA |
+| [dashboard](dashboard/README.md) | Giao diện ở nhánh AI |
+| [hardware](hardware/README.md) | Nguồn, cơ khí và bảng dây |
+| [docs](docs/README.md) | Kế hoạch và bằng chứng |
+| [tests](tests/README.md) | Host/regression/co-sim |
+| [tools](tools/README.md) | Công cụ kiểm tra, giả lập và board |
 
-Mỗi thư mục có README giới thiệu. [AGENTS.md](AGENTS.md) là quy tắc dành cho agent.
+## Kiểm tra và làm việc
 
-## Làm việc và kiểm tra
-
-Mỗi tính năng một nhánh `feat/fXX-ten-ngan`, PR vào main và **squash merge** sau
-khi kiểm tra/review đạt. Xem [quy trình Git](docs/workflow.md).
+Ba nhánh theo [AGENTS.md](AGENTS.md) và [quy trình Git](docs/workflow.md).
+Giữ main ổn định; PR chỉ squash merge sau nghiệm thu, không tự merge mốc này.
 
 ```sh
 git config --local core.hooksPath .githooks
@@ -57,48 +55,10 @@ python -m unittest discover -s tests
 git diff --check
 ```
 
-Hooks áp dụng cho clone đã bật; CI và ruleset GitHub có vai trò riêng. Bản setup
-hiện chưa bật bảo vệ main trên GitHub. Kiểm tra cấu trúc không thay thế build
-firmware hoặc phép đo trên xe.
+Host tests cần compiler C++17 (`g++`/`clang++`, hoặc biến `CXX`). Build MCU,
+co-sim và board check có hướng dẫn riêng tại README Motion. Thử phần mềm
+không thay phép đo Wi-Fi/RTOS/I²S/GPIO/dòng motor hoặc quãng dừng trên xe.
 
-## Kiến trúc đã chốt về phân tải
-
-```mermaid
-flowchart LR
-    Web[Web Dashboard] <--> Brain["MCU 1: Brain\nÂm thanh, Xiaozhi, LVGL, Wi-Fi"]
-    Audio["1 mic INMP441 / loa"] <--> Brain
-    TFT["TFT: giao diện và QR"] <--> Brain
-    Brain <-->|"UART: lệnh có hạn dùng / trạng thái"| Motion["MCU 2: Motion\nPID, giám sát an toàn"]
-    Sensors["Cảm biến an toàn / nguồn"] --> Motion
-    Encoder["Encoder A/B 2 bánh sau"] --> FPGA["FPGA: encoder, PWM, watchdog"]
-    Motion <-->|"UART riêng: duty / chiều / arm / số đếm / lỗi"| FPGA
-    FPGA -->|"PWM / chiều quay"| Drive["Driver công suất 2 motor sau"]
-    Motion --> Servo["Servo lái trước"]
-    Motion -->|"Khóa phần cứng độc lập"| Gate["Mạch cho phép driver"]
-    FPGA -->|"Cho phép khi hợp lệ"| Gate
-    Stop["E-stop / giám sát nguồn"] --> Gate
-    Gate --> Drive
-```
-
-MCU Motion có quyền từ chối lệnh và dừng xe độc lập khi MCU Brain, mạng hoặc AI
-gặp lỗi. FPGA tự hết hạn lệnh Motion; Motion khóa driver nếu FPGA mất phản hồi.
-Mạch khóa driver phải giữ motor tắt cả khi FPGA chưa cấu hình hoặc mất nguồn.
-LVGL là thư viện giao diện; firmware MCU dự kiến dùng ESP-IDF/FreeRTOS.
-
-## Thứ tự thực hiện
-
-1. Đặc tả RTL/giao tiếp và nguồn, motor/encoder, hình học lái, chế độ dừng.
-2. Viết RTL độc lập hãng và testbench; mô phỏng cả lỗi và mất/reset từng khối.
-3. Không cần Quartus: mô phỏng bằng Icarus/VVP, tổng hợp, place-and-route và
-   kiểm tra timing bằng Gowin Education cho đúng chip Tang Nano ứng viên.
-   Chọn board theo tài nguyên/I/O/nguồn và ngân sách; xem
-   [kế hoạch thiết kế RTL và kiểm thử](docs/fpga-rtl-design-test-plan.md).
-4. Mua sau khi đủ bằng chứng thiết kế; thử FPGA + Motion + driver trên bàn,
-   sau đó tích hợp cảm biến/PID, UART Brain và Dashboard ở tốc độ thấp.
-5. Thêm TFT/LVGL và Xiaozhi; cảnh báo thiết yếu phải phát được khi mất Internet.
-6. Thiết kế motherboard 2 MCU/1 FPGA/1 mic sau khi nguyên mẫu đạt nghiệm thu.
-7. Nâng cấp DoA: chọn cụm mic, chứng minh thu đồng bộ, rồi thử định hướng/di
-   chuyển theo âm; có thể cần sửa phần cứng và PCB.
-
-Danh sách F01-F06, các giới hạn và điều kiện chuyển giai đoạn nằm trong
-[bản rà soát](docs/issue-1-technical-review.md).
+Motion ngắt driver độc lập khi Brain/FPGA mất liên kết. Gate/E-stop phải tắt
+được khi MCU hoặc clock FPGA hỏng; không dùng UART làm đường E-stop duy nhất.
+Chỉ tiến tới PID/cảm biến sau khi Manual local, hướng quay và dừng đã đạt.

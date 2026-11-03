@@ -1,43 +1,38 @@
 # Quy trình Git
 
-`main -> feat/fXX-ten-ngan -> kiểm tra + review -> PR -> squash merge -> main`.
-Mỗi tính năng một nhánh và một commit sau squash; lỗi/tài liệu/setup dùng
-`fix/`, `docs/`, `chore/`. Nhánh setup hiện tại: `chore/repo-setup`.
+Giai đoạn hiện tại giữ `main` ổn định và ba nhánh phát triển:
 
-## Bắt đầu
+| Nhánh | Phần việc |
+| --- | --- |
+| `feat/f01-fpga-drive` | RTL, encoder, PWM, liên kết FPGA và tài liệu |
+| `feat/f03-xiaozhi-ai` | Brain, Xiaozhi, Web, âm thanh và OLED |
+| `codex/esp32-s3-motion` | Motion, hai UART, truyền động và khóa driver |
 
-Kiểm tra `git status`, bảo toàn thay đổi đang có rồi lấy main mới nhất:
+Nhánh Motion tạo từ main `094b37c` theo yêu cầu 03/11/2026; giữ PR Brain #13
+draft. Dùng lại nhánh cho sửa lỗi/tối ưu; theo dõi bước nhỏ bằng commit.
+Quy tắc duy nhất nằm ở [AGENTS.md](../AGENTS.md).
 
-```sh
-git fetch origin
-git switch -c feat/f01-drive origin/main
-```
+## Làm việc
 
-Tên trên là ví dụ; chọn mã tính năng đúng tác vụ. Khi lấy bản setup về lần đầu:
+Kiểm tra `git status`, bảo toàn thay đổi hiện có, `git fetch origin`, rồi
+làm trong worktree của nhánh phù hợp. Không tạo thêm nhánh cho từng module.
+Lần đầu clone bật `git config --local core.hooksPath .githooks`.
 
-```sh
-git config --local core.hooksPath .githooks
-```
+Chỉ đồng bộ hợp đồng/codec cần thiết giữa các nhánh. Motion giữ nền main;
+co-sim dùng checkout FPGA v2 riêng, không kéo CAD hoặc cả lịch sử AI vào.
+Brain giữ nguyên source và lịch sử đã thử. Không sửa trực tiếp main.
 
-## Trước khi merge
+## Bàn giao và merge
 
-- Một PR chỉ chứa phạm vi tính năng và sửa đổi cần thiết để tính năng hoạt động.
-- Chạy kiểm tra ở [tools](../tools/README.md), build/test phần mã nguồn đã đổi
-  khi có, và ghi rõ phần cần kiểm tra trên phần cứng.
-- Review diff, xử lý lỗi, cập nhật nhánh nếu main thay đổi; chỉ squash merge khi
-  các kiểm tra phù hợp đã đạt. Với tác vụ đang bàn bạc/setup, giữ nhánh để xem trước.
-- Sau merge: `git fetch origin`, chuyển về main và `git pull --ff-only` khi cây
-  làm việc sạch; nhánh tiếp theo bắt đầu từ main mới. Không sửa trực tiếp trên main.
+- Chạy repo checks, unit tests, build phần đổi và review diff.
+- Ghi đúng phiên bản hai peer, bằng chứng và phần phần cứng chưa thử.
+- Mở PR vào main; chỉ **squash merge** mốc đã được nghiệm thu. Mốc đang
+  setup hoặc còn thiếu phần cứng giữ draft, không tự merge.
+- Sau merge đồng bộ main về các nhánh đang dùng khi cây làm việc sạch.
+- Dọn nhánh phải kiểm tra/sao lưu phần chưa merge; không xóa công việc CAD
+  hoặc thay đổi chưa commit của checkout khác.
 
-## Mức bảo vệ
-
-- `AGENTS.md`: hướng dẫn công cụ tự đọc và tự kiểm tra; không phải khóa Git.
-- Hooks cục bộ: chặn commit trên main/sai tên nhánh và push trực tiếp lên main;
-  pre-commit kiểm tra nội dung **đã stage**. Mỗi bản clone phải bật hooks riêng.
-- CI `Repository checks / structure-and-rules`: kiểm tra cấu trúc và test công
-  cụ trên PR/main; hiện chưa build firmware vì chưa có mã nguồn.
-
-**Chưa cấu hình bảo vệ nhánh trên GitHub.** Khi đưa setup lên GitHub, đặt ruleset
-cho main: yêu cầu PR, chỉ squash merge, yêu cầu status check `structure-and-rules`,
-chặn force-push/xóa main và áp dụng cho người có quyền bỏ qua khi phù hợp.
-Hooks có thể bị bỏ qua; chính ruleset phía GitHub mới chặn push/merge sai từ mọi máy.
+Hooks kiểm tra snapshot staged và tên nhánh, chặn commit/push main; mỗi
+clone phải bật riêng. CI kiểm cấu trúc, host tests và hồi quy RTL; không thay
+build firmware hay đo trên xe. Không bỏ qua hook/CI hoặc force-push main.
+Ruleset phía GitHub cần được xác minh riêng khi nghiệm thu merge.

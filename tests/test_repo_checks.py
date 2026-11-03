@@ -97,7 +97,7 @@ class RepositoryChecksTest(unittest.TestCase):
         for branch in ("main", "master", "feature", "feat/", "feat/no-id", "feat/Bad Name"):
             with self.subTest(branch=branch):
                 self.assertTrue(CHECKS.check_repository(self.root, branch=branch))
-        for branch in ("feat/f01-drive", "fix/uart-timeout", "docs/plan", "chore/repo-setup"):
+        for branch in ("feat/f01-drive", "codex/esp32-s3-motion", "fix/uart-timeout", "docs/plan", "chore/repo-setup"):
             with self.subTest(branch=branch):
                 self.assertEqual(CHECKS.check_repository(self.root, branch=branch), [])
 

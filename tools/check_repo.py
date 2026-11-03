@@ -8,7 +8,7 @@ import sys
 
 
 BRANCH_PATTERN = re.compile(
-    r"(?:feat/f[0-9]{2,}-|(?:fix|docs|chore)/)[a-z0-9][a-z0-9._-]*"
+    r"(?:feat/f[0-9]{2,}-|(?:fix|docs|chore|codex)/)[a-z0-9][a-z0-9._-]*"
 )
 HDL_SUFFIXES = {".v", ".vh", ".sv", ".svh", ".vhd", ".vhdl"}
 
@@ -25,7 +25,7 @@ def git(root, *args):
 def check_repository(root, *, staged=False, branch=None):
     errors = []
     if branch is not None and not BRANCH_PATTERN.fullmatch(branch):
-        errors.append("Use feat/fXX-name, fix/name, docs/name or chore/name; never commit on main.")
+        errors.append("Use feat/fXX-name, codex/name, fix/name, docs/name or chore/name; never commit on main.")
 
     args = ["ls-files", "-z", "--cached"]
     if not staged:

@@ -10,6 +10,50 @@ permissions:
   contents: read
 
 jobs:
+  motion-peer-integration:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    env:
+      CXX: g++
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with:
+          python-version: '3.13'
+      - name: Check out tested Brain contract peer
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          ref: dacf1434a61cfb16e2c01f277473de3623575669
+          path: build/peers/brain
+      - name: Check out tested FPGA v2 peer
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          ref: 7ab91b2d6119af211453a1273e3dae978d8af286
+          path: build/peers/fpga
+      - name: Install native compiler and simulator
+        run: |
+          sudo apt-get update
+          sudo apt-get install --yes g++ iverilog
+      - name: Test production Motion core and codecs
+        run: python -m unittest discover -s tests -v
+      - name: Execute both production MCU cores
+        run: python tools/motion_brain_integration.py --brain-root build/peers/brain
+      - name: Co-simulate actual FPGA v2 UART and GPIO
+        run: python tools/motion_rtl_cosim.py --fpga-root build/peers/fpga --iverilog /usr/bin/iverilog --vvp /usr/bin/vvp
+      - name: Check bounded host load (not real-time endurance)
+        run: python tools/motion_soak.py --seconds 30 --unpaced --output build/motion/ci-smoke.json
+      - name: Upload sanitized host evidence
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: motion-host-evidence
+          path: |
+            build/motion/brain-integration.json
+            build/motion/rtl-cosim.json
+            build/motion/ci-smoke.json
+            build/motion/*.manifest.json
+          if-no-files-found: warn
+
   structure-and-rules:
     runs-on: ubuntu-latest
     steps:

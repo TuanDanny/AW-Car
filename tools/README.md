@@ -1,6 +1,7 @@
 # Công cụ phát triển
 
-Python 3.10+ và Git, không cần cài thư viện Python ngoài.
+Python 3.10+ và Git cho repo checks. Host Motion cần compiler C++17
+(`g++`/`clang++`, có thể đặt `CXX`). Board check dùng pyserial/esptool từ SDK.
 
 ```sh
 python tools/check_repo.py
@@ -17,6 +18,27 @@ Mã HDL bắt buộc dùng SystemVerilog, đuôi `.sv`; đuôi `.v`, `.vh`, `.sv
 `--staged` kiểm tra snapshot trong Git index; `--feature-branch` kiểm tra tên
 nhánh hiện tại, hoặc nhận tên nhánh làm đối số khi CI checkout detached HEAD.
 CI chạy kiểm tra cấu trúc và test công cụ; đây chưa phải kiểm thử tính năng xe.
+
+## Motion
+
+- `build_motion_host.py`: biên dịch đúng core/codec firmware thành thư viện
+  host, hash nguồn và binary; không dùng Xtensa compiler cho PC.
+- `motion_simulator.py`: adapter ctypes và peer FPGA Python, buffer có giới hạn.
+- `motion_brain_integration.py --brain-root <checkout-AI>`: ghép hai core C++
+  thật, peer FPGA Python; kiểm ARM/STOP/CLEAR/AI mà không giả lại bộ phân xử.
+- `motion_rtl_cosim.py --fpga-root <checkout-FPGA> --iverilog <tool> --vvp <tool>`:
+  UART/GPIO thật trong RTL `aw_car_top` 27MHz, bắt buộc checkout FPGA v2 riêng.
+- `motion_soak.py --seconds 1800 --output build/motion/soak.json`: thời gian
+  thực trên host; report nguồn, phân vị, queue và RSS Python+C++. Không phải
+  benchmark FreeRTOS hoặc độ trễ toàn xe.
+- `motion_board_check.py --port COM7 --reset --console-test`: chỉ nhận build
+  LOCKED; thử console/NVS rồi lưu defaults. Raw log/flash backup giữ private.
+
+Lệnh build/nạp và điều kiện phần cứng ở [Motion](../firmware/motion/README.md).
+Hai peer dùng phiên bản riêng, không dùng RTL v1 baseline của checkout này
+để ghép Motion v2. File build/report trong `build/` bị ignore.
+
+## RTL baseline
 
 `run_fpga_tests.py` biên dịch/chạy testbench Icarus/VVP, dừng khi compile lỗi,
 simulation lỗi hoặc timeout; build/VCD trong `fpga/build/` không commit.

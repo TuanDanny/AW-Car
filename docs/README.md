@@ -2,6 +2,10 @@
 
 Lưu yêu cầu, quyết định kỹ thuật và kết quả thử nghiệm.
 
+- [Motion 0.1](motion-plan.md): contract vòng hở, hai UART, kích/đảo và gate.
+- [Bằng chứng Motion](motion-verification.md): host, hai core, RTL, soak,
+  build ESP-IDF và COM7; nêu riêng phần chưa nghiệm thu vật lý.
+
 - [Rà soát issue #1](issue-1-technical-review.md): kiến trúc, lỗi thiết kế cần
   tránh, phạm vi 1 mic và lộ trình nghiệm thu.
 - [Quy trình Git](workflow.md): nhánh tính năng, squash merge và bảo vệ main.

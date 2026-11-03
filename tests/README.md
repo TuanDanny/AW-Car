@@ -6,8 +6,14 @@ lên GitHub. Chạy bằng `python -m unittest discover -s tests`.
 Kiểm tra đuôi HDL bắt buộc `.sv` cho cả RTL/testbench, cả worktree và index;
 netlist trong build đã ignore không bị áp quy tắc nguồn.
 
-Chưa có test firmware/phần cứng. Khi thêm tính năng, đặt test tương ứng tại đây
-hoặc trong project MCU nếu bộ test ESP-IDF yêu cầu, rồi ghi lệnh chạy thực tế.
+`test_motion_core.py` chạy chính lõi C++ firmware: sáu hướng, kích theo tỷ lệ,
+chờ đảo, encoder không xung, STOP/lease/phiên/sequence, fault/recovery và cấu
+hình. `test_motion_codec.py` đối chiếu reference Python, golden v2, 1.000
+vector ngẫu nhiên và frame lỗi. Cần compiler C++17 hoặc biến môi trường CXX.
+
+`motion_cosim.sv` là fixture ghép core Motion với `aw_car_top` từ checkout
+FPGA v2 riêng qua bit UART/GPIO. Chạy bằng `tools/motion_rtl_cosim.py`; không
+thêm fixture này vào danh sách RTL triển khai. Host/RTL chưa thay test board.
 
 `test_fpga_runner.py` kiểm tra runner không bỏ qua compile lỗi, mã lỗi simulator
 hoặc timeout; kiểm tra đường dẫn tool tương đối và môi trường subprocess.
