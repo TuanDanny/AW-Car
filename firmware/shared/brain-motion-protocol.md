@@ -1,6 +1,6 @@
 # Brain–Motion wire protocol v1 — đặc tả field đã chốt cho bản đầu
 
-**Trạng thái:** CHỐT ĐẶC TẢ để Brain và Motion triển khai tương thích; **đã triển khai phía Brain, codec dùng chung, golden vector và Motion test peer PC; chưa có firmware Motion thật hoặc nghiệm thu hai board**. Giao thức này **khác** liên kết Motion–FPGA tại [fpga-protocol.md](fpga-protocol.md). Bản đầu TT 4WD lái theo hai nhóm, không có bốn PID độc lập; Xiaozhi/Web không phát PWM.
+**Trạng thái 03/11/2026:** đã có core C++ Brain/Motion, codec, host integration và firmware Motion 0.1 ESP-IDF 6.1. Motion mặc định khóa driver; chưa nghiệm thu UART hai board/gate/motor. Giao thức này **khác** Motion–FPGA v2 ở nhánh FPGA; xem [Motion](https://github.com/TuanDanny/AW-Car/tree/codex/esp32-s3-motion/firmware/motion). Bản đầu TT 4WD lái theo hai nhóm, không có bốn PID độc lập; Xiaozhi/Web không phát PWM.
 
 ## 1. Transport và cấu trúc chung
 
@@ -26,7 +26,7 @@
 
 | Type | Hướng | Payload | Tổng byte | Chức năng |
 |---|---|---:|---:|---|
-| `0x01 HELLO` | Brain → Motion | 0 | 13 | Mở session mới khi Motion đang DISARMED |
+| `0x01 HELLO` | Brain → Motion | 0 | 13 | Mở session mới khi DISARMED; trong FAULT chỉ mở context phục hồi |
 | `0x02 ARM_REQUEST` | Brain → Motion | 0 | 13 | Yêu cầu Motion làm quy trình ARM an toàn, **không tự mở driver** |
 | `0x03 SET_TWIST` | Brain → Motion | 7 | 20 | Gửi vận tốc tiến / quay mới |
 | `0x04 STOP` | Brain → Motion | 0 | 13 | Yêu cầu dừng, bỏ arm/lease ngay |
@@ -49,9 +49,9 @@ Golden frame tham khảo với `session_id=0x12345678`, `sequence=2`, `type=0x03
 
 **Guard bắt buộc:** Motion không nhận `SET_TWIST` khi chưa ARMED, không có lease Brain hợp lệ, mất nguồn an toàn/cảm biến thiết yếu, phiên sai, sequence cũ, TTL ngoài miền hoặc target trái/phải vượt giới hạn. Bản Brain hiện cho phép tiến/lùi/quay tại chỗ: `v` và hai target bánh có thể âm; Motion phải kiểm tra giới hạn riêng và ACK/REJECT rõ. Giới hạn LAB của Brain/PC peer là |v|<=200 mm/s, |omega|<=1000 mrad/s, không phải giới hạn xe đã đo. `W_eff` là tham số cơ khí phải hiệu chuẩn, không phải field truyền mỗi lệnh.
 
-**Sequence:** Trong cùng phiên, một lệnh mới nếu `0 < ((seq_new - seq_last_accepted) mod 65536) < 32768`; duplicate/cũ không gia hạn lease. Brain phải tăng sequence cho yêu cầu *thực sự mới* từ một phiên/source hợp lệ; không đổi sequence để phát lại lệnh cache khi Web/voice mất nguồn. `session_id` là số khác 0, do Brain sinh mới (ưu tiên RNG) mỗi lần handshake; Motion chỉ thay phiên khi DISARMED và giữ motor bị khóa. Sau reset/STOP/FAULT không tự áp dụng setpoint cũ.
+**Sequence:** Trong cùng phiên, một lệnh mới nếu `0 < ((seq_new - seq_last_accepted) mod 65536) < 32768`; duplicate/cũ không gia hạn lease. Brain phải tăng sequence cho yêu cầu *thực sự mới* từ một phiên/source hợp lệ; không đổi sequence để phát lại lệnh cache khi Web/voice mất nguồn. `session_id` là số khác 0, do Brain sinh mới (ưu tiên RNG) mỗi lần handshake; Motion chỉ thay phiên khi DISARMED hoặc FAULT, luôn giữ driver khóa. HELLO trong FAULT không xóa lỗi hoặc cho phép ARM. Sau reset/STOP/FAULT không tự áp dụng setpoint cũ.
 
-**Lease:** TTL bắt đầu lúc Motion **nhận trọn frame hợp lệ** theo đồng hồ cục bộ của Motion; Motion không cho phép lớn hơn 250 ms. HELLO/ARM/STATUS không gia hạn lệnh chuyển động. Khi lease quá hạn, Motion dừng cập nhật lệnh, hạ đường `motion_permit` tới gate phần cứng và xử lý DISABLE tới FPGA best-effort. Mất nguồn Brain/Web không được chữa bằng cách UART task tự tạo lệnh giả. E-stop/gate an toàn **độc lập cả hai MCU**.
+**Lease:** TTL bắt đầu lúc Motion **nhận trọn frame hợp lệ** theo đồng hồ cục bộ của Motion; Motion không cho phép lớn hơn 250 ms. HELLO/ARM/STATUS không gia hạn lệnh chuyển động. Khi lease quá hạn, Motion dừng cập nhật lệnh, hạ `driver_permit` tới gate phần cứng ngay và xử lý DISABLE tới FPGA. Logical `motion_permit` được giữ HIGH trong DỪNG bình thường đến khi FPGA xác nhận DISARMED (hạn 30ms), tránh lost-permit fault giả; quá hạn hoặc lỗi nghiêm trọng hạ cả hai. Hai GPIO phải tách biệt. Mất nguồn Brain/Web không được chữa bằng cách UART task tự tạo lệnh giả. E-stop/gate an toàn **độc lập cả hai MCU**.
 
 ## 4. STATUS payload (17 byte, Motion → Brain)
 
@@ -72,17 +72,17 @@ Giá trị khởi tạo: `last_req_seq=0xFFFF`, `applied_seq=0xFFFF`, `result_co
 
 **`motion_state`:** `0 DISARMED`, `1 ARMING`, `2 ARMED`, `3 FAULT`. `result_code`: `0 OK`, `1 BAD_STATE`, `2 BAD_SESSION`, `3 BAD_SEQUENCE`, `4 BAD_PAYLOAD_OR_RANGE`, `5 UNSAFE`, `6 LEASE_EXPIRED`, `7 BUSY`, `255 NONE`. Frame không qua CRC không được tạo ACK hợp lệ.
 
-**`status_flags`:** bit0 `V_EST_VALID`, bit1 `OMEGA_EST_VALID`, bit2 `BATTERY_VALID`, bit3 `FPGA_SNAPSHOT_FRESH`, bit4 `BRAIN_LEASE_ACTIVE`, bit5 `MOTION_PERMIT_HIGH`, bit6..7 reserved=0. Cờ tốc độ/chiều quay không được tự bật chỉ vì biết duty/chiều **ra lệnh**. Đối với encoder V2 một OUT, không suy ra chiều quay thực tế từ chiều yêu cầu.
+**`status_flags`:** bit0 `V_EST_VALID`, bit1 `OMEGA_EST_VALID`, bit2 `BATTERY_VALID`, bit3 `FPGA_SNAPSHOT_FRESH`, bit4 `BRAIN_LEASE_ACTIVE`, bit5 `DRIVER_PERMIT_HIGH` (tên cũ `MOTION_PERMIT_HIGH`, phản ánh đường gate vật lý), bit6..7 reserved=0. Cờ tốc độ/chiều quay không được tự bật chỉ vì biết duty/chiều **ra lệnh**. Đối với encoder V2 một OUT, không suy ra chiều quay thực tế từ chiều yêu cầu.
 
-**`fault_flags` v1** (bit bật = lỗi): bit0 E_STOP_OR_GATE; bit1 FPGA_LINK_STALE; bit2 ENCODER_INVALID_OR_STALE; bit3 CRITICAL_SENSOR_FAULT; bit4 OVERCURRENT (nếu có phần cứng đo); bit5 POWER_UNDERVOLT (nếu có đo); bit6 PID_FAILURE; bit7 INTERNAL_FAILURE; bit8..15 reserved=0. Không báo giả lỗi/sensor chưa tích hợp. Trạng thái FAULT cần phục hồi chủ động; mất lease thông thường chuyển DISARMED và có result/status phù hợp, không tự ARM.
+**`fault_flags` v1** (bit bật = lỗi): bit0 E_STOP_OR_GATE; bit1 FPGA_LINK_STALE; bit2 ENCODER_INVALID_OR_STALE; bit3 CRITICAL_SENSOR_FAULT; bit4 OVERCURRENT (nếu có phần cứng đo); bit5 POWER_UNDERVOLT (nếu có đo); bit6 PID_FAILURE; bit7 INTERNAL_FAILURE; bit8 REVERSAL_TIMEOUT (mở rộng 03/11/2026); bit9..15 reserved=0. Không sao chép raw fault FPGA sang word lỗi BM. Không báo giả lỗi/sensor chưa tích hợp. Trạng thái FAULT cần phục hồi chủ động; mất lease thông thường chuyển DISARMED và có result/status phù hợp, không tự ARM.
 
 ## 5. Trình tự điều khiển, phân xử nguồn và an toàn
 
 1. Brain (Xiaozhi hoặc Web) tạo yêu cầu, chỉ **một nguồn** có quyền điều khiển; Web cần dead-man, voice cần hành động **có thời hạn/giới hạn** chứ không ra lệnh chạy vô hạn.
 2. Sau reset/mất kết nối: Motion mặc định DISARMED, gate LOW. Brain gửi `HELLO(session mới)`, nhận STATUS xác nhận; yêu cầu `ARM_REQUEST` riêng. Motion kiểm tra nguồn, E-stop/permit/cảm biến, làm handshake Motion–FPGA và chỉ trả `motion_state=ARMED` sau khi thực sự hoàn tất.
-3. Brain gửi `SET_TWIST` mới theo chu kỳ (20–50 Hz dự kiến). Motion kiểm tra CRC/session/seq/TTL/giới hạn, đổi `(v,omega)` thành hai setpoint bánh, tính PID từ STATUS encoder FPGA, gửi `CMD(duty_left,duty_right,dir)` mới sang FPGA khoảng 100 Hz. FPGA lại xác thực theo **giao thức riêng** và chỉ tạo PWM khi Safety FSM cho phép.
+3. Brain gửi `SET_TWIST` mới theo chu kỳ (20–50 Hz dự kiến). Motion kiểm tra CRC/session/seq/TTL/giới hạn, đổi `(v,omega)` thành hai setpoint bánh, ở Motion 0.1 dùng ánh xạ vòng hở có giới hạn/kích/chờ đảo (PI/PID để mốc sau), gửi `CMD(duty_left,duty_right,dir)` mới sang FPGA khoảng 100 Hz. FPGA lại xác thực theo **giao thức riêng** và chỉ tạo PWM khi Safety FSM cho phép.
 4. Motion gửi STATUS định kỳ và khi có sự kiện; Brain dùng `last_req_seq/result_code/applied_seq`, `motion_state`, `status_flags` và `encoder_age_ms` để hiển thị, không coi STATUS cũ là chứng nhận motor đang chạy.
-5. `STOP` có format+CRC đúng được phép **giảm quyền ngay bất kể session/sequence** (không cho tăng quyền hoặc tiêu thụ mốc sequence), hạ permit và bỏ setpoint; không cần chờ STATUS để tắt. `CLEAR_FAULT` chỉ là **yêu cầu**: Motion phải thấy nguyên nhân lỗi đã hết và chạy quy trình phục hồi FPGA; CLEAR thành công vẫn DISARMED và đòi HELLO/ARM mới. Khi Brain hoặc Motion mất kết nối, hết lease, reset hoặc gặp lỗi, **mạch gate riêng** đảm bảo motor không tiếp tục chạy chỉ vì UART treo.
+5. `STOP` có format+CRC đúng được phép **giảm quyền ngay bất kể session/sequence** (không cho tăng quyền hoặc tiêu thụ mốc sequence), hạ driver_permit và bỏ setpoint; không cần chờ STATUS để tắt. `CLEAR_FAULT` chỉ là **yêu cầu**: Motion phải thấy nguyên nhân lỗi đã hết và chạy quy trình phục hồi FPGA; CLEAR thành công vẫn DISARMED và đòi HELLO/ARM mới. Khi Brain hoặc Motion mất kết nối, hết lease, reset hoặc gặp lỗi, **mạch gate riêng** đảm bảo motor không tiếp tục chạy chỉ vì UART treo.
 
 **Không phải xác thực bảo mật:** CRC16/session/sequence bảo vệ tính toàn vẹn/chống lặp của phiên, không chứng minh Brain là thiết bị tin cậy. Web phải kiểm soát phiên điều khiển tại Brain; phân quyền từ Web/giọng nói không thể dựa trên `source_mode` do dữ liệu gửi tự khai.
 
@@ -99,7 +99,7 @@ Giá trị khởi tạo: `last_req_seq=0xFFFF`, `applied_seq=0xFFFF`, `result_co
 - **Brain → Motion:** `SET_TWIST(v_mm_s, omega_mrad_s, source_mode, ttl_ms) + session/seq/CRC`
 - **Motion → Brain:** `STATUS(last_req_seq, applied_seq, result, state, faults, v/omega, battery, age, flags)`
 
-**Đã triển khai phía Brain:** codec C++, parser/serializer, session/ARM, host tests và PC serial peer. UART1 Brain TX=GPIO17, RX=GPIO18 là cấu hình phần mềm, chưa kiểm tra chân header thật. **Chưa thực hiện:** firmware Motion thật, liên kết hai board, deadline/gate/nguồn trên xe.
+**Đã triển khai:** Brain và Motion core/codec, session/ARM/STOP/CLEAR, host tests và hai core ghép trực tiếp. UART1 hai ESP dùng TX17/RX18 nối chéo; Motion dùng UART2 TX15/RX16 cho FPGA v2. Motion LOCKED đã build/nạp COM7; Brain bổ sung nút Xóa lỗi mới build/giả lập, chưa nạp lại. **Chưa nghiệm thu:** UART hai board, deadline/gate/nguồn và motor trên xe. `applied_seq` xác nhận Motion nhận mục tiêu, không là bằng chứng FPGA/motor đã thực thi.
 
 ## Neutral và STOP — quyết định 03/11/2026
 
@@ -109,3 +109,16 @@ Giá trị khởi tạo: `last_req_seq=0xFFFF`, `applied_seq=0xFFFF`, `result_co
 AI được phát yêu cầu trong hành động tối đa3s; hết hành động phát0, trong
 cửa sổ cho phép5phút chỉ giữ mục tiêu0 nếu không có hành động mới.
 UART byte shape, version1, payload7/17 và CRC không đổi.
+
+## Phục hồi lỗi từ Web — Motion 0.1
+
+Dashboard Xóa lỗi tăng epoch, hủy chuyển động, gửi STOP và đợi ACK đúng STOP
+trước HELLO với session mới trong FAULT và CLEAR_FAULT. BUSY chỉ là đang xử lý; chỉ thành công khi
+STATUS đúng yêu cầu báo DISARMED/fault=0. Từ chối, quá hạn hoặc STOP mới hủy
+quy trình. CLEAR thành công kết thúc context điều khiển, không ARM; người dùng
+phải bấm Cho phép lại. Không có tool AI/USB được tự ARM hoặc CLEAR.
+
+ARM sau khi hoàn tất handshake FPGA chỉ cấp cửa 120ms đợi SET_TWIST đầu;
+không có lệnh thì bỏ quyền. Snapshot stale 30ms khóa độc lập Brain. Giá trị
+có dấu v/omega đo và pin vẫn invalid nếu chỉ có encoder một OUT, không gán
+chiều lệnh thành chiều đo. E-stop/gate vật lý còn phải được đấu và thử riêng.

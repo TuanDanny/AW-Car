@@ -60,6 +60,23 @@ class BrainCoreTests(unittest.TestCase):
         self.r.advance(150000)
         self.assertEqual(self.r.state["reason"], "motion_stale")
 
+    def test_explicit_arm_rejection_is_reported_without_timeout(self):
+        original = self.r.motion.receive
+
+        def receive(data, now):
+            kind, _, seq, _ = decode(data)
+            if kind == 2:
+                self.r.motion.last = seq
+                self.r.motion.result = 5
+            else:
+                original(data, now)
+
+        self.r.motion.receive = receive
+        self.r.brain.command(5, self.r.now, self.r.state["epoch"])
+        self.r.pump(50000)
+        self.assertFalse(self.r.state["authorized"])
+        self.assertEqual(self.r.state["reason"], "arm_rejected")
+
     def test_manual_directions_and_full_scale(self):
         self.arm()
         seq = 0
@@ -395,6 +412,95 @@ class BrainCoreTests(unittest.TestCase):
         b.gate(2, self.r.now)
         b.gate(0, self.r.now, 1, "session-B")
         self.assertFalse(b.gate(3, self.r.now))
+
+    def test_web_clear_fault_opens_fresh_context_and_never_arms(self):
+        self.arm()
+        self.r.motion.fault = 4
+        self.r.motion.state = 3
+        self.r.pump(50000)
+        epoch = self.r.state["epoch"]
+        self.assertEqual(self.r.brain.command(9, self.r.now, epoch), 0)
+        self.assertTrue(self.r.state["clearing"])
+        self.r.pump()
+        self.assertFalse(self.r.state["clearing"])
+        self.assertFalse(self.r.state["authorized"])
+        self.assertEqual(self.r.state["fault_flags"], 0)
+        self.assertEqual(self.r.state["motion_state"], 0)
+        self.assertEqual(self.r.state["reason"], "fault_cleared")
+        self.assertNotEqual(self.r.state["epoch"], epoch)
+        self.assertNotEqual(self.r.brain.command(9, self.r.now, epoch), 0)
+        self.assertEqual(self.r.arm(), 0)
+        self.assertTrue(self.r.state["authorized"])
+
+    def test_clear_healthy_peer_is_rejected(self):
+        self.assertNotEqual(self.r.brain.command(9, self.r.now, self.r.state["epoch"]), 0)
+        self.assertFalse(self.r.state["clearing"])
+
+    def test_clear_waits_for_exact_stop_ack_before_recovery_hello(self):
+        self.r.motion.fault = 4
+        self.r.motion.state = 3
+        self.r.pump(50000)
+        self.assertEqual(self.r.brain.command(9, self.r.now, self.r.state["epoch"]), 0)
+        stop = self.r.brain.tx(self.r.now)
+        self.assertEqual(decode(stop)[0], 4)
+        self.assertFalse(self.r.brain.tx(self.r.now))
+        self.r.motion.receive(stop, self.r.now)
+        seq = self.r.motion.last
+        self.r.motion.last = (seq - 1) & 65535
+        self.r.brain.rx(self.r.now, self.r.motion.status(self.r.now, True))
+        self.assertFalse(self.r.brain.tx(self.r.now))
+        self.r.now += 50000
+        self.r.brain.command(0, self.r.now)
+        self.assertFalse(self.r.brain.tx(self.r.now))
+        self.r.motion.last = seq
+        self.r.brain.rx(self.r.now, self.r.motion.status(self.r.now, True))
+        hello = self.r.brain.tx(self.r.now)
+        self.assertEqual(decode(hello)[0], 1)
+        self.r.motion.receive(hello, self.r.now)
+        self.r.brain.rx(self.r.now, self.r.motion.status(self.r.now, True))
+        self.r.pump()
+        self.assertEqual(self.r.state["reason"], "fault_cleared")
+        self.assertFalse(self.r.state["authorized"])
+
+    def test_stop_cancels_clear_before_callback_can_progress(self):
+        self.r.motion.fault = 4
+        self.r.motion.state = 3
+        self.r.pump(50000)
+        self.assertEqual(self.r.brain.command(9, self.r.now, self.r.state["epoch"]), 0)
+        self.r.brain.command(6, self.r.now)
+        self.r.pump()
+        self.assertFalse(self.r.state["clearing"])
+        self.assertEqual(self.r.state["fault_flags"], 4)
+        self.assertFalse(self.r.state["authorized"])
+
+    def test_clear_stale_motion_fails_closed(self):
+        self.r.motion.fault = 4
+        self.r.motion.state = 3
+        self.r.pump(50000)
+        self.assertEqual(self.r.brain.command(9, self.r.now, self.r.state["epoch"]), 0)
+        self.r.motion.online = False
+        self.r.advance(150000)
+        self.assertFalse(self.r.state["clearing"])
+        self.assertFalse(self.r.state["authorized"])
+
+    def test_clear_rejected_by_motion_does_not_clear_ui_fault(self):
+        self.r.motion.fault = 4
+        self.r.motion.state = 3
+        self.r.pump(50000)
+        original = self.r.motion.receive
+        def receive(data, now):
+            kind, _, seq, _ = decode(data)
+            if kind == 5:
+                self.r.motion.last = seq
+                self.r.motion.result = 5
+            else:
+                original(data, now)
+        self.r.motion.receive = receive
+        self.r.brain.command(9, self.r.now, self.r.state["epoch"])
+        self.r.pump()
+        self.assertFalse(self.r.state["clearing"])
+        self.assertEqual(self.r.state["reason"], "clear_rejected")
+        self.assertEqual(self.r.state["fault_flags"], 4)
 
     def test_randomized_safety_invariants(self):
         rng = random.Random(0xAC419)

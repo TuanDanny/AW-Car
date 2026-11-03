@@ -1,6 +1,7 @@
 # Web-v1 — contract Brain/Dashboard ngày03/11/2026
 
-Có source Brain/simulator dùng chung lõi C++; chưa nghiệm thu trên ESP32.
+Có source Brain/simulator dùng chung lõi C++; dashboard/RGB/nghe đã thử
+trên ESP32 và iPhone. Phần lái/CLEAR mới kiểm chứng host, chưa ghép Motion thật.
 HTTP assets/WebSocket UTF-8 JSON tại AP192.168.4.1; UART riêng tuân
 [BM-v1](../firmware/shared/brain-motion-protocol.md), không truyền JSON xuống FPGA.
 
@@ -17,6 +18,7 @@ JSON tối đa512byte; số nguyên hữu hạn, không nhận bool/float thay i
 | HEARTBEAT | Duy trì console, không tạo quyền/lệnh chạy |
 | SET_MODE | `mode:Manual/AI,epoch`; STOP và đợi Motion DISARMED |
 | ARM | `epoch`; HELLO phiên UART mới rồi ARM_REQUEST, đợi STATUS xác nhận |
+| CLEAR_FAULT | `epoch`; chỉ Web, Motion FAULT còn mới, tăng epoch, STOP/HELLO/CLEAR rồi đợi DISARMED/fault=0 |
 | MOVE | `seq,epoch,challenge,v_mm_s,omega_mrad_s,ttl_ms,deadman` |
 | STOP | Dừng, thu quyền, tăng epoch; không đòi sequence mới |
 | RGB | `on:bool` hoặc `r,g,b:integer 0..255`, chung driver MCP |
@@ -35,7 +37,7 @@ không tự biến thành nguồn mới. Lệnh lỗi không gia hạn.
 OK/UNSAFE/BUSY/BAD_RANGE/BAD_SEQUENCE/STALE/WRONG_MODE. STATUS10Hz;
 CHALLENGE xen kẽ50ms, STATUS cũng chứa challenge.
 
-STATUS có `mode,authorized,switching,epoch,challenge,v,omega,v_max,omega_max`,
+STATUS có `mode,authorized,switching,clearing,epoch,challenge,v,omega,v_max,omega_max`,
 `motion_state,fault_flags,status_flags,last_req_seq,applied_seq,result_code`,
 `telemetry_age_ms,encoder_age_ms,v_est_mm_s,omega_est_mrad_s,battery_mv`,
 `ai_online,ai_remaining_ms,action_remaining_ms,reason,rgb,chat_state,data_source`.
@@ -70,3 +72,14 @@ Host C++/HTTP/WebSocket/input tests và `tools/brain_soak.py` kiểm phần mề
 Soak localhost đo RTT ACK và handler→mock-UART, không đo Wi-Fi/FreeRTOS/
 cloud AI/GPIO/motor. Computer use dùng cùng asset. AP+STA/audio/UART TTL
 thật, metadata backend và deadline vật lý cần board.
+
+## Xóa lỗi và mất kết nối — bổ sung Motion
+
+Xóa lỗi không cấp quyền chạy. Trong lúc `clearing`, khóa Cho phép/Xóa lỗi;
+STOP mới hủy phục hồi. Brain phân biệt BUSY với reject, đòi ACK đúng seq và
+trạng thái DISARMED/fault=0 trước báo thành công. Motion từ chối ARM rõ ràng
+được báo `arm_rejected`, không chờ hết 500ms. Không tạo tool AI ARM/CLEAR.
+
+Socket đóng xóa nhãn quyền cũ và khóa nút; reconnect không tự chạy. Asset HTTP
+trả Cache-Control:no-store để bản giao diện cũ không còn sau nâng firmware.
+Nút nghe/RGB và BOOT hiện có được giữ; chưa nạp thay đổi này lên Brain thật.

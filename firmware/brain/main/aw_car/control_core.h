@@ -15,6 +15,7 @@ struct Config {
 struct State {
   Mode mode = Mode::Manual;
   bool web = false, ai_online = false, authorized = false, switching = false;
+  bool clearing = false;
   uint32_t epoch = 1, challenge = 0;
   uint64_t ai_remaining_ms = 0, action_remaining_ms = 0;
   int v = 0, omega = 0, motion_state = 0;
@@ -36,6 +37,7 @@ class ControlCore {
   void SetAiOnline(bool online, uint64_t now);
   Result SetMode(Mode mode, uint64_t now);
   Result RequestArm(uint32_t epoch, uint64_t now);
+  Result RequestClear(uint32_t epoch, uint64_t now);
   void Stop(const char* reason, uint64_t now);
   Result ManualMove(uint32_t epoch, uint32_t challenge, uint32_t seq, int v,
                     int omega, int ttl, bool deadman, uint64_t now);
@@ -48,7 +50,10 @@ class ControlCore {
   bool Authorized() const { return s_.authorized; }
 
  private:
-  enum class ArmPhase { None, Hello, WaitHello, Arm, WaitArm };
+  enum class ArmPhase {
+    None, Hello, WaitHello, Arm, WaitArm, WaitClearStop,
+    ClearHello, WaitClearHello, Clear, WaitClear
+  };
   struct Challenge {
     uint32_t id = 0, epoch = 0;
     uint64_t at = 0;

@@ -45,6 +45,8 @@ API int aw_command(void* p, int op, uint64_t now, int64_t a, int64_t b,
                               int(e), int(f), g != 0, now));
     case 8:
       return int(x.VoiceMove(uint32_t(a), int(b), int(c), int(d), now));
+    case 9:
+      return int(x.RequestClear(uint32_t(a), now));
     default:
       return -1;
   }
@@ -88,7 +90,7 @@ API const char* aw_state(void* p, uint64_t now) {
   std::snprintf(
       b, sizeof(b),
       "{\"mode\":\"%s\",\"web\":%s,\"ai_online\":%s,\"authorized\":%s,"
-      "\"switching\":%s,"
+      "\"switching\":%s,\"clearing\":%s,"
       "\"epoch\":%u,\"challenge\":%u,\"ai_remaining_ms\":%llu,\"action_"
       "remaining_ms\":%llu,\"v\":%d,\"omega\":%d,"
       "\"motion_state\":%d,\"fault_flags\":%u,\"last_req_seq\":%u,\"applied_"
@@ -98,7 +100,7 @@ API const char* aw_state(void* p, uint64_t now) {
       "\"reason\":\"%s\",\"rx_errors\":%u}",
       s.mode == awcar::Mode::AI ? "AI" : "Manual", s.web ? "true" : "false",
       s.ai_online ? "true" : "false", s.authorized ? "true" : "false",
-      s.switching ? "true" : "false", s.epoch, s.challenge,
+      s.switching ? "true" : "false", s.clearing ? "true" : "false", s.epoch, s.challenge,
       static_cast<unsigned long long>(s.ai_remaining_ms),
       static_cast<unsigned long long>(s.action_remaining_ms), s.v, s.omega,
       s.motion_state, s.fault, s.last_req, s.applied, s.result, s.flags,

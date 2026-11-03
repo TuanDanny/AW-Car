@@ -14,16 +14,17 @@
   snapshot stall/invariant (mask 0x8800) yêu cầu reset; không coi mọi cảnh báo
   encoder/RX là lỗi tự khóa. ESP32 vẫn phải timeout STATUS độc lập.
   Nhánh AI giữ lịch sử source và không tự kéo toàn bộ RTL sang.
-  Phân tải ở `docs/fpga-drive-plan.md`; board mục tiêu Tang Nano 9K, chưa mua
-  và chưa xác nhận fit/timing đúng chip. Tối ưu RTL không đổi mục tiêu về 1K.
+  Phân tải ở `docs/fpga-drive-plan.md`; đã có Tang Nano 9K theo xác nhận
+  03/11/2026, chưa xác nhận fit/timing đúng chip. Không đổi mục tiêu về 1K.
 - Trao đổi và báo cáo bằng tiếng Việt, ngắn gọn; nêu giả định ảnh hưởng thiết kế.
 
 ## Nhánh và merge
 
 - `main` luôn là bản ổn định; tạo nhánh trước khi sửa, không commit/push trực tiếp.
-- Theo quyết định 30/10/2026, giai đoạn hiện tại chỉ dùng hai nhánh phát triển:
+- Theo quyết định cập nhật 03/11/2026, dùng ba nhánh phát triển:
   `feat/f01-fpga-drive` cho FPGA/truyền động và tài liệu liên quan;
-  `feat/f03-xiaozhi-ai` cho AI/Xiaozhi, âm thanh, OLED và tài liệu liên quan.
+  `feat/f03-xiaozhi-ai` cho AI/Xiaozhi, âm thanh, OLED và tài liệu liên quan;
+  `codex/esp32-s3-motion` tách từ main cho Motion, hai UART và gate.
 - Dùng lại nhánh đúng phần việc; không tạo thêm nhánh cho từng module, bản sửa
   lỗi, ghi chú hoặc lần tối ưu. Theo dõi các bước nhỏ bằng task và commit.
 - Giữ thay đổi chưa commit của checkout khác tại chỗ; không đưa công việc
@@ -31,7 +32,7 @@
 - Nhánh FPGA giữ nền `origin/main` mới nhất đã chứa các PR RTL; giữ nguyên
   lịch sử và bản source đã thử của nhánh AI. Chỉ đồng bộ thay đổi chung cần thiết.
 - Hoàn tất kiểm tra và review rồi mở PR vào `main`; dùng **squash merge**.
-  Chỉ merge một mốc đã nghiệm thu; sau đó đồng bộ main về hai nhánh đang dùng.
+  Chỉ merge một mốc đã nghiệm thu; sau đó đồng bộ main về các nhánh đang dùng.
 - Tác vụ đang bàn bạc/setup chỉ chuẩn bị nhánh để xem trước, chưa merge.
 - Không force-push main, bỏ qua hook/CI hoặc xóa thay đổi của người khác.
 - Khi dọn nhánh cũ, kiểm tra phần đã merge và sao lưu commit/thay đổi còn lại

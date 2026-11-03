@@ -2,6 +2,8 @@
 
 Lưu yêu cầu, quyết định kỹ thuật và kết quả thử nghiệm.
 
+- [Xóa lỗi Motion trên dashboard](brain-motion-clear-verification.md): ACK phục hồi,
+  UI hẹp/mất socket và bằng chứng browser; chưa nạp lại Brain.
 - [Bằng chứng Brain/dashboard](brain-dashboard-verification.md): bản Manual/AI,
   C++ host, WebSocket, firmware build, soak và giới hạn nghiệm thu phần cứng.
 

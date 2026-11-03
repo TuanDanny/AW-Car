@@ -193,12 +193,9 @@ hoặc crash. Có một lần TCP recv104 (peer reset); người dùng xác nh�
 khóa màn hình/chuyển ứng dụng/tải lại Safari. Vì vậy không tính lần này
 là tự ngắt khi Safari đang mở ổn định. Không reset/nạp trong hai lượt này.
 
-Điểm UI cần bổ sung trước nghiệm thu Motion: `app.mjs/onclose` hiện ẩn
-dashboard nhưng chưa xóa nhãn quyền chạy ở header. Khi Manual đã ARM rồi
-mất Web, nhãn có thể còn giá trị cũ dù lõi đã thu quyền. Không ảnh hưởng
-đường dừng, nhưng cần đổi thành trạng thái chưa biết/mất phiên và thử với
-Motion peer. Chưa gặp trên board hiện tại vì chưa có Motion để ARM. Chưa
-nạp thêm thay đổi UI trong khi người dùng đang thử bản đã ổn định.
+Điểm UI nhãn quyền cũ sau socket đóng đã được sửa trong mốc Motion, cùng
+nút Xóa lỗi và layout màn hình hẹp. Đây là bản source/build mới, **chưa nạp
+lại Brain**. Xem [bằng chứng bổ sung](brain-motion-clear-verification.md).
 
 Hướng dẫn chạy: [dashboard](../dashboard/README.md),
 [thiết kế Brain](../firmware/brain/docs/dashboard-brain.md),

@@ -26,6 +26,7 @@ void ControlCore::Stop(const char* reason, uint64_t) {
   ++s_.epoch;
   if (!s_.epoch) ++s_.epoch;
   s_.authorized = false;
+  s_.clearing = false;
   s_.reason = reason;
   arm_ = ArmPhase::None;
   grant_until_ = action_until_ = 0;
@@ -76,6 +77,22 @@ Result ControlCore::RequestArm(uint32_t epoch, uint64_t now) {
   arm_ = ArmPhase::Hello;
   arm_until_ = now + 500000;
   s_.reason = "arming";
+  return Result::OK;
+}
+Result ControlCore::RequestClear(uint32_t epoch, uint64_t now) {
+  Tick(now);
+  if (epoch != s_.epoch) return Result::Stale;
+  if (!s_.web || !Fresh(now) || s_.authorized ||
+      (s_.motion_state != 3 && !s_.fault)) return Result::Unsafe;
+  if (arm_ != ArmPhase::None || s_.clearing) return Result::Busy;
+  Stop("clear_requested", now);
+  session_ = ++next_session_;
+  if (!session_) session_ = ++next_session_;
+  tx_seq_ = 0;
+  have_status_seq_ = false;
+  s_.clearing = true;
+  arm_ = ArmPhase::WaitClearStop;
+  arm_until_ = now + 1000000;
   return Result::OK;
 }
 void ControlCore::Tick(uint64_t now) {
@@ -179,7 +196,11 @@ Result ControlCore::VoiceMove(uint32_t epoch, int action, int pct, int duration,
 }
 void ControlCore::OnStatus(const bm::Frame& f, uint64_t now) {
   if (f.type != bm::Status || f.length != 17) return;
-  if ((s_.authorized || arm_ != ArmPhase::None) && f.session != session_)
+  // STOP revokes the peer's context; its exact ACK can use the previous or
+  // zero session. No HELLO is emitted until that ACK, so a receive-buffer
+  // flush on Motion's epoch change cannot swallow the new recovery HELLO.
+  if ((s_.authorized || arm_ != ArmPhase::None) && f.session != session_ &&
+      arm_ != ArmPhase::WaitClearStop)
     return;
   uint16_t delta = uint16_t(f.seq - last_status_seq_);
   if (have_status_seq_ && (!delta || delta >= 0x8000)) return;
@@ -205,8 +226,36 @@ void ControlCore::OnStatus(const bm::Frame& f, uint64_t now) {
     await_stop_ack_ = false;
     s_.switching = false;
   }
+  if (s_.clearing) {
+    auto finished = [this] {
+      arm_ = ArmPhase::None;
+      s_.clearing = s_.authorized = s_.switching = false;
+      await_stop_ack_ = false;
+      s_.reason = "fault_cleared";
+    };
+    if (s_.last_req == expected_req_ && result != 7) {
+      if (arm_ == ArmPhase::WaitClearStop) {
+        if (result == 0 && state == 3) arm_ = ArmPhase::ClearHello;
+        else if (result == 0 && state == 0 && !s_.fault) finished();
+        else Stop("clear_rejected", now);
+      } else if (arm_ == ArmPhase::WaitClearHello) {
+        if (result == 0 && state == 3) arm_ = ArmPhase::Clear;
+        else if (result == 0 && state == 0 && !s_.fault) finished();
+        else Stop("clear_rejected", now);
+      } else if (arm_ == ArmPhase::WaitClear) {
+        if (result == 0 && state == 0 && !s_.fault) finished();
+        else Stop("clear_rejected", now);
+      }
+    }
+    return;
+  }
   if (s_.fault || state == 3) {
     if (s_.authorized || arm_ != ArmPhase::None) Stop("motion_fault", now);
+    return;
+  }
+  if ((arm_ == ArmPhase::WaitHello || arm_ == ArmPhase::WaitArm) &&
+      s_.last_req == expected_req_ && result != 0 && result != 7) {
+    Stop("arm_rejected", now);
     return;
   }
   if (arm_ == ArmPhase::WaitHello && f.session == session_ &&
@@ -236,6 +285,12 @@ bool ControlCore::TakeTx(bm::Frame& f, uint64_t now) {
   } else if (arm_ == ArmPhase::Arm) {
     f.type = bm::Arm;
     arm_ = ArmPhase::WaitArm;
+  } else if (arm_ == ArmPhase::ClearHello) {
+    f.type = bm::Hello;
+    arm_ = ArmPhase::WaitClearHello;
+  } else if (arm_ == ArmPhase::Clear) {
+    f.type = bm::Clear;
+    arm_ = ArmPhase::WaitClear;
   } else if (s_.authorized &&
              (dirty_ || (now - last_tx_ >= 50000 &&
                          (s_.mode == Mode::AI || (!s_.v && !s_.omega))))) {

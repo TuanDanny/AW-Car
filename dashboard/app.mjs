@@ -115,6 +115,8 @@ function render(s) {
         "permission",
         s.authorized
             ? "Đã cho phép chạy"
+            : s.clearing
+              ? "Đang yêu cầu xóa lỗi · chưa cho phép chạy"
             : s.reason === "arming"
               ? "Đang xin phép Motion"
               : "Chưa cho phép chạy",
@@ -132,11 +134,15 @@ function render(s) {
     $("speed").disabled = s.mode !== "Manual";
     $("arm").disabled =
         s.authorized ||
+        s.clearing ||
         s.switching ||
         s.motion_state !== 0 ||
         s.telemetry_age_ms < 0 ||
         s.telemetry_age_ms >= 150 ||
         (s.mode === "AI" && !s.ai_online);
+    $("clear-fault").disabled = s.authorized || s.clearing ||
+        !(s.motion_state === 3 || s.fault_flags) ||
+        s.telemetry_age_ms < 0 || s.telemetry_age_ms >= 150;
     text("target-v", `${s.v} mm/s`);
     text("target-w", `${s.omega} mrad/s`);
     text(
@@ -246,6 +252,10 @@ function openSocket() {
     ws.onclose = () => {
         clearInput();
         state = null;
+        text("permission", "Chưa xác nhận quyền chạy · mất kết nối");
+        $("permission").classList.remove("ready");
+        $("arm").disabled = true;
+        $("clear-fault").disabled = true;
         text("connection", "Mất kết nối · bấm Kết nối để mở lại");
         $("login").hidden = false;
         $("dashboard").hidden = true;
@@ -292,6 +302,11 @@ $("stop").onclick = stop;
 $("arm").onclick = () => {
     clearInput();
     send("ARM", { epoch: state?.epoch });
+};
+$("clear-fault").onclick = () => {
+    clearInput();
+    send("CLEAR_FAULT", { epoch: state?.epoch });
+    text("feedback", "Đã yêu cầu xóa lỗi. Thành công vẫn phải bấm Cho phép lại.");
 };
 for (const [id, mode] of [
     ["manual", "Manual"],

@@ -106,6 +106,7 @@ class Motion:
         self.lease = 0
         self.last_status = -50000
         self.last_accepted = None
+        self.arm_context = False
         self.online = True
         self.frames = deque(maxlen=256)
         self.total_frames = 0
@@ -115,18 +116,20 @@ class Motion:
         self.frames.append((now, kind, sess, seq, p))
         self.total_frames += 1
         if kind == 4:
-            self.state = 0
+            self.state = 3 if self.fault else 0
             self.v = self.w = 0
             self.session = 0
             self.lease = 0
             self.result = 0
             self.last = seq
             self.last_accepted = None
-        elif kind == 1 and self.state == 0 and sess:
+            self.arm_context = False
+        elif kind == 1 and self.state in (0, 3) and sess:
             self.session = sess
             self.last_accepted = seq
             self.last = seq
             self.result = 0
+            self.arm_context = True
         else:
             self.last = seq
             fresh = (
@@ -141,6 +144,9 @@ class Motion:
                 else 3
             )
             if self.result:
+                return
+            if not self.arm_context:
+                self.result = 2
                 return
             if kind == 2:
                 if self.state != 0 or self.fault:
@@ -166,9 +172,12 @@ class Motion:
                 self.applied = seq
                 self.lease = now + ttl * 1000
             elif kind == 5:
-                if self.state != 0:
+                if self.state != 3:
                     self.result = 1
                     return
+                self.fault = 0
+                self.state = 0
+                self.arm_context = False
             self.last_accepted = seq
 
     def status(self, now, force=False):

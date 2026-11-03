@@ -1,7 +1,7 @@
 # Web Dashboard
 
 Dashboard HTML/CSS/ES modules thuần, cùng asset trên ESP32 và PC simulator.
-Manual/AI, Cho phép/DỪNG, sáu hướng, tốc độ, RGB, transcript/tool events và
+Manual/AI, Cho phép/DỪNG/Xóa lỗi, sáu hướng, tốc độ, RGB, transcript/tool events và
 telemetry có cờ hợp lệ. Không CDN/framework hoặc JSON đi thẳng xuống FPGA.
 Contract: [Web-v1](web-brain-protocol.md).
 
@@ -20,7 +20,10 @@ Contract: [Web-v1](web-brain-protocol.md).
 4. Chọn AI trên dashboard rồi xin phép Motion để nhận hành động xe ngắn.
    Manual vẫn trò chuyện/RGB và nhận DỪNG. Đổi mode, DỪNG hoặc mất liên
    kết an toàn sẽ thu quyền; phải Cho phép lại. Quyền AI tối đa 5 phút.
-5. Để Safari ở trước màn hình khi điều khiển Manual. Ẩn tab/khóa màn hình
+5. **Xóa lỗi** chỉ sáng khi Motion báo FAULT còn mới và chưa có quyền chạy.
+   Sau khi nguyên nhân đã hết, bấm để yêu cầu phục hồi; thành công vẫn phải
+   **Cho phép** lại. Không nhả E-stop rồi tự ARM. Chưa ghép gate/motor thật.
+6. Để Safari ở trước màn hình khi điều khiển Manual. Ẩn tab/khóa màn hình
    hoặc mất Web sẽ dừng và bỏ ARM. Reconnect không phát lại nút đang giữ.
 
 Ngày03/11 đã thử thực trên iPhone Safari: đăng nhập và giữ WebSocket ổn định,
@@ -77,3 +80,12 @@ Peer chỉ xác thực BM-v1/lease, số đo tốc độ/pin invalid. Profile m�
 `AWCAR_MOTION_IS_SIMULATED=y` để ghi nhãn giả lập. Brain đã được nạp ngày
 03/11/2026, kiểm tra boot/AP+STA; chưa thử UART vật lý hoặc peer Motion.
 Xem [bằng chứng](../docs/brain-dashboard-verification.md).
+
+## Bổ sung ghép Motion 0.1
+
+Core Motion mới ở `codex/esp32-s3-motion`, không thay PC peer mặc định ở đây.
+Motion bản COM7 hiện LOCKED, chưa nối UART/gate; không dùng Cho phép như
+bằng chứng motor sẽ chạy. Cấu hình `AWCAR_MOTION_IS_SIMULATED` chỉ bỏ nhãn
+sau khi đã ghép và xác nhận dữ liệu thật, không sửa để che nhãn giả lập.
+Computer use đã thử Xóa lỗi, giao diện hẹp và socket đóng; xem
+[báo cáo bổ sung](../docs/brain-motion-clear-verification.md).

@@ -144,6 +144,10 @@ class Simulator:
                         result = self.rig.brain.command(
                             5, now, integer(d, "epoch", 0, 0xFFFFFFFF)
                         )
+                    elif kind == "CLEAR_FAULT":
+                        result = self.rig.brain.command(
+                            9, now, integer(d, "epoch", 0, 0xFFFFFFFF)
+                        )
                     elif kind == "MOVE":
                         if type(d.get("deadman")) is not bool:
                             raise ValueError("deadman")
@@ -197,7 +201,7 @@ class Simulator:
                             "stage": "Brain",
                         }
                     )
-                    if kind in ("ARM", "STOP", "SET_MODE"):
+                    if kind in ("ARM", "STOP", "SET_MODE", "CLEAR_FAULT"):
                         await ws.send_json(await self.snapshot())
                 except (ValueError, TypeError, KeyError, json.JSONDecodeError):
                     self.rejected += 1
@@ -245,6 +249,12 @@ class Simulator:
             self.rig.brain.command(3, now, int(bool(d["online"])))
         elif op == "motion_online":
             self.rig.motion.online = bool(d["online"])
+        elif op == "motion_fault":
+            self.rig.motion.fault = integer(d, "mask", 1, 0x1ff)
+            self.rig.motion.state = 3
+            self.rig.motion.v = self.rig.motion.w = 0
+            self.rig.brain.rx(now, self.rig.motion.status(now, True))
+            self.event("fault", "Motion giả lập: lỗi được tiêm để thử Xóa lỗi")
         elif op == "advance":
             self.offset += integer(d, "ms", 0, 300001) * 1000
             self.rig.advance(d["ms"] * 1000)
@@ -386,7 +396,8 @@ class Simulator:
         for name in ("index.html", "style.css", "app.mjs", "control.mjs"):
 
             async def asset(req, name=name):
-                return web.FileResponse(Path(__file__).parent / name)
+                return web.FileResponse(Path(__file__).parent / name,
+                                        headers={"Cache-Control": "no-store"})
 
             app.router.add_get("/" if name == "index.html" else "/" + name, asset)
         app.cleanup_ctx.append(self.loop)

@@ -142,6 +142,7 @@ main {
   padding: 0 4px;
 }
 .panel {
+  min-width: 0;
   background: var(--panel);
   border: 1px solid var(--line);
   border-radius: 12px;
@@ -485,7 +486,7 @@ body[hidden],
     padding: 0;
   }
   .columns {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
     gap: 0;
   }
   .panel {
@@ -497,6 +498,14 @@ body[hidden],
   }
   .drive-grid button {
     min-height: 94px;
+  }
+  .drive .section-title {
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    gap: 10px;
+  }
+  .drive .section-title > div {
+    flex-basis: 100%;
   }
   .transcripts {
     grid-template-columns: 1fr;

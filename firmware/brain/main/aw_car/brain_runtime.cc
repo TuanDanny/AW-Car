@@ -335,6 +335,7 @@ std::string BrainRuntime::Snapshot() {
                           uxTaskGetStackHighWaterMark(uart_task_));
   cJSON_AddBoolToObject(j, "authorized", s.authorized);
   cJSON_AddBoolToObject(j, "switching", s.switching);
+  cJSON_AddBoolToObject(j, "clearing", s.clearing);
   cJSON_AddBoolToObject(j, "ai_online", s.ai_online);
   cJSON_AddBoolToObject(j, "voice_context_ready", voice_ready);
   cJSON_AddBoolToObject(j, "log_available", events_ != nullptr);
@@ -476,6 +477,12 @@ std::string BrainRuntime::Dispatch(const cJSON* d) {
       TickLocked(Now());
       result = core_.RequestArm(epoch, Now());
     }
+  } else if (strcmp(type, "CLEAR_FAULT") == 0) {
+    if (!Int(d, "epoch", 0, UINT32_MAX, epoch)) result = Result::BadRange;
+    else {
+      std::lock_guard<std::mutex> lock(mutex_);
+      result = core_.RequestClear(uint32_t(epoch), Now());
+    }
   } else if (strcmp(type, "SET_MODE") == 0) {
     const char* mode = String(d, "mode");
     if (!Int(d, "epoch", 0, UINT32_MAX, epoch) ||
@@ -553,6 +560,7 @@ esp_err_t BrainRuntime::WebSocketRequest(httpd_req_t* req) {
   return result;
 }
 esp_err_t BrainRuntime::Request(httpd_req_t* req) {
+  httpd_resp_set_hdr(req, "Cache-Control", "no-store");
   if (req->method == HTTP_GET) {
     for (const auto& asset : web_assets)
       if (strcmp(req->uri, asset.path) == 0) {
