@@ -658,6 +658,15 @@ config AWCAR_MOTION_IS_SIMULATED
         labels Motion telemetry as simulated. Disable only after real Motion
         firmware and independent safety gate have been verified on hardware.
 
+config AWCAR_AP_PASSWORD
+    string "Local AW-CAR Wi-Fi password override (8-63 characters)"
+    depends on BOARD_TYPE_AW_CAR_AI_RGB
+    default ""
+    help
+        A nonempty value fixes the AP password for this build and saves it in
+        NVS. An empty value reuses the saved password or generates one on a new
+        device. Keep the actual password in local sdkconfig, outside Git.
+
 choice XIAOZHI_NETWORK_TYPE
     prompt "Network Type"
     depends on BOARD_TYPE_WAVESHARE_ESP32_P4_NANO

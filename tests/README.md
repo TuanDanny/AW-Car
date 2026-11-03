@@ -15,6 +15,9 @@ Brain có kiểm thử phần mềm host, chưa có nghiệm thu phần cứng:
   bài soak riêng dùng thời gian thực, không nới deadline để che lỗi.
 - `test_motion_serial_peer.py`: test peer độc lập Python, UART phân mảnh,
   CRC/resync và lease. Không phải firmware Motion/PID.
+- `test_brain_websocket_transport.py`: compile adapter WebSocket thật với
+  [I/O stub ESP-IDF](brain_http_stub/README.md); URI rỗng sau handshake,
+  1.000 heartbeat, PONG, giới hạn frame và lỗi I/O.
 - `node --test dashboard/control.test.mjs`: thứ tự giữ/nhả nút và hướng.
 
 Xem [báo cáo Brain/dashboard](../docs/brain-dashboard-verification.md) và

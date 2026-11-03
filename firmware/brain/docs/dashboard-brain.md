@@ -21,7 +21,7 @@ Không TX ring; gửi frame tiếp sau khi frame trước hoàn tất. HTTP queu
 không ghi flash. Nếu không cấp phát được journal, không lấy RAM control để
 giữ log; trạng thái báo log không sẵn sàng.
 
-AP AW-Car và STA tái dùng SSID NVS; không gọi StartConfigAp upstream vì hàm
+AP `AW-CAR` và STA tái dùng SSID NVS; không gọi StartConfigAp upstream vì hàm
 đó dừng STA. Dashboard đổi Wi-Fi khi DISARMED. STA subnet trùng192.168.4.x
 bị báo lỗi. AP không cấp Internet cho điện thoại; giữ kết nối dù máy báo
 không Internet. Không đổi pin OLED41/42, mic4/5/6, ampli7/15/16, RGB48, BOOT0.
@@ -29,6 +29,12 @@ UART1 TX17/RX18 chưa xác nhận header thật. Không dùng console làm UART 
 `AWCAR_MOTION_IS_SIMULATED=y` mặc định, không đổi partition/NVS khi build.
 Giữ BOOT lâu: thu hồi quyền và hiện lại PIN một dòng; SSID/mật khẩu/AP URL
 chạy trên dòng chat OLED. Nhấn/nhả BOOT ngắn vẫn bắt đầu/kết thúc hội thoại.
+
+WebSocket có handler riêng `websocket_transport`: ESP-IDF xóa `req->uri`
+giữa các request, kể cả frame sau handshake. Không route frame theo chuỗi
+`/ws` và không trả HTTP response trên socket đã upgrade. PONG được đọc bỏ
+đúng giới hạn; JSON chỉ nhận TEXT hoàn chỉnh tối đa512byte. Test host biên
+dịch chính adapter này với stub I/O SDK, gồm1.000 frame URI rỗng.
 
 ## Build và kiểm tra
 

@@ -30,7 +30,7 @@ sau đó người dùng yêu cầu nạp board, kết quả bổ sung ở cuối
 | RGB, transcript, không có telemetry | HTTP + browser | Đạt; số đo chưa có là null/“Chưa có dữ liệu” |
 | Repository và quy tắc | `python tools/check_repo.py`, unittest, diff check | Đạt |
 
-Full host regression cuối gồm **72 ca Python và 3 ca Node, đều đạt**.
+Full host regression sau sửa WebSocket gồm **77 ca Python và 3 ca Node, đều đạt**.
 Có 10.000 thao tác ngẫu nhiên kiểm bất biến không quyền → mục tiêu 0.
 Không dùng thời gian thực Windows làm clock cho kiểm tra biên chức năng;
 bài soak bên dưới đo thời gian thực.
@@ -105,8 +105,8 @@ AW-Car tương ứng source `33023d7`, chưa nạp. Các artifact cục bộ:
 
 | Artifact | Byte | SHA-256 |
 | --- | ---: | --- |
-| `firmware/brain/build/merged-binary.bin`, offset 0x0000 | 8.949.619 | `8c431f97208a4a6372e6d07dc4bc12423b2abe8a1ed0e1e9d1d31ba5145814b1` |
-| `firmware/brain/build/xiaozhi.bin` | 2.660.352 | `85a842b811c36dd8766cadab50684ec61fede9979739810f21bb67310e030282` |
+| `build/brain/prior-dashboard-build/merged-binary.bin`, offset 0x0000 | 8.949.619 | `8c431f97208a4a6372e6d07dc4bc12423b2abe8a1ed0e1e9d1d31ba5145814b1` |
+| `build/brain/prior-dashboard-build/xiaozhi.bin` | 2.660.352 | `85a842b811c36dd8766cadab50684ec61fede9979739810f21bb67310e030282` |
 | `firmware/brain/build/stock/xiaozhi.bin` | 2.583.840 | `922aa67b51847a329ef6b107c581b887f1d805f6debb4910588062c1fad36aac` |
 
 Log `build/brain/firmware-build-release.log` và `firmware-build-stock.log`.
@@ -146,6 +146,54 @@ Người dùng thử tiếp: giữ BOOT lâu để xem Wi-Fi/mật khẩu và PI
 Wi-Fi xe rồi mở `http://192.168.4.1`. PIN sinh trên board, khác mã giả lập
 123456. Có thể thử RGB và nhấn/nhả BOOT ngắn để nói; lái chỉ mở khi Motion
 phản hồi hợp lệ.
+
+## Cập nhật AP và sửa lỗi Safari sau đăng nhập
+
+Theo yêu cầu người dùng, SSID đổi thành `AW-CAR`; mật khẩu cố định được
+đặt trong sdkconfig cục bộ và giữ trong NVS, không commit giá trị. Đã đọc
+lại key `aw_car/ap_password` bằng parser NVS của ESP-IDF, khớp yêu cầu.
+PIN dashboard vẫn sinh mỗi boot và hiển thị OLED.
+
+Lần thử Safari đầu: vào dashboard rồi bị đóng; serial ghi lỗi WS payload.
+Nguyên nhân xác định trong ESP-IDF 6.1 `httpd_parse.c/init_req`: request frame
+sau handshake có method0/URI rỗng. Handler cũ route theo `/ws` nên rơi vào
+đường HTTP, làm hỏng phiên WebSocket. Host aiohttp trước đó không mô phỏng
+chi tiết SDK này; bài soak cũ không thể chứng minh adapter HTTPD trên board.
+
+Đã tách handler WS riêng, không dựa URI; chỉ gửi frame WS trên kết nối đã
+upgrade. Xử lý PONG riêng, giữ giới hạn512byte, kiểm phiên trước queued send.
+Thêm5 hồi quy biên dịch chính adapter firmware với I/O stub: handshake,
+1.000 frame URI rỗng, TEXT/fragment/size, PONG và lỗi SDK. Tổng77 ca Python
+và3 ca Node đạt; build ESP-IDF và nạp COM3 tại0x0000 đạt, NVS đọc lại khớp
+trước boot. Không sửa lõi điều khiển, protocol UART hoặc RTL.
+
+Firmware hiện tại:
+
+- Merged image `firmware/brain/build/merged-binary.bin`, SHA-256
+  `b18c0a9f383625b02c6a31d23624639232f4c784dc91a9b5b03ff4a36a5211c2`.
+- App SHA-256
+  `60080e51c022e613851dbf656fc6293a33701ba8bf70148640ff6eb14a16c434`.
+- Boot ELF khớp
+  `75ca3e3078af2f88bb6dabe30a920dd5eed262a2c495a2b63f1b8b13e1171a8a`.
+- Backup/log riêng tại `build/board-flash-20261103-163725-ws-fix/`.
+
+Người dùng xác nhận iPhone Safari giữ kết nối ổn định trên10giây, thao tác
+Web và nút nghe tương đương BOOT hoạt động. Theo dõi serial180giây sau sửa:
+không panic/assert/abort/backtrace/stack overflow hoặc lỗi WS payload;
+có9 lần ghi RGB,4 sự kiện nhận dạng và19 đoạn trả lời AI. Callback RGB có
+đỏ/xanh lá/xanh dương/bật/tắt; đây là trạng thái driver, không là đo quang học.
+
+Có một `self.car.move` qua giọng nói bị `WRONG_MODE` khi đang Manual,
+đúng contract. Callback này đã qua guard SID/STT/epoch của phiên đang dùng;
+chưa chứng minh mọi tình huống backend hoặc chuyển động vật lý. Chưa có
+Motion nên không gọi lái/ARM/PID/motor là đã nghiệm thu.
+
+Điểm UI cần bổ sung trước nghiệm thu Motion: `app.mjs/onclose` hiện ẩn
+dashboard nhưng chưa xóa nhãn quyền chạy ở header. Khi Manual đã ARM rồi
+mất Web, nhãn có thể còn giá trị cũ dù lõi đã thu quyền. Không ảnh hưởng
+đường dừng, nhưng cần đổi thành trạng thái chưa biết/mất phiên và thử với
+Motion peer. Chưa gặp trên board hiện tại vì chưa có Motion để ARM. Chưa
+nạp thêm thay đổi UI trong khi người dùng đang thử bản đã ổn định.
 
 Hướng dẫn chạy: [dashboard](../dashboard/README.md),
 [thiết kế Brain](../firmware/brain/docs/dashboard-brain.md),

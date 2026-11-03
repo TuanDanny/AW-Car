@@ -77,6 +77,7 @@ class BrainRuntime {
   bool Auth(httpd_req_t* req);
   bool Origin(httpd_req_t* req);
   esp_err_t Request(httpd_req_t* req);
+  esp_err_t WebSocketRequest(httpd_req_t* req);
   std::string Dispatch(const cJSON* data);
 };
 }  // namespace awcar

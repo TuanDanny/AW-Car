@@ -1098,7 +1098,8 @@ endif()
 set(MAIN_PRIV_REQUIRES_EXTRA esp_http_server esp_driver_gptimer)
 if(CONFIG_BOARD_TYPE_AW_CAR_AI_RGB)
     list(APPEND SOURCES "aw_car/control_core.cc" "aw_car/brain_runtime.cc"
-         "aw_car/aw_car_network.cc" "${PROJECT_DIR}/../shared/brain_motion_codec.cc")
+         "aw_car/aw_car_network.cc" "aw_car/websocket_transport.cc"
+         "${PROJECT_DIR}/../shared/brain_motion_codec.cc")
     list(APPEND INCLUDE_DIRS "${PROJECT_DIR}/../shared" "${CMAKE_CURRENT_BINARY_DIR}/awcar_assets")
     execute_process(COMMAND ${PYTHON} "${PROJECT_DIR}/../../tools/embed_dashboard.py"
         --output "${CMAKE_CURRENT_BINARY_DIR}/awcar_assets/aw_car_web_assets.h"

@@ -29,8 +29,9 @@ Lỗi driver trả tool error; log APPLIED chỉ xuất sau khi ghi thành công
 không thay phép quan sát màu vật lý. Mốc03/11 thêm dashboard và UART yêu cầu
 chuyển động tới Motion; không tạo PWM/điều khiển motor trực tiếp.
 
-Runtime dùng AP+STA riêng, Web tại192.168.4.1. PIN hiển thị OLED, WPA2 AP
-có mật khẩu riêng trong NVS. UART1 TX17/RX18 là cấu hình chưa thử header thật.
+Runtime dùng AP+STA riêng, SSID `AW-CAR`, Web tại192.168.4.1. PIN hiển thị
+OLED. WPA2 AP dùng mật khẩu NVS hoặc override cục bộ `AWCAR_AP_PASSWORD`;
+không commit giá trị mật khẩu. UART1 TX17/RX18 chưa thử header thật.
 Chế độ Manual/AI và quy trình Cho phép/DỪNG theo
 [contract](../../../../../dashboard/web-brain-protocol.md). Mặc định Motion
 giả lập; firmware mới đã nạp/boot ngày03/11/2026, chưa xác minh metadata cloud.

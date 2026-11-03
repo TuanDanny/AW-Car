@@ -20,17 +20,17 @@ namespace awcar {
 void Network::Start(NetworkEventCallback cb) {
   callback_ = std::move(cb);
   Settings settings("aw_car", true);
-  password_ = settings.GetString("ap_password");
-  if (password_.size() < 12) {
+  const auto saved_password = settings.GetString("ap_password");
+  password_ = CONFIG_AWCAR_AP_PASSWORD;
+  if (password_.empty()) password_ = saved_password;
+  if (password_.size() < 8 || password_.size() > 63) {
     char p[17];
     snprintf(p, sizeof(p), "%08lx%08lx", (unsigned long)esp_random(),
              (unsigned long)esp_random());
     password_ = p;
-    settings.SetString("ap_password", password_);
   }
-  ap_ssid_ = "AW-Car-" + SystemInfo::GetMacAddress().substr(12);
-  for (auto& c : ap_ssid_)
-    if (c == ':') c = '-';
+  if (password_ != saved_password) settings.SetString("ap_password", password_);
+  ap_ssid_ = "AW-CAR";
   ESP_ERROR_CHECK(esp_netif_init());
   auto err = esp_event_loop_create_default();
   if (err != ESP_ERR_INVALID_STATE) ESP_ERROR_CHECK(err);

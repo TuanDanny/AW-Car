@@ -12,8 +12,9 @@ lõi Brain độc lập RTOS, UART BM-v1 và Motion PC test peer. Firmware đã 
 kiểm thử host theo [hướng dẫn dashboard](dashboard/README.md) và
 [thiết kế Brain](firmware/brain/docs/dashboard-brain.md). Đã nạp bản mới qua
 COM3 tại 0x0000, giữ NVS; boot/PSRAM/OLED/audio init, AP+STA và WPA2 beacon
-đã kiểm tra. **Chưa nghiệm thu thao tác Web/âm thanh/metadata AI thật,
-UART Brain–Motion hoặc motor**.
+đã kiểm tra. Đã sửa lỗi WS sau đăng nhập; người dùng xác nhận Safari ổn định,
+RGB và nút nghe trên Web hoạt động. **Chưa nghiệm thu UART Brain–Motion,
+loa, mọi tình huống metadata AI hoặc motor**.
 Xem [bằng chứng kiểm thử Brain/dashboard](docs/brain-dashboard-verification.md).
 Các kết quả 29/10 bên dưới là baseline phần cứng, không thay nghiệm thu bản mới.
 

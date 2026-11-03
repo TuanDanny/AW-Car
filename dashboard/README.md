@@ -5,6 +5,28 @@ Manual/AI, Cho phép/DỪNG, sáu hướng, tốc độ, RGB, transcript/tool ev
 telemetry có cờ hợp lệ. Không CDN/framework hoặc JSON đi thẳng xuống FPGA.
 Contract: [Web-v1](web-brain-protocol.md).
 
+## Dùng dashboard trên iPhone
+
+1. Nối Wi-Fi `AW-CAR`, mở `http://192.168.4.1` bằng Safari. Nhập PIN hiện
+   trên OLED; giữ BOOT lâu để hiện lại. PIN dashboard khác mật khẩu Wi-Fi,
+   đổi sau mỗi reset. Chỉ giữ một tab dashboard đang kết nối.
+2. RGB hoạt động bằng các nút bật/tắt, ba màu sẵn hoặc ô chọn màu; không
+   cần ARM. Nút **Bắt đầu/kết thúc nghe** tương đương nhấn/nhả BOOT ngắn.
+   Đợi trạng thái đang nghe rồi nói tiếng Trung; xem nhận dạng, trả lời và
+   tool trong nhật ký. Ví dụ: `开红灯`, `开绿灯`, `开蓝灯`, `关灯`.
+3. Manual dùng sáu nút giữ để lái, nhả về 0; mức tốc độ mặc định 30%.
+   Chỉ mở khi **Cho phép** đã được Motion xác nhận. Khi chưa nối Motion,
+   các nút lái khóa và telemetry ghi “Chưa có dữ liệu”.
+4. Chọn AI trên dashboard rồi xin phép Motion để nhận hành động xe ngắn.
+   Manual vẫn trò chuyện/RGB và nhận DỪNG. Đổi mode, DỪNG hoặc mất liên
+   kết an toàn sẽ thu quyền; phải Cho phép lại. Quyền AI tối đa 5 phút.
+5. Để Safari ở trước màn hình khi điều khiển Manual. Ẩn tab/khóa màn hình
+   hoặc mất Web sẽ dừng và bỏ ARM. Reconnect không phát lại nút đang giữ.
+
+Ngày03/11 đã thử thực trên iPhone Safari: đăng nhập và giữ WebSocket ổn định,
+RGB và nút nghe trên dashboard được người dùng xác nhận hoạt động.
+Chưa nghiệm thu lái xe vì chưa có Motion/gate/motor trong vòng thử này.
+
 ## Chạy giả lập
 
 Từ root: Python3.13, Node và compiler host C++17 (`g++`/`clang++` hoặc `CXX`).
@@ -19,8 +41,9 @@ python tools/build_brain_host.py
 ```
 
 Mở `http://127.0.0.1:8767`, mã **123456 chỉ cho simulator localhost**.
-Firmware sinh PIN mỗi boot và mật khẩu AP riêng trong NVS; không dùng
-credentials simulator cho ESP32. Simulator không mô phỏng CPU, Wi-Fi/I²S/
+Firmware dùng SSID `AW-CAR`; mật khẩu AP giữ trong NVS hoặc đặt cố định
+bằng `CONFIG_AWCAR_AP_PASSWORD` ở sdkconfig cục bộ. PIN dashboard vẫn sinh
+mỗi boot; không dùng credentials simulator cho ESP32. Simulator không mô phỏng CPU, Wi-Fi/I²S/
 FreeRTOS, PID, FPGA hay motor. Mỗi instance chỉ nhận một WebSocket.
 
 ```powershell

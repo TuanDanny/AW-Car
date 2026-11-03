@@ -20,6 +20,7 @@
 #include "boards/aw-car-ai-rgb/rgb_light.h"
 #include "display.h"
 #include "mcp_server.h"
+#include "websocket_transport.h"
 
 namespace awcar {
 namespace {
@@ -535,28 +536,23 @@ std::string BrainRuntime::Dispatch(const cJSON* d) {
     cJSON_AddNumberToObject(out, "last_seq", seq);
   return Json(out);
 }
+esp_err_t BrainRuntime::WebSocketRequest(httpd_req_t* req) {
+  if (req->method == HTTP_GET)
+    ESP_LOGI("AwCarWeb", "WebSocket connected fd=%d", httpd_req_to_sockfd(req));
+  auto result = ServeControlWebSocket(
+      req, this, [](void* context, const char* body, size_t len) {
+        auto* self = static_cast<BrainRuntime*>(context);
+        auto* data = cJSON_ParseWithLength(body, len);
+        auto reply = self->Dispatch(data);
+        cJSON_Delete(data);
+        return reply;
+      });
+  if (result != ESP_OK)
+    ESP_LOGW("AwCarWeb", "WebSocket receive/send failed fd=%d error=%d",
+             httpd_req_to_sockfd(req), result);
+  return result;
+}
 esp_err_t BrainRuntime::Request(httpd_req_t* req) {
-  if (strcmp(req->uri, "/ws") == 0) {
-    if (req->method == HTTP_GET) return ESP_OK;
-    httpd_ws_frame_t f{};
-    if (httpd_ws_recv_frame(req, &f, 0) != ESP_OK) return ESP_FAIL;
-    if (f.type != HTTPD_WS_TYPE_TEXT || f.len > 512) {
-      httpd_sess_trigger_close(server_, httpd_req_to_sockfd(req));
-      return ESP_FAIL;
-    }
-    char body[513];
-    f.payload = (uint8_t*)body;
-    if (httpd_ws_recv_frame(req, &f, 512) != ESP_OK) return ESP_FAIL;
-    body[f.len] = 0;
-    auto* d = cJSON_ParseWithLength(body, f.len);
-    auto reply = Dispatch(d);
-    cJSON_Delete(d);
-    httpd_ws_frame_t response{};
-    response.type = HTTPD_WS_TYPE_TEXT;
-    response.payload = (uint8_t*)reply.data();
-    response.len = reply.size();
-    return httpd_ws_send_frame(req, &response);
-  }
   if (req->method == HTTP_GET) {
     for (const auto& asset : web_assets)
       if (strcmp(req->uri, asset.path) == 0) {
@@ -663,13 +659,26 @@ void BrainRuntime::StartWeb() {
   ws.uri = "/ws";
   ws.method = HTTP_GET;
   ws.is_websocket = true;
-  ws.handler = [](httpd_req_t* r) { return BrainRuntime::Get().Request(r); };
+  ws.handler = [](httpd_req_t* r) {
+    return BrainRuntime::Get().WebSocketRequest(r);
+  };
   ws.ws_pre_handshake_cb = [](httpd_req_t* r) -> esp_err_t {
     auto& self = BrainRuntime::Get();
     int expected = -1;
-    if (!self.Auth(r) || !self.Origin(r)) return ESP_FAIL;
+    if (!self.Auth(r)) {
+      ESP_LOGW("AwCarWeb",
+               "WebSocket rejected: authentication missing/invalid");
+      return ESP_FAIL;
+    }
+    if (!self.Origin(r)) {
+      ESP_LOGW("AwCarWeb", "WebSocket rejected: origin mismatch");
+      return ESP_FAIL;
+    }
     int fd = httpd_req_to_sockfd(r);
-    if (!self.client_.compare_exchange_strong(expected, fd)) return ESP_FAIL;
+    if (!self.client_.compare_exchange_strong(expected, fd)) {
+      ESP_LOGW("AwCarWeb", "WebSocket rejected: another dashboard is active");
+      return ESP_FAIL;
+    }
     ++self.client_generation_;
     {
       std::lock_guard<std::mutex> lock(self.mutex_);
@@ -746,7 +755,9 @@ void BrainRuntime::WebTask() {
           auto* w = static_cast<Work*>(arg);
           auto* self = w->self;
           if (self->client_ == w->fd &&
-              self->client_generation_ == w->generation) {
+              self->client_generation_ == w->generation &&
+              httpd_ws_get_fd_info(self->server_, w->fd) ==
+                  HTTPD_WS_CLIENT_WEBSOCKET) {
             for (auto* data : {&w->status, &w->event})
               if (!data->empty()) {
                 httpd_ws_frame_t f{};
