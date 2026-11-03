@@ -56,3 +56,8 @@ board Brain vẫn là bản Safari đã thử. Motion COM7 đã nạp bản LOCK
 Còn phải thử UART hai ESP, recovery GPIO/gate, E-stop và motor; chưa đo
 latency Wi-Fi/FreeRTOS hoặc xác nhận âm thanh sau bản build mới. Không gọi
 ACK/applied_seq là bằng chứng xe đã chuyển động.
+
+Bộ CLI Xiaozhi gốc (ngoài84 root tests) chạy trên Windows có11 lỗi harness
+và1 skip: xóa thư mục tạm đang là cwd và gọi entrypoint POSIX. Không sửa
+vendor CLI trong mốc này. Job brain-host gồm bộ CLI đạt trên
+[Ubuntu CI tại commit dacf143](https://github.com/TuanDanny/AW-Car/actions/runs/41677522668/job/126062024276).

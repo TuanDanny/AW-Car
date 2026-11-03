@@ -1,5 +1,12 @@
 # Hợp đồng an toàn Motion–FPGA
 
+**Bản tham khảo v1 trong nền nhánh AI.** Motion 0.1 dùng driver_permit riêng
+để khóa gate ngay, giữ logical motion_permit đến ACK DISABLE khi DỪNG.
+Bảng gate của baseline dưới đây chưa phản ánh cách ghép mới; dùng
+[contract Motion hiện tại](https://github.com/TuanDanny/AW-Car/blob/codex/esp32-s3-motion/firmware/shared/fpga-safety.md)
+và [bảng dây](https://github.com/TuanDanny/AW-Car/blob/codex/esp32-s3-motion/hardware/motion-wiring.md).
+Đã có firmware Motion ở nhánh riêng, chưa nghiệm thu gate/motor thật.
+
 RTL tương ứng: `safety_fsm.sv` và top logic `drive_core.sv`. Wire format v1
 giữ nguyên; tài liệu này chốt GPIO phục hồi, mã STATUS và trách nhiệm hai đầu.
 Đã có mô hình kiểm thử, chưa có firmware Motion hoặc mạch gate thực tế.
