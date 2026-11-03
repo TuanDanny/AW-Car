@@ -14,6 +14,12 @@ build chỉ chọn một board/variant.
 
 ## Trạng thái
 
+Ngày03/11/2026 bổ sung dashboard Manual/AI, AP+STA, UART Brain–Motion và
+control core/VoiceGate dùng chung firmware–host. Có PC serial peer, không
+phải firmware Motion thật. Xem [contract và cách chạy](../../dashboard/README.md)
+và [thiết kế/kiểm chứng](docs/dashboard-brain.md). Bản mới chỉ build/test giả
+lập; chưa nạp board, chưa kiểm metadata backend live hoặc AP+STA thực.
+
 Source stock là nền phát triển; board AW-Car RGB riêng được thêm cho demo F03,
 chưa phải firmware AW-Car tích hợp điều khiển xe.
 Ngày 29/10/2026 đã build bằng ESP-IDF 6.1 và nạp merged image tại 0x0000
@@ -26,7 +32,7 @@ dạng và 7 đoạn văn bản AI trả lời bằng tiếng Trung, không th�
 Người dùng xác nhận OLED hiển thị câu vừa nói và chọn giữ tiếng Trung.
 Loa chưa gắn, chưa nghiệm thu âm thanh trả lời. RGB đã thử thành công ở
 lượt kiểm tra tiếp theo được ghi dưới đây.
-Chưa có UART Brain–Motion hoặc điều khiển xe. Xem
+Ở mốc29/10 chưa có UART Brain–Motion hoặc điều khiển xe. Xem
 [hướng dẫn và kết quả Windows](docs/aw-car-windows.md).
 AI gửi yêu cầu chuyển động có giới hạn tới Motion; không ghi PWM trực tiếp.
 DoA giữ cho nâng cấp. Nguồn/bộ nhớ thực của board cần đối chiếu trước khi đổi cấu hình.
@@ -119,8 +125,9 @@ ESP-IDF hoặc phép thử audio, mạng và an toàn trên phần cứng.
 3. Mic đã thử nhận dạng tiếng Trung, có văn bản AI trả lời; demo bật/tắt
    và ba màu RGB đã có log callback cùng xác nhận LED thực. Gắn loa và
    kiểm tra âm thanh trả lời là bước tiếp theo, chưa nghiệm thu phần này.
-4. Thêm UART Brain–Motion và lớp giới hạn lệnh; kiểm thử mất mạng/mất lệnh
-   trước khi thử chuyển động. Driver/PID/FPGA/nguồn thuộc các nhánh riêng.
+4. Đã thêm source UART Brain–Motion, giới hạn và dashboard; kiểm thử host/
+   simulator trước, UART và deadline vật lý còn cần board. Driver/PID/
+   FPGA/nguồn thuộc phần Motion và nhánh FPGA.
 
 Hướng dẫn nền: [README upstream](README.upstream.md),
 [custom board](docs/custom-board.md), [license](LICENSE).

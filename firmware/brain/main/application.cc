@@ -11,6 +11,9 @@
 #include "system_info.h"
 #include "text_glyph_payload.h"
 #include "websocket_protocol.h"
+#if CONFIG_BOARD_TYPE_AW_CAR_AI_RGB
+#include "aw_car/brain_runtime.h"
+#endif
 
 #include <driver/gpio.h>
 #include <esp_log.h>
@@ -182,10 +185,16 @@ void Application::Run() {
         MAIN_EVENT_VAD_CHANGE | MAIN_EVENT_CLOCK_TICK | MAIN_EVENT_ERROR |
         MAIN_EVENT_NETWORK_CONNECTED | MAIN_EVENT_NETWORK_DISCONNECTED | MAIN_EVENT_TOGGLE_CHAT |
         MAIN_EVENT_START_LISTENING | MAIN_EVENT_STOP_LISTENING | MAIN_EVENT_ACTIVATION_DONE |
-        MAIN_EVENT_STATE_CHANGED | MAIN_EVENT_PLAYBACK_DRAINED;
+        MAIN_EVENT_STATE_CHANGED | MAIN_EVENT_PLAYBACK_DRAINED | MAIN_EVENT_CAR_SESSION_RESET;
 
     while (true) {
         auto bits = xEventGroupWaitBits(event_group_, ALL_EVENTS, pdTRUE, pdFALSE, portMAX_DELAY);
+
+        if (bits & MAIN_EVENT_CAR_SESSION_RESET) {
+#if CONFIG_BOARD_TYPE_AW_CAR_AI_RGB
+            if (protocol_ && protocol_->IsAudioChannelOpened()) protocol_->CloseAudioChannel();
+#endif
+        }
 
         if (bits & MAIN_EVENT_ERROR) {
             if (GetDeviceState() == kDeviceStateNotifying) {
@@ -544,9 +553,22 @@ void Application::InitializeProtocol() {
         protocol_ = std::make_unique<MqttProtocol>();
     }
 
-    protocol_->OnConnected([this]() { DismissAlert(); });
+    protocol_->OnConnected([this]() {
+#if CONFIG_BOARD_TYPE_AW_CAR_AI_RGB
+        awcar::BrainRuntime::Get().CloudOnline(true);
+#endif
+        DismissAlert();
+    });
+    protocol_->OnDisconnected([]() {
+#if CONFIG_BOARD_TYPE_AW_CAR_AI_RGB
+        awcar::BrainRuntime::Get().CloudOnline(false);
+#endif
+    });
 
     protocol_->OnNetworkError([this](const std::string& message) {
+#if CONFIG_BOARD_TYPE_AW_CAR_AI_RGB
+        awcar::BrainRuntime::Get().CloudOnline(false);
+#endif
         last_error_message_ = message;
         xEventGroupSetBits(event_group_, MAIN_EVENT_ERROR);
     });
@@ -558,6 +580,10 @@ void Application::InitializeProtocol() {
     });
 
     protocol_->OnAudioChannelOpened([this, codec, &board]() {
+#if CONFIG_BOARD_TYPE_AW_CAR_AI_RGB
+        awcar::BrainRuntime::Get().CloudOnline(true);
+        awcar::BrainRuntime::Get().CloudSession(protocol_->session_id());
+#endif
         board.SetPowerSaveLevel(PowerSaveLevel::PERFORMANCE);
         if (protocol_->server_sample_rate() != codec->output_sample_rate()) {
             ESP_LOGW(TAG,
@@ -568,6 +594,9 @@ void Application::InitializeProtocol() {
     });
 
     protocol_->OnAudioChannelClosed([this, &board]() {
+#if CONFIG_BOARD_TYPE_AW_CAR_AI_RGB
+        awcar::BrainRuntime::Get().CloudSession("");
+#endif
         board.SetPowerSaveLevel(PowerSaveLevel::LOW_POWER);
         Schedule([this]() {
             auto display = Board::GetInstance().GetDisplay();
@@ -645,6 +674,9 @@ void Application::InitializeProtocol() {
                         glyphs.clear();
                     }
                     ESP_LOGI(TAG, "<< %s", text->valuestring);
+#if CONFIG_BOARD_TYPE_AW_CAR_AI_RGB
+                    awcar::BrainRuntime::Get().ChatEvent("reply", text->valuestring);
+#endif
                     Schedule([display, message = std::string(text->valuestring),
                               glyphs = std::move(glyphs), bpp]() {
                         display->AddTextGlyphs(glyphs, bpp);
@@ -661,6 +693,11 @@ void Application::InitializeProtocol() {
                     glyphs.clear();
                 }
                 ESP_LOGI(TAG, ">> %s", text->valuestring);
+#if CONFIG_BOARD_TYPE_AW_CAR_AI_RGB
+                auto sid = cJSON_GetObjectItemCaseSensitive(root, "session_id");
+                awcar::BrainRuntime::Get().ChatEvent("stt", text->valuestring,
+                    cJSON_IsString(sid) ? sid->valuestring : "");
+#endif
                 Schedule([display, message = std::string(text->valuestring),
                           glyphs = std::move(glyphs), bpp]() {
                     display->AddTextGlyphs(glyphs, bpp);
@@ -677,7 +714,9 @@ void Application::InitializeProtocol() {
         } else if (strcmp(type->valuestring, "mcp") == 0) {
             auto payload = cJSON_GetObjectItem(root, "payload");
             if (cJSON_IsObject(payload)) {
-                McpServer::GetInstance().ParseMessage(payload);
+                auto sid = cJSON_GetObjectItemCaseSensitive(root, "session_id");
+                McpServer::GetInstance().ParseMessage(payload, nullptr,
+                    cJSON_IsString(sid) ? sid->valuestring : "");
             }
         } else if (strcmp(type->valuestring, "system") == 0) {
             auto command = cJSON_GetObjectItem(root, "command");

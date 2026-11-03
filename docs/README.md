@@ -2,6 +2,9 @@
 
 Lưu yêu cầu, quyết định kỹ thuật và kết quả thử nghiệm.
 
+- [Bằng chứng Brain/dashboard](brain-dashboard-verification.md): bản Manual/AI,
+  C++ host, WebSocket, firmware build, soak và giới hạn nghiệm thu phần cứng.
+
 - [Rà soát issue #1](issue-1-technical-review.md): kiến trúc, lỗi thiết kế cần
   tránh, phạm vi 1 mic và lộ trình nghiệm thu; ghi chú F01 về giữ tốc độ,
   kích đề-pa, quãng đường và mã Gray.

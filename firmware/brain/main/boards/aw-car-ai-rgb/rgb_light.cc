@@ -17,7 +17,7 @@ AwCarRgbLight::AwCarRgbLight(gpio_num_t gpio) {
     rmt.resolution_hz = 10 * 1000 * 1000;
     ESP_ERROR_CHECK(led_strip_new_rmt_device(&config, &rmt, &strip_));
     ESP_ERROR_CHECK(led_strip_clear(strip_));
-    ESP_LOGI(TAG, "Ready gpio=%d, power=off; RGB is controlled only by MCP", gpio);
+    ESP_LOGI(TAG, "Ready gpio=%d, power=off; one RGB service for MCP and dashboard", gpio);
 }
 
 AwCarRgbLight::~AwCarRgbLight() {
@@ -105,4 +105,9 @@ std::string AwCarRgbLight::StateJsonLocked() const {
     std::snprintf(json, sizeof(json), "{\"power\":%s,\"r\":%u,\"g\":%u,\"b\":%u}",
                   power_ ? "true" : "false", r_, g_, b_);
     return json;
+}
+
+std::string AwCarRgbLight::SnapshotJson() {
+    std::lock_guard<std::mutex> lock(mutex_);
+    return state_known_ ? StateJsonLocked() : "{\"known\":false}";
 }

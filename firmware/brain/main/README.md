@@ -5,6 +5,9 @@ Giữ để build và đối chiếu bản stock; phần cứng AW-Car chưa ngh
 
 Nội dung trực tiếp trong thư mục:
 
+- `aw_car/`: control core, VoiceGate, runtime UART/Web và AP+STA riêng AW-Car;
+  chỉ compile phần tích hợp khi chọn profile AW-Car.
+
 - `application.cc`
 - `application.h`
 - `assets/`

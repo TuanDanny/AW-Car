@@ -11,6 +11,8 @@
 #include <cstring>
 #include <iterator>
 #include <optional>
+#include <cmath>
+#include <limits>
 
 #include "application.h"
 #include "board.h"
@@ -379,7 +381,8 @@ void McpServer::ParseCapabilities(const cJSON* capabilities) {
     }
 }
 
-void McpServer::ParseMessage(const cJSON* json, ResponseSender response_sender) {
+void McpServer::ParseMessage(const cJSON* json, ResponseSender response_sender,
+                            const std::string& cloud_session) {
     // Check JSONRPC version
     auto version = cJSON_GetObjectItem(json, "jsonrpc");
     if (version == nullptr || !cJSON_IsString(version) ||
@@ -461,7 +464,7 @@ void McpServer::ParseMessage(const cJSON* json, ResponseSender response_sender) 
             return;
         }
         DoToolCall(id_int, std::string(tool_name->valuestring), tool_arguments,
-                   std::move(response_sender));
+                   std::move(response_sender), cloud_session);
     } else {
         ESP_LOGE(TAG, "Method not implemented: %s", method_str.c_str());
         ReplyError(id_int, -32601, "Method not implemented: " + method_str, response_sender);
@@ -562,7 +565,7 @@ void McpServer::GetToolsList(int id, const std::string& cursor, bool list_user_o
 }
 
 void McpServer::DoToolCall(int id, const std::string& tool_name, const cJSON* tool_arguments,
-                           ResponseSender response_sender) {
+                          ResponseSender response_sender, const std::string& cloud_session) {
     auto tool_iter = std::find_if(tools_.begin(), tools_.end(), [&tool_name](const auto& tool) {
         return tool->name() == tool_name;
     });
@@ -584,6 +587,13 @@ void McpServer::DoToolCall(int id, const std::string& tool_name, const cJSON* to
                 validation = argument.set_value<bool>(value->valueint == 1);
                 found = true;
             } else if (argument.type() == kPropertyTypeInteger && cJSON_IsNumber(value)) {
+                if (!std::isfinite(value->valuedouble) ||
+                    std::floor(value->valuedouble) != value->valuedouble ||
+                    value->valuedouble < std::numeric_limits<int>::min() ||
+                    value->valuedouble > std::numeric_limits<int>::max()) {
+                    ReplyError(id, -32602, "Expected an integer: " + argument.name(), response_sender);
+                    return;
+                }
                 validation = argument.set_value<int>(value->valueint);
                 found = true;
             } else if (argument.type() == kPropertyTypeString && cJSON_IsString(value)) {
@@ -613,8 +623,14 @@ void McpServer::DoToolCall(int id, const std::string& tool_name, const cJSON* to
 
     // Use main thread to call the tool
     auto& app = Application::GetInstance();
+    auto guard = invocation_guard_ ? invocation_guard_(tool_name, id, cloud_session) : std::function<bool()>{};
     app.Schedule([this, id, tool, arguments = std::move(arguments),
+                  guard = std::move(guard),
                   response_sender = std::move(response_sender)]() {
+        if (guard && !guard()) {
+            ReplyError(id, "Stale, missing, or unauthorized control context", response_sender);
+            return;
+        }
         auto result = tool->Call(arguments);
         if (!result) {
             ESP_LOGE(TAG, "tools/call: %s", result.error().c_str());

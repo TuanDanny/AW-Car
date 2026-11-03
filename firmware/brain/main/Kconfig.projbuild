@@ -649,6 +649,15 @@ choice BOARD_TYPE
         depends on IDF_TARGET_ESP32S3
 endchoice
 
+config AWCAR_MOTION_IS_SIMULATED
+    bool "Motion peer is a PC simulator (not a vehicle)"
+    depends on BOARD_TYPE_AW_CAR_AI_RGB
+    default y
+    help
+        Keep enabled for the Brain/dashboard milestone. The dashboard explicitly
+        labels Motion telemetry as simulated. Disable only after real Motion
+        firmware and independent safety gate have been verified on hardware.
+
 choice XIAOZHI_NETWORK_TYPE
     prompt "Network Type"
     depends on BOARD_TYPE_WAVESHARE_ESP32_P4_NANO

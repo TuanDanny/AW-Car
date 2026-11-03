@@ -423,6 +423,8 @@ public:
 class McpServer {
 public:
     using ResponseSender = std::function<void(const std::string&)>;
+    using InvocationGuard = std::function<std::function<bool()>(const std::string&, int, const std::string&)>;
+    void SetInvocationGuard(InvocationGuard guard) { invocation_guard_ = std::move(guard); }
     static McpServer& GetInstance() {
         static McpServer instance;
         return instance;
@@ -435,7 +437,8 @@ public:
                  const PropertyList& properties, ToolCallback callback);
     void AddUserOnlyTool(const std::string& name, const std::string& description,
                          const PropertyList& properties, ToolCallback callback);
-    void ParseMessage(const cJSON* json, ResponseSender response_sender = nullptr);
+    void ParseMessage(const cJSON* json, ResponseSender response_sender = nullptr,
+                      const std::string& cloud_session = "");
     void ParseMessage(const std::string& message, ResponseSender response_sender = nullptr);
 
 private:
@@ -453,9 +456,10 @@ private:
     void GetToolsList(int id, const std::string& cursor, bool list_user_only_tools,
                       const ResponseSender& response_sender);
     void DoToolCall(int id, const std::string& tool_name, const cJSON* tool_arguments,
-                    ResponseSender response_sender);
+                    ResponseSender response_sender, const std::string& cloud_session);
 
     std::vector<std::unique_ptr<McpTool>> tools_;
+    InvocationGuard invocation_guard_;
 };
 
 #endif  // MCP_SERVER_H

@@ -26,7 +26,15 @@ LED tắt lúc boot; bật lần đầu dùng trắng 32/32/32. Màu/lệnh gi�
 qua nghe/nói/idle, reset về tắt. OLED tiếp tục báo trạng thái. Không đăng ký
 lamp GPIO18, không khởi tạo SingleLed hoặc timer trạng thái cho pixel này.
 Lỗi driver trả tool error; log APPLIED chỉ xuất sau khi ghi thành công,
-không thay phép quan sát màu vật lý. Không có đường điều khiển motor.
+không thay phép quan sát màu vật lý. Mốc03/11 thêm dashboard và UART yêu cầu
+chuyển động tới Motion; không tạo PWM/điều khiển motor trực tiếp.
+
+Runtime dùng AP+STA riêng, Web tại192.168.4.1. PIN hiển thị OLED, WPA2 AP
+có mật khẩu riêng trong NVS. UART1 TX17/RX18 là cấu hình chưa thử header thật.
+Chế độ Manual/AI và quy trình Cho phép/DỪNG theo
+[contract](../../../../../dashboard/web-brain-protocol.md). Mặc định Motion
+giả lập; chưa nạp firmware mới hoặc xác minh metadata cloud. Thiếu session
+envelope/STT phù hợp thì move bị khóa. Giữ các tool RGB cũ và nguồn pixel duy nhất.
 
 Build từ firmware/brain trong môi trường ESP-IDF 6.1 đã export:
 

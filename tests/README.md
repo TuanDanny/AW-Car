@@ -6,8 +6,19 @@ lên GitHub. Chạy bằng `python -m unittest discover -s tests`.
 Kiểm tra đuôi HDL bắt buộc `.sv` cho cả RTL/testbench, cả worktree và index;
 netlist trong build đã ignore không bị áp quy tắc nguồn.
 
-Chưa có test firmware/phần cứng. Khi thêm tính năng, đặt test tương ứng tại đây
-hoặc trong project MCU nếu bộ test ESP-IDF yêu cầu, rồi ghi lệnh chạy thực tế.
+Brain có kiểm thử phần mềm host, chưa có nghiệm thu phần cứng:
+
+- `test_brain_core.py`: compile và chạy chính lõi C++/VoiceGate của firmware;
+  thời gian chủ động, epoch, ARM/STOP, sáu hướng, timeout và lệnh cũ.
+- `test_brain_web.py`: HTTP/WebSocket và xác thực với cùng lõi C++; cần
+  `dashboard/requirements-dev.txt`. Functional tests dùng clock chủ động;
+  bài soak riêng dùng thời gian thực, không nới deadline để che lỗi.
+- `test_motion_serial_peer.py`: test peer độc lập Python, UART phân mảnh,
+  CRC/resync và lease. Không phải firmware Motion/PID.
+- `node --test dashboard/control.test.mjs`: thứ tự giữ/nhả nút và hướng.
+
+Xem [báo cáo Brain/dashboard](../docs/brain-dashboard-verification.md) và
+[cách chạy simulator](../dashboard/README.md). Các bài FPGA bên dưới độc lập.
 
 `test_fpga_runner.py` kiểm tra runner không bỏ qua compile lỗi, mã lỗi simulator
 hoặc timeout; kiểm tra đường dẫn tool tương đối và môi trường subprocess.

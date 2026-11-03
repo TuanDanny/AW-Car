@@ -36,6 +36,7 @@
 #define MAIN_EVENT_STOP_LISTENING       (1 << 11)
 #define MAIN_EVENT_STATE_CHANGED        (1 << 12)
 #define MAIN_EVENT_PLAYBACK_DRAINED     (1 << 13)
+#define MAIN_EVENT_CAR_SESSION_RESET    (1 << 14)
 
 
 enum AecMode {
@@ -95,6 +96,7 @@ public:
      * Sends MAIN_EVENT_TOGGLE_CHAT to be handled in Run()
      */
     void ToggleChatState();
+    void InvalidateCarConversation() { xEventGroupSetBits(event_group_, MAIN_EVENT_CAR_SESSION_RESET); }
 
     /**
      * Start listening (event-based, thread-safe)

@@ -6,7 +6,14 @@
 - Kiểm tra `git status` và nhánh hiện tại; giữ nguyên thay đổi không thuộc tác vụ.
 - Bản đầu: 2 ESP32-S3, 1 FPGA, 1 INMP441; DoA dành cho nâng cấp.
   Dùng khung TT 4WD, hai nhóm motor trái/phải, không dùng servo lái.
-  Encoder một OUT là kế hoạch; RTL hiện có A/B chưa hỗ trợ mode mới.
+  Encoder bản đầu dùng một OUT mỗi bên: RTL đếm cạnh lên không dấu;
+  không suy chiều đo từ lệnh motor. Giữ A/B là mode tùy chọn.
+  Bản một OUT mặc định dùng protocol v2 (STATUS 34 byte, frame 47 byte),
+  có period/age; v1 chỉ để tương thích/hồi quy, phải chọn phiên bản tường minh.
+  V2: fault[7:0] là lỗi Safety, fault[15:8] là diagnostic sticky. Chỉ các cờ
+  snapshot stall/invariant (mask 0x8800) yêu cầu reset; không coi mọi cảnh báo
+  encoder/RX là lỗi tự khóa. ESP32 vẫn phải timeout STATUS độc lập.
+  Nhánh AI giữ lịch sử source và không tự kéo toàn bộ RTL sang.
   Phân tải ở `docs/fpga-drive-plan.md`; board mục tiêu Tang Nano 9K, chưa mua
   và chưa xác nhận fit/timing đúng chip. Tối ưu RTL không đổi mục tiêu về 1K.
 - Trao đổi và báo cáo bằng tiếng Việt, ngắn gọn; nêu giả định ảnh hưởng thiết kế.
@@ -38,7 +45,10 @@
 - `firmware/shared`: giao thức/kiểu dữ liệu chung, không phụ thuộc riêng một MCU.
 - `fpga`: RTL đo encoder, PWM motor và watchdog; PID theo hai bên ở Motion. Viết RTL
   độc lập hãng; Quartus chỉ tham khảo cho chip Altera/Intel, Tang Nano dùng Gowin.
-- Trong `fpga/rtl`, top logic `drive_core.sv` ở root; module con phân theo
+- Trong nhánh FPGA, top triển khai duy nhất là `aw_car_top.sv` ở root,
+  bọc lõi `drive_core.sv`; lõi vẫn là top kiểm thử/tổng hợp riêng. Checkout
+  AI có thể còn snapshot RTL cũ, không tự đồng bộ phần này khi sửa Brain.
+  Module con phân theo
   `common/`, `encoder/`, `pwm/`, `link/`, `safety/`, mỗi nhóm có README.
   Khi chuyển nguồn, cập nhật đường dẫn tổng hợp và runner tìm `.sv` đệ quy.
 - Toàn bộ mã HDL của dự án, gồm RTL và testbench, bắt buộc dùng **SystemVerilog
@@ -47,6 +57,9 @@
   Yosys/Gowin và mô phỏng bằng Icarus. Build bật chế độ SystemVerilog; khi đổi tên
   file, cập nhật mọi script/danh sách nguồn và chạy lại mô phỏng/tổng hợp.
 - `dashboard`: giao diện Web; `hardware`: BOM/nguồn/sơ đồ/PCB; `docs`: kế hoạch.
+- Brain/dashboard: hai mode Manual/AI, nguồn lệnh độc quyền; neutral giữ ARM,
+  STOP bỏ ARM. Host simulator phải dùng chính control core C++, không dựng
+  bản sao phân xử bằng JS. Mọi số đo giả lập phải ghi rõ môi trường.
 - `tests`: kiểm thử; `tools`: công cụ phát triển. Chỉ thêm thư mục con khi cần.
 - Không thêm framework, dependency hay mã firmware giả để lấp khung thư mục.
 - Không commit bí mật, thông tin Wi-Fi, file build; giữ lockfile của dependency.

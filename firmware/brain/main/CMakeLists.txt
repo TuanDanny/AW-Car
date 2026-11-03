@@ -1095,7 +1095,21 @@ if(CONFIG_IDF_TARGET_ESP32S3)
     list(APPEND SOURCES "boards/common/esp32_camera.cc")
 endif()
 
-set(MAIN_PRIV_REQUIRES_EXTRA "")
+set(MAIN_PRIV_REQUIRES_EXTRA esp_http_server esp_driver_gptimer)
+if(CONFIG_BOARD_TYPE_AW_CAR_AI_RGB)
+    list(APPEND SOURCES "aw_car/control_core.cc" "aw_car/brain_runtime.cc"
+         "aw_car/aw_car_network.cc" "${PROJECT_DIR}/../shared/brain_motion_codec.cc")
+    list(APPEND INCLUDE_DIRS "${PROJECT_DIR}/../shared" "${CMAKE_CURRENT_BINARY_DIR}/awcar_assets")
+    execute_process(COMMAND ${PYTHON} "${PROJECT_DIR}/../../tools/embed_dashboard.py"
+        --output "${CMAKE_CURRENT_BINARY_DIR}/awcar_assets/aw_car_web_assets.h"
+        RESULT_VARIABLE AWCAR_EMBED_RESULT)
+    if(NOT AWCAR_EMBED_RESULT EQUAL 0)
+        message(FATAL_ERROR "Could not embed AW-Car dashboard")
+    endif()
+    set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS
+        "${PROJECT_DIR}/../../dashboard/index.html" "${PROJECT_DIR}/../../dashboard/style.css"
+        "${PROJECT_DIR}/../../dashboard/app.mjs" "${PROJECT_DIR}/../../dashboard/control.mjs")
+endif()
 if(CONFIG_XIAOZHI_NETWORK_ETHERNET AND CONFIG_XIAOZHI_ETH_PHY_IP101)
     list(APPEND MAIN_PRIV_REQUIRES_EXTRA espressif__ip101)
 endif()

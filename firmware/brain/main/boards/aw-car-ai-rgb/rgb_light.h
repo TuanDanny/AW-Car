@@ -16,6 +16,10 @@ public:
     ~AwCarRgbLight() override;
     void RegisterTools(McpServer& server);
     void OnStateChanged() override {}
+    ToolResult SetPower(bool on);
+    ToolResult SetColor(int r, int g, int b);
+    ToolResult GetState();
+    std::string SnapshotJson();
 
 private:
     std::mutex mutex_;
@@ -24,9 +28,6 @@ private:
     bool state_known_ = true;
     uint8_t r_ = 32, g_ = 32, b_ = 32;
 
-    ToolResult SetPower(bool on);
-    ToolResult SetColor(int r, int g, int b);
-    ToolResult GetState();
     ToolResult ApplyLocked(bool on, uint8_t r, uint8_t g, uint8_t b);
     std::string StateJsonLocked() const;
 };

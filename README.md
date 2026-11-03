@@ -7,10 +7,19 @@ Tác giả: **TuanDanny**. Cộng tác viên: **Minh Nho** và **Nhan Duc**.
 
 ## Trạng thái
 
+Mốc 03/11/2026 trên nhánh AI: đã có source dashboard Manual/AI, AP+STA,
+lõi Brain độc lập RTOS, UART BM-v1 và Motion PC test peer. Firmware đã build;
+kiểm thử host theo [hướng dẫn dashboard](dashboard/README.md) và
+[thiết kế Brain](firmware/brain/docs/dashboard-brain.md). **Chưa nạp bản mới,
+chưa nghiệm thu Wi-Fi/UART/audio/metadata AI trên board hoặc motor thật**.
+Xem [bằng chứng kiểm thử Brain/dashboard](docs/brain-dashboard-verification.md).
+Các kết quả 29/10 bên dưới là baseline phần cứng, không thay nghiệm thu bản mới.
+
 Dự án đang chọn linh kiện, chưa lắp xe thử nghiệm. Kho hiện có khung thư mục,
 tài liệu, quy tắc làm việc, RTL encoder/snapshot/PWM/UART/giao thức/FSM/watchdog/top và mô phỏng;
 đã có source nền Xiaozhi v2.5.2 tại [firmware/brain](firmware/brain/README.md)
-trên nhánh F03, chưa có firmware AW-Car tích hợp, sơ đồ điện hay PCB.
+trên nhánh F03 và bản tích hợp Brain/dashboard để thử với Motion giả lập;
+chưa có firmware Motion hoàn chỉnh, sơ đồ điện hay PCB.
 Ngày 29/10/2026 đã build source bằng ESP-IDF 6.1, nạp tại 0x0000 và xác nhận
 boot/PSRAM/OLED/audio init/Wi-Fi qua log; chủ dự án xác nhận OLED 41/42 hiển
 thị mã kích hoạt và báo đã hoàn tất thao tác. Sau khi gắn INMP441, đã thu
@@ -34,8 +43,9 @@ Toàn bộ mã HDL dùng SystemVerilog (`.sv`); hook và CI kiểm tra quy ướ
 
 Cấu hình bản đầu: **2 ESP32-S3, 1 FPGA và 1 mic INMP441**, khung TT 4WD,
 lái bằng tốc độ hai bên, không servo. FPGA đọc encoder và phát PWM cho hai
-nhóm motor; Motion tính PID theo bên và giám sát an toàn. Encoder một OUT
-là kế hoạch; RTL hiện có A/B. Board mục tiêu là **Tang Nano 9K**
+nhóm motor; Motion tính PID theo bên và giám sát an toàn. Nhánh FPGA hiện
+dùng một OUT mỗi bên và protocol v2; checkout AI giữ lịch sử RTL riêng,
+không dùng nó để kết luận trạng thái FPGA mới nhất. Board mục tiêu là **Tang Nano 9K**
 (`GW1NR-LV9QN88PC6/I5`), chưa mua. Tối ưu RTL vẫn giữ mục tiêu 9K;
 mô phỏng và tổng hợp sơ bộ chưa thay kết quả fit/timing trên đúng chip.
 Xem [kế hoạch FPGA và toàn hệ thống](docs/fpga-drive-plan.md) và
@@ -53,7 +63,7 @@ biến, Lý thuyết mạch và RTL/FPGA; đã bỏ mục tiêu môn PCB khuếc
 | [firmware/motion](firmware/motion/README.md) | MCU 2: truyền động, PID, an toàn |
 | [firmware/shared](firmware/shared/README.md) | Giao thức và kiểu dữ liệu chung |
 | [fpga](fpga/README.md) | RTL encoder, PWM 2 motor và watchdog |
-| [dashboard](dashboard/README.md) | Giao diện điều khiển và telemetry |
+| [dashboard](dashboard/README.md) | Web Manual/AI, RGB, transcript, telemetry và simulator |
 | [hardware](hardware/README.md) | BOM, nguồn, cơ khí, sơ đồ và PCB |
 | [docs](docs/README.md) | Yêu cầu, quyết định và kế hoạch thử nghiệm |
 | [tests](tests/README.md) | Kiểm thử tự động |
@@ -88,7 +98,7 @@ flowchart LR
     Display["OLED I²C: biểu cảm/trạng thái"] <--> Brain
     Brain <-->|"UART: lệnh có hạn dùng / trạng thái"| Motion["MCU 2: Motion\nPID, giám sát an toàn"]
     Sensors["Cảm biến an toàn / nguồn"] --> Motion
-    Encoder["2 encoder đại diện\nRTL hiện có A/B"] --> FPGA["FPGA: encoder, PWM, watchdog"]
+    Encoder["2 encoder đại diện\n1 OUT mỗi bên"] --> FPGA["FPGA: encoder, PWM, watchdog"]
     Motion <-->|"UART riêng: duty / chiều / arm / số đếm / lỗi"| FPGA
     FPGA -->|"PWM / chiều quay theo bên"| Drive["Driver công suất 4 motor\n2 trái / 2 phải"]
     Motion -->|"Khóa phần cứng độc lập"| Gate["Mạch cho phép driver"]

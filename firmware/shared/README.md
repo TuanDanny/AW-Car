@@ -4,6 +4,11 @@ Nơi đặt đặc tả/kiểu dữ liệu giao thức UART, mã trạng thái v
 cả Brain và Motion, cùng đặc tả liên kết Motion-FPGA. Không chứa driver chỉ
 dành riêng một MCU; RTL giải mã giao thức nằm trong `fpga/`.
 
+BM-v1 đã có `brain_motion_codec.h/.cc` độc lập nền tảng, source Brain và
+PC Motion peer cùng golden-vector/host tests. Xem
+[đặc tả](brain-motion-protocol.md). Chưa có firmware Motion thật hoặc nghiệm
+thu UART hai thiết bị. Phân biệt neutral giữ ARM với STOP bỏ ARM.
+
 Đã có [Motion–FPGA protocol v1](fpga-protocol.md) và
 [vector nhị phân chung](fpga-vectors.hex), được đối chiếu bằng Python và test RTL.
 [Hợp đồng GPIO/ARM/gate](fpga-safety.md) đã được triển khai trong FSM/top và
