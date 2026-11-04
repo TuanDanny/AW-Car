@@ -1,4 +1,4 @@
-"""Embed the four offline dashboard assets into flash, without a new partition."""
+"""Embed the five offline dashboard assets into flash, without a new partition."""
 
 import argparse
 from pathlib import Path
@@ -12,6 +12,7 @@ def generate(output):
         ("style.css", "text/css; charset=utf-8"),
         ("app.mjs", "text/javascript; charset=utf-8"),
         ("control.mjs", "text/javascript; charset=utf-8"),
+        ("connection.mjs", "text/javascript; charset=utf-8"),
     ]
     lines = ["#pragma once", "#include <cstddef>", "namespace awcar {"]
     for i, (name, _) in enumerate(files):

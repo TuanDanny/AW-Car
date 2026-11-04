@@ -64,8 +64,40 @@ class WebTests(unittest.IsolatedAsyncioTestCase):
                 return s
         self.fail("Motion did not confirm ARM: " + str(s))
 
+    async def test_session_preflight_reports_auth_and_busy(self):
+        r = await self.client.post("/api/session", headers={"Origin": self.origin})
+        self.assertEqual(r.status, 401)
+        await self.login()
+        r = await self.client.post("/api/session", headers={"Origin": self.origin})
+        self.assertEqual(r.status, 200)
+        ws = await self.client.ws_connect("/ws", origin=self.origin)
+        r = await self.client.post("/api/session", headers={"Origin": self.origin})
+        self.assertEqual(r.status, 409)
+        await ws.close()
+
+    async def test_motion_deadman_150ms_is_independent_of_socket_2s(self):
+        ws = await self.connect()
+        await self.arm(ws)
+        await self.client.post("/api/lab", json={"op":"advance", "ms":600})
+        self.assertFalse(self.sim.rig.state["authorized"])
+        self.assertFalse(ws.closed)
+        await ws.send_json({"type":"HEARTBEAT"})
+        self.assertEqual((await self.receive(ws,"ACK"))["result"],"OK")
+        self.assertFalse(self.sim.rig.state["authorized"])
+
+    async def test_socket_watchdog_produces_reason_without_auto_arm(self):
+        ws = await self.connect()
+        await self.receive(ws,"STATUS")
+        await self.client.post("/api/lab", json={"op":"advance", "ms":2000})
+        for _ in range(30):
+            msg = await ws.receive(timeout=1)
+            if msg.type in (aiohttp.WSMsgType.CLOSE, aiohttp.WSMsgType.CLOSED):
+                break
+        self.assertEqual(ws.close_code,1001)
+        self.assertFalse(self.sim.rig.state["authorized"])
+
     async def test_assets_and_unknown_measurements(self):
-        for path in ("/", "/app.mjs", "/control.mjs", "/style.css"):
+        for path in ("/", "/app.mjs", "/control.mjs", "/connection.mjs", "/style.css"):
             r = await self.client.get(path)
             self.assertEqual(r.status, 200)
         ws = await self.connect()

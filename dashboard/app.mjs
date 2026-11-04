@@ -1,4 +1,9 @@
 import { InputTracker, keyActions, target } from "./control.mjs";
+import { DashboardLink } from "./connection.mjs";
+const link = new DashboardLink();
+let socketGeneration = 0,
+    lastHeartbeat = 0,
+    loginBusy = false;
 const $ = (id) => document.getElementById(id),
     input = new InputTracker();
 let ws = null,
@@ -44,10 +49,41 @@ function clearInput() {
 function ready() {
     return (
         ws?.readyState === WebSocket.OPEN &&
-        state?.authorized &&
-        state.mode === "Manual" &&
-        performance.now() - lastStatus < 350
+        link.drive(state, performance.now()) &&
+        !document.hidden
     );
+}
+function showLink(detail = "") {
+    text("connection", `${link.state}${detail ? " · " + detail : ""}`);
+    $("connection").parentElement.dataset.state = link.state;
+}
+function revokeLocal(message) {
+    clearInput();
+    link.revoke();
+    $("permission").classList.remove("ready");
+    text("permission", message);
+    if (link.state !== "Connected") {
+        $("manual").disabled = true;
+        $("ai").disabled = true;
+        text("motion-state", "Chưa xác nhận · mất cập nhật Dashboard");
+        $("motion-dot").classList.remove("online");
+        for (const id of ["v-est", "w-est", "battery", "fault"])
+            text(id, "Chưa có dữ liệu");
+        text("age", "STATUS Dashboard cũ hoặc chưa có");
+    }
+    $("arm").disabled = true;
+    $("clear-fault").disabled = true;
+    document
+        .querySelectorAll("[data-action]")
+        .forEach((b) => (b.disabled = true));
+}
+function safetyStop(reason) {
+    clearInput();
+    if (link.safetyStop(state)) {
+        send("STOP");
+        log(`DỪNG an toàn: ${reason}; chờ Motion xác nhận.`);
+    }
+    revokeLocal("Đã khóa điều khiển cục bộ · chưa xác nhận motor dừng");
 }
 function move() {
     if (!ready()) return;
@@ -67,7 +103,7 @@ function move() {
     });
 }
 function stop() {
-    clearInput();
+    revokeLocal("Đã gửi DỪNG · chờ Motion xác nhận");
     send("STOP");
     text("feedback", "Đã gửi DỪNG; chờ Motion xác nhận.");
 }
@@ -93,12 +129,19 @@ function release(id) {
 }
 function loseFocus() {
     clearInput();
-    if (state?.mode === "Manual" && state.authorized) stop();
+    if (state?.mode === "Manual") safetyStop("mất focus/ẩn trang");
 }
 function render(s) {
     const previous = state;
     state = s;
+    link.status(s, performance.now());
+    showLink();
     localMode = s.mode;
+    document.body.dataset.mode = s.mode;
+    $("manual").disabled = false;
+    $("ai").disabled = false;
+    if (s.mode === "AI" && previous?.mode !== "AI")
+        $("assistant-panel").open = true;
     lastStatus = performance.now();
     if (
         !s.authorized ||
@@ -114,23 +157,28 @@ function render(s) {
     text(
         "permission",
         s.authorized
-            ? "Đã cho phép chạy"
+            ? s.mode === "Manual" && !ready()
+                ? "Đã khóa cục bộ · chờ xác nhận DỪNG"
+                : "Đã cho phép chạy"
             : s.clearing
               ? "Đang yêu cầu xóa lỗi · chưa cho phép chạy"
-            : s.reason === "arming"
-              ? "Đang xin phép Motion"
-              : "Chưa cho phép chạy",
+              : s.reason === "arming"
+                ? "Đang xin phép Motion"
+                : "Chưa cho phép chạy",
     );
-    $("permission").classList.toggle("ready", s.authorized);
+    $("permission").classList.toggle(
+        "ready",
+        s.authorized && (s.mode === "AI" || ready()),
+    );
     text(
         "mode-hint",
         s.mode === "Manual"
-            ? "Giữ nút để chạy. Nhả nút về 0. Nút mới thay nút cũ."
+            ? "Giữ để chạy · nhả về 0 · nút mới thay nút cũ."
             : "Nói với Xiaozhi bằng tiếng Trung. Mỗi hành động mặc định 1 giây; quyền AI tối đa 5 phút.",
     );
     document
         .querySelectorAll("[data-action]")
-        .forEach((b) => (b.disabled = !(s.authorized && s.mode === "Manual")));
+        .forEach((b) => (b.disabled = !ready()));
     $("speed").disabled = s.mode !== "Manual";
     $("arm").disabled =
         s.authorized ||
@@ -140,9 +188,12 @@ function render(s) {
         s.telemetry_age_ms < 0 ||
         s.telemetry_age_ms >= 150 ||
         (s.mode === "AI" && !s.ai_online);
-    $("clear-fault").disabled = s.authorized || s.clearing ||
+    $("clear-fault").disabled =
+        s.authorized ||
+        s.clearing ||
         !(s.motion_state === 3 || s.fault_flags) ||
-        s.telemetry_age_ms < 0 || s.telemetry_age_ms >= 150;
+        s.telemetry_age_ms < 0 ||
+        s.telemetry_age_ms >= 150;
     text("target-v", `${s.v} mm/s`);
     text("target-w", `${s.omega} mrad/s`);
     text(
@@ -189,7 +240,7 @@ function render(s) {
         "environment",
         s.data_source === "mock"
             ? "Motion giả lập · chưa nối xe"
-            : "ESP32-S3 Brain",
+            : "Bảng điều khiển",
     );
     if (s.rgb) {
         power = s.rgb.power;
@@ -209,22 +260,59 @@ function render(s) {
             `Brain → UART p95: ${(s.web_uart_p95_us / 1000).toFixed(2)} ms · cửa sổ gần nhất`,
         );
     if (s.chat_state) text("chat-state", s.chat_state);
+    if ($("network-debug"))
+        text(
+            "network-debug",
+            JSON.stringify(
+                {
+                    network: s.network ?? "Chưa có dữ liệu",
+                    transport: s.transport ?? "Chưa có dữ liệu",
+                },
+                null,
+                2,
+            ),
+        );
     if (previous?.reason !== s.reason) log(`Trạng thái: ${s.reason}`);
 }
-function openSocket() {
+async function openSocket() {
+    if (
+        ws &&
+        (ws.readyState === WebSocket.CONNECTING ||
+            ws.readyState === WebSocket.OPEN)
+    )
+        throw new Error("Đã có một kết nối trong trang này.");
     clearInput();
     state = null;
     seq = 0;
-    ws = new WebSocket(
+    link.disconnected();
+    const preflight = await fetch("/api/session", { method: "POST" });
+    if (!preflight.ok) {
+        link.disconnected(preflight.status === 401 || preflight.status === 403);
+        showLink();
+        throw new Error(
+            preflight.status === 409
+                ? "Dashboard khác đang điều khiển."
+                : "Phiên xác thực không hợp lệ; nhập PIN lại.",
+        );
+    }
+    const generation = ++socketGeneration;
+    const socket = new WebSocket(
         `${location.protocol === "https:" ? "wss" : "ws"}://${location.host}/ws`,
     );
-    ws.onopen = () => {
-        text("connection", "Đã kết nối Brain");
+    ws = socket;
+    const current = () => ws === socket && generation === socketGeneration;
+    socket.onopen = () => {
+        if (!current()) return;
+        link.opened(performance.now());
+        lastHeartbeat = 0;
+        showLink("đợi STATUS mới");
         $("login").hidden = true;
         $("dashboard").hidden = false;
-        log("Dashboard đã kết nối; không phát lại lệnh lái trước đó.");
+        revokeLocal("Chưa xác nhận quyền chạy");
+        log("Dashboard đã kết nối; cần Cho phép mới trong Manual.");
     };
-    ws.onmessage = (ev) => {
+    socket.onmessage = (ev) => {
+        if (!current()) return;
         let m;
         try {
             m = JSON.parse(ev.data);
@@ -237,11 +325,14 @@ function openSocket() {
         } else if (m.type === "ACK") {
             if (m.result !== "OK") {
                 text("feedback", `Brain từ chối: ${m.result}`);
-                if (m.result === "STALE") clearInput();
+                if (m.result === "STALE" || m.result === "UNSAFE") {
+                    clearInput();
+                    link.revoke();
+                }
             } else
                 text(
                     "feedback",
-                    "Brain đã nhận yêu cầu; xem phản hồi Motion bên phải.",
+                    "Đã nhận yêu cầu. Xem Trạng thái xe để xác nhận.",
                 );
         } else if (m.type === "EVENT") {
             log(`${m.kind}: ${m.text}`);
@@ -249,29 +340,30 @@ function openSocket() {
             if (m.kind === "reply") text("reply", m.text);
         }
     };
-    ws.onclose = () => {
-        clearInput();
+    socket.onclose = (event) => {
+        if (!current()) return;
+        link.disconnected();
         state = null;
-        text("permission", "Chưa xác nhận quyền chạy · mất kết nối");
-        $("permission").classList.remove("ready");
-        $("arm").disabled = true;
-        $("clear-fault").disabled = true;
-        text("connection", "Mất kết nối · bấm Kết nối để mở lại");
+        revokeLocal("Mất kết nối · chưa xác nhận motor dừng");
+        const cause = `code=${event.code}; reason=${event.reason || "không có Close reason"}; clean=${event.wasClean}`;
+        showLink(cause);
+        log(`WebSocket đóng: ${cause}`);
         $("login").hidden = false;
         $("dashboard").hidden = true;
-        text(
-            "login-message",
-            "Kết nối đã đóng hoặc đang có dashboard khác. Không tự kết nối/lái lại.",
-        );
+        text("login-message", `${cause}. Không tự kết nối/ARM/phát lại lệnh.`);
     };
-    ws.onerror = () =>
-        text(
-            "login-message",
-            "Không mở được WebSocket. Có thể dashboard khác đang kết nối.",
-        );
+    socket.onerror = () => {
+        if (current()) showLink("lỗi transport; chờ Close code");
+    };
 }
 $("login-form").addEventListener("submit", async (e) => {
     e.preventDefault();
+    if (loginBusy) return;
+    loginBusy = true;
+    const button = e.target.querySelector(
+        'button[type="submit"],button:not([type])',
+    );
+    if (button) button.disabled = true;
     text("login-message", "");
     try {
         const r = await fetch("/api/login", {
@@ -280,15 +372,21 @@ $("login-form").addEventListener("submit", async (e) => {
             body: JSON.stringify({ pin: $("pin").value }),
         });
         $("pin").value = "";
-        if (!r.ok)
+        if (!r.ok) {
+            link.disconnected(r.status === 401 || r.status === 403);
+            showLink();
             throw new Error(
                 r.status === 409
                     ? "Dashboard khác đang kết nối."
                     : "Mã điều khiển không đúng hoặc thử quá nhanh.",
             );
-        openSocket();
+        }
+        await openSocket();
     } catch (err) {
         text("login-message", err.message);
+    } finally {
+        loginBusy = false;
+        if (button) button.disabled = false;
     }
 });
 $("show-pin").onclick = () =>
@@ -301,12 +399,16 @@ $("show-pin").onclick = () =>
 $("stop").onclick = stop;
 $("arm").onclick = () => {
     clearInput();
+    link.arm(state);
     send("ARM", { epoch: state?.epoch });
 };
 $("clear-fault").onclick = () => {
     clearInput();
     send("CLEAR_FAULT", { epoch: state?.epoch });
-    text("feedback", "Đã yêu cầu xóa lỗi. Thành công vẫn phải bấm Cho phép lại.");
+    text(
+        "feedback",
+        "Đã yêu cầu xóa lỗi. Thành công vẫn phải bấm Cho phép lại.",
+    );
 };
 for (const [id, mode] of [
     ["manual", "Manual"],
@@ -343,10 +445,16 @@ window.addEventListener("keyup", (e) => release(e.code));
 window.addEventListener("blur", loseFocus);
 window.addEventListener("pagehide", () => {
     loseFocus();
-    ws?.close();
+    ws?.close(1000, "page_hidden");
 });
 document.addEventListener("visibilitychange", () => {
-    if (document.hidden) loseFocus();
+    if (document.hidden) {
+        loseFocus();
+        if (state?.mode === "Manual") ws?.close(1000, "manual_hidden");
+    } else if (link.check(performance.now())) {
+        safetyStop("trang hoạt động lại với STATUS cũ");
+        showLink();
+    }
 });
 $("speed").oninput = () => {
     text("speed-value", `${$("speed").value}%`);
@@ -384,17 +492,16 @@ $("wifi-form").onsubmit = async (e) => {
 };
 setInterval(() => {
     if (document.hidden) return;
+    const now = performance.now();
     if (ready()) move();
-    else if (ws?.readyState === WebSocket.OPEN) send("HEARTBEAT");
+    else if (ws?.readyState === WebSocket.OPEN && now - lastHeartbeat >= 250) {
+        send("HEARTBEAT");
+        lastHeartbeat = now;
+    }
 }, 50);
 staleTimer = setInterval(() => {
-    if (state && performance.now() - lastStatus > 350) {
-        clearInput();
-        if (state.mode === "Manual") send("STOP");
-        state.authorized = false;
-        document
-            .querySelectorAll("[data-action]")
-            .forEach((b) => (b.disabled = true));
-        text("permission", "Mất trạng thái Brain · đã khóa điều khiển");
+    if (link.check(performance.now())) {
+        safetyStop("STATUS quá 350 ms");
+        showLink("STATUS cũ · nút lái đã khóa");
     }
 }, 100);

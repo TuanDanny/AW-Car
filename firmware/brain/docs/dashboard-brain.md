@@ -41,7 +41,7 @@ dịch chính adapter này với stub I/O SDK, gồm1.000 frame URI rỗng.
 ```powershell
 python tools/build_brain_host.py
 .venv/Scripts/python.exe -m unittest discover -s tests
-node --test dashboard/control.test.mjs
+node --test dashboard/control.test.mjs dashboard/connection.test.mjs
 .venv/Scripts/python.exe -B -m unittest discover -s firmware/brain/scripts/tests
 ```
 
@@ -61,3 +61,7 @@ hoặc UART Motion. [Bằng chứng](../../../docs/brain-dashboard-verification.
 Report/log build/ảnh computer use ở build/brain của root, binary/credentials
 không commit. Báo cáo bàn giao phân biệt host RTT/handler→mock-UART với độ
 trễ ESP32, cloud AI hoặc thời gian motor dừng.
+
+Bản AP+STA/backoff, WS generation/post-handshake, UART RX event và dashboard
+tối giản ngày04/11 ở [báo cáo mới](../../../docs/brain-network-reliability.md).
+Các hạn chế phần cứng của báo cáo mới thay trạng thái nghiệm thu lịch sử ở trên.

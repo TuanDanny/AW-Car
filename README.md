@@ -7,6 +7,12 @@ Tác giả: **TuanDanny**. Cộng tác viên: **Minh Nho** và **Nhan Duc**.
 
 ## Trạng thái
 
+Mốc04/11/2026: bổ sung reconnect AP+STA có backoff, chẩn đoán HTTP/WS và
+dashboard tối giản. Đã build/kiểm thử host và đọc monitor COM3 Brain/COM7
+Motion thật; UART còn lỗi và người dùng đang sửa chập GPIO17/18 trên Motion.
+**Chưa xác nhận UART thông hoặc motor chạy.** Giao diện cuối chờ nạp sau sửa.
+Xem [báo cáo mạng, UI và phần cứng](docs/brain-network-reliability.md).
+
 Mốc 03/11/2026 trên nhánh AI: đã có source dashboard Manual/AI, AP+STA,
 lõi Brain độc lập RTOS, UART BM-v1 và Motion PC test peer. Firmware đã build;
 kiểm thử host theo [hướng dẫn dashboard](dashboard/README.md) và
@@ -76,8 +82,8 @@ Mỗi thư mục có README giới thiệu. [AGENTS.md](AGENTS.md) là quy tắc
 
 ## Làm việc và kiểm tra
 
-Hai nhánh làm việc hiện tại: **`feat/f01-fpga-drive`** cho FPGA/truyền động và
-**`feat/f03-xiaozhi-ai`** cho AI. Dùng task/commit để theo dõi từng bước nhỏ;
+Ba nhánh theo quyết định03/11: **`feat/f01-fpga-drive`** cho FPGA,
+**`feat/f03-xiaozhi-ai`** cho AI và **`codex/esp32-s3-motion`** cho Motion. Dùng task/commit để theo dõi từng bước nhỏ;
 PR vào main và **squash merge** sau khi kiểm tra/review đạt.
 Xem [quy trình Git](docs/workflow.md).
 

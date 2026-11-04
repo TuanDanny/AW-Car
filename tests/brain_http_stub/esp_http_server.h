@@ -7,6 +7,8 @@ constexpr int ESP_OK = 0, ESP_FAIL = -1, HTTP_GET = 1;
 enum httpd_ws_type_t {
   HTTPD_WS_TYPE_TEXT = 1,
   HTTPD_WS_TYPE_BINARY = 2,
+  HTTPD_WS_TYPE_CLOSE = 8,
+  HTTPD_WS_TYPE_PING = 9,
   HTTPD_WS_TYPE_PONG = 10
 };
 struct httpd_req_t {

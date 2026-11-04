@@ -18,7 +18,9 @@ Brain có kiểm thử phần mềm host, chưa có nghiệm thu phần cứng:
 - `test_brain_websocket_transport.py`: compile adapter WebSocket thật với
   [I/O stub ESP-IDF](brain_http_stub/README.md); URI rỗng sau handshake,
   1.000 heartbeat, PONG, giới hạn frame và lỗi I/O.
-- `node --test dashboard/control.test.mjs`: thứ tự giữ/nhả nút và hướng.
+- `test_brain_network_policy.py`: reconnect/backoff/timeout và bảo vệ AP khi SSID vắng.
+- `node --test dashboard/control.test.mjs dashboard/connection.test.mjs`:
+  giữ/nhả/hướng, STATUS stale, STOP gộp và reconnect không tự ARM.
 
 Xem [báo cáo Brain/dashboard](../docs/brain-dashboard-verification.md) và
 [cách chạy simulator](../dashboard/README.md). Các bài FPGA bên dưới độc lập.

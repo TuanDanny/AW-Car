@@ -2,37 +2,40 @@
 <html lang="vi">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta
+      name="viewport"
+      content="width=device-width,initial-scale=1,viewport-fit=cover"
+    />
+    <meta name="theme-color" content="#f3f5f7" />
     <title>AW-Car · Điều khiển</title>
     <link rel="stylesheet" href="/style.css" />
   </head>
   <body>
     <header>
       <div class="brand">
-        <span class="mark">AW</span>
+        <span class="mark" aria-hidden="true">aw<span>↗</span></span>
         <div>
-          <strong>AW-Car</strong
-          ><small id="environment">Brain · Điều khiển</small>
+          <strong>AW-Car</strong><small id="environment">Bảng điều khiển</small>
         </div>
       </div>
       <nav aria-label="Chế độ điều khiển">
-        <button id="manual" class="mode selected" aria-pressed="true">
+        <button id="manual" class="mode selected" aria-pressed="true" disabled>
           Manual</button
-        ><button id="ai" class="mode" aria-pressed="false">AI</button>
+        ><button id="ai" class="mode" aria-pressed="false" disabled>AI</button>
       </nav>
-      <button id="stop" class="stop">DỪNG <kbd>Space</kbd></button>
+      <button id="stop" class="stop">
+        <span aria-hidden="true">■</span> DỪNG <kbd>Space</kbd>
+      </button>
     </header>
     <div class="connection">
-      <span id="connection" role="status">Chưa kết nối</span
+      <span id="connection" role="status">Disconnected</span
       ><span id="permission">Chưa cho phép chạy</span><span id="clock">—</span>
     </div>
     <main>
       <section id="login" class="panel login">
-        <div>
-          <span class="eyebrow">KẾT NỐI BRAIN</span>
-          <h1>Sẵn sàng khi bạn cho phép.</h1>
-          <p>Nhập mã điều khiển trên OLED để mở dashboard.</p>
-        </div>
+        <span class="eyebrow">AW-CAR / LOCAL</span>
+        <h1>Kết nối với xe.</h1>
+        <p>Nhập 6 chữ số trên OLED.</p>
         <form id="login-form">
           <label for="pin">Mã điều khiển</label
           ><input
@@ -43,9 +46,11 @@
             maxlength="6"
             autocomplete="off"
             required
-            placeholder="6 chữ số"
+            placeholder="· · · · · ·"
           /><button class="primary" type="submit">Kết nối</button
-          ><button type="button" id="show-pin">Hiện mã trên OLED</button>
+          ><button type="button" id="show-pin" class="text-button">
+            Hiện mã trên OLED
+          </button>
         </form>
         <p id="login-message" role="alert"></p>
       </section>
@@ -57,27 +62,34 @@
                 <span class="eyebrow">ĐIỀU KHIỂN</span>
                 <h1 id="mode-title">Manual</h1>
               </div>
-              <button id="arm" class="primary">Cho phép</button>
-              <button id="clear-fault" disabled>Xóa lỗi</button>
+              <div class="arm-actions">
+                <button id="clear-fault" disabled>Xóa lỗi</button
+                ><button id="arm" class="primary">Cho phép</button>
+              </div>
             </div>
-            <p id="mode-hint">Giữ nút để chạy. Nhả nút về 0.</p>
+            <p id="mode-hint">Giữ để chạy. Nhả để dừng.</p>
             <div class="drive-grid" aria-label="Các hướng di chuyển">
               <button data-action="left">
-                <span>↖</span>Rẽ trái<kbd>A</kbd></button
-              ><button data-action="forward">
-                <span>↑</span>Tiến<kbd>W</kbd></button
-              ><button data-action="right">
-                <span>↗</span>Rẽ phải<kbd>D</kbd></button
-              ><button data-action="spin_left">
-                <span>↶</span>Quay trái<kbd>Q</kbd></button
-              ><button data-action="backward">
-                <span>↓</span>Lùi<kbd>S</kbd></button
-              ><button data-action="spin_right">
-                <span>↷</span>Quay phải<kbd>E</kbd>
+                <span>↖</span><b>Rẽ trái</b><kbd>A</kbd>
+              </button>
+              <button data-action="forward">
+                <span>↑</span><b>Tiến</b><kbd>W</kbd>
+              </button>
+              <button data-action="right">
+                <span>↗</span><b>Rẽ phải</b><kbd>D</kbd>
+              </button>
+              <button data-action="spin_left">
+                <span>↶</span><b>Quay trái</b><kbd>Q</kbd>
+              </button>
+              <button data-action="backward">
+                <span>↓</span><b>Lùi</b><kbd>S</kbd>
+              </button>
+              <button data-action="spin_right">
+                <span>↷</span><b>Quay phải</b><kbd>E</kbd>
               </button>
             </div>
             <div class="speed-heading">
-              <label for="speed">Mức tốc độ Manual</label
+              <label for="speed">Tốc độ Manual</label
               ><strong id="speed-value">30%</strong>
             </div>
             <input
@@ -88,33 +100,25 @@
               step="1"
               value="30"
             />
-            <p class="muted">% của giới hạn phần mềm · chưa hiệu chuẩn xe</p>
             <div class="targets">
-              <div>
-                <small>Yêu cầu tiến/lùi</small
-                ><strong id="target-v">0 <em>mm/s</em></strong>
-              </div>
-              <div>
-                <small>Yêu cầu quay</small
-                ><strong id="target-w">0 <em>mrad/s</em></strong>
-              </div>
+              <span>Mục tiêu</span><strong id="target-v">0 mm/s</strong
+              ><span class="target-divider">/</span
+              ><strong id="target-w">0 mrad/s</strong>
             </div>
             <p id="action-status" class="action-status" role="status">
               Chưa có hành động
             </p>
-            <p id="feedback" role="alert">Mở quyền điều khiển trước khi lái.</p>
+            <p id="feedback" role="alert">Bấm Cho phép trước khi lái.</p>
           </section>
           <aside>
-            <section class="panel">
-              <div class="section-title">
-                <h2>Trạng thái Motion</h2>
-                <span class="dot" id="motion-dot"></span>
-              </div>
+            <details class="panel telemetry-panel">
+              <summary>
+                <span>Trạng thái xe</span
+                ><span class="detail-value" id="motion-state"
+                  >Chưa có dữ liệu</span
+                ><span class="dot" id="motion-dot" aria-hidden="true"></span>
+              </summary>
               <dl class="telemetry">
-                <div>
-                  <dt>Trạng thái</dt>
-                  <dd id="motion-state">Chưa có dữ liệu</dd>
-                </div>
                 <div>
                   <dt>Tốc độ đo</dt>
                   <dd id="v-est">Chưa có dữ liệu</dd>
@@ -136,16 +140,17 @@
                   <dd id="fault">Chưa có dữ liệu</dd>
                 </div>
                 <div>
-                  <dt>Yêu cầu đã nhận / áp dụng</dt>
+                  <dt>Yêu cầu nhận / áp dụng</dt>
                   <dd id="applied">— / —</dd>
                 </div>
               </dl>
-            </section>
-            <section class="panel rgb">
-              <div class="section-title">
-                <h2>Đèn RGB</h2>
-                <span id="rgb-state">—</span>
-              </div>
+              <p class="muted">Mục tiêu và ACK không phải số đo xe đã chạy.</p>
+            </details>
+            <details class="panel rgb">
+              <summary>
+                <span>Đèn RGB</span
+                ><span class="detail-value" id="rgb-state">—</span>
+              </summary>
               <div class="rgb-controls">
                 <button id="rgb-power">Bật đèn</button
                 ><button
@@ -170,37 +175,40 @@
                   aria-label="Màu RGB tùy chọn"
                 />
               </div>
-            </section>
+            </details>
+            <details class="panel conversation" id="assistant-panel">
+              <summary>
+                <span>Trợ lý Xiaozhi <small>中文</small></span
+                ><span class="detail-value" id="chat-state">Chờ kết nối</span>
+              </summary>
+              <button id="chat" class="chat-button">
+                Bắt đầu / kết thúc nghe
+              </button>
+              <div class="transcripts">
+                <div>
+                  <small>Bạn nói</small>
+                  <p id="stt">Chưa có câu nói</p>
+                </div>
+                <div>
+                  <small>AI trả lời</small>
+                  <p id="reply">Chưa có trả lời</p>
+                </div>
+              </div>
+              <details class="event-details">
+                <summary>Nhật ký gần đây</summary>
+                <button id="clear-log" class="text-button">
+                  Xóa trên trang
+                </button>
+                <ol id="events" aria-live="polite"></ol>
+              </details>
+            </details>
           </aside>
         </div>
-        <section class="panel conversation">
-          <div class="section-title">
-            <div>
-              <span class="eyebrow">XIAOZHI · 中文</span>
-              <h2>Nghe, hiểu và hành động</h2>
-            </div>
-            <button id="chat">Bắt đầu / kết thúc nghe</button>
-          </div>
-          <p id="chat-state">Chờ trạng thái AI</p>
-          <div class="transcripts">
-            <div>
-              <small>Bạn nói · văn bản nhận dạng</small>
-              <p id="stt">Chưa có câu nói</p>
-            </div>
-            <div>
-              <small>AI trả lời</small>
-              <p id="reply">Chưa có trả lời</p>
-            </div>
-          </div>
-          <div class="section-title">
-            <h3>Nhật ký gần đây</h3>
-            <button id="clear-log">Xóa trên trang</button>
-          </div>
-          <ol id="events" aria-live="polite"></ol>
-        </section>
-        <details class="panel">
+        <details class="panel settings">
           <summary>Cấu hình Wi-Fi Internet</summary>
-          <p>Chỉ lưu khi Motion đã DISARMED. Dashboard vẫn dùng Wi-Fi xe.</p>
+          <p class="muted">
+            Chỉ đổi khi xe đã DISARMED. Dashboard vẫn dùng Wi-Fi AW-CAR.
+          </p>
           <form id="wifi-form">
             <label
               >SSID<input
@@ -218,11 +226,16 @@
           </form>
         </details>
       </div>
+      <details class="panel diagnostics">
+        <summary>Chẩn đoán kết nối</summary>
+        <pre id="network-debug">Chưa có dữ liệu</pre>
+      </details>
     </main>
     <footer>
-      AW-Car · Brain gửi yêu cầu, Motion quyết định quyền chạy.<span
-        id="stats"
-      ></span>
+      <span
+        >AW-Car <span class="footer-divider">/</span> Điều khiển an toàn, từng
+        bước.</span
+      ><span id="stats"></span>
     </footer>
     <script type="module" src="/app.mjs"></script>
   </body>

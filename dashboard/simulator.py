@@ -22,6 +22,24 @@ RESULTS = ["OK", "UNSAFE", "BUSY", "BAD_RANGE", "BAD_SEQUENCE", "STALE", "WRONG_
 ACTIONS = ["forward", "backward", "left", "right", "spin_left", "spin_right"]
 
 
+if os.name == "nt":
+    class ProcessMemory(ctypes.Structure):
+        _fields_ = [("cb", ctypes.c_ulong), ("faults", ctypes.c_ulong)] + [
+            (n, ctypes.c_size_t) for n in ("peak_working", "working", "peak_paged", "paged", "peak_nonpaged", "nonpaged", "pagefile", "peak_pagefile")]
+    _memory_info = ctypes.WinDLL("psapi").GetProcessMemoryInfo
+    _memory_info.argtypes = [ctypes.c_void_p, ctypes.POINTER(ProcessMemory), ctypes.c_ulong]
+    _memory_info.restype = ctypes.c_int
+
+def memory_rss():
+    if os.name == "nt":
+        value = ProcessMemory(); value.cb = ctypes.sizeof(value)
+        return value.working if _memory_info(ctypes.c_void_p(-1), ctypes.byref(value), value.cb) else None
+    try:
+        return int(Path("/proc/self/statm").read_text().split()[1]) * os.sysconf("SC_PAGE_SIZE")
+    except OSError:
+        return None
+
+
 def integer(data, key, lo, hi):
     v = data.get(key)
     if type(v) is not int or not lo <= v <= hi:
@@ -34,6 +52,10 @@ class Simulator:
         self.realtime = realtime
         self.rig = Rig()
         self.ws = None
+        self.ws_ready = False
+        self.pause_status_until = 0
+        self.stop_commands = 0
+        self.next_ping = 0
         self.token = secrets.token_urlsafe(32)
         self.pin = pin
         self.rgb = {"power": False, "r": 32, "g": 32, "b": 32}
@@ -100,6 +122,11 @@ class Simulator:
             "chat_state": "Xiaozhi giả lập · tool được tiêm để kiểm thử",
         }
 
+    async def session(self, req):
+        if not self.auth(req) or req.headers.get("Origin") != f"http://{req.host}":
+            return web.Response(status=401)
+        return web.Response(status=409 if self.ws and not self.ws.closed else 200)
+
     async def socket(self, req):
         if not self.auth(req):
             return web.Response(status=403)
@@ -107,15 +134,22 @@ class Simulator:
             return web.Response(status=403)
         if self.ws and not self.ws.closed:
             return web.Response(status=409)
-        ws = web.WebSocketResponse(max_msg_size=512, heartbeat=5)
+        ws = web.WebSocketResponse(max_msg_size=512, autoping=False)
         # Reserve before prepare's first await: two concurrent upgrades cannot both win.
         self.ws = ws
         try:
             await ws.prepare(req)
             self.last_ws = self.rig.now
+            self.next_ping = self.rig.now + 1000000
             self.rig.connect()
+            self.ws_ready = True
             await ws.send_json(await self.snapshot())
             async for msg in ws:
+                if msg.type == WSMsgType.PONG:
+                    continue
+                if msg.type == WSMsgType.PING:
+                    await ws.pong(msg.data)
+                    continue
                 if msg.type != WSMsgType.TEXT:
                     continue
                 started = time.monotonic_ns()
@@ -128,6 +162,7 @@ class Simulator:
                     now = self.rig.now
                     result = 0
                     if kind == "STOP":
+                        self.stop_commands += 1
                         self.rig.brain.command(6, now)
                     elif kind == "HEARTBEAT":
                         self.last_ws = now
@@ -201,7 +236,7 @@ class Simulator:
                             "stage": "Brain",
                         }
                     )
-                    if kind in ("ARM", "STOP", "SET_MODE", "CLEAR_FAULT"):
+                    if kind in ("ARM", "STOP", "SET_MODE", "CLEAR_FAULT") and self.rig.now >= self.pause_status_until:
                         await ws.send_json(await self.snapshot())
                 except (ValueError, TypeError, KeyError, json.JSONDecodeError):
                     self.rejected += 1
@@ -211,6 +246,7 @@ class Simulator:
         finally:
             if self.ws is ws:
                 self.ws = None
+                self.ws_ready = False
                 self.rig.brain.command(2, self.rig.now)
                 self.rig.pump()
         return ws
@@ -255,6 +291,8 @@ class Simulator:
             self.rig.motion.v = self.rig.motion.w = 0
             self.rig.brain.rx(now, self.rig.motion.status(now, True))
             self.event("fault", "Motion giả lập: lỗi được tiêm để thử Xóa lỗi")
+        elif op == "pause_status":
+            self.pause_status_until = now + integer(d, "ms", 0, 10000) * 1000
         elif op == "advance":
             self.offset += integer(d, "ms", 0, 300001) * 1000
             self.rig.advance(d["ms"] * 1000)
@@ -276,6 +314,7 @@ class Simulator:
                 "environment": "host_cpp_core_motion_mock",
                 "seconds": time.monotonic() - self.started,
                 "commands": self.commands,
+                "stop_commands": self.stop_commands,
                 "samples": len(a),
                 "latency_ms": {
                     "p50": p(0.5),
@@ -308,55 +347,29 @@ class Simulator:
                 )
                 if now - self.last_memory >= 5000000:
                     self.last_memory = now
-                    if os.name == "nt":
-
-                        class Memory(ctypes.Structure):
-                            _fields_ = [
-                                ("cb", ctypes.c_ulong),
-                                ("faults", ctypes.c_ulong),
-                            ] + [
-                                (n, ctypes.c_size_t)
-                                for n in (
-                                    "peak_working",
-                                    "working",
-                                    "peak_paged",
-                                    "paged",
-                                    "peak_nonpaged",
-                                    "nonpaged",
-                                    "pagefile",
-                                    "peak_pagefile",
-                                )
-                            ]
-
-                        m = Memory()
-                        m.cb = ctypes.sizeof(m)
-                        # HANDLE is pointer-sized. An untyped ctypes integer
-                        # truncates the Win64 pseudo-handle and returns zeros.
-                        ok = ctypes.windll.psapi.GetProcessMemoryInfo(
-                            ctypes.c_void_p(-1), ctypes.byref(m), m.cb
-                        )
-                        rss = m.working if ok else None
-                    else:
-                        import resource
-
-                        rss = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss * 1024
+                    rss = memory_rss()
                     self.memory_samples.append(
                         [round(time.monotonic() - self.started, 1), rss]
                     )
                 self.rig.pump(max(0, now - self.rig.now))
                 ws = self.ws
-                if ws and not ws.closed:
-                    if self.rig.now - self.last_ws >= 150000:
-                        if (
-                            self.rig.state["mode"] == "Manual"
-                            and self.rig.state["authorized"]
-                        ):
-                            self.rig.brain.command(6, self.rig.now)
+                if ws and self.ws_ready and not ws.closed:
+                    if self.rig.now - self.last_ws >= 2000000:
+                        self.ws_ready = False
+                        self.rig.brain.command(2, self.rig.now)
+                        asyncio.create_task(ws.close(code=1001, message=b"heartbeat_timeout"))
+                        continue
+                    if self.rig.now >= self.next_ping:
+                        await ws.ping()
+                        self.next_ping = self.rig.now + 1000000
                     send_now = time.monotonic_ns() // 1000
                     if send_now >= next_send:
                         alternate = not alternate
                         next_send = send_now + 50000
                         try:
+                            if alternate and self.rig.now < self.pause_status_until:
+                                await asyncio.sleep(0.005)
+                                continue
                             await asyncio.wait_for(
                                 ws.send_json(
                                     await self.snapshot()
@@ -391,9 +404,10 @@ class Simulator:
         app.router.add_post("/api/pairing", self.pairing)
         app.router.add_post("/api/wifi", self.wifi)
         app.router.add_get("/ws", self.socket)
+        app.router.add_post("/api/session", self.session)
         app.router.add_post("/api/lab", self.lab)
         app.router.add_get("/api/report", self.report)
-        for name in ("index.html", "style.css", "app.mjs", "control.mjs"):
+        for name in ("index.html", "style.css", "app.mjs", "control.mjs", "connection.mjs"):
 
             async def asset(req, name=name):
                 return web.FileResponse(Path(__file__).parent / name,

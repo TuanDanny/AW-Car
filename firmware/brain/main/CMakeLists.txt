@@ -1109,7 +1109,8 @@ if(CONFIG_BOARD_TYPE_AW_CAR_AI_RGB)
     endif()
     set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS
         "${PROJECT_DIR}/../../dashboard/index.html" "${PROJECT_DIR}/../../dashboard/style.css"
-        "${PROJECT_DIR}/../../dashboard/app.mjs" "${PROJECT_DIR}/../../dashboard/control.mjs")
+        "${PROJECT_DIR}/../../dashboard/app.mjs" "${PROJECT_DIR}/../../dashboard/control.mjs"
+        "${PROJECT_DIR}/../../dashboard/connection.mjs")
 endif()
 if(CONFIG_XIAOZHI_NETWORK_ETHERNET AND CONFIG_XIAOZHI_ETH_PHY_IP101)
     list(APPEND MAIN_PRIV_REQUIRES_EXTRA espressif__ip101)

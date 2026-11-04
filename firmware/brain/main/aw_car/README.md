@@ -8,3 +8,8 @@ vốn bị ESP-IDF xóa sau handshake; có hồi quy host tại `tests/brain_htt
 Các giới hạn vận tốc mặc định chỉ dành cho thử bàn/giao thức, chưa hiệu chuẩn xe.
 SSID AP là `AW-CAR`; `CONFIG_AWCAR_AP_PASSWORD` trong sdkconfig cục bộ có
 thể đặt mật khẩu cố định, được giữ lại trong NVS. PIN dashboard vẫn đổi mỗi boot.
+
+`network_policy.h` tách reconnect/backoff khỏi I/O, kiểm thử trên host.
+`socket_writer.h` hoàn tất short-write trước khi HTTPD coi một frame đã gửi.
+UART RX dùng event/idle riêng, không đợi polling tick 10 ms của audio profile.
+Xem [báo cáo mạng/WS](../../../../docs/brain-network-reliability.md).

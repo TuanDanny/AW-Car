@@ -83,3 +83,16 @@ trạng thái DISARMED/fault=0 trước báo thành công. Motion từ chối AR
 Socket đóng xóa nhãn quyền cũ và khóa nút; reconnect không tự chạy. Asset HTTP
 trả Cache-Control:no-store để bản giao diện cũ không còn sau nâng firmware.
 Nút nghe/RGB và BOOT hiện có được giữ; chưa nạp thay đổi này lên Brain thật.
+
+## Bổ sung kết nối 04/11/2026
+
+`POST /api/session` có cookie+Origin: 200 sẵn sàng, 401 chưa xác thực,
+409 đã có Dashboard. Chỉ preflight không giữ chỗ; pre-handshake vẫn kiểm lại.
+HEARTBEAT lúc idle/AI mỗi 250 ms, PING 1 giây, app timeout 2 giây; PONG
+không thay heartbeat ứng dụng. Không thay TTL120/Manual150/STATUS Motion150ms.
+STATUS quá350ms đưa UI Degraded và gộp STOP, không tiếp tục hiển thị số đo
+như còn mới. Close code/reason/wasClean được hiện lại ở màn hình PIN;
+1006 không đủ để quy nguyên nhân. Không tự reconnect/ARM/MOVE.
+Snapshot firmware thêm `network`, `transport`, UART frames/bytes/hardware
+errors và stack RX. Chỉ dùng để chẩn đoán, không tăng quyền điều khiển.
+Xem [báo cáo mạng](../docs/brain-network-reliability.md).

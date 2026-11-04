@@ -5,9 +5,9 @@ Manual/AI, Cho phép/DỪNG/Xóa lỗi, sáu hướng, tốc độ, RGB, transcr
 telemetry có cờ hợp lệ. Không CDN/framework hoặc JSON đi thẳng xuống FPGA.
 Contract: [Web-v1](web-brain-protocol.md).
 
-## Dùng dashboard trên iPhone
+## Dùng dashboard trên điện thoại
 
-1. Nối Wi-Fi `AW-CAR`, mở `http://192.168.4.1` bằng Safari. Nhập PIN hiện
+1. Nối Wi-Fi `AW-CAR`, mở `http://192.168.4.1` bằng Chrome hoặc Safari. Nhập PIN hiện
    trên OLED; giữ BOOT lâu để hiện lại. PIN dashboard khác mật khẩu Wi-Fi,
    đổi sau mỗi reset. Chỉ giữ một tab dashboard đang kết nối.
 2. RGB hoạt động bằng các nút bật/tắt, ba màu sẵn hoặc ô chọn màu; không
@@ -51,7 +51,7 @@ FreeRTOS, PID, FPGA hay motor. Mỗi instance chỉ nhận một WebSocket.
 
 ```powershell
 .venv/Scripts/python.exe -m unittest discover -s tests
-node --test dashboard/control.test.mjs
+node --test dashboard/control.test.mjs dashboard/connection.test.mjs
 ```
 
 Thử tải bằng instance riêng, không giành kết nối với trình duyệt:
@@ -89,3 +89,13 @@ bằng chứng motor sẽ chạy. Cấu hình `AWCAR_MOTION_IS_SIMULATED` chỉ 
 sau khi đã ghép và xác nhận dữ liệu thật, không sửa để che nhãn giả lập.
 Computer use đã thử Xóa lỗi, giao diện hẹp và socket đóng; xem
 [báo cáo bổ sung](../docs/brain-motion-clear-verification.md).
+
+## Mốc 04/11: giao diện và chẩn đoán
+
+Màn hình chính tập trung vào mode, Cho phép/DỪNG, hướng và tốc độ. Mở
+Trạng thái xe/RGB/Trợ lý/Wi-Fi khi cần; AI tự mở hội thoại. Chẩn đoán mạng
+nằm trong mục mở rộng. Không bỏ chức năng hoặc thay contract an toàn.
+`connection.mjs` tách trạng thái kết nối/quyền cục bộ để test không cần DOM.
+Simulator có `pause_status` (0–10.000 ms) và bộ đếm STOP chỉ để thử trạng
+thái Degraded; không có endpoint này trên firmware.
+Xem [báo cáo, phép đo và giới hạn phần cứng](../docs/brain-network-reliability.md).

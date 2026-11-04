@@ -7,9 +7,11 @@
 #include <esp_random.h>
 #include <esp_timer.h>
 #include <net/if.h>
+#include <sys/socket.h>
 #include <unistd.h>
 
 #include <algorithm>
+#include <cerrno>
 #include <cmath>
 #include <cstring>
 #include <new>
@@ -20,8 +22,15 @@
 #include "boards/aw-car-ai-rgb/rgb_light.h"
 #include "display.h"
 #include "mcp_server.h"
+#include "socket_writer.h"
 #include "websocket_transport.h"
 
+#if CONFIG_HTTPD_QUEUE_WORK_BLOCKING
+#error "AW-Car requires non-blocking httpd_queue_work"
+#endif
+#if !CONFIG_HTTPD_WS_POST_HANDSHAKE_CB_SUPPORT
+#error "Enable HTTPD_WS_POST_HANDSHAKE_CB_SUPPORT for AW-Car"
+#endif
 namespace awcar {
 namespace {
 uint64_t Now() { return uint64_t(esp_timer_get_time()); }
@@ -137,22 +146,22 @@ void BrainRuntime::UartTask() {
                                UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE));
   // No TX ring: at most the one short frame already on the wire can precede
   // STOP.
-  ESP_ERROR_CHECK(uart_driver_install(port, 256, 0, 0, nullptr, 0));
-  uart_set_rx_full_threshold(port, 8);
-  uart_set_rx_timeout(port, 2);
-  bm::Parser parser;
-  uint8_t in[64], out[32];
+  QueueHandle_t events;
+  ESP_ERROR_CHECK(uart_driver_install(port, 256, 0, 16, &events, 0));
+  ESP_ERROR_CHECK(uart_set_rx_full_threshold(port, 8));
+  ESP_ERROR_CHECK(uart_set_rx_timeout(port, 2));
+  ESP_ERROR_CHECK(uart_flush_input(port));
+  ESP_ERROR_CHECK(
+      xTaskCreatePinnedToCore(
+          [](void* p) {
+            BrainRuntime::Get().UartReceiveTask(static_cast<QueueHandle_t>(p));
+          },
+          "car_uart_rx", 4096, events, 11, &uart_rx_task_, 1) == pdPASS
+          ? ESP_OK
+          : ESP_ERR_NO_MEM);
+  uint8_t out[32];
   for (;;) {
     ulTaskNotifyTake(pdTRUE, pdMS_TO_TICKS(10));
-    int n = uart_read_bytes(port, in, sizeof(in), 0);
-    bm::Frame received;
-    for (int i = 0; i < n; i++)
-      if (parser.Feed(in[i], Now(), received)) {
-        std::lock_guard<std::mutex> lock(mutex_);
-        TickLocked(Now());
-        core_.OnStatus(received, Now());
-      }
-    rx_errors_ = parser.errors;
     for (int count = 0; count < 3; count++) {
       if (uart_wait_tx_done(port, 0) != ESP_OK) break;
       bm::Frame f;
@@ -171,7 +180,13 @@ void BrainRuntime::UartTask() {
       size_t size = bm::Encode(f, out, sizeof(out));
       if (size) {
         const auto enqueue_at = Now();
-        uart_write_bytes(port, out, size);
+        if (uart_write_bytes(port, out, size) != int(size)) {
+          {
+            std::lock_guard<std::mutex> lock(mutex_);
+            core_.Stop("uart_write_failure", Now());
+          }
+          ESP_LOGE("AwCarUart", "write failed");
+        }
         if (web_at) {
           std::lock_guard<std::mutex> lock(mutex_);
           web_latency_us_[web_latency_count_++ % web_latency_us_.size()] =
@@ -179,6 +194,45 @@ void BrainRuntime::UartTask() {
         }
       }
     }
+  }
+}
+void BrainRuntime::UartReceiveTask(QueueHandle_t events) {
+  // Wake on RX threshold/idle ISR, not the 10ms RTOS tick. Otherwise chunks
+  // of a healthy 2.6ms STATUS can straddle the parser's 10ms inter-byte limit.
+  bm::Parser parser;
+  uint8_t bytes[64];
+  uint32_t driver_errors = 0;
+  for (;;) {
+    uart_event_t event;
+    if (xQueueReceive(events, &event, portMAX_DELAY) != pdTRUE) continue;
+    if (event.type == UART_FIFO_OVF || event.type == UART_BUFFER_FULL) {
+      ++driver_errors;
+      ESP_ERROR_CHECK_WITHOUT_ABORT(uart_flush_input(UART_NUM_1));
+      parser.Reset();
+      std::lock_guard<std::mutex> lock(mutex_);
+      core_.Stop("uart_rx_overflow", Now());
+      Wake();
+    } else if (event.type == UART_FRAME_ERR || event.type == UART_PARITY_ERR) {
+      ++driver_errors;
+      parser.Reset();
+    } else if (event.type == UART_DATA) {
+      for (;;) {
+        const int size = uart_read_bytes(UART_NUM_1, bytes, sizeof(bytes), 0);
+        if (size <= 0) break;
+        uart_rx_bytes_.fetch_add(uint32_t(size));
+        for (int i = 0; i < size; ++i) {
+          bm::Frame frame;
+          if (parser.Feed(bytes[i], Now(), frame)) {
+            std::lock_guard<std::mutex> lock(mutex_);
+            TickLocked(Now());
+            core_.OnStatus(frame, Now());
+            if (frame.type == bm::Status) ++uart_status_frames_;
+          }
+        }
+      }
+    }
+    uart_driver_errors_ = driver_errors;
+    rx_errors_ = driver_errors + parser.errors;
   }
 }
 void BrainRuntime::CloudOnline(bool online) {
@@ -315,6 +369,42 @@ std::string BrainRuntime::Snapshot() {
     rejected = web_rejected_;
   }
   auto* j = cJSON_CreateObject();
+  if (network_) cJSON_AddItemToObject(j, "network", network_->Diagnostics());
+  WebStats stats;
+  {
+    std::lock_guard<std::mutex> lock(web_mutex_);
+    stats = web_stats_;
+  }
+  auto* transport = cJSON_AddObjectToObject(j, "transport");
+  cJSON_AddNumberToObject(transport, "heartbeat_timeout_ms", 2000);
+  cJSON_AddNumberToObject(transport, "manual_timeout_ms", 150);
+  cJSON_AddNumberToObject(transport, "max_open_sockets", 4);
+  cJSON_AddBoolToObject(transport, "lru_purge", false);
+  cJSON_AddNumberToObject(transport, "lru_evictions", 0);
+  cJSON_AddStringToObject(transport, "last_close_reason", stats.close_reason);
+  cJSON_AddNumberToObject(transport, "last_close_code", stats.close_code);
+  cJSON_AddNumberToObject(transport, "last_socket_error", stats.socket_error);
+#define WEB_COUNTER(field) \
+  cJSON_AddNumberToObject(transport, #field, stats.field)
+  WEB_COUNTER(handshakes);
+  WEB_COUNTER(closes);
+  WEB_COUNTER(heartbeats);
+  WEB_COUNTER(pongs);
+  WEB_COUNTER(auth_rejects);
+  WEB_COUNTER(origin_rejects);
+  WEB_COUNTER(busy_rejects);
+  WEB_COUNTER(send_failures);
+  WEB_COUNTER(receive_failures);
+  WEB_COUNTER(protocol_errors);
+  WEB_COUNTER(peer_closes);
+  WEB_COUNTER(queue_failures);
+  WEB_COUNTER(queue_skips);
+  WEB_COUNTER(stale_work);
+  WEB_COUNTER(queue_max_us);
+  WEB_COUNTER(heartbeat_timeouts);
+  WEB_COUNTER(open_sockets);
+  WEB_COUNTER(peak_sockets);
+#undef WEB_COUNTER
   cJSON_AddStringToObject(j, "type", "STATUS");
   cJSON_AddStringToObject(j, "mode", s.mode == Mode::AI ? "AI" : "Manual");
 #if CONFIG_AWCAR_MOTION_IS_SIMULATED
@@ -333,6 +423,9 @@ std::string BrainRuntime::Snapshot() {
                           uxTaskGetStackHighWaterMark(control_task_));
   cJSON_AddNumberToObject(j, "uart_stack_headroom_bytes",
                           uxTaskGetStackHighWaterMark(uart_task_));
+  if (uart_rx_task_)
+    cJSON_AddNumberToObject(j, "uart_rx_stack_headroom_bytes",
+                            uxTaskGetStackHighWaterMark(uart_rx_task_));
   cJSON_AddBoolToObject(j, "authorized", s.authorized);
   cJSON_AddBoolToObject(j, "switching", s.switching);
   cJSON_AddBoolToObject(j, "clearing", s.clearing);
@@ -340,6 +433,9 @@ std::string BrainRuntime::Snapshot() {
   cJSON_AddBoolToObject(j, "voice_context_ready", voice_ready);
   cJSON_AddBoolToObject(j, "log_available", events_ != nullptr);
   cJSON_AddNumberToObject(j, "rx_errors", rx_errors_.load());
+  cJSON_AddNumberToObject(j, "uart_status_frames", uart_status_frames_.load());
+  cJSON_AddNumberToObject(j, "uart_rx_bytes", uart_rx_bytes_.load());
+  cJSON_AddNumberToObject(j, "uart_driver_errors", uart_driver_errors_.load());
   cJSON_AddNumberToObject(j, "web_accepted", accepted);
   cJSON_AddNumberToObject(j, "web_rejected", rejected);
   if (count) {
@@ -421,7 +517,7 @@ std::string BrainRuntime::Snapshot() {
 bool BrainRuntime::CanConfigure() {
   std::lock_guard<std::mutex> lock(mutex_);
   auto s = core_.GetState(Now());
-  return !s.authorized && !s.switching && s.motion_state == 0 &&
+  return !s.authorized && !s.switching && !s.clearing && s.motion_state == 0 &&
          strcmp(s.reason, "arming") != 0;
 }
 void BrainRuntime::ShowPairing() {
@@ -467,9 +563,11 @@ std::string BrainRuntime::Dispatch(const cJSON* d) {
   int64_t epoch, seq, challenge, v, w, ttl;
   if (strcmp(type, "STOP") == 0)
     Stop();
-  else if (strcmp(type, "HEARTBEAT") == 0)
+  else if (strcmp(type, "HEARTBEAT") == 0) {
     last_client_ms_ = uint32_t(Now() / 1000);
-  else if (strcmp(type, "ARM") == 0) {
+    std::lock_guard<std::mutex> lock(web_mutex_);
+    ++web_stats_.heartbeats;
+  } else if (strcmp(type, "ARM") == 0) {
     if (!Int(d, "epoch", 0, UINT32_MAX, epoch))
       result = Result::BadRange;
     else {
@@ -478,7 +576,8 @@ std::string BrainRuntime::Dispatch(const cJSON* d) {
       result = core_.RequestArm(epoch, Now());
     }
   } else if (strcmp(type, "CLEAR_FAULT") == 0) {
-    if (!Int(d, "epoch", 0, UINT32_MAX, epoch)) result = Result::BadRange;
+    if (!Int(d, "epoch", 0, UINT32_MAX, epoch))
+      result = Result::BadRange;
     else {
       std::lock_guard<std::mutex> lock(mutex_);
       result = core_.RequestClear(uint32_t(epoch), Now());
@@ -544,23 +643,120 @@ std::string BrainRuntime::Dispatch(const cJSON* d) {
   return Json(out);
 }
 esp_err_t BrainRuntime::WebSocketRequest(httpd_req_t* req) {
-  if (req->method == HTTP_GET)
-    ESP_LOGI("AwCarWeb", "WebSocket connected fd=%d", httpd_req_to_sockfd(req));
-  auto result = ServeControlWebSocket(
-      req, this, [](void* context, const char* body, size_t len) {
-        auto* self = static_cast<BrainRuntime*>(context);
+  if (httpd_req_to_sockfd(req) != client_ || dashboard_revoked_)
+    return ESP_FAIL;
+  return ServeControlWebSocket(
+      req, this,
+      [](void* p, const char* body, size_t len) {
+        auto* self = static_cast<BrainRuntime*>(p);
         auto* data = cJSON_ParseWithLength(body, len);
         auto reply = self->Dispatch(data);
         cJSON_Delete(data);
         return reply;
+      },
+      [](void* p, const char* event, int value) {
+        static_cast<BrainRuntime*>(p)->ObserveSocket(event, value);
       });
-  if (result != ESP_OK)
-    ESP_LOGW("AwCarWeb", "WebSocket receive/send failed fd=%d error=%d",
-             httpd_req_to_sockfd(req), result);
-  return result;
+}
+void BrainRuntime::ObserveSocket(const char* event, int value) {
+  std::lock_guard<std::mutex> lock(web_mutex_);
+  if (strcmp(event, "pong") == 0) {
+    ++web_stats_.pongs;
+    return;  // PONG proves transport only; it cannot keep an orphaned UI
+             // session alive.
+  }
+  web_stats_.close_reason = event;
+  if (strcmp(event, "peer_close") == 0) {
+    ++web_stats_.peer_closes;
+    web_stats_.close_code = value;
+  } else if (strcmp(event, "send_error") == 0)
+    ++web_stats_.send_failures;
+  else if (strcmp(event, "receive_error") == 0)
+    ++web_stats_.receive_failures;
+  else if (strcmp(event, "protocol_error") == 0) {
+    ++web_stats_.protocol_errors;
+    web_stats_.close_code = value;
+  }
+  web_stats_.socket_error = errno;
+  ESP_LOGW("AwCarWeb", "socket_event=%s value=%d errno=%d gen=%lu", event,
+           value, errno, (unsigned long)client_generation_.load());
+}
+void BrainRuntime::SocketClosed(int fd) {
+  bool revoke = false;
+  {
+    std::lock_guard<std::mutex> lock(web_mutex_);
+    if (web_stats_.open_sockets) --web_stats_.open_sockets;
+    int expected = fd;
+    if (client_.compare_exchange_strong(expected, -1)) {
+      ++client_generation_;
+      ++web_stats_.closes;
+      if (!dashboard_revoked_) {
+        dashboard_revoked_ = true;
+        revoke = true;
+      }
+      if (strcmp(web_stats_.close_reason, "none") == 0)
+        web_stats_.close_reason = "peer_or_sdk_close";
+      ESP_LOGI("AwCarWeb", "closed fd=%d reason=%s code=%d errno=%d gen=%lu",
+               fd, web_stats_.close_reason, web_stats_.close_code,
+               web_stats_.socket_error,
+               (unsigned long)client_generation_.load());
+    }
+  }
+  if (revoke) {
+    std::lock_guard<std::mutex> lock(mutex_);
+    core_.WebDisconnect(Now());
+    Wake();
+  }
+}
+void BrainRuntime::CloseDashboard(const char* reason, int code, bool frame) {
+  const int fd = client_;
+  if (fd < 0 || dashboard_revoked_) return;
+  {
+    std::lock_guard<std::mutex> lock(web_mutex_);
+    dashboard_revoked_ = true;
+    web_stats_.close_reason = reason;
+    web_stats_.close_code = code;
+    if (strcmp(reason, "heartbeat_timeout") == 0)
+      ++web_stats_.heartbeat_timeouts;
+  }
+  {
+    std::lock_guard<std::mutex> lock(mutex_);
+    core_.WebDisconnect(Now());
+  }
+  Wake();
+  if (frame) {
+    uint8_t body[125]{};
+    body[0] = uint8_t(code >> 8);
+    body[1] = uint8_t(code);
+    const size_t len = std::min<size_t>(strlen(reason), 123);
+    memcpy(body + 2, reason, len);
+    httpd_ws_frame_t f{};
+    f.type = HTTPD_WS_TYPE_CLOSE;
+    f.payload = body;
+    f.len = len + 2;
+    if (httpd_ws_send_frame_async(server_, fd, &f) != ESP_OK) {
+      std::lock_guard<std::mutex> lock(web_mutex_);
+      ++web_stats_.send_failures;
+    }
+  }
+  // HTTPD owns shutdown and close_fn alone closes fd. No queued sock_db
+  // pointer.
+  if (shutdown(fd, SHUT_RDWR) != 0)
+    ESP_LOGW("AwCarWeb", "shutdown fd=%d errno=%d", fd, errno);
 }
 esp_err_t BrainRuntime::Request(httpd_req_t* req) {
   httpd_resp_set_hdr(req, "Cache-Control", "no-store");
+  httpd_resp_set_hdr(req, "Connection", "close");
+  if (strcmp(req->uri, "/api/session") == 0) {
+    const bool auth = Auth(req) && Origin(req);
+    const bool busy = client_ >= 0;
+    httpd_resp_set_status(req, !auth  ? "401 Unauthorized"
+                               : busy ? "409 Conflict"
+                                      : "200 OK");
+    return httpd_resp_send(req,
+                           auth && !busy ? "{\"ok\":true}" : "{\"ok\":false}",
+                           HTTPD_RESP_USE_STRLEN);
+  }
   if (req->method == HTTP_GET) {
     for (const auto& asset : web_assets)
       if (strcmp(req->uri, asset.path) == 0) {
@@ -628,7 +824,7 @@ void BrainRuntime::StartWeb() {
   config.core_id = 1;
   config.stack_size = 6144;
   config.max_open_sockets = 4;
-  config.lru_purge_enable = true;
+  config.lru_purge_enable = false;
   config.max_uri_handlers = 12;
   config.recv_wait_timeout = 1;
   config.send_wait_timeout = 1;
@@ -636,37 +832,49 @@ void BrainRuntime::StartWeb() {
   ESP_ERROR_CHECK(
       esp_netif_get_netif_impl_name(network_->Ap(), interface.ifr_name));
   config.if_name = &interface;
-  config.close_fn = [](httpd_handle_t handle, int fd) {
-    auto* self = &BrainRuntime::Get();
-    int expected = fd;
-    if (self->client_.compare_exchange_strong(expected, -1)) {
-      ++self->client_generation_;
-      std::lock_guard<std::mutex> lock(self->mutex_);
-      self->core_.WebDisconnect(Now());
-      self->Wake();
-    }
+  config.open_fn = [](httpd_handle_t, int) -> esp_err_t {
+    auto& self = BrainRuntime::Get();
+    std::lock_guard<std::mutex> lock(self.web_mutex_);
+    ++self.web_stats_.open_sockets;
+    self.web_stats_.peak_sockets =
+        std::max(self.web_stats_.peak_sockets, self.web_stats_.open_sockets);
+    return ESP_OK;
+  };
+  config.close_fn = [](httpd_handle_t, int fd) {
+    BrainRuntime::Get().SocketClosed(fd);
     close(fd);
-    (void)handle;
   };
   ESP_ERROR_CHECK(httpd_start(&server_, &config));
   for (const auto& asset : web_assets) {
     httpd_uri_t uri{};
     uri.uri = asset.path;
     uri.method = HTTP_GET;
-    uri.handler = [](httpd_req_t* r) { return BrainRuntime::Get().Request(r); };
+    uri.handler = [](httpd_req_t* r) {
+      auto result = BrainRuntime::Get().Request(r);
+      if (shutdown(httpd_req_to_sockfd(r), SHUT_RDWR) != 0)
+        ESP_LOGD("AwCarWeb", "http shutdown errno=%d", errno);
+      return result;
+    };
     ESP_ERROR_CHECK(httpd_register_uri_handler(server_, &uri));
   }
-  for (const char* path : {"/api/login", "/api/pairing", "/api/wifi"}) {
+  for (const char* path :
+       {"/api/login", "/api/pairing", "/api/wifi", "/api/session"}) {
     httpd_uri_t uri{};
     uri.uri = path;
     uri.method = HTTP_POST;
-    uri.handler = [](httpd_req_t* r) { return BrainRuntime::Get().Request(r); };
+    uri.handler = [](httpd_req_t* r) {
+      auto result = BrainRuntime::Get().Request(r);
+      if (shutdown(httpd_req_to_sockfd(r), SHUT_RDWR) != 0)
+        ESP_LOGD("AwCarWeb", "http shutdown errno=%d", errno);
+      return result;
+    };
     ESP_ERROR_CHECK(httpd_register_uri_handler(server_, &uri));
   }
   httpd_uri_t ws{};
   ws.uri = "/ws";
   ws.method = HTTP_GET;
   ws.is_websocket = true;
+  ws.handle_ws_control_frames = true;
   ws.handler = [](httpd_req_t* r) {
     return BrainRuntime::Get().WebSocketRequest(r);
   };
@@ -674,25 +882,76 @@ void BrainRuntime::StartWeb() {
     auto& self = BrainRuntime::Get();
     int expected = -1;
     if (!self.Auth(r)) {
+      {
+        std::lock_guard<std::mutex> lock(self.web_mutex_);
+        ++self.web_stats_.auth_rejects;
+      }
+      httpd_resp_set_status(r, "401 Unauthorized");
+      httpd_resp_send(r, "Unauthorized", HTTPD_RESP_USE_STRLEN);
       ESP_LOGW("AwCarWeb",
                "WebSocket rejected: authentication missing/invalid");
       return ESP_FAIL;
     }
     if (!self.Origin(r)) {
+      {
+        std::lock_guard<std::mutex> lock(self.web_mutex_);
+        ++self.web_stats_.origin_rejects;
+      }
+      httpd_resp_set_status(r, "403 Forbidden");
+      httpd_resp_send(r, "Origin rejected", HTTPD_RESP_USE_STRLEN);
       ESP_LOGW("AwCarWeb", "WebSocket rejected: origin mismatch");
       return ESP_FAIL;
     }
     int fd = httpd_req_to_sockfd(r);
     if (!self.client_.compare_exchange_strong(expected, fd)) {
+      {
+        std::lock_guard<std::mutex> lock(self.web_mutex_);
+        ++self.web_stats_.busy_rejects;
+      }
+      httpd_resp_set_status(r, "409 Conflict");
+      httpd_resp_send(r, "Dashboard busy", HTTPD_RESP_USE_STRLEN);
       ESP_LOGW("AwCarWeb", "WebSocket rejected: another dashboard is active");
       return ESP_FAIL;
     }
     ++self.client_generation_;
+    self.dashboard_revoked_ = true;
+    return ESP_OK;
+  };
+  ws.ws_post_handshake_cb = [](httpd_req_t* r) -> esp_err_t {
+    auto& self = BrainRuntime::Get();
+    const auto installed = httpd_sess_set_send_override(
+        r->handle, httpd_req_to_sockfd(r),
+        [](httpd_handle_t, int fd, const char* data, size_t size,
+           int flags) -> int {
+          const auto deadline = Now() + 1000000;
+          return WriteAll(
+              data, size,
+              [fd, flags](const char* p, size_t n) {
+                return int(send(fd, p, n, flags));
+              },
+              [deadline] { return Now() >= deadline; });
+        });
+    if (installed != ESP_OK) {
+      self.ObserveSocket("send_error", installed);
+      return installed;
+    }
+
+    {
+      std::lock_guard<std::mutex> lock(self.web_mutex_);
+      self.dashboard_revoked_ = false;
+      ++self.web_stats_.handshakes;
+      self.web_stats_.close_reason = "none";
+      self.web_stats_.close_code = 0;
+      self.web_stats_.socket_error = 0;
+    }
     {
       std::lock_guard<std::mutex> lock(self.mutex_);
       self.core_.WebConnect(Now());
-      self.last_client_ms_ = uint32_t(Now() / 1000);
     }
+    self.last_client_ms_ = uint32_t(Now() / 1000);
+    self.next_ping_ = Now() + 1000000;
+    ESP_LOGI("AwCarWeb", "handshake fd=%d gen=%lu", httpd_req_to_sockfd(r),
+             (unsigned long)self.client_generation_.load());
     self.Wake();
     return ESP_OK;
   };
@@ -702,90 +961,128 @@ void BrainRuntime::StartWeb() {
       6144, this, 2, nullptr, 1);
   ESP_ERROR_CHECK(result == pdPASS ? ESP_OK : ESP_ERR_NO_MEM);
 }
-void BrainRuntime::WebTask() {
-  bool alternate = false;
-  struct Work {
-    BrainRuntime* self;
-    int fd;
-    uint32_t generation;
-    std::string status, event;
+void BrainRuntime::PumpWeb(int fd, uint32_t generation, uint64_t queued_at) {
+  if (client_ != fd || client_generation_ != generation || dashboard_revoked_ ||
+      httpd_ws_get_fd_info(server_, fd) != HTTPD_WS_CLIENT_WEBSOCKET) {
+    std::lock_guard<std::mutex> lock(web_mutex_);
+    ++web_stats_.stale_work;
+    return;
+  }
+  {
+    std::lock_guard<std::mutex> lock(web_mutex_);
+    web_stats_.queue_max_us =
+        std::max(web_stats_.queue_max_us, uint32_t(Now() - queued_at));
+  }
+  if (uint32_t(uint32_t(Now() / 1000) - last_client_ms_.load()) >= 2000) {
+    CloseDashboard("heartbeat_timeout");
+    return;
+  }
+  auto send = [&](const std::string& body,
+                  httpd_ws_type_t type = HTTPD_WS_TYPE_TEXT) {
+    httpd_ws_frame_t f{};
+    f.type = type;
+    f.payload = (uint8_t*)body.data();
+    f.len = body.size();
+    const auto error = httpd_ws_send_frame_async(server_, fd, &f);
+    if (error != ESP_OK) {
+      ObserveSocket("send_error", error);
+      CloseDashboard("send_failure", 1011, false);
+      return false;
+    }
+    return true;
   };
+  if (Now() >= next_ping_) {
+    if (!send("", HTTPD_WS_TYPE_PING)) return;
+    next_ping_ = Now() + 1000000;
+  }
+  static bool alternate = false;
+  if ((alternate = !alternate)) {
+    if (!send(Snapshot())) return;
+  } else {
+    State state;
+    {
+      std::lock_guard<std::mutex> lock(mutex_);
+      state = core_.GetState(Now());
+    }
+    char challenge[112];
+    snprintf(challenge, sizeof(challenge),
+             "{\"type\":\"CHALLENGE\",\"epoch\":%lu,\"challenge\":%lu}",
+             (unsigned long)state.epoch, (unsigned long)state.challenge);
+    if (!send(challenge)) return;
+  }
+  Event event{};
+  bool available = false;
+  {
+    std::lock_guard<std::mutex> lock(event_mutex_);
+    if (event_count_) {
+      event = events_[event_head_];
+      event_head_ = (event_head_ + 1) % 100;
+      --event_count_;
+      available = true;
+    }
+  }
+  if (available) {
+    auto* j = cJSON_CreateObject();
+    cJSON_AddStringToObject(j, "type", "EVENT");
+    cJSON_AddStringToObject(j, "kind", event.kind);
+    cJSON_AddStringToObject(j, "text", event.text);
+    send(Json(j));
+  }
+}
+void BrainRuntime::WebTask() {
+  uint64_t report_at = 0;
   for (;;) {
     vTaskDelay(pdMS_TO_TICKS(50));
-    int fd = client_;
-    if (fd < 0) continue;
-    if (uint32_t(uint32_t(Now() / 1000) - last_client_ms_.load()) > 500) {
-      httpd_sess_trigger_close(server_, fd);
-      continue;
-    }
-    std::string payload;
-    if ((alternate = !alternate))
-      payload = Snapshot();
-    else {
-      State s;
+    if (Now() >= report_at) {
+      WebStats stats;
+      {
+        std::lock_guard<std::mutex> lock(web_mutex_);
+        stats = web_stats_;
+      }
+      State state;
       {
         std::lock_guard<std::mutex> lock(mutex_);
-        s = core_.GetState(Now());
+        state = core_.GetState(Now());
       }
-      payload = "{\"type\":\"CHALLENGE\",\"epoch\":" + std::to_string(s.epoch) +
-                ",\"challenge\":" + std::to_string(s.challenge) + "}";
+      ESP_LOGI("AwCarWeb",
+               "health fd=%d gen=%lu heartbeat=%lu pong=%lu closed=%lu "
+               "cause=%s send_fail=%lu queue_fail=%lu queue_max_us=%lu "
+               "uart_status=%lu uart_errors=%lu telemetry_age=%lld "
+               "rx_bytes=%lu driver_errors=%lu",
+               client_.load(), (unsigned long)client_generation_.load(),
+               (unsigned long)stats.heartbeats, (unsigned long)stats.pongs,
+               (unsigned long)stats.closes, stats.close_reason,
+               (unsigned long)stats.send_failures,
+               (unsigned long)stats.queue_failures,
+               (unsigned long)stats.queue_max_us,
+               (unsigned long)uart_status_frames_.load(),
+               (unsigned long)rx_errors_.load(),
+               (long long)state.telemetry_age_ms,
+               (unsigned long)uart_rx_bytes_.load(),
+               (unsigned long)uart_driver_errors_.load());
+      report_at = Now() + 5000000;
     }
-    // SDK HTTP APIs are not generally thread-safe. All socket writes run
-    // in the HTTP task; retain at most one queued status batch.
-    if (send_pending_.exchange(true)) continue;
-    auto* work = new (std::nothrow)
-        Work{this, fd, client_generation_.load(), std::move(payload), {}};
-    if (!work) {
-      send_pending_ = false;
+    const int fd = client_;
+    if (fd < 0) continue;
+    if (send_pending_.exchange(true)) {
+      std::lock_guard<std::mutex> lock(web_mutex_);
+      ++web_stats_.queue_skips;
       continue;
     }
-    Event event{};
-    bool available = false;
-    {
-      std::lock_guard<std::mutex> lock(event_mutex_);
-      if (event_count_) {
-        event = events_[event_head_];
-        event_head_ = (event_head_ + 1) % 100;
-        --event_count_;
-        available = true;
-      }
-    }
-    if (available) {
-      auto* j = cJSON_CreateObject();
-      cJSON_AddStringToObject(j, "type", "EVENT");
-      cJSON_AddStringToObject(j, "kind", event.kind);
-      cJSON_AddStringToObject(j, "text", event.text);
-      work->event = Json(j);
-    }
-    auto result = httpd_queue_work(
+    web_work_ = {fd, client_generation_.load(), Now()};
+    const auto result = httpd_queue_work(
         server_,
-        [](void* arg) {
-          auto* w = static_cast<Work*>(arg);
-          auto* self = w->self;
-          if (self->client_ == w->fd &&
-              self->client_generation_ == w->generation &&
-              httpd_ws_get_fd_info(self->server_, w->fd) ==
-                  HTTPD_WS_CLIENT_WEBSOCKET) {
-            for (auto* data : {&w->status, &w->event})
-              if (!data->empty()) {
-                httpd_ws_frame_t f{};
-                f.type = HTTPD_WS_TYPE_TEXT;
-                f.payload = (uint8_t*)data->data();
-                f.len = data->size();
-                if (httpd_ws_send_frame_async(self->server_, w->fd, &f) !=
-                    ESP_OK) {
-                  httpd_sess_trigger_close(self->server_, w->fd);
-                  break;
-                }
-              }
-          }
+        [](void* p) {
+          auto* self = static_cast<BrainRuntime*>(p);
+          const auto work = self->web_work_;
+          self->PumpWeb(work.fd, work.generation, work.at);
           self->send_pending_ = false;
-          delete w;
         },
-        work);
+        this);
     if (result != ESP_OK) {
-      delete work;
       send_pending_ = false;
+      std::lock_guard<std::mutex> lock(web_mutex_);
+      ++web_stats_.queue_failures;
     }
   }
 }

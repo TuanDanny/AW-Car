@@ -96,7 +96,7 @@ class AwCarAiRgbBoard : public WifiBoard {
                                     : MATERIAL_SYMBOLS_WIFI_OFF;
   }
   void SetPowerSaveLevel(PowerSaveLevel) override {
-    esp_wifi_set_ps(WIFI_PS_NONE);
+    ESP_ERROR_CHECK_WITHOUT_ABORT(esp_wifi_set_ps(WIFI_PS_NONE));
   }
   std::string GetBoardJson() override { return car_network_.Json(); }
   std::string GetDeviceStatusJson() override {

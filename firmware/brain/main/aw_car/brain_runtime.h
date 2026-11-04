@@ -2,6 +2,7 @@
 #include <cJSON.h>
 #include <esp_http_server.h>
 #include <freertos/FreeRTOS.h>
+#include <freertos/queue.h>
 #include <freertos/task.h>
 
 #include <array>
@@ -38,11 +39,12 @@ class BrainRuntime {
  private:
   BrainRuntime();
   ControlCore core_;
-  std::mutex mutex_, event_mutex_;
+  std::mutex mutex_, event_mutex_, web_mutex_;
   AwCarRgbLight* rgb_ = nullptr;
   Display* display_ = nullptr;
   Network* network_ = nullptr;
-  TaskHandle_t control_task_ = nullptr, uart_task_ = nullptr;
+  TaskHandle_t control_task_ = nullptr, uart_task_ = nullptr,
+               uart_rx_task_ = nullptr;
   httpd_handle_t server_ = nullptr;
   std::atomic<int> client_{-1};
   std::atomic<bool> stop_requested_{false};
@@ -62,7 +64,8 @@ class BrainRuntime {
   std::atomic<uint32_t> last_client_ms_{0};
   std::atomic<uint32_t> client_generation_{0};
   std::atomic<bool> send_pending_{false};
-  std::atomic<uint32_t> rx_errors_{0};
+  std::atomic<uint32_t> rx_errors_{0}, uart_status_frames_{0},
+      uart_rx_bytes_{0}, uart_driver_errors_{0};
   std::array<uint32_t, 128> web_latency_us_{};
   uint32_t web_latency_count_ = 0, web_accepted_ = 0, web_rejected_ = 0;
   uint64_t pending_web_at_ = 0, login_window_ = 0;
@@ -71,6 +74,29 @@ class BrainRuntime {
   void Wake();
   void ControlTask();
   void UartTask();
+  void UartReceiveTask(QueueHandle_t events);
+  struct WebStats {
+    uint32_t handshakes = 0, closes = 0, heartbeats = 0, pongs = 0;
+    uint32_t auth_rejects = 0, origin_rejects = 0, busy_rejects = 0;
+    uint32_t send_failures = 0, receive_failures = 0, protocol_errors = 0,
+             peer_closes = 0;
+    uint32_t queue_failures = 0, queue_skips = 0, stale_work = 0,
+             queue_max_us = 0;
+    uint32_t heartbeat_timeouts = 0, open_sockets = 0, peak_sockets = 0;
+    int close_code = 0, socket_error = 0;
+    const char* close_reason = "none";
+  } web_stats_;
+  struct WebWork {
+    int fd = -1;
+    uint32_t generation = 0;
+    uint64_t at = 0;
+  } web_work_;
+  bool dashboard_revoked_ = true;
+  uint64_t next_ping_ = 0;
+  void CloseDashboard(const char* reason, int code = 1001, bool frame = true);
+  void SocketClosed(int fd);
+  void ObserveSocket(const char* event, int value);
+  void PumpWeb(int fd, uint32_t generation, uint64_t queued_at);
   void WebTask();
   void StartWeb();
   void RegisterTools();

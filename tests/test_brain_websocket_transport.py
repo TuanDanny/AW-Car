@@ -53,6 +53,9 @@ class WebSocketTransportTests(unittest.TestCase):
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
         self.assertIn("PASS " + name, result.stdout)
 
+    def test_partial_socket_writes_complete_or_fail_closed(self):
+        self.check_case("short_writes")
+
     def test_http_handshake_is_not_control_json(self):
         self.check_case("handshake")
 
@@ -64,6 +67,9 @@ class WebSocketTransportTests(unittest.TestCase):
 
     def test_pong_is_consumed_without_control_dispatch(self):
         self.check_case("pong")
+
+    def test_peer_close_and_ping_are_observed_without_double_close(self):
+        self.check_case("close_and_ping")
 
     def test_sdk_io_failures_propagate(self):
         self.check_case("io_errors")

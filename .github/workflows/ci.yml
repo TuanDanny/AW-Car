@@ -23,7 +23,7 @@ jobs:
         run: |
           python tools/build_brain_host.py
           python -m unittest discover -s tests -v
-          node --test dashboard/control.test.mjs
+          node --test dashboard/control.test.mjs dashboard/connection.test.mjs
           python -B -m unittest discover -s firmware/brain/scripts/tests -v
 
   structure-and-rules:

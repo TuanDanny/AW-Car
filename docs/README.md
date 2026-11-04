@@ -2,6 +2,9 @@
 
 Lưu yêu cầu, quyết định kỹ thuật và kết quả thử nghiệm.
 
+- [AP+STA, WebSocket và dashboard tối giản](brain-network-reliability.md):
+  reconnect có backoff, log đóng kết nối, STOP gộp và phép đo COM3/COM7.
+
 - [Xóa lỗi Motion trên dashboard](brain-motion-clear-verification.md): ACK phục hồi,
   UI hẹp/mất socket và bằng chứng browser; chưa nạp lại Brain.
 - [Bằng chứng Brain/dashboard](brain-dashboard-verification.md): bản Manual/AI,
