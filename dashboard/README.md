@@ -84,9 +84,12 @@ Xem [bằng chứng](../docs/brain-dashboard-verification.md).
 ## Bổ sung ghép Motion 0.1
 
 Core Motion mới ở `codex/esp32-s3-motion`, không thay PC peer mặc định ở đây.
-Motion bản COM7 hiện LOCKED, chưa nối UART/gate; không dùng Cho phép như
-bằng chứng motor sẽ chạy. Cấu hình `AWCAR_MOTION_IS_SIMULATED` chỉ bỏ nhãn
-sau khi đã ghép và xác nhận dữ liệu thật, không sửa để che nhãn giả lập.
+Motion bản COM7 vẫn LOCKED; ngày04/11 đã ghép UART thật MotionTX13/RX14
+với BrainRX18/TX17, chưa ghép FPGA/gate/motor. STATUS đo lại20,1Hz/age≤49ms;
+không dùng Cho phép như bằng chứng motor sẽ chạy. Cấu hình
+`AWCAR_MOTION_IS_SIMULATED` chỉ bỏ nhãn sau khi đã ghép và xác nhận dữ liệu
+thật; profile đã nạp dùng `n`, mặc định PC peer vẫn `y`.
+Xem [báo cáo UART hiện tại](../docs/brain-motion-final-link-report.json).
 Computer use đã thử Xóa lỗi, giao diện hẹp và socket đóng; xem
 [báo cáo bổ sung](../docs/brain-motion-clear-verification.md).
 

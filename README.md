@@ -21,6 +21,8 @@ nhưng còn rè, chưa nghiệm thu chất lượng/nguồn. Lỗi1006/send_fail
 từ client rồi đăng nhập lại. **Chưa nghiệm thu motor/gate/FPGA**.
 Scan có client AP~1,65s thay2,83s.
 Xem [báo cáo mạng, UI và phần cứng](docs/brain-network-reliability.md).
+[Bàn giao phiên tiếp theo](docs/next-session.md): nhánh, chân hiện dùng,
+phạm vi đã thử và vị trí bộ khôi phục cục bộ sau khi dọn backup cũ.
 
 Mốc 03/11/2026 trên nhánh AI: đã có source dashboard Manual/AI, AP+STA,
 lõi Brain độc lập RTOS, UART BM-v1 và Motion PC test peer. Firmware đã build;
@@ -64,7 +66,7 @@ lái bằng tốc độ hai bên, không servo. FPGA đọc encoder và phát PW
 nhóm motor; Motion tính PID theo bên và giám sát an toàn. Nhánh FPGA hiện
 dùng một OUT mỗi bên và protocol v2; checkout AI giữ lịch sử RTL riêng,
 không dùng nó để kết luận trạng thái FPGA mới nhất. Board mục tiêu là **Tang Nano 9K**
-(`GW1NR-LV9QN88PC6/I5`), chưa mua. Tối ưu RTL vẫn giữ mục tiêu 9K;
+(`GW1NR-LV9QN88PC6/I5`), đã có theo xác nhận03/11/2026. Tối ưu RTL vẫn giữ mục tiêu 9K;
 mô phỏng và tổng hợp sơ bộ chưa thay kết quả fit/timing trên đúng chip.
 Xem [kế hoạch FPGA và toàn hệ thống](docs/fpga-drive-plan.md) và
 [hợp đồng ARM/gate](firmware/shared/fpga-safety.md).
