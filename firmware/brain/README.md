@@ -14,6 +14,15 @@ build chỉ chọn một board/variant.
 
 ## Trạng thái
 
+Mốc04/11/2026: UART thật với Motion TX13/RX14 đã thử hai chiều; AP+STA,
+dashboard Android và Xiaozhi hoạt động đồng thời. Lượt đo lại210s nhận thêm
+4.052STATUS/201,567s, age≤49ms, không tăng lỗi UART; Motion nhận34khung từ
+Brain, parser/HW errors0 và driver vẫn LOCKED. Người dùng xác nhận loa phát
+nhưng rè, chưa đo sụt nguồn. Một Close1000 do client gửi rồi đăng nhập lại;
+không có send failure mới. Lỗi1006/send_failure trước đó còn cần xác định
+nguyên nhân, không gọi đã sửa hết. Xem [báo cáo hiện tại](../../docs/brain-network-reliability.md)
+và [số đo đã lọc](../../docs/brain-motion-final-link-report.json).
+
 Ngày03/11/2026 bổ sung dashboard Manual/AI, AP+STA, UART Brain–Motion và
 control core/VoiceGate dùng chung firmware–host. Có PC serial peer, không
 phải firmware Motion thật. Xem [contract và cách chạy](../../dashboard/README.md)

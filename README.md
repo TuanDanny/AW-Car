@@ -14,7 +14,12 @@ Motion thật. Đã nạp giao diện mới; thử một chiều Motion→Brain 
 thấp và nạp hai board. UART hai chiều đạt0lỗi; Android WS giữ189s qua3lần
 retry STA, không đóng. Đã nối STA Internet đồng thời AW-CAR: nhận IP,
 Xiaozhi có3lượt nhận dạng/4đoạn trả lời, không ngắt WS hoặc lỗi UART trong
-cửa sổ đo. **Chưa nghiệm thu motor/loa**. Scan có client AP~1,65s thay2,83s.
+cửa sổ đo. Đo lại hai board 210s khi có hội thoại: STATUS20,1Hz/age≤49ms,
+không tăng lỗi UART; Motion vẫn LOCKED. Loa đã phát theo xác nhận người dùng
+nhưng còn rè, chưa nghiệm thu chất lượng/nguồn. Lỗi1006/send_failure trước
+đó chưa xác định nguyên nhân; lượt mới không tăng send failure, có một Close1000
+từ client rồi đăng nhập lại. **Chưa nghiệm thu motor/gate/FPGA**.
+Scan có client AP~1,65s thay2,83s.
 Xem [báo cáo mạng, UI và phần cứng](docs/brain-network-reliability.md).
 
 Mốc 03/11/2026 trên nhánh AI: đã có source dashboard Manual/AI, AP+STA,

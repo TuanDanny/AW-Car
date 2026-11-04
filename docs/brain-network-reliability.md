@@ -223,3 +223,46 @@ trong log thu được. Mode/motor không tự tăng quyền; firmware Motion v�
 SSID, mật khẩu, IP riêng, MAC, token và transcript chỉ ở raw log/build ignored;
 không đưa vào báo cáo hoặc commit. Kết quả này bổ sung nghiệm thu Internet cho
 bản mới, thay giới hạn “SSID vắng/chưa thử Internet” ở các mốc trước trên.
+
+## Chốt mốc giao tiếp Brain–Motion04/11, sau khi gắn loa
+
+Theo yêu cầu chủ dự án, để phần tụ/tiếng rè lại sau, ưu tiên giao tiếp hai
+board. Không nạp/reset hoặc thay code trong lượt này. Đọc đồng thời COM3 và
+COM7 trong210s, console Motion chỉ hỏi `status`/`uart`. Người dùng xác nhận
+đã thử DỪNG/Cho phép/DỪNG, đổi Manual/AI và hội thoại, giữ dashboard mở.
+
+| Phép đo thật | Kết quả |
+| --- | --- |
+| Brain nhận STATUS | thêm4.052khung/201,567s, khoảng20,1Hz |
+| Brain parser errors | 1→1; có một lỗi trước mẫu đầu, không tăng trong lượt đo |
+| Brain UART hardware errors | 0 |
+| Tuổi STATUS lớn nhất trong mẫu | 49ms, dưới deadline150ms |
+| Motion RX từ Brain | thêm34khung/442byte; TX13/RX14 xác nhận qua console |
+| Motion parser/HW/queue/TX errors hoặc drops | 0 |
+| Motion state/fault/driver/logical | DISARMED/0/LOW/LOW; configured=false |
+| STA/AP DHCP | STA online toàn bộ mẫu; attempt403 giữ nguyên; AP client≥1 |
+| Xiaozhi | 5STT/10đoạn trả lời; không commit nội dung hội thoại |
+| Reset/panic/USB interruption trong log | 0 |
+| WS send/queue failure mới | 0/0 |
+
+Một client Close1000 xuất hiện ở22,281s, rồi có handshake mới ở51,253s.
+Phiên sau được quan sát thêm155,177s tới mẫu health cuối, không đóng.
+Không gọi toàn bộ210s là một phiên WS liên tục. Send failure cộng dồn1→1
+là lịch sử trước lượt này, không xóa hoặc diễn giải thành không từng lỗi.
+Queue HTTP high-water27.322µs là chỉ số cộng dồn, không phải latency đường
+điều khiển hoặc Web→UART đo trong lượt này.
+
+Lần1006 trước được đối chiếu monitor thành `send_failure`; người dùng báo
+có dây tuột nhưng không nhớ dây nào. Không thu được errno tại đúng thời
+điểm lỗi, chưa xác định nguyên nhân và không coi là đã khắc phục. Thu quyền
+khi mất socket vẫn giữ nguyên; không tăng timeout150ms hoặc bỏ fail-safe.
+
+Người dùng xác nhận đã nghe loa nhưng có rè. Chưa đo điện áp, chưa kết luận
+sụt nguồn; chất lượng âm thanh/nguồn để lượt sau. Firmware được đo vẫn là
+Brain `d55e0b1` và Motion `89fd135`, không cần nạp lại chỉ vì cập nhật báo cáo.
+
+Chốt source và bằng chứng giao tiếp trên hai nhánh phát triển, PR vẫn draft.
+UART/APSTA/hội thoại đạt trong các cửa sổ đã ghi; chưa nghiệm thu motor,
+FPGA/gate/E-stop, timing Nano9K hoặc độ bền mạng mọi điều kiện. ARM bị khóa
+trên bản Motion này là đúng cấu hình, không dùng kết quả đó để kết luận
+đường cấp quyền tới FPGA/motor hoạt động. Xem [báo cáo đã lọc](brain-motion-final-link-report.json).
