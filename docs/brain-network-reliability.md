@@ -131,3 +131,74 @@ Sau sửa phải đo lại STATUS ~20 Hz, age <150 ms, lỗi không tăng trong 
 thử, STOP/HELLO/ARM reject an toàn hai chiều. Chưa có FPGA/gate/motor trong
 vòng đo này; không bật driver hoặc gọi ACK là xe đã chạy. Raw log, binary,
 flash/NVS backup và cookie chỉ nằm trong build ignored, không đưa lên Git.
+
+## Đo lại sau cấp nguồn04/11
+
+Đã nạp giao diện tối giản tại0x0000, kiểm hash và giữ nguyên NVS. Android
+xác nhận thấy giao diện mới nhưng sau khoảng1phút đóng1001/heartbeat_timeout,
+clean=true. Log xác định app heartbeat timeout; không quy thành lỗi PIN.
+Một lần connect khi SSID vắng kéo dài khoảng2.830ms, vượt lease WS2.000ms.
+
+Bản thử tiếp giới hạn scan khi có AP client: active max40ms, passive120ms,
+home dwell60ms; khi không có client giữ default120/360/30ms. Dùng API SDK
+`esp_wifi_set_scan_parameters`, kiểm return code, vẫn APSTA và cùng watchdog.
+[API Espressif](https://docs.espressif.com/projects/esp-idf/en/v6.1/esp32s3/api-reference/network/esp_wifi.html#_CPPv428esp_wifi_set_scan_parametersPK26wifi_scan_default_params_t)
+áp dụng các tham số này cả cho scan lúc connect. Chưa gọi lỗi WS đã hết cho
+đến khi đo lại điện thoại foreground đủ dài. Thêm silent_ms khi heartbeat
+hết hạn và since_attempt_ms để đối chiếu, không tăng timeout an toàn150ms.
+Brain RX18 có pull-up để đường UART hở giữ idle, không coi idle là link tốt.
+
+Đã nhận diện COM6 bằng app descriptor là aw_car_motion0.1.0 khi người dùng
+cắm USB native. Thử console native không nhận lệnh, đã phục hồi bản LOCKED
+UART0 đã biết và người dùng đổi cáp về USB–UART/COM7. Không dùng tình trạng
+monitor trống để suy firmware hoạt động tốt. NVS/motioncfg không bị xóa.
+
+Thử một chiều sau khi tháo BrainTX17→MotionRX18, chỉ giữ MotionTX17→BrainRX18
+và GND: Brain nhận512→815 STATUS trong15,15s (~20Hz), 0parser/UART errors,
+age10–13ms. MotionRX vẫn458→699frame, gần đúng số STATUS TX459→700, dù
+không còn đường từ BrainTX. Đây là bằng chứng loopback phía Motion/đấu nối
+còn phải kiểm tra; chưa nghiệm thu hai chiều. Motor/permit vẫn LOW.
+
+## Chân thay thế và lượt đo tiếp
+
+Chủ dự án xác nhận không dùng17/18 Motion, yêu cầu chuyển cặp UART khác.
+Profile Motion mới TX13/RX14, nối BrainRX18/TX17/GND; để trống17/18 Motion.
+Nạp COM7 đã kiểm hash và giữ NVS/motioncfg. Không đổi protocol hoặc mở
+safety/gate. Brain cũng đã nạp bản data_source=hardware sau khi nhận STATUS
+vật lý hợp lệ; không còn gắn nhãn Motion giả lập trong profile bàn thử này.
+
+Mẫu đầu với chân mới: Brain nhận360→562STATUS/10,1s, errors=0, age45–46ms;
+Motion không còn RX echo khi idle. Firmware scan mới đo NO_AP_FOUND trong
+1.652–1.655ms khi có client AP, thay2.830ms trước đó. Android đã đăng nhập
+lại, bấm STOP/Cho phép và đang giữ foreground để đo đủ3phút; chưa tuyên bố
+đã hết lỗi WS cho đến kết thúc cửa sổ đo. Driver Motion vẫn LOCKED.
+
+## Kết quả cuối cửa sổ UART hai chiều / Android foreground
+
+Nạp hai board ở0x0000 với NVS/motioncfg được so byte trùng; Brain source
+hardware, Motion TX13/RX14. Người dùng đăng nhập Android Chrome và thử
+STOP/Cho phép, giữ foreground. Không reset trong cửa sổ đo.
+
+| Phép đo thật | Kết quả |
+| --- | --- |
+| Monitor hai board | 210s |
+| WS sau handshake tới mẫu cuối | 189,15s, 0 lần đóng |
+| Retry STA khi WS đang nối | 3 lần; không mất WS |
+| Tìm SSID vắng với client AP | 1.652–1.656ms, trước đó~2.830ms |
+| Brain nhận STATUS | tăng4.082khung/201,36s (~20,3Hz, gồm phản hồi sự kiện) |
+| Brain lỗi parser / UART HW | 0 / 0 |
+| Tuổi telemetry lớn nhất trong mẫu | 48ms |
+| Motion nhận từ Brain | 77khung/1.001byte, không còn idle echo |
+| Motion parser / UART HW errors | 0 / 0 |
+| WS send / queue failures | 0 / 0 |
+| HTTP queue delay max quan sát | 5.465µs, không phải Web→UART latency |
+| Motion queue / TX drops | 0 / 0 |
+| Motion heap free thấp nhất trong mẫu | 357.640byte |
+| Driver/logical permit được bật | Không; LOCKED, configured=false |
+
+Kết quả chứng minh UART hai chiều ở profile chân mới và WS trong cửa sổ
+foreground này, không chứng minh motor/FPGA/gate hoặc ổn định mọi môi trường.
+Saved STA SSID vẫn vắng (reason201), chưa nghiệm thu Xiaozhi Internet trên
+bản mới. Giữ APSTA; không chuyển AP-only hoặc bỏ heartbeat/fail-safe.
+[Số đo/hash đã lọc thông tin riêng](brain-motion-physical-report.json) là
+bản tổng hợp; raw log/flash vẫn ignored. Full ROOT90tests và build Brain đạt.

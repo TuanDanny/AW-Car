@@ -1,5 +1,6 @@
 #include "brain_runtime.h"
 
+#include <driver/gpio.h>
 #include <driver/gptimer.h>
 #include <driver/uart.h>
 #include <esp_heap_caps.h>
@@ -144,6 +145,7 @@ void BrainRuntime::UartTask() {
   ESP_ERROR_CHECK(uart_param_config(port, &cfg));
   ESP_ERROR_CHECK(uart_set_pin(port, GPIO_NUM_17, GPIO_NUM_18,
                                UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE));
+  ESP_ERROR_CHECK(gpio_set_pull_mode(GPIO_NUM_18, GPIO_PULLUP_ONLY));
   // No TX ring: at most the one short frame already on the wire can precede
   // STOP.
   QueueHandle_t events;
@@ -974,6 +976,8 @@ void BrainRuntime::PumpWeb(int fd, uint32_t generation, uint64_t queued_at) {
         std::max(web_stats_.queue_max_us, uint32_t(Now() - queued_at));
   }
   if (uint32_t(uint32_t(Now() / 1000) - last_client_ms_.load()) >= 2000) {
+    ESP_LOGW("AwCarWeb", "heartbeat_expired silent_ms=%lu",
+             (unsigned long)(uint32_t(Now() / 1000) - last_client_ms_.load()));
     CloseDashboard("heartbeat_timeout");
     return;
   }

@@ -180,8 +180,10 @@ void Network::Run() {
           stats_.sta_reason = e.reason;
           stats_.associated = stats_.ip_valid = false;
         }
-        ESP_LOGI("AwCarNetwork", "sta_disconnect reason=%u attempt=%lu",
-                 e.reason, (unsigned long)policy_.attempts);
+        ESP_LOGI("AwCarNetwork",
+                 "sta_disconnect reason=%u attempt=%lu since_attempt_ms=%llu",
+                 e.reason, (unsigned long)policy_.attempts,
+                 (unsigned long long)(now - policy_.last_attempt));
         if (cancel_wait)
           cancel_wait = false;
         else if (!configuring)
@@ -272,12 +274,28 @@ void Network::Run() {
     if (!cancel_wait && !configuring && policy_.StartDue(now, ap_client)) {
       cfg.sta.scan_method = WIFI_FAST_SCAN;
       cfg.sta.failure_retry_cnt = 0;
+      // Full default scans measured ~2.8s with the saved AP absent, exceeding
+      // the independent 2s dashboard lease. Shorten off-channel dwell while
+      // serving AP clients; keep APSTA and all safety deadlines unchanged.
+      wifi_scan_default_params_t scan{};
+      scan.scan_time.active.max = ap_client ? 40 : 120;
+      scan.scan_time.passive = ap_client ? 120 : 360;
+      scan.home_chan_dwell_time = ap_client ? 60 : 30;
+      if (!Check("set_scan_parameters", esp_wifi_set_scan_parameters(&scan))) {
+        policy_.Failed(StaFailure::Transient, now);
+        continue;
+      }
       const auto config_result = esp_wifi_set_config(WIFI_IF_STA, &cfg);
       if (!Check("sta_set_config", config_result) ||
           !Check("sta_connect", esp_wifi_connect()))
         policy_.Failed(StaFailure::Transient, now);
-      ESP_LOGI("AwCarNetwork", "sta_attempt=%lu hint_channel=%u",
-               (unsigned long)policy_.attempts, cfg.sta.channel);
+      ESP_LOGI("AwCarNetwork",
+               "sta_attempt=%lu hint_channel=%u scan_active_ms=%lu "
+               "scan_passive_ms=%lu home_ms=%u",
+               (unsigned long)policy_.attempts, cfg.sta.channel,
+               (unsigned long)scan.scan_time.active.max,
+               (unsigned long)scan.scan_time.passive,
+               scan.home_chan_dwell_time);
     }
     if (now >= refresh_at) {
       Refresh();
