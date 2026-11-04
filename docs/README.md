@@ -2,6 +2,9 @@
 
 Lưu yêu cầu, quyết định kỹ thuật và kết quả thử nghiệm.
 
+- [WS2812 báo trạng thái](status-led.md): policy hai board, bỏ RGB AI/Web,
+  luồng nền và giới hạn quan sát.
+
 - [Bàn giao phiên tiếp theo](next-session.md): đúng nhánh/chân hiện dùng,
   kiểm tra đủ source đã push và bộ khôi phục cục bộ sau dọn backup cũ.
 

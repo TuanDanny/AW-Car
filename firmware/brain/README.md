@@ -14,6 +14,12 @@ build chỉ chọn một board/variant.
 
 ## Trạng thái
 
+WS2812 onboard hiện báo trạng thái, không còn tool AI/handler Web hoặc cụm
+điều khiển RGB demo. Giữ mic/OLED/loa/BOOT và tool xe. Xem
+[contract và bằng chứng LED](../../docs/status-led.md); tên profile build
+aw-car-ai-rgb giữ tương thích cấu hình. Brain cũng sửa đồng bộ STATUS sau
+Motion reset khi DISARMED, không tự ARM hoặc lặp STOP khi mất liên kết.
+
 Mốc04/11/2026: UART thật với Motion TX13/RX14 đã thử hai chiều; AP+STA,
 dashboard Android và Xiaozhi hoạt động đồng thời. Lượt đo lại210s nhận thêm
 4.052STATUS/201,567s, age≤49ms, không tăng lỗi UART; Motion nhận34khung từ

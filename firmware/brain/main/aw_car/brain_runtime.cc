@@ -20,7 +20,7 @@
 #include "application.h"
 #include "aw_car_network.h"
 #include "aw_car_web_assets.h"
-#include "boards/aw-car-ai-rgb/rgb_light.h"
+#include "boards/aw-car-ai-rgb/status_led.h"
 #include "display.h"
 #include "mcp_server.h"
 #include "socket_writer.h"
@@ -58,9 +58,9 @@ const char* String(const cJSON* obj, const char* name) {
 }
 }  // namespace
 BrainRuntime::BrainRuntime() : core_(Config{200, 1000, esp_random()}) {}
-void BrainRuntime::Start(AwCarRgbLight* rgb, Display* display, Network* net) {
+void BrainRuntime::Start(AwCarStatusLed* status_led, Display* display, Network* net) {
   if (running_.exchange(true)) return;
-  rgb_ = rgb;
+  status_led_ = status_led;
   display_ = display;
   network_ = net;
   snprintf(pin_, sizeof(pin_), "%06lu",
@@ -476,8 +476,8 @@ std::string BrainRuntime::Snapshot() {
   value("v_est_mm_s", s.v_est, s.flags & 1);
   value("omega_est_mrad_s", s.omega_est, s.flags & 2);
   value("battery_mv", s.battery, s.flags & 4);
-  if (rgb_)
-    cJSON_AddItemToObject(j, "rgb", cJSON_Parse(rgb_->SnapshotJson().c_str()));
+  if (status_led_)
+    cJSON_AddItemToObject(j, "indicator", cJSON_Parse(status_led_->SnapshotJson().c_str()));
   const char* chat = "Xiaozhi đang khởi động";
   switch (Application::GetInstance().GetDeviceState()) {
     case kDeviceStateIdle:
@@ -618,18 +618,6 @@ std::string BrainRuntime::Dispatch(const cJSON* d) {
         ++web_accepted_;
       } else
         ++web_rejected_;
-    }
-  } else if (strcmp(type, "RGB") == 0) {
-    auto* on = cJSON_GetObjectItemCaseSensitive(d, "on");
-    if (cJSON_IsBool(on)) {
-      if (!rgb_->SetPower(cJSON_IsTrue(on))) result = Result::Unsafe;
-    } else {
-      int64_t r, g, b;
-      if (!Int(d, "r", 0, 255, r) || !Int(d, "g", 0, 255, g) ||
-          !Int(d, "b", 0, 255, b))
-        result = Result::BadRange;
-      else if (!rgb_->SetColor(r, g, b))
-        result = Result::Unsafe;
     }
   } else if (strcmp(type, "CHAT_TOGGLE") == 0)
     Application::GetInstance().ToggleChatState();
@@ -1037,6 +1025,15 @@ void BrainRuntime::WebTask() {
   uint64_t report_at = 0;
   for (;;) {
     vTaskDelay(pdMS_TO_TICKS(50));
+    State indicator_state;
+    {
+      std::lock_guard<std::mutex> lock(mutex_);
+      indicator_state = core_.GetState(Now());
+    }
+    if (status_led_) status_led_->Update(indicator::Brain(
+        network_ && network_->Connected(), indicator_state.telemetry_age_ms,
+        indicator_state.fault, indicator_state.motion_state == 3,
+        indicator_state.mode == Mode::AI, indicator_state.ai_online), Now());
     if (Now() >= report_at) {
       WebStats stats;
       {

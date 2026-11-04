@@ -1,50 +1,38 @@
-# AW-Car AI RGB - F03
+# AW-Car Brain — WS2812 báo trạng thái
 
-Board riêng dựa trên bread-compact-wifi của Xiaozhi v2.5.2 (MIT).
-Danh tính board aw-car-ai-rgb, variant aw-car-ai-rgb-128x64; giữ profile stock
-để đối chiếu. Không dùng OTA stock để thay bản demo này.
+Board profile vẫn mang tên `aw-car-ai-rgb`/`aw-car-ai-rgb-128x64` để giữ
+cấu hình và baseline stock. Pixel GPIO48 hiện dành riêng cho báo trạng thái;
+toàn bộ tool AI và điều khiển RGB Web thử nghiệm trước đây đã được xóa.
 
 | Phần cứng | GPIO |
 | --- | --- |
-| SSD1306 128x64 I²C 0x3C SDA / SCL | 41 / 42 |
-| INMP441 WS / SCK / SD | 4 / 5 / 6; VDD=3V3, L/R=GND |
-| MAX98357A DOUT / BCLK / LRCK | 7 / 15 / 16; chưa thử loa |
-| RGB WS2812 GRB / BOOT | 48 / 0 |
+| SSD1306 I²C SDA/SCL | 41/42 |
+| INMP441 WS/SCK/SD | 4/5/6, nguồn3V3, L/R=GND |
+| MAX98357A DIN/BCLK/LRC | 7/15/16 |
+| WS2812 / BOOT | 48/0 |
+| UART Brain TX/RX | 17/18 → MotionRX14/TX13, GND chung |
 
-aw_car_board.cc khởi tạo OLED, audio, BOOT và bộ điều khiển RGB duy nhất.
-rgb_light.h/.cc sở hữu pixel/RMT và đăng ký ba tool MCP thường, AI có thể gọi:
+`status_led.h/.cc` sở hữu duy nhất pixel/RMT. `OnStateChanged` không ghi
+LED; Xiaozhi không đổi màu khi nghe/nói/idle. Không còn `rgb_light` hoặc
+self.rgb_light tools. Dashboard chỉ đọc `indicator`, không có command RGB.
+Mic, OLED, BOOT, nút nghe Web, tool xe và AP+STA giữ nguyên chức năng.
 
-- self.rgb_light.set_power(on): bật dùng màu gần nhất, tắt giữ màu đã chọn.
-- self.rgb_light.set_color(r,g,b): mỗi kênh 0..255; đặt màu và bật ngay.
-- self.rgb_light.get_state(): trạng thái phần mềm sau lần ghi thành công.
+Ưu tiên đỏ (fault Motion hoặc STATUS quá hạn150ms sau khi đã có dữ liệu),
+xanh dương (chưa Wi-Fi/STATUS hoặc chờ AI trong modeAI), xanh lá (các điều
+kiện Brain được theo dõi khỏe). Wi-Fi ở đây là STA cóIP; AP AW-CAR có thể
+vẫn phục vụ dashboard khi LED xanh dương. Idle/STOP/không ARM không là lỗi.
 
-AI hiểu thêm 一号灯 (yī hào dēng) = đỏ, 二号灯 (èr hào dēng) = xanh lá,
-三号灯 (sān hào dēng) = xanh dương qua mô tả set_color. Các câu tên màu
-thông thường vẫn dùng được; alias chỉ là màu của cùng pixel.
+Web status task kiểm cờ mỗi50ms ngoài control/UART/HTTP handler, chỉ ghi
+RMT khi đổi màu; cùng màu đổi reason chỉ cập nhật metadata. Độ sáng12/255,
+lỗi ghi retry tối đa1Hz. LED lỗi không reset firmware hoặc cấp quyền motor.
+Xem [contract và kiểm thử LED](../../../../../docs/status-led.md).
 
-LED tắt lúc boot; bật lần đầu dùng trắng 32/32/32. Màu/lệnh giữ trong RAM
-qua nghe/nói/idle, reset về tắt. OLED tiếp tục báo trạng thái. Không đăng ký
-lamp GPIO18, không khởi tạo SingleLed hoặc timer trạng thái cho pixel này.
-Lỗi driver trả tool error; log APPLIED chỉ xuất sau khi ghi thành công,
-không thay phép quan sát màu vật lý. Mốc03/11 thêm dashboard và UART yêu cầu
-chuyển động tới Motion; không tạo PWM/điều khiển motor trực tiếp.
-
-Runtime dùng AP+STA riêng, SSID `AW-CAR`, Web tại192.168.4.1. PIN hiển thị
-OLED. WPA2 AP dùng mật khẩu NVS hoặc override cục bộ `AWCAR_AP_PASSWORD`;
-không commit giá trị mật khẩu. UART1 TX17/RX18 chưa thử header thật.
-Chế độ Manual/AI và quy trình Cho phép/DỪNG theo
-[contract](../../../../../dashboard/web-brain-protocol.md). Mặc định Motion
-giả lập; firmware mới đã nạp/boot ngày03/11/2026, chưa xác minh metadata cloud.
-Thiếu session
-envelope/STT phù hợp thì move bị khóa. Giữ các tool RGB cũ và nguồn pixel duy nhất.
-
-Build từ firmware/brain trong môi trường ESP-IDF 6.1 đã export:
+Build từ firmware/brain sau export ESP-IDF6.1:
 
 ```powershell
 $env:CMAKE_NINJA_FORCE_RESPONSE_FILE = '1'
 python scripts/build.py aw-car-ai-rgb --name aw-car-ai-rgb-128x64 --language zh-CN
 ```
 
-Nhấn/nhả BOOT, đợi chế độ nghe rồi nói câu tiếng Trung trong
-[hướng dẫn demo](../../../docs/ai-rgb-demo.md). Build và thử thật phải được
-ghi ở tài liệu đó trước khi kết luận hoàn tất demo.
+Profile cặp board thật dùng `AWCAR_MOTION_IS_SIMULATED=n`, không suy từ màu
+LED rằng xe đã ARM, motor chạy hoặc cloud thực sự nghe được tiếng loa.

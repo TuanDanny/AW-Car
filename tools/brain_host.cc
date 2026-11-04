@@ -4,6 +4,7 @@
 
 #include "control_core.h"
 #include "voice_gate.h"
+#include "status_indicator.h"
 #ifdef _WIN32
 #define API extern "C" __declspec(dllexport)
 #else
@@ -109,4 +110,15 @@ API const char* aw_state(void* p, uint64_t now) {
       (s.flags & 4) ? std::to_string(s.battery).c_str() : "null", s.encoder_age,
       static_cast<long long>(s.telemetry_age_ms), s.reason, h.parser.errors);
   return b;
+}
+
+API const char* aw_indicator(void* p, uint64_t now) {
+  static thread_local char text[128];
+  const auto state = static_cast<Host*>(p)->core.GetState(now);
+  const auto led = awcar::indicator::Brain(true, state.telemetry_age_ms,
+      state.fault, state.motion_state == 3, state.mode == awcar::Mode::AI, state.ai_online);
+  std::snprintf(text, sizeof(text),
+      "{\"color\":\"%s\",\"reason\":\"%s\",\"simulated\":true}",
+      awcar::indicator::Name(led.color), awcar::indicator::Name(led.reason));
+  return text;
 }

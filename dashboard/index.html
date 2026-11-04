@@ -146,36 +146,6 @@
               </dl>
               <p class="muted">Mục tiêu và ACK không phải số đo xe đã chạy.</p>
             </details>
-            <details class="panel rgb">
-              <summary>
-                <span>Đèn RGB</span
-                ><span class="detail-value" id="rgb-state">—</span>
-              </summary>
-              <div class="rgb-controls">
-                <button id="rgb-power">Bật đèn</button
-                ><button
-                  class="swatch red"
-                  data-rgb="255,0,0"
-                  aria-label="Đèn đỏ"
-                ></button
-                ><button
-                  class="swatch green"
-                  data-rgb="0,255,0"
-                  aria-label="Đèn xanh lá"
-                ></button
-                ><button
-                  class="swatch blue"
-                  data-rgb="0,0,255"
-                  aria-label="Đèn xanh dương"
-                ></button
-                ><input
-                  id="rgb-color"
-                  type="color"
-                  value="#202020"
-                  aria-label="Màu RGB tùy chọn"
-                />
-              </div>
-            </details>
             <details class="panel conversation" id="assistant-panel">
               <summary>
                 <span>Trợ lý Xiaozhi <small>中文</small></span
@@ -205,7 +175,11 @@
           </aside>
         </div>
         <details class="panel settings">
-          <summary>Cấu hình Wi-Fi Internet</summary>
+          <summary><span>Cấu hình Wi-Fi Internet</span><span class="detail-value" id="wifi-status" role="status">Chờ trạng thái</span></summary>
+          <div class="network-status" aria-live="polite">
+            <span id="wifi-detail">Chờ STATUS từ Brain.</span>
+            <strong id="ai-network-status">Chưa có trạng thái Xiaozhi mới</strong>
+          </div>
           <p class="muted">
             Chỉ đổi khi xe đã DISARMED. Dashboard vẫn dùng Wi-Fi AW-CAR.
           </p>
@@ -224,6 +198,8 @@
                 autocomplete="new-password" /></label
             ><button type="submit">Lưu và kết nối</button>
           </form>
+          <p id="wifi-feedback" role="status"></p>
+          <p class="muted">Wi-Fi có IP chưa đồng nghĩa đã có Internet. Dòng Xiaozhi cho biết kết nối dịch vụ AI riêng.</p>
         </details>
       </div>
       <details class="panel diagnostics">

@@ -13,7 +13,7 @@
 #include "control_core.h"
 #include "voice_gate.h"
 
-class AwCarRgbLight;
+class AwCarStatusLed;
 class Display;
 namespace awcar {
 class Network;
@@ -23,7 +23,7 @@ class BrainRuntime {
     static BrainRuntime instance;
     return instance;
   }
-  void Start(AwCarRgbLight* rgb, Display* display, Network* network);
+  void Start(AwCarStatusLed* status_led, Display* display, Network* network);
   void CloudOnline(bool online);
   void CloudSession(const std::string& session);
   void ChatEvent(const char* kind, const char* text, const char* session = "");
@@ -40,7 +40,7 @@ class BrainRuntime {
   BrainRuntime();
   ControlCore core_;
   std::mutex mutex_, event_mutex_, web_mutex_;
-  AwCarRgbLight* rgb_ = nullptr;
+  AwCarStatusLed* status_led_ = nullptr;
   Display* display_ = nullptr;
   Network* network_ = nullptr;
   TaskHandle_t control_task_ = nullptr, uart_task_ = nullptr,

@@ -69,6 +69,7 @@ class ControlCore {
            stop_ack_seq_ = 0;
   bool have_web_seq_ = false, have_status_seq_ = false, have_status_ = false,
        stop_pending_ = true, dirty_ = false, await_stop_ack_ = true;
+  bool status_loss_handled_ = false;
   uint64_t last_status_ = 0, last_manual_ = 0, manual_ttl_ = 120000,
            action_until_ = 0, grant_until_ = 0;
   uint64_t last_tx_ = 0, last_challenge_ = 0, arm_until_ = 0;

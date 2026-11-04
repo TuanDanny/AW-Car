@@ -210,16 +210,20 @@ class WebTests(unittest.IsolatedAsyncioTestCase):
         await asyncio.sleep(0.06)
         self.assertFalse(self.sim.rig.state["authorized"])
 
-    async def test_rgb_and_chat_work_in_manual(self):
+    async def test_indicator_readonly_and_chat_still_works(self):
         ws = await self.connect()
-        await self.receive(ws, "STATUS")
+        status = await self.receive(ws, "STATUS")
+        self.assertNotIn("rgb", status)
+        self.assertIn(status["indicator"]["color"], ("red", "green", "blue"))
         await ws.send_json({"type": "RGB", "r": 255, "g": 0, "b": 0})
-        self.assertEqual((await self.receive(ws, "ACK"))["result"], "OK")
-        self.assertEqual(self.sim.rgb, {"power": True, "r": 255, "g": 0, "b": 0})
+        self.assertEqual((await self.receive(ws, "ACK"))["result"], "BAD_RANGE")
         await ws.send_json({"type": "CHAT_TOGGLE"})
         self.assertEqual((await self.receive(ws, "ACK"))["result"], "OK")
         await self.receive(ws, "EVENT")
-        self.assertTrue(any(m.get("kind") == "rgb" for m in self.received))
+        response = await self.client.get("/")
+        html = await response.text()
+        self.assertNotIn('id="rgb-power"', html)
+        self.assertNotIn('type="color"', html)
 
     async def test_bad_payload_does_not_crash_server(self):
         ws = await self.connect()

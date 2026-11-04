@@ -14,7 +14,7 @@
 #include "codecs/no_audio_codec.h"
 #include "config.h"
 #include "display/oled_display.h"
-#include "rgb_light.h"
+#include "status_led.h"
 #include "wifi_board.h"
 
 class AwCarAiRgbBoard : public WifiBoard {
@@ -22,7 +22,7 @@ class AwCarAiRgbBoard : public WifiBoard {
   i2c_master_bus_handle_t display_bus_ = nullptr;
   Display* display_ = nullptr;
   Button boot_button_;
-  AwCarRgbLight rgb_;
+  AwCarStatusLed status_led_;
   awcar::Network car_network_;
 
   void InitializeDisplay() {
@@ -63,7 +63,7 @@ class AwCarAiRgbBoard : public WifiBoard {
   }
 
  public:
-  AwCarAiRgbBoard() : boot_button_(BOOT_BUTTON_GPIO), rgb_(BUILTIN_LED_GPIO) {
+  AwCarAiRgbBoard() : boot_button_(BOOT_BUTTON_GPIO), status_led_(BUILTIN_LED_GPIO) {
     InitializeDisplay();
     boot_button_.OnClick([this]() {
       auto& app = Application::GetInstance();
@@ -73,19 +73,18 @@ class AwCarAiRgbBoard : public WifiBoard {
       }
       app.ToggleChatState();
     });
-    rgb_.RegisterTools(McpServer::GetInstance());
     boot_button_.OnLongPress([]() {
       awcar::BrainRuntime::Get().Stop();
       awcar::BrainRuntime::Get().ShowPairing();
     });
   }
 
-  Led* GetLed() override { return &rgb_; }
+  Led* GetLed() override { return &status_led_; }
   void StartNetwork() override {
     car_network_.Start([this](NetworkEvent event, const std::string& data) {
       if (network_event_callback_) network_event_callback_(event, data);
     });
-    awcar::BrainRuntime::Get().Start(&rgb_, display_, &car_network_);
+    awcar::BrainRuntime::Get().Start(&status_led_, display_, &car_network_);
   }
   void EnterWifiConfigMode() {
     awcar::BrainRuntime::Get().Stop();

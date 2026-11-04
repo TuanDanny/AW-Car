@@ -58,7 +58,9 @@ class Simulator:
         self.next_ping = 0
         self.token = secrets.token_urlsafe(32)
         self.pin = pin
-        self.rgb = {"power": False, "r": 32, "g": 32, "b": 32}
+        self.network = {"sta_state": "online", "ip_valid": True,
+                        "sta_ssid": "Wi-Fi giả lập", "sta_ip": "192.0.2.2",
+                        "rssi": -50, "retry_in_ms": 0, "sta_reason": 0}
         self.events = []
         self.origin = None
         self.clock = time.monotonic_ns() // 1000
@@ -118,7 +120,8 @@ class Simulator:
             "data_source": "mock",
             "v_max": 200,
             "omega_max": 1000,
-            "rgb": self.rgb,
+            "indicator": self.rig.brain.indicator(self.rig.now),
+            "network": self.network,
             "chat_state": "Xiaozhi giả lập · tool được tiêm để kiểm thử",
         }
 
@@ -209,17 +212,6 @@ class Simulator:
                             self.direction_counts[key] = (
                                 self.direction_counts.get(key, 0) + 1
                             )
-                    elif kind == "RGB":
-                        if "on" in d:
-                            if type(d["on"]) is not bool:
-                                raise ValueError("on")
-                            self.rgb["power"] = d["on"]
-                        else:
-                            self.rgb = {
-                                k: integer(d, k, 0, 255) for k in ("r", "g", "b")
-                            }
-                            self.rgb["power"] = True
-                        self.event("rgb", json.dumps(self.rgb))
                     elif kind == "CHAT_TOGGLE":
                         self.event("stt", "你好，小智")
                         self.event("reply", "你好！这是模拟对话。")
@@ -283,6 +275,8 @@ class Simulator:
             self.event("tool_result", RESULTS[result])
         elif op == "ai_online":
             self.rig.brain.command(3, now, int(bool(d["online"])))
+        elif op == "wifi_state":
+            self.network.update(d["state"])
         elif op == "motion_online":
             self.rig.motion.online = bool(d["online"])
         elif op == "motion_fault":

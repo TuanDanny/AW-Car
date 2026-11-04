@@ -14,3 +14,6 @@ và [hai đường permit/gate](https://github.com/TuanDanny/AW-Car/blob/codex/e
 [safety baseline](fpga-safety.md) ở checkout AI giữ cho tương thích/hồi quy.
 Phần RTL v2 phát triển ở nhánh FPGA, không tự nhập vào Brain. Hai liên kết
 UART có session/CRC/sequence/timeout riêng; heartbeat không cấp quyền chạy.
+
+`status_indicator.h` là policy C++ thuần cho hai board: ưu tiên fault, chờ,
+khỏe và cache chỉ ghi khi màu đổi/retry lỗi tối đa1Hz; không có I/O hoặc RTOS.

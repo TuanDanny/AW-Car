@@ -7,6 +7,10 @@ Tác giả: **TuanDanny**. Cộng tác viên: **Minh Nho** và **Nhan Duc**.
 
 ## Trạng thái
 
+WS2812 onboard hai ESP32 hiện dành cho báo trạng thái; đã xóa điều khiển RGB
+AI/Web thử nghiệm. Màu đỏ/chờ xanh dương/khỏe xanh lá có policy riêng theo
+board, không thay ARM/watchdog. Xem [contract và kiểm thử LED](docs/status-led.md).
+
 Mốc04/11/2026: bổ sung reconnect AP+STA có backoff, chẩn đoán HTTP/WS và
 dashboard tối giản. Đã build/kiểm thử host và đọc monitor COM3 Brain/COM7
 Motion thật. Đã nạp giao diện mới; thử một chiều Motion→Brain đạt20Hz,

@@ -19,6 +19,9 @@ Brain có kiểm thử phần mềm host, chưa có nghiệm thu phần cứng:
   [I/O stub ESP-IDF](brain_http_stub/README.md); URI rỗng sau handshake,
   1.000 heartbeat, PONG, giới hạn frame và lỗi I/O.
 - `test_brain_network_policy.py`: reconnect/backoff/timeout và bảo vệ AP khi SSID vắng.
+- `test_status_indicator.py`: compile policy C++ chung, ưu tiên lỗi, deadline,
+  mask diagnostic, ghi khi đổi màu và retry có hạn. Core còn kiểm reset
+  Motion/sequence và STOP mất trong boot; Wi-Fi test kiểm mặc định sau reboot.
 - `node --test dashboard/control.test.mjs dashboard/connection.test.mjs`:
   giữ/nhả/hướng, STATUS stale, STOP gộp và reconnect không tự ARM.
 

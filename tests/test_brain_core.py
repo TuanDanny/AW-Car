@@ -60,6 +60,62 @@ class BrainCoreTests(unittest.TestCase):
         self.r.advance(150000)
         self.assertEqual(self.r.state["reason"], "motion_stale")
 
+    def test_disarmed_motion_reboot_resynchronizes_without_auto_arm(self):
+        self.r.advance(2000000)
+        epoch = self.r.state["epoch"]
+        self.r.motion = Motion()
+        self.r.advance(250000)
+        self.assertLess(self.r.state["telemetry_age_ms"], 150)
+        self.assertGreater(self.r.state["epoch"], epoch)
+        self.assertFalse(self.r.state["authorized"])
+        self.assertEqual((self.r.state["v"], self.r.state["omega"]), (0, 0))
+        self.assertFalse(any(f[1] == 2 for f in self.r.motion.frames))
+
+    def test_disarmed_status_loss_revokes_once_without_stop_flood(self):
+        epoch = self.r.state["epoch"]
+        self.r.motion.online = False
+        self.r.advance(500000)
+        self.assertEqual(self.r.state["epoch"], epoch + 1)
+        self.assertEqual(self.r.state["reason"], "motion_stale")
+        stopped_epoch = self.r.state["epoch"]
+        stops = sum(f[1] == 4 for f in self.r.motion.frames)
+        self.r.advance(500000)
+        self.assertEqual(self.r.state["epoch"], stopped_epoch)
+        self.assertEqual(sum(f[1] == 4 for f in self.r.motion.frames), stops)
+        self.r.motion.online = True
+        self.r.pump()
+        self.assertLess(self.r.state["telemetry_age_ms"], 150)
+        self.assertFalse(self.r.state["authorized"])
+
+    def test_stop_lost_during_peer_reset_is_confirmed_after_rediscovery(self):
+        self.r.advance(2000000)
+        self.r.motion.online = False
+        original = self.r.motion.receive
+        self.r.motion.receive = lambda data, now: None
+        self.r.advance(200000)
+        self.r.motion.receive = original
+        self.r.motion = Motion()
+        self.r.advance(60000)
+        self.assertFalse(self.r.state["authorized"])
+        self.assertEqual(self.r.arm(), 0)
+        self.assertTrue(self.r.state["authorized"])
+
+    def test_initial_stop_lost_before_peer_uart_ready_is_reissued_once(self):
+        brain = Brain()
+        try:
+            self.assertEqual(decode(brain.tx(0))[0], 4)  # Dropped before UART ready.
+            peer = Motion()
+            brain.rx(1000, peer.status(1000, True))
+            stop = brain.tx(1000)
+            self.assertTrue(stop)
+            self.assertEqual(decode(stop)[0], 4)
+            peer.receive(stop, 1000)
+            brain.rx(1000, peer.status(1000, True))
+            self.assertEqual(brain.tx(1000), b"")
+            self.assertFalse(brain.state(1000)["authorized"])
+        finally:
+            brain.close()
+
     def test_explicit_arm_rejection_is_reported_without_timeout(self):
         original = self.r.motion.receive
 

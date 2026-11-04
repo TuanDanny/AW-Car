@@ -102,3 +102,18 @@ nằm trong mục mở rộng. Không bỏ chức năng hoặc thay contract an 
 Simulator có `pause_status` (0–10.000 ms) và bộ đếm STOP chỉ để thử trạng
 thái Degraded; không có endpoint này trên firmware.
 Xem [báo cáo, phép đo và giới hạn phần cứng](../docs/brain-network-reliability.md).
+
+## WS2812 báo trạng thái
+
+Đã xóa UI/handler RGB thử nghiệm; không có lớp tương thích cho command đó.
+`indicator` trong chẩn đoán là dữ liệu chỉ đọc: color/reason/known và bộ đếm
+ghi/lỗi LED. Simulator cũng dùng policy C++ sản xuất, không tự dựng bộ chọn
+màu bằng Python. Nút nghe, Manual/AI, sáu hướng và STOP giữ nguyên.
+Xem [contract LED](../docs/status-led.md).
+
+Trong mục Wi-Fi, badge xác nhận trạng thái STA thực (khởi tạo/kết nối/DHCP/
+đã cóIP/thử lại), IP/RSSI và lý do lỗi/countdown khi có. Trạng thái Xiaozhi
+được tách riêng: nối Wi-Fi chưa chứng minh cloud đã nối. Khi mất STATUS/WS,
+giao diện không giữ nhãn xanh cũ. Lưu cấu hình chỉ báo đã nhận yêu cầu; chờ
+STATUS xác nhận. Mạng được chọn làm mặc định cho lần boot sau kể cả đã lưu
+ở vị trí khác; không phải chỉ cập nhật mật khẩu rồi vẫn chọn mạng cũ.

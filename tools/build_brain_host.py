@@ -16,6 +16,7 @@ SOURCES = [
     ROOT / "firmware/shared/brain_motion_codec.cc",
 ]
 HEADERS = [
+    ROOT / "firmware/shared/status_indicator.h",
     ROOT / "firmware/brain/main/aw_car/control_core.h",
     ROOT / "firmware/brain/main/aw_car/voice_gate.h",
     ROOT / "firmware/shared/brain_motion_codec.h",

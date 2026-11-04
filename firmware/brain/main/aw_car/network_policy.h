@@ -1,7 +1,23 @@
 #pragma once
 #include <algorithm>
 #include <cstdint>
+#include <string>
 namespace awcar {
+
+// AddSsid updates an existing entry in place; explicit selection must also
+// persist its priority for the next boot. Runs only on user configuration.
+template <class Manager>
+void RememberSelectedWifi(Manager& manager, const std::string& ssid,
+                          const std::string& password) {
+  manager.AddSsid(ssid, password);
+  const auto& saved = manager.GetSsidList();
+  for (size_t index = 1; index < saved.size(); ++index) {
+    if (saved[index].ssid == ssid) {
+      manager.SetDefaultSsid(int(index));
+      break;
+    }
+  }
+}
 enum class StaPhase {
   NoCredentials,
   Waiting,

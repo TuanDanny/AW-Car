@@ -1,9 +1,42 @@
 #include <cassert>
 #include <iostream>
+#include <vector>
 
 #include "network_policy.h"
 using namespace awcar;
+struct SavedWifi {
+  struct Entry { std::string ssid, password; };
+  std::vector<Entry> list, persisted;
+  int promotions = 0;
+  const std::vector<Entry>& GetSsidList() const { return list; }
+  void AddSsid(const std::string& ssid, const std::string& password) {
+    for (auto& item : list) {
+      if (item.ssid == ssid) { item.password = password; persisted = list; return; }
+    }
+    list.insert(list.begin(), {ssid, password}); persisted = list;
+  }
+  void SetDefaultSsid(int index) {
+    const auto entry = list.at(index);
+    list.erase(list.begin() + index); list.insert(list.begin(), entry);
+    persisted = list; ++promotions;
+  }
+};
 int main() {
+  SavedWifi saved;
+  saved.list = {{"previous", "test-a"}, {"selected", "test-old"}};
+  saved.AddSsid("selected", "test-new");
+  assert(saved.persisted.front().ssid == "previous");  // Old SDK behavior.
+  RememberSelectedWifi(saved, "selected", "test-new");
+  SavedWifi rebooted;
+  rebooted.list = saved.persisted;
+  assert(rebooted.list.front().ssid == "selected");
+  assert(rebooted.list.front().password == "test-new");
+  assert(rebooted.list[1].ssid == "previous" && rebooted.list[1].password == "test-a");
+  assert(saved.promotions == 1);
+  RememberSelectedWifi(saved, "selected", "test-next");
+  assert(saved.promotions == 1 && saved.persisted.front().password == "test-next");
+  RememberSelectedWifi(saved, "new-network", "test-only");
+  assert(saved.promotions == 1 && saved.persisted.front().ssid == "new-network");
   ReconnectPolicy none;
   none.Configure(false, 0);
   assert(!none.StartDue(1000000) && none.attempts == 0);

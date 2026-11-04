@@ -1,6 +1,6 @@
 # Web-v1 — contract Brain/Dashboard ngày03/11/2026
 
-Có source Brain/simulator dùng chung lõi C++; dashboard/RGB/nghe đã thử
+Có source Brain/simulator dùng chung lõi C++; dashboard/nghe đã thử
 trên ESP32 và iPhone. Phần lái/CLEAR mới kiểm chứng host, chưa ghép Motion thật.
 HTTP assets/WebSocket UTF-8 JSON tại AP192.168.4.1; UART riêng tuân
 [BM-v1](../firmware/shared/brain-motion-protocol.md), không truyền JSON xuống FPGA.
@@ -21,7 +21,6 @@ JSON tối đa512byte; số nguyên hữu hạn, không nhận bool/float thay i
 | CLEAR_FAULT | `epoch`; chỉ Web, Motion FAULT còn mới, tăng epoch, STOP/HELLO/CLEAR rồi đợi DISARMED/fault=0 |
 | MOVE | `seq,epoch,challenge,v_mm_s,omega_mrad_s,ttl_ms,deadman` |
 | STOP | Dừng, thu quyền, tăng epoch; không đòi sequence mới |
-| RGB | `on:bool` hoặc `r,g,b:integer 0..255`, chung driver MCP |
 | CHAT_TOGGLE | Hành vi nhấn/nhả BOOT của Xiaozhi |
 
 Mode/ARM chỉ từ dashboard. MOVE chỉ trong Manual+ARMED; deadman=false chỉ
@@ -40,7 +39,7 @@ CHALLENGE xen kẽ50ms, STATUS cũng chứa challenge.
 STATUS có `mode,authorized,switching,clearing,epoch,challenge,v,omega,v_max,omega_max`,
 `motion_state,fault_flags,status_flags,last_req_seq,applied_seq,result_code`,
 `telemetry_age_ms,encoder_age_ms,v_est_mm_s,omega_est_mrad_s,battery_mv`,
-`ai_online,ai_remaining_ms,action_remaining_ms,reason,rgb,chat_state,data_source`.
+`ai_online,ai_remaining_ms,action_remaining_ms,reason,indicator,chat_state,data_source`.
 Firmware thêm `voice_context_ready`, RX/Web counters và p95/p99 cửa sổ128mẫu
 từ nhận MOVE hợp lệ tới gọi UART driver, chưa phải thời gian chân TX/motor.
 Bind cloud session chưa đủ cho move: còn kiểm STT/envelope/epoch/deadline.
@@ -58,7 +57,7 @@ thu quyền, frame đúng tick hết hạn không cứu phiên. Reconnect/STOP/r
   tốc độ0..100% mặc định30%, thời lượng100..3000ms mặc định1000ms. Hành động
   mới thay cũ, hết thời gian về0; không xếp hàng.
 - Web đóng trong AI chỉ mất console. Mất Internet/Xiaozhi hoặc STATUS
-  Motion thì mất quyền. Không tự đổi mode/ARM. Manual vẫn chat/RGB; AI
+  Motion thì mất quyền. Không tự đổi mode/ARM. Manual vẫn chat; AI
   không lái trong Manual. STOP luôn giảm quyền ở cả hai mode.
 - Đổi mode tăng epoch, hủy mục tiêu, STOP, đợi ACK đúng STOP/DISARMED.
 - Move cần đúng cloud session envelope, STT cùng phiên trong5s, callback
@@ -82,7 +81,7 @@ trạng thái DISARMED/fault=0 trước báo thành công. Motion từ chối AR
 
 Socket đóng xóa nhãn quyền cũ và khóa nút; reconnect không tự chạy. Asset HTTP
 trả Cache-Control:no-store để bản giao diện cũ không còn sau nâng firmware.
-Nút nghe/RGB và BOOT hiện có được giữ; chưa nạp thay đổi này lên Brain thật.
+Nút nghe và BOOT hiện có được giữ; chưa nạp thay đổi này lên Brain thật.
 
 ## Bổ sung kết nối 04/11/2026
 

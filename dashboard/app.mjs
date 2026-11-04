@@ -1,5 +1,5 @@
 import { InputTracker, keyActions, target } from "./control.mjs";
-import { DashboardLink } from "./connection.mjs";
+import { DashboardLink, networkStatus } from "./connection.mjs";
 const link = new DashboardLink();
 let socketGeneration = 0,
     lastHeartbeat = 0,
@@ -10,12 +10,12 @@ let ws = null,
     state = null,
     seq = 0,
     events = [],
-    power = false,
     staleTimer = null,
     lastStatus = 0,
     localMode = "Manual";
 const text = (id, value) => {
-    $(id).textContent = value;
+    const node = $(id);
+    if (node.textContent !== String(value)) node.textContent = value;
 };
 function log(message) {
     events.unshift({
@@ -54,8 +54,16 @@ function ready() {
     );
 }
 function showLink(detail = "") {
+    showNetwork();
     text("connection", `${link.state}${detail ? " · " + detail : ""}`);
     $("connection").parentElement.dataset.state = link.state;
+}
+function showNetwork() {
+    const n = networkStatus(state, link.state === "Connected");
+    text("wifi-status", n.wifi);
+    $("wifi-status").dataset.state = n.tone;
+    text("wifi-detail", n.detail);
+    text("ai-network-status", n.ai);
 }
 function revokeLocal(message) {
     clearInput();
@@ -242,24 +250,13 @@ function render(s) {
             ? "Motion giả lập · chưa nối xe"
             : "Bảng điều khiển",
     );
-    if (s.rgb) {
-        power = s.rgb.power;
-        text(
-            "rgb-state",
-            s.rgb.known === false
-                ? "Chưa biết trạng thái"
-                : power
-                  ? "Đang bật"
-                  : "Đang tắt",
-        );
-        text("rgb-power", power ? "Tắt đèn" : "Bật đèn");
-    }
     if (s.web_uart_p95_us != null)
         text(
             "stats",
             `Brain → UART p95: ${(s.web_uart_p95_us / 1000).toFixed(2)} ms · cửa sổ gần nhất`,
         );
     if (s.chat_state) text("chat-state", s.chat_state);
+    showNetwork();
     if ($("network-debug"))
         text(
             "network-debug",
@@ -267,6 +264,7 @@ function render(s) {
                 {
                     network: s.network ?? "Chưa có dữ liệu",
                     transport: s.transport ?? "Chưa có dữ liệu",
+                    indicator: s.indicator ?? "Chưa có dữ liệu",
                 },
                 null,
                 2,
@@ -460,16 +458,6 @@ $("speed").oninput = () => {
     text("speed-value", `${$("speed").value}%`);
     if (input.action) move();
 };
-$("rgb-power").onclick = () => send("RGB", { on: !power });
-for (const b of document.querySelectorAll("[data-rgb]"))
-    b.onclick = () => {
-        const [r, g, bv] = b.dataset.rgb.split(",").map(Number);
-        send("RGB", { r, g, b: bv });
-    };
-$("rgb-color").onchange = (e) => {
-    const v = parseInt(e.target.value.slice(1), 16);
-    send("RGB", { r: v >> 16, g: (v >> 8) & 255, b: v & 255 });
-};
 $("chat").onclick = () => send("CHAT_TOGGLE");
 $("clear-log").onclick = () => {
     events = [];
@@ -481,14 +469,25 @@ $("wifi-form").onsubmit = async (e) => {
         text("feedback", "DỪNG và đợi DISARMED trước khi đổi Wi-Fi.");
         return;
     }
-    const f = new FormData(e.target);
-    const r = await fetch("/api/wifi", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(Object.fromEntries(f)),
-    });
-    text("feedback", r.ok ? "Đã lưu yêu cầu Wi-Fi." : "Không lưu được Wi-Fi.");
-    e.target.querySelector("[name=password]").value = "";
+    const button = e.target.querySelector("button[type=submit]");
+    button.disabled = true;
+    text("wifi-feedback", "Đang gửi cấu hình Wi-Fi…");
+    try {
+        const f = new FormData(e.target);
+        const r = await fetch("/api/wifi", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(Object.fromEntries(f)),
+        });
+        text("wifi-feedback", r.ok
+            ? "Brain đã nhận cấu hình. Chờ trạng thái Wi-Fi ở trên xác nhận kết nối."
+            : `Không nhận được cấu hình Wi-Fi (HTTP ${r.status}).`);
+    } catch {
+        text("wifi-feedback", "Mất kết nối khi gửi cấu hình. Chưa xác nhận Brain đã nhận.");
+    } finally {
+        button.disabled = false;
+        e.target.querySelector("[name=password]").value = "";
+    }
 };
 setInterval(() => {
     if (document.hidden) return;

@@ -106,7 +106,11 @@ void ControlCore::Tick(uint64_t now) {
     challenge_epoch_ = s_.epoch;
     last_challenge_ = now;
   }
-  if ((s_.authorized || arm_ != ArmPhase::None) && !Fresh(now)) {
+  if (!Fresh(now) && ((have_status_ && !status_loss_handled_) ||
+                     s_.authorized || arm_ != ArmPhase::None)) {
+    // A reboot can restart STATUS sequence even while already DISARMED.
+    // Revoke/reset discovery once per outage, never flood STOP or auto-ARM.
+    status_loss_handled_ = true;
     Stop("motion_stale", now);
     return;
   }
@@ -196,6 +200,11 @@ Result ControlCore::VoiceMove(uint32_t epoch, int action, int pct, int duration,
 }
 void ControlCore::OnStatus(const bm::Frame& f, uint64_t now) {
   if (f.type != bm::Status || f.length != 17) return;
+  uint8_t state = f.payload[5], flags = f.payload[16], result = f.payload[4];
+  if (state > 3 || flags & 0xc0 || (result > 7 && result != 255)) return;
+  // Expire authority before sequence/session admission. While fresh, the
+  // original monotonic sequence and session checks below remain unchanged.
+  Tick(now);
   // STOP revokes the peer's context; its exact ACK can use the previous or
   // zero session. No HELLO is emitted until that ACK, so a receive-buffer
   // flush on Motion's epoch change cannot swallow the new recovery HELLO.
@@ -204,11 +213,12 @@ void ControlCore::OnStatus(const bm::Frame& f, uint64_t now) {
     return;
   uint16_t delta = uint16_t(f.seq - last_status_seq_);
   if (have_status_seq_ && (!delta || delta >= 0x8000)) return;
-  uint8_t state = f.payload[5], flags = f.payload[16], result = f.payload[4];
-  if (state > 3 || flags & 0xc0 || (result > 7 && result != 255)) return;
-  // A frame at the timeout boundary cannot revive an expired authority.
-  Tick(now);
+  const bool rediscovered = !have_status_ || status_loss_handled_;
   have_status_ = have_status_seq_ = true;
+  status_loss_handled_ = false;
+  // The first STOP may have been sent while the peer was in ROM/UART init.
+  // Confirm it once after rediscovery; subsequent STATUS never flood STOP.
+  if (rediscovered && await_stop_ack_) stop_pending_ = true;
   last_status_ = now;
   last_status_seq_ = f.seq;
   s_.last_req = bm::U16(f.payload.data());

@@ -165,7 +165,7 @@ void Network::Run() {
         cfg = {};
         memcpy(cfg.sta.ssid, e.ssid, strlen(e.ssid));
         memcpy(cfg.sta.password, e.password, strlen(e.password));
-        SsidManager::GetInstance().AddSsid(e.ssid, e.password);
+        RememberSelectedWifi(SsidManager::GetInstance(), e.ssid, e.password);
         configuring = true;
         cancel_wait = true;
         cancel_until = now + 3000;
@@ -399,6 +399,7 @@ cJSON* Network::Diagnostics() const {
   cJSON_AddNumberToObject(j, "dhcpc", s.dhcpc);
   cJSON_AddNumberToObject(j, "dhcps", s.dhcps);
   cJSON_AddStringToObject(j, "sta_ip", s.ip_valid ? s.ip : "");
+  cJSON_AddStringToObject(j, "sta_ssid", s.radio_valid ? s.ssid : "");
   cJSON_AddStringToObject(j, "ap_ip", s.ap_ip);
   cJSON_AddNumberToObject(j, "api_errors", s.errors);
   cJSON_AddNumberToObject(j, "last_error", s.last_error);

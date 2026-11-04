@@ -1,4 +1,4 @@
-# Bàn giao AW-Car — 04/11/2026
+# Bàn giao AW-Car — 05/11/2026
 
 ## Nhánh và checkout
 
@@ -10,8 +10,9 @@
   Checkout `f01-speed-load-plan` đang detached cùng baseline RTL; không sửa
   Brain/Motion ở đó. Các thay đổi CAD/tài liệu đang dở tại checkout FPGA
   được giữ nguyên, chưa đưa vào hai nhánh firmware.
-- Hai PR firmware giữ draft, chưa merge main. Firmware đang nạp có code
-  Brain `d55e0b1`, Motion `89fd135`; các commit sau là báo cáo/tài liệu.
+- Hai PR firmware giữ draft, chưa merge main. Bản WS2812 hiện dùng LED báo
+  trạng thái và đã xóa tool/UI RGB demo; xem [contract LED](status-led.md)
+  và báo cáo kiểm thử đi kèm để phân biệt với baseline d55e0b1/89fd135.
 
 ## Board và dây hiện tại
 
@@ -34,8 +35,16 @@ Tang Nano9K đã có nhưng chưa nghiệm thu CST/PnR/STA và đường gate/mo
 
 ## Kết quả và phần còn mở
 
+Mốc WS2812 mới: đã xóa hoàn toàn tool/UI RGB demo; Dashboard có trạng thái
+Wi-Fi/IP/RSSI/retry và Xiaozhi riêng. Người dùng xác nhận AI nghe/trả lời,
+Brain giữ xanh lá. Motion xanh dương vì LOCKED. Sau flash cuối, UART20Hz,
+age≤45ms/errors0; tự nối lại STA thành công sau một cooldown reason202.
+Đã sửa phục hồi STATUS sequence sau reset và STOP bị mất khi peer boot,
+không tự ARM. 96/72 root tests Brain/Motion, 9 test JS và hai build đạt.
+Xem [contract](status-led.md), [report/hash](status-led-report.json).
+
 Đã đọc monitor hai board, không dùng simulator làm bằng chứng phần cứng.
-Lượt cuối210s: Brain STATUS20,1Hz/age≤49ms, lỗi parser1→1, HW errors0;
+Lượt210s baseline04/11: Brain STATUS20,1Hz/age≤49ms, lỗi parser1→1, HW errors0;
 Motion nhận thêm34khung/442byte, parser/HW/queue/TX errors hoặc drops0.
 STA Internet/AP DHCP, dashboard và Xiaozhi hoạt động đồng thời; có5STT và
 10đoạn trả lời. Xem [báo cáo đã lọc](brain-motion-final-link-report.json).
@@ -67,6 +76,8 @@ Một bộ khôi phục13file (~50MiB) ở cục bộ:
 `manifest-private.json` chứa SHA256 đã đối chiếu; app section trong merged
 image khớp byte với binary đã kiểm thử. Có merged/app/ELF, sdkconfig riêng
 và NVS/motioncfg từ lần nạp gần nhất cho cả hai board. Git ignore toàn bộ.
+Đã thay nội dung bộ này bằng hai bản WS2812 chốt05/11, hash từng file khớp
+nguồn build và manifest lần nạp; không giữ thêm bộ backup đầy đủ trùng lặp.
 
 Các bản NVS này có thể cũ hơn cấu hình Wi-Fi được đổi sau lần nạp; đây
 không phải dump mới đọc từ board. Trước lần nạp merged tại0x0000 tiếp theo,

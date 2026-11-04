@@ -53,6 +53,8 @@ class Brain:
         ]
         l.aw_state.argtypes = [ctypes.c_void_p, ctypes.c_uint64]
         l.aw_state.restype = ctypes.c_char_p
+        l.aw_indicator.argtypes = [ctypes.c_void_p, ctypes.c_uint64]
+        l.aw_indicator.restype = ctypes.c_char_p
         l.aw_gate.argtypes = [
             ctypes.c_void_p,
             ctypes.c_int,
@@ -69,6 +71,9 @@ class Brain:
 
     def state(self, now):
         return json.loads(self.lib.aw_state(self.ptr, now))
+
+    def indicator(self, now):
+        return json.loads(self.lib.aw_indicator(self.ptr, now))
 
     def gate(self, op, now, identifier=1, session="session-A"):
         return self.lib.aw_gate(self.ptr, op, now, identifier, session.encode())
