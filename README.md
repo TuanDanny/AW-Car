@@ -15,8 +15,9 @@ hai UART, vòng hở, kích đề-pa, chờ đảo chiều, lease và khóa driv
 **Bản nạp mặc định khóa driver, từ chối ARM.** PID và cảm biến để mốc tiếp.
 
 Brain/dashboard phát triển riêng ở `feat/f03-xiaozhi-ai`, PR #13 giữ draft;
-mic/OLED/RGB và Safari đã được thử trước đó. Bản Brain bổ sung Xóa lỗi trong
-mốc Motion mới build/giả lập, chưa nạp lại board Brain.
+mic/OLED/RGB và Safari đã được thử trước đó. Bản Brain đã nạp lại COM3 để chẩn đoán mạng/UART. Ngày04/11 xác nhận
+chập GPIO17/18 trên Motion, người dùng đang ngắt nguồn sửa; chưa nghiệm thu
+UART Brain–Motion. Console `uart` nay có bộ đếm riêng hai peer.
 
 **RTL trong nền main của checkout này còn bản cũ.** Motion yêu cầu protocol
 v2/encoder một OUT của `feat/f01-fpga-drive` (`7ab91b2` trong lần co-sim),

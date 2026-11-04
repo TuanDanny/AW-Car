@@ -113,3 +113,17 @@ gate/E-stop/chốt lỗi, nguồn/nSLEEP/encoder/cực motor; dòng/nhiệt/kíc
 đảo/quãng dừng. Chưa có PID, ToF/TCRT5000/IMU hoặc chống rơi/vật cản.
 Mục tiêu latency p95<=2ms/p99<=5ms của Motion phải đo lại trên ESP32 có UART;
 phân vị host không phải latency xe. Cần ghép/nâng bánh trước khi thử dưới sàn.
+
+## Bổ sung04/11: monitor UART hai board
+
+Thêm console chỉ đọc `uart`, bộ đếm byte/frame/error/TX tách Brain/FPGA,
+tránh quy toàn bộ `rx_errors` tổng cho dây Brain. Build ESP-IDF6.1 đạt;
+nạp COM7 tại0x0000, hash xác nhận, NVS và motioncfg giữ nguyên theo byte.
+Các mẫu mới UART1 TX17/RX18 báo baud115201 (cấu hình115200), parser errors
+có tăng; UART2 TX15/RX16 không có byte/lỗi. Driver vẫn LOCKED và hai GPIO
+permit LOW. Không nới CRC/timeout hoặc giả safety input để cho ARM.
+
+Người dùng đo và xác nhận GPIO17/18 trên Motion bị chập, đang ngắt nguồn
+sửa. Tạm dừng board test, chưa xác nhận thông liên kết sau sửa. Còn phải đo
+STATUS20Hz/age<150ms và HELLO/STOP/ARM reject hai chiều. Raw log/flash backup
+chỉ giữ trong build ignored; không đưa vào PR.

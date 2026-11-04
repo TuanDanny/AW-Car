@@ -5,7 +5,8 @@ hai UART, lease/ARM/STOP/CLEAR, khóa driver độc lập, vòng hở, kích đ�
 chờ đảo chiều. PWM do FPGA phát; PI/PID, ToF/TCRT5000/MPU6050 để mốc sau.
 
 **Mặc định ENABLE_DRIVER=n và validated=0: từ chối ARM.** Đã build và kiểm tra
-console/GPIO mặc định tắt trên COM7; chưa nối UART Brain/FPGA/gate/motor.
+console/GPIO mặc định tắt trên COM7. Đã thử nối UART Brain ngày04/11 nhưng
+chưa thông; người dùng đang sửa chập17/18. Chưa ghép FPGA/gate/motor.
 Xem [báo cáo](../../docs/motion-verification.md),
 [contract](../../docs/motion-plan.md), [bảng dây](../../hardware/motion-wiring.md).
 
@@ -33,6 +34,7 @@ UART0 115200 trên COM7, tách UART1 Brain và UART2 FPGA:
 ```text
 help
 status
+uart
 config
 set track_mm 120
 set kick_ms 200
@@ -65,3 +67,15 @@ python tools/motion_board_check.py --port COM7 --reset --console-test
 Host cần C++17, đặt CXX nếu compiler chưa trong PATH. Board check cần Python
 SDK với pyserial/esptool; chỉ nhận build LOCKED, thử rồi lưu lại defaults.
 Raw log/full flash backup/build ở local ignored; xem nguồn tại [main](main/README.md).
+
+## Chẩn đoán UART 04/11
+
+Lệnh console `uart` đọc bộ đếm riêng Brain/FPGA: chân TX/RX, baud từ driver,
+byte/frame nhận, lỗi phần cứng/parser, frame gửi và mức RX hiện tại. Không
+đổi codec, lease, GPIO permit hoặc mở driver. Bộ đếm là snapshot gần thời
+điểm hỏi, không phải phép đo điện áp/oscilloscope.
+
+Đã nạp lại COM7 tại0x0000 và so byte NVS/motioncfg trước/sau. Bản vẫn LOCKED,
+driver/logical GPIO LOW. Người dùng xác nhận chập GPIO17/18, đang ngắt nguồn
+sửa; chưa xác nhận UART Brain–Motion hoạt động sau sửa. Không bật driver để
+thử đường UART. Bản Brain và dashboard mới giữ ở nhánh AI.

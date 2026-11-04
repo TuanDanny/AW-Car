@@ -234,6 +234,7 @@ void Runtime::ReceiveTask(int index) {
     while (xQueueReceive(uart_events, &event, 0)) {
       if (event.type == UART_FIFO_OVF || event.type == UART_BUFFER_FULL) {
         ++rx_errors_;
+        ++uart_hw_errors_[index];
         uart_flush_input(port);
         brain_parser.Reset();
         fpga_parser.Reset();
@@ -243,11 +244,13 @@ void Runtime::ReceiveTask(int index) {
       } else if (event.type == UART_FRAME_ERR ||
                  event.type == UART_PARITY_ERR) {
         ++rx_errors_;
+        ++uart_hw_errors_[index];
         brain_parser.Reset();
         fpga_parser.Reset();
       }
     }
     const int n = uart_read_bytes(port, bytes, sizeof(bytes), pdMS_TO_TICKS(1));
+    if (n > 0) uart_bytes_[index].fetch_add(uint32_t(n));
     for (int i = 0; i < n; ++i) {
       Event message{};
       message.at = Now();
@@ -257,6 +260,7 @@ void Runtime::ReceiveTask(int index) {
       if (index == 0) {
         message.type = EventType::Brain;
         complete = brain_parser.Feed(bytes[i], message.at, message.brain);
+        if (complete) ++uart_frames_[index];
         if (complete && message.brain.type == bm::Stop) {
           portENTER_CRITICAL(&stop_mux_);
           stop_frame_ = message.brain;
@@ -269,6 +273,7 @@ void Runtime::ReceiveTask(int index) {
       } else {
         message.type = EventType::Fpga;
         complete = fpga_parser.Feed(bytes[i], message.at, message.fpga);
+        if (complete) ++uart_frames_[index];
       }
       if (complete) Submit(message);
     }
@@ -278,6 +283,7 @@ void Runtime::ReceiveTask(int index) {
         index == 0 ? brain_parser.errors : fpga_parser.errors;
     const auto previous = parser_errors[index].exchange(count);
     rx_errors_.fetch_add(count - previous);
+    uart_parse_errors_[index] = count;
   }
 }
 void Runtime::ControlTask() {
@@ -435,7 +441,8 @@ void Runtime::TransmitTask() {
           Inhibit(true);
           Wake();
           ++tx_drops_;
-        }
+        } else
+          ++uart_tx_frames_[i];
         if (packet.brain_at && start >= packet.brain_at) {
           const uint32_t us = uint32_t(start - packet.brain_at);
           portENTER_CRITICAL(&snapshot_mux_);
@@ -494,6 +501,25 @@ bool Runtime::ExchangeConfig(ConfigRequest request, ConfigReply& reply) {
       return true;
   }
   return false;
+}
+void Runtime::PrintUartDiagnostics() {
+  for (int i = 0; i < 2; ++i) {
+    uint32_t baud = 0;
+    const auto code =
+        uart_get_baudrate(i == 0 ? UART_NUM_1 : UART_NUM_2, &baud);
+    std::printf(
+        "UART_DIAG peer=%s tx=%d rx=%d baud=%lu get_baud_rc=%d rx_bytes=%lu "
+        "frames=%lu hw_errors=%lu parser_errors=%lu tx_frames=%lu "
+        "rx_level=%d\n",
+        i == 0 ? "Brain" : "FPGA", i == 0 ? board::brain_tx : board::fpga_tx,
+        i == 0 ? board::brain_rx : board::fpga_rx, (unsigned long)baud,
+        int(code), (unsigned long)uart_bytes_[i].load(),
+        (unsigned long)uart_frames_[i].load(),
+        (unsigned long)uart_hw_errors_[i].load(),
+        (unsigned long)uart_parse_errors_[i].load(),
+        (unsigned long)uart_tx_frames_[i].load(),
+        gpio_get_level(gpio_num_t(i == 0 ? board::brain_rx : board::fpga_rx)));
+  }
 }
 void Runtime::StatsTask() {
   for (;;) {

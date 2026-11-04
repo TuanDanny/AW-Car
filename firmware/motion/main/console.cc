@@ -96,13 +96,16 @@ void PrintStatus(Runtime& runtime) {
 void Execute(Runtime& runtime, const char* line) {
   if (std::strcmp(line, "help") == 0) {
     std::printf(
-        "help | status | config | set KEY UINT | save | load | defaults | "
+        "help | status | uart | config | set KEY UINT | save | load | defaults "
+        "| "
         "stop\n"
         "Settings/storage require DISARMED. No USB ARM/MOVE/CLEAR command.\n"
         "validated=1 also requires a hardware-enabled build and verified "
         "gate.\n");
   } else if (std::strcmp(line, "status") == 0)
     PrintStatus(runtime);
+  else if (std::strcmp(line, "uart") == 0)
+    runtime.PrintUartDiagnostics();
   else if (std::strcmp(line, "config") == 0)
     PrintConfig(runtime.ReadSnapshot().config);
   else if (std::strcmp(line, "stop") == 0) {

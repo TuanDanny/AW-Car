@@ -25,6 +25,7 @@ class Runtime {
   bool BeginStorage(Config& config);
   bool EndStorage(const Config& config);
   void Stop();
+  void PrintUartDiagnostics();
   static uint64_t Now();
   void Inhibit(bool hard);
   void NotifyFromIsr(BaseType_t* wake);
@@ -75,6 +76,8 @@ class Runtime {
   std::atomic<bool> driver_live_{false}, stop_pending_{false},
       local_stop_{false};
   std::atomic<unsigned> uart_ready_{0};
+  std::atomic<uint32_t> uart_bytes_[2]{}, uart_frames_[2]{},
+      uart_hw_errors_[2]{}, uart_parse_errors_[2]{}, uart_tx_frames_[2]{};
   portMUX_TYPE snapshot_mux_ = portMUX_INITIALIZER_UNLOCKED;
   portMUX_TYPE stop_mux_ = portMUX_INITIALIZER_UNLOCKED;
   portMUX_TYPE driver_mux_ = portMUX_INITIALIZER_UNLOCKED;
