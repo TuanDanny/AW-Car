@@ -36,6 +36,6 @@
   "motion_app_sha256": "5fe244e94c688a23a2d89865f0749ef14f22b20d055b2ec1a00428cf07473577",
   "brain_nvs_preserved": true,
   "motion_nvs_and_config_preserved": true,
-  "ai_internet_test": "not_yet_verified_saved_ssid_absent",
+  "ai_internet_test": "outside_this_UART_window; see brain-apsta-online-report.json",
   "actuation_test": false
 }

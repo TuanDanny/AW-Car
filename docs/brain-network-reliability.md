@@ -202,3 +202,24 @@ Saved STA SSID vẫn vắng (reason201), chưa nghiệm thu Xiaozhi Internet tr�
 bản mới. Giữ APSTA; không chuyển AP-only hoặc bỏ heartbeat/fail-safe.
 [Số đo/hash đã lọc thông tin riêng](brain-motion-physical-report.json) là
 bản tổng hợp; raw log/flash vẫn ignored. Full ROOT90tests và build Brain đạt.
+
+## AP+STA cùng Xiaozhi online — bổ sung04/11
+
+Chủ dự án tự nhập cấu hình STA qua dashboard; không truyền mật khẩu qua
+chat. Không nạp/reset board hoặc sửa code trong lượt này. Ghi nhận nhậnIP,
+STA online đồng thời AP DHCP chạy/client1 trên kênh1. Trong cửa sổ online
+85,1s, số attempt giữ402 (không tiếp tục scan khi đã online), generation WS3
+giữ nguyên, số close/send/queue failure không tăng. Giá trị close cộng dồn1
+là peer_close lịch sử trước lượt thử, không phải một lỗi mới.
+
+Cùng cửa sổ đó có3STT và4đoạn text TTS trả lời AI, chuỗi
+connecting→listening→speaking→listening. Chứng minh đường Wi-Fi/Internet,
+nhận dạng và phản hồi Xiaozhi hoạt động đồng thời dashboard trên bản mới;
+không xác nhận âm thanh loa hoặc mọi tool điều khiển xe. UART STATUS tiếp
+tục~20Hz, errors không tăng, telemetry age trong mẫu≤45ms. Không panic/assert
+trong log thu được. Mode/motor không tự tăng quyền; firmware Motion vẫnLOCKED.
+
+[Báo cáo tổng hợp không chứa credentials/hội thoại](brain-apsta-online-report.json).
+SSID, mật khẩu, IP riêng, MAC, token và transcript chỉ ở raw log/build ignored;
+không đưa vào báo cáo hoặc commit. Kết quả này bổ sung nghiệm thu Internet cho
+bản mới, thay giới hạn “SSID vắng/chưa thử Internet” ở các mốc trước trên.

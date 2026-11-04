@@ -12,8 +12,9 @@ dashboard tối giản. Đã build/kiểm thử host và đọc monitor COM3 Bra
 Motion thật. Đã nạp giao diện mới; thử một chiều Motion→Brain đạt20Hz,
 0lỗi/age10–13ms. Đã đổi Motion sang TX13/RX14 để bỏ17/18 bị thông trở
 thấp và nạp hai board. UART hai chiều đạt0lỗi; Android WS giữ189s qua3lần
-retry STA, không đóng. **Chưa nghiệm thu motor hoặc Xiaozhi Internet trên
-bản mới**. Scan khi có client AP đã đo1,65s thay2,83s.
+retry STA, không đóng. Đã nối STA Internet đồng thời AW-CAR: nhận IP,
+Xiaozhi có3lượt nhận dạng/4đoạn trả lời, không ngắt WS hoặc lỗi UART trong
+cửa sổ đo. **Chưa nghiệm thu motor/loa**. Scan có client AP~1,65s thay2,83s.
 Xem [báo cáo mạng, UI và phần cứng](docs/brain-network-reliability.md).
 
 Mốc 03/11/2026 trên nhánh AI: đã có source dashboard Manual/AI, AP+STA,
