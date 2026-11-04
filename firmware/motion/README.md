@@ -8,7 +8,9 @@ chờ đảo chiều. PWM do FPGA phát; PI/PID, ToF/TCRT5000/MPU6050 để mố
 console/GPIO mặc định tắt trên COM7. Đã thử nối UART Brain ngày04/11 nhưng
 sau khi phát hiện thông17/18 đã đổi sang TX13/RX14 và nạp COM7.
 UART hai chiều đã thử với Android STOP/Cho phép: ~20Hz/0lỗi; driver vẫn
-LOCKED. Chưa ghép FPGA/gate/motor.
+LOCKED. Lượt đo lại210s cùng Xiaozhi/dashboard: Motion nhận thêm34khung,
+parser/HW/queue/TX errors hoặc drops0; Brain STATUS20,1Hz/age≤49ms, không
+tăng lỗi UART (bộ đếm Brain đã có1lỗi trước mẫu đầu). Chưa ghép FPGA/gate/motor.
 Xem [báo cáo](../../docs/motion-verification.md),
 [contract](../../docs/motion-plan.md), [bảng dây](../../hardware/motion-wiring.md).
 

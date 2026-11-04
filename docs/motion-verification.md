@@ -147,3 +147,29 @@ Brain/1.001byte, parser/HW errors0, queue/TXdrops0. Brain nhận STATUS tăng
 TX13/RX14 xác nhận qua console; không còn RX echo lúc idle. Driver và logical
 permit luôn LOW/configured=false. Đây là kiểm tra UART hai chiều; không gọi
 là nghiệm thu motor/gate/FPGA hoặc chạy bản enabled.
+
+## Chốt mốc UART hai ESP32 ngày04/11
+
+Đo lại đồng thời COM7 Motion/COM3 Brain trong210s, không nạp/reset hoặc
+đổi cấu hình. Người dùng thử STOP/Cho phép/STOP, đổi Manual/AI, hội thoại
+Xiaozhi trong khi dashboard Android chạy. Motion console chỉ hỏi status/uart.
+
+- UART1 đúng TX13/RX14, nhận thêm34khung BM-v1/442byte trong200,734s;
+  parser/HW errors0, TX tăng4.036khung. Queue/TX drops0, fault0.
+- Brain nhận thêm4.052STATUS/201,567s (~20,1Hz), tuổi dữ liệu≤49ms.
+  Brain parser counter1→1 (lỗi có trước mẫu đầu), HW errors0.
+- Motion luôn DISARMED, configured=false, driver/logical GPIO LOW;
+  heap free thấp nhất357.640byte. Không có reset/panic/USB interruption
+  trong log thu được; không gọi đây là phép đo latency motor.
+- STA Internet/AP DHCP giữ hoạt động, Xiaozhi có5STT/10đoạn trả lời.
+  Có một client Close1000 rồi handshake mới; phiên sau quan sát155,177s
+  không đóng. WS send failure cộng dồn1→1, không tăng ở lượt này.
+- Một lỗi1006/send_failure trước lượt đo chưa xác định nguyên nhân; người
+  dùng báo dây tuột nhưng không nhớ dây nào. Không gọi đã sửa dứt điểm.
+  Loa nghe được theo xác nhận người dùng nhưng còn rè, nguồn chưa đo.
+
+Firmware kiểm tra là Motion `89fd135`/Brain `d55e0b1`; chỉ cập nhật bằng
+chứng, không đổi fail-safe hoặc bật driver. Lượt này chốt giao tiếp hai ESP,
+chưa nghiệm thu FPGA/gate/E-stop, bản enabled hoặc motor. Source giữ nhánh
+Motion, PR draft; không merge main. Báo cáo đầy đủ đã lọc ở
+[nhánh Brain](https://github.com/TuanDanny/AW-Car/blob/feat/f03-xiaozhi-ai/docs/brain-motion-final-link-report.json).
