@@ -127,3 +127,23 @@ Người dùng đo và xác nhận GPIO17/18 trên Motion bị chập, đang ng�
 sửa. Tạm dừng board test, chưa xác nhận thông liên kết sau sửa. Còn phải đo
 STATUS20Hz/age<150ms và HELLO/STOP/ARM reject hai chiều. Raw log/flash backup
 chỉ giữ trong build ignored; không đưa vào PR.
+
+## Đổi UART Motion sang GPIO13/14
+
+Chủ dự án đo17–18 trên Motion còn0–5Ω cả hai chiều khi đã rút nguồn/dây,
+xác nhận bỏ cặp lỗi và yêu cầu đổi chân. `AWCAR_BRAIN_TX=13`, RX=14 trong
+Kconfig/defaults và profile nạp; UART1/1152008N1/BM-v1 không đổi. Brain vẫn
+TX17/RX18, dây: Motion13→Brain18, Motion14←Brain17, GND chung.
+
+Đã nạp COM7 tại0x0000, esptool kiểm hash; NVS và motioncfg so byte trùng
+trước/sau. Console báo TX13/RX14; RX không còn tự echo STATUS (0byte/0frame
+trong cửa sổ idle ban đầu), TX tăng~20frame/s. Brain nhận360→562STATUS trong
+10,1s, 0parser/hardware errors, age45–46ms. Motor và hai permit vẫn LOW.
+Build ESP-IDF6.1 LOCKED và71root tests đạt; không tự mở driver/validated.
+
+Sau thử Android STOP/Cho phép: monitor210s, Motion nhận77khung BM-v1 từ
+Brain/1.001byte, parser/HW errors0, queue/TXdrops0. Brain nhận STATUS tăng
+4.082khung/201,36s, parser/HW errors0, age lớn nhất48ms. Nhãn GPIO thực
+TX13/RX14 xác nhận qua console; không còn RX echo lúc idle. Driver và logical
+permit luôn LOW/configured=false. Đây là kiểm tra UART hai chiều; không gọi
+là nghiệm thu motor/gate/FPGA hoặc chạy bản enabled.

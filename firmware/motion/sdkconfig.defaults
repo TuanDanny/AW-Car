@@ -17,3 +17,7 @@ CONFIG_ESP_TASK_WDT_PANIC=y
 CONFIG_ESP_TASK_WDT_TIMEOUT_S=2
 # CONFIG_SPIRAM is not set
 # CONFIG_AWCAR_ENABLE_DRIVER is not set
+
+# Current Motion board: GPIO17/18 are electrically shorted; leave unused.
+CONFIG_AWCAR_BRAIN_TX=13
+CONFIG_AWCAR_BRAIN_RX=14

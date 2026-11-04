@@ -6,7 +6,9 @@ chờ đảo chiều. PWM do FPGA phát; PI/PID, ToF/TCRT5000/MPU6050 để mố
 
 **Mặc định ENABLE_DRIVER=n và validated=0: từ chối ARM.** Đã build và kiểm tra
 console/GPIO mặc định tắt trên COM7. Đã thử nối UART Brain ngày04/11 nhưng
-chưa thông; người dùng đang sửa chập17/18. Chưa ghép FPGA/gate/motor.
+sau khi phát hiện thông17/18 đã đổi sang TX13/RX14 và nạp COM7.
+UART hai chiều đã thử với Android STOP/Cho phép: ~20Hz/0lỗi; driver vẫn
+LOCKED. Chưa ghép FPGA/gate/motor.
 Xem [báo cáo](../../docs/motion-verification.md),
 [contract](../../docs/motion-plan.md), [bảng dây](../../hardware/motion-wiring.md).
 
@@ -79,3 +81,11 @@ byte/frame nhận, lỗi phần cứng/parser, frame gửi và mức RX hiện t
 driver/logical GPIO LOW. Người dùng xác nhận chập GPIO17/18, đang ngắt nguồn
 sửa; chưa xác nhận UART Brain–Motion hoạt động sau sửa. Không bật driver để
 thử đường UART. Bản Brain và dashboard mới giữ ở nhánh AI.
+
+## Profile chân hiện tại
+
+UART1 Brain dùng **MotionTX13/RX14**, nối BrainRX18/TX17 và GND chung.
+Thay17/18 trên Motion do chủ dự án đo thông0–5Ω cả hai chiều trên board.
+Để trống hai chân hỏng. UART FPGA15/16, console43/44 và gate không đổi.
+`Kconfig.projbuild` và sdkconfig.defaults đồng bộ13/14; sdkconfig cũ phải đổi
+hai giá trị AWCAR_BRAIN_TX/RX khi build. Nạp bản LOCKED trước khi nối lại dây.

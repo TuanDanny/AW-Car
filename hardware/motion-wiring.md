@@ -6,7 +6,7 @@ nhận header/dây/điện áp thực. TT9V theo shop, pack2S cấp VM DRV8833; 
 
 | Motion ESP32-S3 | Nối tới | Khi boot |
 | --- | --- | --- |
-| TX17/RX18 UART1 | Brain RX18/TX17 | BM-v1,115200 8N1 |
+| TX13/RX14 UART1 | Brain RX18/TX17 | BM-v1,115200 8N1 |
 | TX15/RX16 UART2 | FPGA RX/TX bank3,3V | v2,115200 8N1 |
 | GPIO4 motion_permit | FPGA logical permit | LOW |
 | GPIO5 recovery_req | FPGA request | LOW |
@@ -50,3 +50,12 @@ nghiệm thu cú kích100% trên motor thực.
 4. Đo D/N/W, dòng/nhiệt; build cho phép driver, validated khi DISARMED.
 5. Nhấc bánh thử hướng/dừng/đảo/kích có hạn, rồi thử vùng phẳng có kiểm soát.
    Mốc này chưa có cảm biến chống rơi/vật cản.
+
+## Đổi chân UART Brain ngày04/11/2026
+
+Theo đo của chủ dự án, GPIO17/18 trên board Motion thông0–5Ω cả hai chiều
+khi đã tháo dây/nguồn. Không dùng lại cặp này. Profile mới chỉ đổi Motion:
+TX13→BrainRX18, RX14←BrainTX17, GND chung; GPIO17/18 Motion để trống.
+GPIO13/14 không trùng pin UART FPGA/gate hiện tại. UART vẫn UART1,1152008N1,
+BM-v1, mức3,3V. Console giữ CH343/COM7. Đã thử UART vật lý hai chiều0lỗi;
+gate/motor chưa nghiệm thu.

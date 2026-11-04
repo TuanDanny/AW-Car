@@ -9,10 +9,10 @@ config AWCAR_ENABLE_DRIVER
         bypasses GPIO, session, status freshness, lease or ARM checks.
 config AWCAR_BRAIN_TX
     int "UART1 TX to Brain RX"
-    default 17
+    default 13
 config AWCAR_BRAIN_RX
     int "UART1 RX from Brain TX"
-    default 18
+    default 14
 config AWCAR_FPGA_TX
     int "UART2 TX to FPGA RX"
     default 15
