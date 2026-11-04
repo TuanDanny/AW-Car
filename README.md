@@ -9,6 +9,11 @@ Tác giả: **TuanDanny**. Cộng tác viên: **Minh Nho** và **Nhan Duc**.
 
 ## Trạng thái mốc 03–04/11/2026
 
+Cập nhật05/11: WS2812 GPIO48 dành báo trạng thái, không còn điều khiển đèn
+demo AI/Web trên nhánh Brain. Motion đang LOCKED nên xanh dương là đúng;
+lỗi đỏ, sẵn sàng cục bộ xanh lá. [Bằng chứng LED/UART](docs/motion-verification.md)
+ghi riêng host/build và thử hai board; không thay điều kiện ARM.
+
 Đây là nhánh **codex/esp32-s3-motion**, tạo từ main `094b37c`. Motion 0.1 có
 hai UART, vòng hở, kích đề-pa, chờ đảo chiều, lease và khóa driver độc lập.
 Đã build ESP-IDF 6.1 và thử console/NVS/đầu ra mặc định LOW trên COM7.

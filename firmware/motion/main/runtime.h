@@ -7,6 +7,7 @@
 #include "freertos/queue.h"
 #include "freertos/task.h"
 #include "motion_core.h"
+#include "status_indicator.h"
 
 namespace awcar::motion {
 struct Snapshot {
@@ -15,6 +16,9 @@ struct Snapshot {
   uint32_t rx_errors = 0, queue_drops = 0, log_drops = 0, tx_drops = 0;
   uint32_t latency_count = 0, p95_us = 0, p99_us = 0, max_us = 0;
   uint32_t heap_free = 0, heap_min = 0, control_stack = 0;
+  indicator::State indicator{};
+  bool led_known = false;
+  uint32_t led_writes = 0, led_errors = 0, led_max_us = 0;
 };
 class Runtime {
  public:

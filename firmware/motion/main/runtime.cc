@@ -10,6 +10,7 @@
 #include "esp_random.h"
 #include "esp_timer.h"
 #include "nvs_flash.h"
+#include "status_led.h"
 
 namespace awcar::motion {
 static_assert(std::atomic<uint32_t>::is_always_lock_free);
@@ -81,7 +82,8 @@ void Runtime::Start() {
   const int pins[] = {board::logical,  board::driver,      board::req,
                       board::ack,      board::fpga_permit, board::safety,
                       board::gate,     board::boot,        board::brain_tx,
-                      board::brain_rx, board::fpga_tx,     board::fpga_rx};
+                      board::brain_rx, board::fpga_tx,     board::fpga_rx,
+                      board::status_led};
   for (size_t i = 0; i < std::size(pins); ++i) {
     ESP_ERROR_CHECK(GPIO_IS_VALID_GPIO(pins[i]) ? ESP_OK : ESP_ERR_INVALID_ARG);
     // UART0 console and module flash/PSRAM/USB/strap pins are not reassigned.
@@ -522,7 +524,26 @@ void Runtime::PrintUartDiagnostics() {
   }
 }
 void Runtime::StatsTask() {
+  StatusLed led;
+  led.Init(board::status_led);
   for (;;) {
+    const auto current = ReadSnapshot();
+    // Load the other core's heartbeat before sampling time; it must not
+    // appear to come from the future and underflow the unsigned age.
+    const uint32_t control_at = heartbeat_.load();
+    const uint64_t now = Now();
+    const auto desired_indicator = indicator::Motion(current.view.fault,
+        current.view.fpga_fault, current.view.configured, current.view.fresh,
+        gpio_get_level(board::safety), gpio_get_level(board::gate),
+        !fault_pending_.load() && uint32_t(uint32_t(now) - control_at) < 20000);
+    led.Update(desired_indicator, now);
+    portENTER_CRITICAL(&snapshot_mux_);
+    snapshot_.indicator = desired_indicator;
+    snapshot_.led_known = led.Output().Known();
+    snapshot_.led_writes = led.Output().Writes();
+    snapshot_.led_errors = led.Output().Errors();
+    snapshot_.led_max_us = led.MaxWriteUs();
+    portEXIT_CRITICAL(&snapshot_mux_);
     for (int n = 0; n < 10; ++n) {
       LogEvent event;
       if (!xQueueReceive(logs_, &event, 0)) break;

@@ -173,3 +173,31 @@ chứng, không đổi fail-safe hoặc bật driver. Lượt này chốt giao t
 chưa nghiệm thu FPGA/gate/E-stop, bản enabled hoặc motor. Source giữ nhánh
 Motion, PR draft; không merge main. Báo cáo đầy đủ đã lọc ở
 [nhánh Brain](https://github.com/TuanDanny/AW-Car/blob/feat/f03-xiaozhi-ai/docs/brain-motion-final-link-report.json).
+
+## WS2812 trạng thái — 05/11/2026
+
+Thêm policy C++ chung với Brain và adapter RMT GPIO48, chạy trong StatsTask
+100ms sẵn có, chỉ refresh khi đổi màu; không thêm task/scan hoặc I/O vào
+control/UART/ISR. Priority lỗi đỏ; LOCKED/chờ FPGA/gate xanh dương; sẵn sàng
+cục bộ xanh lá. Wi-Fi/BLE Motion vẫn không khởi tạo. WS2812 không cấp quyền
+ARM hoặc thay khóa driver. Dependency led_strip3.0.3 có lockfile.
+
+72 root tests đạt, policy compile với -Werror; host kiểm từng bit fault,
+mask0x88ff, 100.000lần cùng màu chỉ1write và retry lỗi1s. Ghép production
+core Brain/Motion đạt, build ESP-IDF6.1 và nạp COM7 tại0x0000. NVS/motioncfg
+đọc trước và đối chiếu byte sau nạp không đổi. Code StatsTask đọc heartbeat
+trước clock để tránh underflow khi heartbeat core khác cập nhật giữa hai lần đọc.
+
+Monitor cuối65s đồng thời COM3/COM7:7mẫu Motion xanh dương/locked, writes1→1,
+errors0, write_max471µs, heap free350.316byte không đổi; RX/queue/TX/log
+errors hoặc drops0, driver/logical GPIO luôn LOW. Brain nhận1.202STATUS/
+60,12s (~19,99Hz), age≤45ms, parser/HW errors0. Người dùng xác nhận màu
+thật trên hai board, AI nghe/trả lời và Brain giữ xanh lá sau khi nối STA.
+
+Phép cố ý reset/nạp Motion còn tìm lỗi Brain không resync sequence khi
+đã DISARMED; đã sửa bên Brain, thêm4ca hồi quy về reset/STOP mất lúc boot.
+Brain báo đỏ khi STATUS cũ rồi phục hồi, không tự ARM. Chưa ghép FPGA/gate/
+motor nên chưa thử màu xanh lá Motion trên hardware sẵn sàng thực tế hoặc
+đo latency xe. Không kết luận lỗi1006 cũ/loa rè đã được sửa trong mốc LED.
+Report/hash và bằng chứng browser giả lập ở
+[nhánh Brain](https://github.com/TuanDanny/AW-Car/blob/feat/f03-xiaozhi-ai/docs/status-led.md).

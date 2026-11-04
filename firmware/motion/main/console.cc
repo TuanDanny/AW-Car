@@ -72,7 +72,8 @@ void PrintStatus(Runtime& runtime) {
       "\"latency_samples\":%lu,\"rx_to_uart_p95_us\":%s,\"rx_to_uart_p99_us\":"
       "%s,"
       "\"rx_to_uart_max_us\":%s,\"heap_free\":%lu,\"heap_min\":%lu,\"control_"
-      "stack\":%lu}\n",
+      "stack\":%lu,\"indicator\":{\"color\":\"%s\",\"reason\":\"%s\","
+      "\"known\":%s,\"writes\":%lu,\"errors\":%lu,\"write_max_us\":%lu}}\n",
       unsigned(v.state), v.fault, v.fpga_fault, unsigned(v.link_phase),
       static_cast<unsigned long>(v.epoch), v.driver_permit ? "true" : "false",
       v.motion_permit ? "true" : "false", gpio_get_level(board::driver),
@@ -91,7 +92,10 @@ void PrintStatus(Runtime& runtime) {
       static_cast<unsigned long>(s.latency_count), p95, p99, maximum,
       static_cast<unsigned long>(s.heap_free),
       static_cast<unsigned long>(s.heap_min),
-      static_cast<unsigned long>(s.control_stack));
+      static_cast<unsigned long>(s.control_stack),
+      indicator::Name(s.indicator.color), indicator::Name(s.indicator.reason),
+      s.led_known ? "true" : "false", static_cast<unsigned long>(s.led_writes),
+      static_cast<unsigned long>(s.led_errors), static_cast<unsigned long>(s.led_max_us));
 }
 void Execute(Runtime& runtime, const char* line) {
   if (std::strcmp(line, "help") == 0) {

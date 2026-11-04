@@ -15,6 +15,7 @@ nhận header/dây/điện áp thực. TT9V theo shop, pack2S cấp VM DRV8833; 
 | GPIO8 | safety_ok từ mạch E-stop/nguồn | Input pull-down, HIGH=khỏe |
 | GPIO9 | gate_fault_n từ chốt ngoài | Input pull-down, HIGH=đã clear |
 | GPIO10 driver_permit | Mạch gate driver độc lập | LOW |
+| GPIO48 WS2812 | LED onboard, Kconfig đổi theo revision | Xanh dương chờ |
 | GPIO0 BOOT | Nút tại Motion | STOP, không ARM/CLEAR |
 | GND | GND logic Brain/FPGA/driver | Không dẫn dòng motor qua dây tín hiệu |
 

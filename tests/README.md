@@ -1,5 +1,9 @@
 # Kiểm thử
 
+`test_status_indicator.py` compile policy C++ chung hai board: ưu tiên lỗi,
+mask diagnostic, chờ LOCKED/FPGA/gate, cache chỉ ghi khi màu đổi và retry1s.
+Đây là test phần mềm, màu vật lý/build được ghi trong docs/motion-verification.md.
+
 Hiện có test công cụ kiểm tra kho: README thư mục, snapshot đã stage, file ignore,
 tên nhánh và hook chặn commit/push vào main. Test dùng kho Git tạm, không push
 lên GitHub. Chạy bằng `python -m unittest discover -s tests`.

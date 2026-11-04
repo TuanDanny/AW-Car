@@ -1,4 +1,8 @@
 menu "AW-Car Motion"
+config AWCAR_STATUS_LED_GPIO
+    int "Onboard WS2812 data GPIO (verify board revision)"
+    range 0 48
+    default 48
 config AWCAR_ENABLE_DRIVER
     bool "Allow verified hardware to ARM (default disabled)"
     default n
