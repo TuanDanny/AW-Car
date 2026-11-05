@@ -1,0 +1,497 @@
+{
+  "schema": 1,
+  "recorded_at": "2026-11-05T16:38:35.617241+07:00",
+  "source_commit": "30d45edd9d8ad068175134d05cf6279e46d76d75",
+  "branch": "feat/f01-tang-nano9k-target",
+  "device": "GW1NR-9C",
+  "part": "GW1NR-LV9QN88PC6/I5",
+  "functional_signals": 17,
+  "onboard_leds": 6,
+  "active_low": true,
+  "led_package_pins": [
+    10,
+    11,
+    13,
+    14,
+    15,
+    16
+  ],
+  "led_vccio": 1.8,
+  "clock_hz": 27000000,
+  "derived_clock_added": false,
+  "counter_bits": 24,
+  "phase_bits": 1,
+  "priority": [
+    "FAULT",
+    "CONNECTED",
+    "WAITING"
+  ],
+  "fault_mask": "0x88ff",
+  "connected_states": [
+    1,
+    2,
+    3
+  ],
+  "waiting_state": 0,
+  "half_blink_cycles": 13500000,
+  "feedback_to_control": false,
+  "unchanged_control_source_sha256": {
+    "fpga/rtl/common/input_sync_filter.sv": "e3ede4e386ce6e6694f7bb5c1eceff4ee71650d8fa8f9c45f2427ff3d18c2d22",
+    "fpga/rtl/common/reset_sync.sv": "e09df8f0ffdeabe72a2a2932b887ede320490e0d809f6c137b9b1ad1e253a357",
+    "fpga/rtl/drive_core.sv": "3fe348093c70979e350eba7d1ad966ccc1aba05ea49aa4eeac1604582698729d",
+    "fpga/rtl/encoder/encoder_pair.sv": "6f824e997bdde3eda3deba02f112668359a4ae9f52370a6290c9eb7875f27e6f",
+    "fpga/rtl/encoder/pulse_counter.sv": "0a3bccf81008fad2a6314f796a6c6e32124f88a96248e0896700cfe0776cfdab",
+    "fpga/rtl/encoder/pulse_encoder_pair.sv": "a2896507afd8c14e6997fd1f55ea221cd4aa6a5b27c08a82aedef3e2acda47a4",
+    "fpga/rtl/encoder/quadrature_decoder.sv": "34d838b4f940d49b6f708eb4ca6d4bdec11d62ac490dec7938a5529cd4cf31ac",
+    "fpga/rtl/link/command_guard.sv": "e37bf10cbd2e7acc794bb54cb29355b9e835e41ce9244b10ec0f83ddd1581618",
+    "fpga/rtl/link/crc16_byte.sv": "f152a5e1a23b386b6b1ba978d83c16a68f23c7f37def73c5c73841978c896916",
+    "fpga/rtl/link/fpga_link.sv": "06c813c00ef9723426e1d98176a703f9a60362cecc577b5c0b220c48edd4f6c9",
+    "fpga/rtl/link/frame_rx.sv": "04dbf6363540d3f79e68695c6fbd491b0cd4b9cbb7d62bea03c10d970a75725d",
+    "fpga/rtl/link/frame_tx.sv": "6dfb562e2ad64b669fd540af78172b249ef228ab3b06f24feca6740244b2abd0",
+    "fpga/rtl/link/uart_rx.sv": "2db18dbdf89d44062e6160bf808cf987feb7f2980d62b0d9c5b4f7a5275b1232",
+    "fpga/rtl/link/uart_tx.sv": "6258dae78d3c8b572cf2650046ea04172efbd0879dd861e850b1ed67396d3f83",
+    "fpga/rtl/pwm/drv8833_adapter.sv": "6646330d195fbcf73e1d4db835b28ebd6f9058fccefa5aced6aa9bdb775ddcb4",
+    "fpga/rtl/pwm/motor_pwm_pair.sv": "942f702dfd897bd4398601d3b37b460881a1a60c527b45e0603f77b0991567a4",
+    "fpga/rtl/pwm/pwm_pair.sv": "9a88ec562cc2daf92de2383cd247343d70d86ced7e10e09aa8fcc218c14f7f8d",
+    "fpga/rtl/safety/runtime_diagnostics.sv": "40cb7fa83917f1427066d97076ac7ae4cb95c855362cbbfce48d891ff0e65a91",
+    "fpga/rtl/safety/safety_fsm.sv": "5a45eac037c6f80b9aa2863139271eca34ed9b0112aec8c121dd8812e689787b"
+  },
+  "root_python_tests": {
+    "passed": 57
+  },
+  "selected_rtl_tests": {
+    "tb_status_leds": {
+      "status": "passed",
+      "modules": [
+        "led_case",
+        "status_leds",
+        "tb_status_leds"
+      ],
+      "functional_counts": {},
+      "duration_seconds": 0.281
+    },
+    "tb_led_noninterference": {
+      "status": "passed",
+      "modules": [
+        "aw_car_top",
+        "command_guard",
+        "crc16_byte",
+        "drive_core",
+        "drv8833_adapter",
+        "fpga_link",
+        "frame_rx",
+        "frame_tx",
+        "input_sync_filter",
+        "motor_pwm_pair",
+        "pulse_counter",
+        "pulse_encoder_pair",
+        "pwm_pair",
+        "reset_sync",
+        "runtime_diagnostics",
+        "safety_fsm",
+        "status_leds",
+        "tb_led_noninterference",
+        "uart_rx",
+        "uart_tx"
+      ],
+      "functional_counts": {
+        "led_noninterference.compared_cycles": 79414,
+        "led_noninterference.active_pwm_ticks": 22552
+      },
+      "duration_seconds": 2.433
+    },
+    "tb_aw_car_top": {
+      "status": "passed",
+      "modules": [
+        "aw_car_top",
+        "command_guard",
+        "crc16_byte",
+        "drive_core",
+        "drv8833_adapter",
+        "fpga_link",
+        "frame_rx",
+        "frame_tx",
+        "input_sync_filter",
+        "motor_pwm_pair",
+        "pulse_counter",
+        "pulse_encoder_pair",
+        "pwm_pair",
+        "reset_sync",
+        "runtime_diagnostics",
+        "safety_fsm",
+        "status_leds",
+        "tb_aw_car_top",
+        "uart_rx",
+        "uart_tx"
+      ],
+      "functional_counts": {},
+      "duration_seconds": 2.35
+    },
+    "tb_diagnostics_uart": {
+      "status": "passed",
+      "modules": [
+        "aw_car_top",
+        "command_guard",
+        "crc16_byte",
+        "drive_core",
+        "drv8833_adapter",
+        "fpga_link",
+        "frame_rx",
+        "frame_tx",
+        "input_sync_filter",
+        "motor_pwm_pair",
+        "pulse_counter",
+        "pulse_encoder_pair",
+        "pwm_pair",
+        "reset_sync",
+        "runtime_diagnostics",
+        "safety_fsm",
+        "status_leds",
+        "tb_diagnostics_uart",
+        "uart_rx",
+        "uart_tx"
+      ],
+      "functional_counts": {
+        "diagnostics_uart.frames": 7
+      },
+      "duration_seconds": 0.577
+    },
+    "tb_encoder_pair": {
+      "status": "passed",
+      "modules": [
+        "encoder_pair",
+        "input_sync_filter",
+        "quadrature_decoder",
+        "tb_encoder_pair"
+      ],
+      "functional_counts": {},
+      "duration_seconds": 12.508
+    }
+  },
+  "module_evidence": {
+    "metric": "elaborated_in_passing_testbench",
+    "modules": {
+      "aw_car_top": [
+        "tb_led_noninterference",
+        "tb_aw_car_top",
+        "tb_diagnostics_uart"
+      ],
+      "command_guard": [
+        "tb_led_noninterference",
+        "tb_aw_car_top",
+        "tb_diagnostics_uart"
+      ],
+      "crc16_byte": [
+        "tb_led_noninterference",
+        "tb_aw_car_top",
+        "tb_diagnostics_uart"
+      ],
+      "drive_core": [
+        "tb_led_noninterference",
+        "tb_aw_car_top",
+        "tb_diagnostics_uart"
+      ],
+      "drv8833_adapter": [
+        "tb_led_noninterference",
+        "tb_aw_car_top",
+        "tb_diagnostics_uart"
+      ],
+      "encoder_pair": [
+        "tb_encoder_pair"
+      ],
+      "fpga_link": [
+        "tb_led_noninterference",
+        "tb_aw_car_top",
+        "tb_diagnostics_uart"
+      ],
+      "frame_rx": [
+        "tb_led_noninterference",
+        "tb_aw_car_top",
+        "tb_diagnostics_uart"
+      ],
+      "frame_tx": [
+        "tb_led_noninterference",
+        "tb_aw_car_top",
+        "tb_diagnostics_uart"
+      ],
+      "input_sync_filter": [
+        "tb_led_noninterference",
+        "tb_aw_car_top",
+        "tb_diagnostics_uart",
+        "tb_encoder_pair"
+      ],
+      "motor_pwm_pair": [
+        "tb_led_noninterference",
+        "tb_aw_car_top",
+        "tb_diagnostics_uart"
+      ],
+      "pulse_counter": [
+        "tb_led_noninterference",
+        "tb_aw_car_top",
+        "tb_diagnostics_uart"
+      ],
+      "pulse_encoder_pair": [
+        "tb_led_noninterference",
+        "tb_aw_car_top",
+        "tb_diagnostics_uart"
+      ],
+      "pwm_pair": [
+        "tb_led_noninterference",
+        "tb_aw_car_top",
+        "tb_diagnostics_uart"
+      ],
+      "quadrature_decoder": [
+        "tb_encoder_pair"
+      ],
+      "reset_sync": [
+        "tb_led_noninterference",
+        "tb_aw_car_top",
+        "tb_diagnostics_uart"
+      ],
+      "runtime_diagnostics": [
+        "tb_led_noninterference",
+        "tb_aw_car_top",
+        "tb_diagnostics_uart"
+      ],
+      "safety_fsm": [
+        "tb_led_noninterference",
+        "tb_aw_car_top",
+        "tb_diagnostics_uart"
+      ],
+      "status_leds": [
+        "tb_status_leds",
+        "tb_led_noninterference",
+        "tb_aw_car_top",
+        "tb_diagnostics_uart"
+      ],
+      "uart_rx": [
+        "tb_led_noninterference",
+        "tb_aw_car_top",
+        "tb_diagnostics_uart"
+      ],
+      "uart_tx": [
+        "tb_led_noninterference",
+        "tb_aw_car_top",
+        "tb_diagnostics_uart"
+      ]
+    },
+    "covered": 21,
+    "total": 21,
+    "missing": [],
+    "line_branch_toggle_coverage": "not_measured",
+    "physical_timing": "not_measured"
+  },
+  "miter": {
+    "led_noninterference.compared_cycles": 79414,
+    "led_noninterference.active_pwm_ticks": 22552
+  },
+  "all36_testbenches_rerun": false,
+  "mapped_tests": [
+    {
+      "hello": false,
+      "result": "PASS",
+      "sdf": false
+    },
+    {
+      "hello": true,
+      "result": "PASS",
+      "sdf": false
+    }
+  ],
+  "timing": {
+    "fmax_mhz": 44.816,
+    "setup_violated_endpoints": 0,
+    "hold_violated_endpoints": 0,
+    "paths_analyzed": 4787,
+    "endpoints_analyzed": 4571,
+    "delay_models": {
+      "Setup": "Slow 1.14V 85C C6/I5",
+      "Hold": "Fast 1.26V 0C C6/I5"
+    },
+    "worst_setup_slack_ns": 12.771,
+    "worst_hold_slack_ns": 0.358,
+    "worst_recovery_slack_ns": 28.179,
+    "worst_removal_slack_ns": 1.831,
+    "tns_ns": {
+      "setup": 0.0,
+      "hold": 0.0
+    },
+    "active_constraints": 9,
+    "asynchronous_first_stage_exceptions": 4,
+    "unconstrained_path_count": null,
+    "unconstrained_note": "Not enumerated by Gowin automatic report; all23 boundary signals inventoried,9 constraints active;4 first-sampler D pins intentionally excepted. CDC/MTBF and board IO remain separate sign-off.",
+    "lut4": 1657,
+    "alu": 311,
+    "logic_cells": 1968,
+    "logic_ff": 1593,
+    "io_ff": 4,
+    "latches": 0,
+    "io_latches": 0,
+    "io_ports": 23,
+    "io_buffers": 23,
+    "bram_primitives": 0,
+    "mapped_encoder_inputs_present": true,
+    "por_initialization_checked": true,
+    "timing_pass": true
+  },
+  "resource_delta_vs_before_led": {
+    "logic_ff": 25,
+    "io_ff": 0,
+    "lut4": -6
+  },
+  "source_files": {
+    "src/rtl/aw_car_top.sv": {
+      "source_path": "fpga/rtl/aw_car_top.sv",
+      "sha256": "5f4b33ed69e329c4bad64967e1eeca9274a651e7af413e1197f3855b5c01d67b"
+    },
+    "src/rtl/common/input_sync_filter.sv": {
+      "source_path": "fpga/rtl/common/input_sync_filter.sv",
+      "sha256": "e3ede4e386ce6e6694f7bb5c1eceff4ee71650d8fa8f9c45f2427ff3d18c2d22"
+    },
+    "src/rtl/common/status_leds.sv": {
+      "source_path": "fpga/rtl/common/status_leds.sv",
+      "sha256": "3edad75c8318742e1040cb21d23a20f083b8149072adabec5c7be0286cac42bb"
+    },
+    "src/rtl/common/reset_sync.sv": {
+      "source_path": "fpga/rtl/common/reset_sync.sv",
+      "sha256": "e09df8f0ffdeabe72a2a2932b887ede320490e0d809f6c137b9b1ad1e253a357"
+    },
+    "src/rtl/drive_core.sv": {
+      "source_path": "fpga/rtl/drive_core.sv",
+      "sha256": "3fe348093c70979e350eba7d1ad966ccc1aba05ea49aa4eeac1604582698729d"
+    },
+    "src/rtl/encoder/encoder_pair.sv": {
+      "source_path": "fpga/rtl/encoder/encoder_pair.sv",
+      "sha256": "6f824e997bdde3eda3deba02f112668359a4ae9f52370a6290c9eb7875f27e6f"
+    },
+    "src/rtl/encoder/pulse_counter.sv": {
+      "source_path": "fpga/rtl/encoder/pulse_counter.sv",
+      "sha256": "0a3bccf81008fad2a6314f796a6c6e32124f88a96248e0896700cfe0776cfdab"
+    },
+    "src/rtl/encoder/pulse_encoder_pair.sv": {
+      "source_path": "fpga/rtl/encoder/pulse_encoder_pair.sv",
+      "sha256": "a2896507afd8c14e6997fd1f55ea221cd4aa6a5b27c08a82aedef3e2acda47a4"
+    },
+    "src/rtl/encoder/quadrature_decoder.sv": {
+      "source_path": "fpga/rtl/encoder/quadrature_decoder.sv",
+      "sha256": "34d838b4f940d49b6f708eb4ca6d4bdec11d62ac490dec7938a5529cd4cf31ac"
+    },
+    "src/rtl/link/command_guard.sv": {
+      "source_path": "fpga/rtl/link/command_guard.sv",
+      "sha256": "e37bf10cbd2e7acc794bb54cb29355b9e835e41ce9244b10ec0f83ddd1581618"
+    },
+    "src/rtl/link/crc16_byte.sv": {
+      "source_path": "fpga/rtl/link/crc16_byte.sv",
+      "sha256": "f152a5e1a23b386b6b1ba978d83c16a68f23c7f37def73c5c73841978c896916"
+    },
+    "src/rtl/link/fpga_link.sv": {
+      "source_path": "fpga/rtl/link/fpga_link.sv",
+      "sha256": "06c813c00ef9723426e1d98176a703f9a60362cecc577b5c0b220c48edd4f6c9"
+    },
+    "src/rtl/link/frame_rx.sv": {
+      "source_path": "fpga/rtl/link/frame_rx.sv",
+      "sha256": "04dbf6363540d3f79e68695c6fbd491b0cd4b9cbb7d62bea03c10d970a75725d"
+    },
+    "src/rtl/link/frame_tx.sv": {
+      "source_path": "fpga/rtl/link/frame_tx.sv",
+      "sha256": "6dfb562e2ad64b669fd540af78172b249ef228ab3b06f24feca6740244b2abd0"
+    },
+    "src/rtl/link/uart_rx.sv": {
+      "source_path": "fpga/rtl/link/uart_rx.sv",
+      "sha256": "2db18dbdf89d44062e6160bf808cf987feb7f2980d62b0d9c5b4f7a5275b1232"
+    },
+    "src/rtl/link/uart_tx.sv": {
+      "source_path": "fpga/rtl/link/uart_tx.sv",
+      "sha256": "6258dae78d3c8b572cf2650046ea04172efbd0879dd861e850b1ed67396d3f83"
+    },
+    "src/rtl/pwm/drv8833_adapter.sv": {
+      "source_path": "fpga/rtl/pwm/drv8833_adapter.sv",
+      "sha256": "6646330d195fbcf73e1d4db835b28ebd6f9058fccefa5aced6aa9bdb775ddcb4"
+    },
+    "src/rtl/pwm/motor_pwm_pair.sv": {
+      "source_path": "fpga/rtl/pwm/motor_pwm_pair.sv",
+      "sha256": "942f702dfd897bd4398601d3b37b460881a1a60c527b45e0603f77b0991567a4"
+    },
+    "src/rtl/pwm/pwm_pair.sv": {
+      "source_path": "fpga/rtl/pwm/pwm_pair.sv",
+      "sha256": "9a88ec562cc2daf92de2383cd247343d70d86ced7e10e09aa8fcc218c14f7f8d"
+    },
+    "src/rtl/safety/runtime_diagnostics.sv": {
+      "source_path": "fpga/rtl/safety/runtime_diagnostics.sv",
+      "sha256": "40cb7fa83917f1427066d97076ac7ae4cb95c855362cbbfce48d891ff0e65a91"
+    },
+    "src/rtl/safety/safety_fsm.sv": {
+      "source_path": "fpga/rtl/safety/safety_fsm.sv",
+      "sha256": "5a45eac037c6f80b9aa2863139271eca34ed9b0112aec8c121dd8812e689787b"
+    },
+    "src/target/aw_car_nano9k.sv": {
+      "source_path": "fpga/targets/tang_nano9k/aw_car_nano9k.sv",
+      "sha256": "d68ddddddaafb9680fae10274656fa6333d48bb0b80fb854fd00e4b81510e63c"
+    },
+    "src/target/aw_car_nano9k.cst": {
+      "source_path": "fpga/targets/tang_nano9k/aw_car_nano9k.cst",
+      "sha256": "4197069bf41b531fe6a1396d7beaa6372c0c904081be105939d8076a275f83f6"
+    },
+    "src/target/aw_car_nano9k.sdc": {
+      "source_path": "fpga/targets/tang_nano9k/aw_car_nano9k.sdc",
+      "sha256": "098f4d036593c32ba5c2a1bab05396093d3bc6190326f1479ef1cdf8fdbb9918"
+    }
+  },
+  "artifact_sha256": {
+    "aw_car_nano9k.tr": "422c015a3b3c0f34ce5a554f70467d10e6d9420248d9d517034c20d6b79bc595",
+    "aw_car_nano9k.rpt.txt": "10bca60d6733ad591427ed3ec1b9bc0aa9c9804bfaf86baa3513c2778435a150",
+    "aw_car_nano9k.vo": "96c28eb97f64f30cea6401fe7f22df97b0e829723f73714a7349997a4b2aa801",
+    "aw_car_nano9k.fs": "23304499f5c36af116a5b78d1f75a73e17356bd0fb7024d83b81fc5f5b7092c2"
+  },
+  "programming": {
+    "started_utc": "2026-11-05T09:35:24.668214+00:00",
+    "command": [
+      "C:/Gowin/Gowin_V1.9.11.03_Education_x64/Programmer/bin/programmer_cli.exe",
+      "--device",
+      "GW1NR-9C",
+      "--operation_index",
+      "2",
+      "--fsFile",
+      "D:\\Project\\AW-Car\\fpga\\IDE-fpga\\awcar_project\\impl\\pnr\\aw_car_nano9k.fs",
+      "--cable-index",
+      "4",
+      "--location",
+      "529",
+      "--chain_index",
+      "0",
+      "--chain_size",
+      "1",
+      "--frequency",
+      "2.5MHz"
+    ],
+    "operation": "SRAM Program",
+    "source_commit": "30d45edd9d8ad068175134d05cf6279e46d76d75",
+    "bitstream_sha256": "23304499f5c36af116a5b78d1f75a73e17356bd0fb7024d83b81fc5f5b7092c2",
+    "expected_usercode": "0x00009EF7",
+    "security_bit": "ON",
+    "configuration_crc": "ON",
+    "flash_written": false,
+    "returncode": 0
+  },
+  "observed_usercode": "0x00009EF7",
+  "observed_status": "0x0003F020",
+  "readback_verify": "Not attempted; SecurityBit remains ON, SRAM Program with device CRC used",
+  "user_observation": "User confirmed all6 LEDs steadily ON after programming",
+  "user_observation_scope": "FAULT display observed; specific fault bits, connected and waiting on hardware not independently measured",
+  "gate_hardware": "not present",
+  "health_inputs_assumed_good": false,
+  "uart_encoder_motor_hardware_verified": false,
+  "motion_locked_changed": false,
+  "flash_written": false,
+  "raw_log_sha256": {
+    "build-cli.log": "993e4ee907de3ca09053e51276e7e8e7709050c0cbae2048e961e33bcab3536c",
+    "verify-cli.log": "2021c8e6532b46bb492f9a4068ca569e0efabad978b5416b5509ccf36757780c",
+    "mapped-0.log": "9eddf0ab5d465bcc16f30e5af67ecc2438c55dbba1b0c258238c9263ce75ec2b",
+    "mapped-1.log": "818937829e8f40e2d180846d4a65b077a1ca60ef1cd21a4c79c6b347dcf663b2",
+    "cables-before-led.log": "2e0554b8cb18a41ab867377e9826c236741df015bd341c62bbd590c6025530b8",
+    "device-before-led.log": "96791a1622120dcbe9d2d1f18cb2b2459f79be2ce5ba656d684fc374ac9676cc",
+    "program-led-sram.log": "2628aed4b5d6e2f0110a5a393137ff965d9addc7e5950d40374b3b0dc41471e1",
+    "device-after-led.log": "a8538f00c46177b0a9bf2c8bc32eb2ac800f43a8fcd729c035fd4fa3352f5909"
+  },
+  "rtl_report_sha256": "8abe0c12b9147471c61cde6559a2d3a76d25d83b09501f9e1d1ea65753713cf0"
+}

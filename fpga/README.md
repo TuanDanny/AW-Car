@@ -13,6 +13,11 @@ Target đã đạt kiểm thử phần mềm/STA theo báo cáo; các mô tả c
 dưới thuộc RTL của nhánh này, chưa ghép source target. Đã [nạp SRAM bằng CLI](references/tang_nano9k/sram-run-2026-11-05.md)
 trên Tang thật; chưa nghiệm thu truyền động hoặc gate/E-stop.
 
+Mốc LED tiếp theo: [báo cáo observer nguồn30d45ed](references/tang_nano9k/status-leds-report.md),
+17 tín hiệu chức năng +6 LED onboard1,8V. Đã nạp SRAM và người dùng xác nhận
+cả6 sáng; LED không tham gia ARM/PWM/watchdog/gate. Source target tiếp tục ở
+`feat/f01-tang-nano9k-target`, không suy kết quả này cho RTL baseline nhánh này.
+
 Trạng thái: đã có RTL/testbench cho reset, encoder một OUT/A-B hai bên, snapshot,
 count/period/age theo protocol v2 mặc định (STATUS 34 byte/frame 47 byte),
 PWM hai kênh, trình tự đổi chiều độc lập driver và UART/parser/CRC/serializer/
