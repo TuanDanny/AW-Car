@@ -1,0 +1,204 @@
+{
+  "schema": 1,
+  "recorded_at": "2026-11-05T15:53:08.126748+07:00",
+  "source_commit": "17a0ccbd26c2e6fe916877c0290ebebc3f3a514d",
+  "source_documentation_commit": "697c4fa4ab944f2205226de7c01692d91bf1d524",
+  "workspace": "D:/Project/AW-Car/fpga/IDE-fpga/awcar_project",
+  "tool": "Gowin V1.9.11.03 Education",
+  "device": "GW1NR-9C",
+  "idcode": "0x1100481B",
+  "part": "GW1NR-LV9QN88PC6/I5",
+  "cable": "USB Debugger A/0/529",
+  "jtag_frequency": "2.5MHz",
+  "configuration_mode": "volatile SRAM; flash untouched",
+  "timing": {
+    "fmax_mhz": 35.963,
+    "setup_violated_endpoints": 0,
+    "hold_violated_endpoints": 0,
+    "paths_analyzed": 4672,
+    "endpoints_analyzed": 4487,
+    "delay_models": {
+      "Setup": "Slow 1.14V 85C C6/I5",
+      "Hold": "Fast 1.26V 0C C6/I5"
+    },
+    "worst_setup_slack_ns": 9.23,
+    "worst_hold_slack_ns": 0.357,
+    "worst_recovery_slack_ns": 29.294,
+    "worst_removal_slack_ns": 1.906,
+    "tns_ns": {
+      "setup": 0.0,
+      "hold": 0.0
+    },
+    "active_constraints": 9,
+    "asynchronous_first_stage_exceptions": 4,
+    "unconstrained_path_count": null,
+    "unconstrained_note": "Not enumerated by Gowin automatic report; all17 boundary ports inventoried,9 constraints active;4 first-sampler D pins intentionally excepted. CDC/MTBF and board IO remain separate sign-off.",
+    "lut4": 1663,
+    "alu": 311,
+    "logic_cells": 1974,
+    "logic_ff": 1568,
+    "io_ff": 4,
+    "latches": 0,
+    "io_latches": 0,
+    "io_ports": 17,
+    "io_buffers": 17,
+    "bram_primitives": 0,
+    "mapped_encoder_inputs_present": true,
+    "por_initialization_checked": true,
+    "timing_pass": true
+  },
+  "pin_contract": "PASS",
+  "mapped_tests": [
+    {
+      "hello": false,
+      "result": "PASS",
+      "sdf": false
+    },
+    {
+      "hello": true,
+      "result": "PASS",
+      "sdf": false
+    }
+  ],
+  "source_files": {
+    "src/rtl/aw_car_top.sv": {
+      "source_path": "fpga/rtl/aw_car_top.sv",
+      "sha256": "2b8f92cda28bea1bc1bf183d2bd79f3ce007a235e229802f6e5771b1dc6268ab"
+    },
+    "src/rtl/common/input_sync_filter.sv": {
+      "source_path": "fpga/rtl/common/input_sync_filter.sv",
+      "sha256": "e3ede4e386ce6e6694f7bb5c1eceff4ee71650d8fa8f9c45f2427ff3d18c2d22"
+    },
+    "src/rtl/common/reset_sync.sv": {
+      "source_path": "fpga/rtl/common/reset_sync.sv",
+      "sha256": "e09df8f0ffdeabe72a2a2932b887ede320490e0d809f6c137b9b1ad1e253a357"
+    },
+    "src/rtl/drive_core.sv": {
+      "source_path": "fpga/rtl/drive_core.sv",
+      "sha256": "3fe348093c70979e350eba7d1ad966ccc1aba05ea49aa4eeac1604582698729d"
+    },
+    "src/rtl/encoder/encoder_pair.sv": {
+      "source_path": "fpga/rtl/encoder/encoder_pair.sv",
+      "sha256": "6f824e997bdde3eda3deba02f112668359a4ae9f52370a6290c9eb7875f27e6f"
+    },
+    "src/rtl/encoder/pulse_counter.sv": {
+      "source_path": "fpga/rtl/encoder/pulse_counter.sv",
+      "sha256": "0a3bccf81008fad2a6314f796a6c6e32124f88a96248e0896700cfe0776cfdab"
+    },
+    "src/rtl/encoder/pulse_encoder_pair.sv": {
+      "source_path": "fpga/rtl/encoder/pulse_encoder_pair.sv",
+      "sha256": "a2896507afd8c14e6997fd1f55ea221cd4aa6a5b27c08a82aedef3e2acda47a4"
+    },
+    "src/rtl/encoder/quadrature_decoder.sv": {
+      "source_path": "fpga/rtl/encoder/quadrature_decoder.sv",
+      "sha256": "34d838b4f940d49b6f708eb4ca6d4bdec11d62ac490dec7938a5529cd4cf31ac"
+    },
+    "src/rtl/link/command_guard.sv": {
+      "source_path": "fpga/rtl/link/command_guard.sv",
+      "sha256": "e37bf10cbd2e7acc794bb54cb29355b9e835e41ce9244b10ec0f83ddd1581618"
+    },
+    "src/rtl/link/crc16_byte.sv": {
+      "source_path": "fpga/rtl/link/crc16_byte.sv",
+      "sha256": "f152a5e1a23b386b6b1ba978d83c16a68f23c7f37def73c5c73841978c896916"
+    },
+    "src/rtl/link/fpga_link.sv": {
+      "source_path": "fpga/rtl/link/fpga_link.sv",
+      "sha256": "06c813c00ef9723426e1d98176a703f9a60362cecc577b5c0b220c48edd4f6c9"
+    },
+    "src/rtl/link/frame_rx.sv": {
+      "source_path": "fpga/rtl/link/frame_rx.sv",
+      "sha256": "04dbf6363540d3f79e68695c6fbd491b0cd4b9cbb7d62bea03c10d970a75725d"
+    },
+    "src/rtl/link/frame_tx.sv": {
+      "source_path": "fpga/rtl/link/frame_tx.sv",
+      "sha256": "6dfb562e2ad64b669fd540af78172b249ef228ab3b06f24feca6740244b2abd0"
+    },
+    "src/rtl/link/uart_rx.sv": {
+      "source_path": "fpga/rtl/link/uart_rx.sv",
+      "sha256": "2db18dbdf89d44062e6160bf808cf987feb7f2980d62b0d9c5b4f7a5275b1232"
+    },
+    "src/rtl/link/uart_tx.sv": {
+      "source_path": "fpga/rtl/link/uart_tx.sv",
+      "sha256": "6258dae78d3c8b572cf2650046ea04172efbd0879dd861e850b1ed67396d3f83"
+    },
+    "src/rtl/pwm/drv8833_adapter.sv": {
+      "source_path": "fpga/rtl/pwm/drv8833_adapter.sv",
+      "sha256": "6646330d195fbcf73e1d4db835b28ebd6f9058fccefa5aced6aa9bdb775ddcb4"
+    },
+    "src/rtl/pwm/motor_pwm_pair.sv": {
+      "source_path": "fpga/rtl/pwm/motor_pwm_pair.sv",
+      "sha256": "942f702dfd897bd4398601d3b37b460881a1a60c527b45e0603f77b0991567a4"
+    },
+    "src/rtl/pwm/pwm_pair.sv": {
+      "source_path": "fpga/rtl/pwm/pwm_pair.sv",
+      "sha256": "9a88ec562cc2daf92de2383cd247343d70d86ced7e10e09aa8fcc218c14f7f8d"
+    },
+    "src/rtl/safety/runtime_diagnostics.sv": {
+      "source_path": "fpga/rtl/safety/runtime_diagnostics.sv",
+      "sha256": "40cb7fa83917f1427066d97076ac7ae4cb95c855362cbbfce48d891ff0e65a91"
+    },
+    "src/rtl/safety/safety_fsm.sv": {
+      "source_path": "fpga/rtl/safety/safety_fsm.sv",
+      "sha256": "5a45eac037c6f80b9aa2863139271eca34ed9b0112aec8c121dd8812e689787b"
+    },
+    "src/target/aw_car_nano9k.sv": {
+      "source_path": "fpga/targets/tang_nano9k/aw_car_nano9k.sv",
+      "sha256": "0b254fee2995f00ff061aa26d99fd12501d93142e2d797bcae020bd15f667f90"
+    },
+    "src/target/aw_car_nano9k.cst": {
+      "source_path": "fpga/targets/tang_nano9k/aw_car_nano9k.cst",
+      "sha256": "87f0648e9433884601344e6a3b826675fe4944d682172366b0f9baca4b0b6507"
+    },
+    "src/target/aw_car_nano9k.sdc": {
+      "source_path": "fpga/targets/tang_nano9k/aw_car_nano9k.sdc",
+      "sha256": "71dd6ad70c68f350015ca9ed0d77e09932bd181c7a0a0c1d1cb9229f1718d2b5"
+    }
+  },
+  "build_artifact_sha256": {
+    "aw_car_nano9k.tr": "902bfcc1364567842c2296f2cc70e428dfe4bb3aabcf3e4f47a607f9b0336e0e",
+    "aw_car_nano9k.rpt.txt": "f0ef39be08d2bf84cbe2add5931166e7765c07dc952f05fcd8d00816b0fdfb7d",
+    "aw_car_nano9k.vo": "ebf5bcccc4aab792c62bcf18abefaeaacd8db1bacfeeeea4917c50ee27ee0e04",
+    "aw_car_nano9k.fs": "1e54bd60615213dcd28ce60b319b6340452ee77b0ba72a444946b8aa6fce7e2c"
+  },
+  "program_attempts": [
+    {
+      "operation": "SRAM Program and Verify",
+      "operation_index": 4,
+      "exit_code": 18,
+      "result": "READBACK VERIFY FAILED; SecurityBit ON blocks readback; not PASS"
+    },
+    {
+      "operation": "SRAM Program",
+      "operation_index": 2,
+      "exit_code": 0,
+      "result": "PASS with device configuration CRC enabled",
+      "seconds": 3.02
+    }
+  ],
+  "security_bit": "ON, unchanged",
+  "configuration_crc": "ON, unchanged",
+  "expected_usercode": "0x0000DFE1",
+  "observed_usercode": "0x0000DFE1",
+  "observed_status": "0x0003F020",
+  "programming": "PASS_CRC_PROGRAM_AND_DEVICE_CODES",
+  "readback_verification": "NOT AVAILABLE with SecurityBit ON; operation4 attempt FAILED",
+  "fpga_outputs_measured": false,
+  "uart_status_on_hardware_verified": false,
+  "encoder_on_hardware_verified": false,
+  "gate_estop_motor_verified": false,
+  "motion_locked_changed": false,
+  "flash_written": false,
+  "raw_log_sha256": {
+    "build-cli.log": "2d57912b30e0797fec38c24d7c7512f3d9bef46a351bab742c96e05e65cf9607",
+    "verify-cli.log": "03445d0552bb23ced951cee106b43faffae74f49b14aa0acf8bb026ba7488d5f",
+    "mapped-0.log": "e7bf4ba0ff4d8f090d580bab680bcdcd1f3638729f21d3dcaddd0a9c587cbb54",
+    "mapped-1.log": "a7fa8da8172408de32f054e1582e5604c7f90e2cb7b9ba0dc39dd9c51d0f2e2d",
+    "cables-before-sram.log": "4efe457245d5457f7a0fff9f6dae65c05705568451744ae4ee48d4e87b5118c2",
+    "device-before-sram.log": "b6a707dcdaa0734658e019c11042d640604c601361efac566775c2b84c773df7",
+    "program-sram.log": "ff479ef17938d4f0f9446a1660e2736203d427149069ccb5f2e32214fb660b88",
+    "program-sram-crc.log": "53e8a72b69fdbe56fb557c0f0b885310590b5d1dbc44c37d7ad8b896a8b133c8",
+    "device-after-sram.log": "56b8b7a23e870bb613f4d740176fb8f81e492cf56da8365c1b2f4885164b6296"
+  },
+  "vendor_source": "https://www.gowinsemi.com/upload/database_doc/41/document/5b96299fe6aa7.pdf",
+  "installed_manual": "UG290-2.8.1E pages4,114-115; SUG100-4.4.2E page40"
+}
