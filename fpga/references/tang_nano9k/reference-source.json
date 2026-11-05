@@ -1,0 +1,46 @@
+{
+  "snapshot_date": "2026-11-05",
+  "source_branch": "feat/f01-tang-nano9k-target",
+  "documentation_commit": "697c4fa4ab944f2205226de7c01692d91bf1d524",
+  "implementation_commit": "17a0ccbd26c2e6fe916877c0290ebebc3f3a514d",
+  "destination_role": "Reference documentation only; not a target implementation merge",
+  "source_directory": "fpga/targets/tang_nano9k",
+  "files": {
+    "README.md": {
+      "source_sha256": "90589e767348532088c47069cdc254ec9ac6deb890a2517fb57fb6bae8f20b10",
+      "reference_sha256": "536d8997734da748ceb067eaeecda0258f6460e6baae2c912c983c609a3293fc",
+      "adaptation": "Reference-context banner; README CLI link changed to literal target path"
+    },
+    "timing-report.md": {
+      "source_sha256": "7a50debdb408606ee6733f1654633370316d5601dd0a117120e200272c1c90e1",
+      "reference_sha256": "5024d17b314c3aedf005f9f4cf926a1ecdc12d8fc0ae4a28fe53b72a457531dc",
+      "adaptation": "Reference-context banner"
+    },
+    "timing-evidence.json": {
+      "source_sha256": "93a93119f46b813fc8548b5ce440ff75a76bdb5332dc58982adb0888e96da488",
+      "reference_sha256": "93a93119f46b813fc8548b5ce440ff75a76bdb5332dc58982adb0888e96da488",
+      "adaptation": "Byte-identical copy"
+    },
+    "hardware-audit.md": {
+      "source_sha256": "6397836da26520d116d6847e4d9787891781ccaa335fd0010dee4b7c511b25e7",
+      "reference_sha256": "6397836da26520d116d6847e4d9787891781ccaa335fd0010dee4b7c511b25e7",
+      "adaptation": "Byte-identical copy"
+    },
+    "pinout.md": {
+      "source_sha256": "05a1fbd7fa7b59a01f35b7ab37e0a61af77f8a802a8be4d9b3f8cb9e7d49a85e",
+      "reference_sha256": "05a1fbd7fa7b59a01f35b7ab37e0a61af77f8a802a8be4d9b3f8cb9e7d49a85e",
+      "adaptation": "Byte-identical copy"
+    },
+    "pinout.json": {
+      "source_sha256": "b68050228a30c6d0c97de03c6fe6fb816e887762ac2e39fd43d64f5c6c1c5036",
+      "reference_sha256": "b68050228a30c6d0c97de03c6fe6fb816e887762ac2e39fd43d64f5c6c1c5036",
+      "adaptation": "Byte-identical copy"
+    },
+    "bringup-checklist.md": {
+      "source_sha256": "f7567d8c0c1f4d82a255f23e9c09ff8feb53c82bce37a46fdeca196e60585d0b",
+      "reference_sha256": "f7567d8c0c1f4d82a255f23e9c09ff8feb53c82bce37a46fdeca196e60585d0b",
+      "adaptation": "Byte-identical copy"
+    }
+  },
+  "hash_basis": "UTF-8 bytes stored in Git, with LF line endings"
+}

@@ -6,6 +6,12 @@ cảm biến an toàn nằm ở ESP32 Motion. Giữ encoder A/B X4 là cấu hì
 Toàn bộ nguồn RTL/testbench dùng **SystemVerilog, đuôi `.sv`**; hook/CI chặn
 đuôi HDL khác. Runner bật `iverilog -g2012`, script tổng hợp bật `read_verilog -sv`.
 
+Tài liệu tham chiếu ngày 05/11/2026: [hướng dẫn target Tang Nano 9K/Gowin](references/tang_nano9k/README.md)
+và [báo cáo timing/kiểm thử](references/tang_nano9k/timing-report.md), lấy từ
+nhánh `feat/f01-tang-nano9k-target`, implementation `17a0ccb`, tài liệu `697c4fa`.
+Target đã đạt kiểm thử phần mềm/STA theo báo cáo; các mô tả chưa có target bên
+dưới thuộc RTL của nhánh này, chưa ghép source target. AW-Car chưa nạp board.
+
 Trạng thái: đã có RTL/testbench cho reset, encoder một OUT/A-B hai bên, snapshot,
 count/period/age theo protocol v2 mặc định (STATUS 34 byte/frame 47 byte),
 PWM hai kênh, trình tự đổi chiều độc lập driver và UART/parser/CRC/serializer/
