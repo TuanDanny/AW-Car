@@ -20,6 +20,7 @@ trong netlist Gowin, vẫn cần nghiệm thu power-up thật. Gate default-off 
 
 ## Tài liệu và trạng thái
 
+- [LED observer: kiểm thử không can thiệp, timing, nạp SRAM và quan sát thật](status-leds-report.md).
 - [Hardware audit, review warnings, CDC, risk register và integration readiness](hardware-audit.md).
 - [Pinout 17 tín hiệu chức năng và6 LED onboard, package/header/bank/nguồn](pinout.md), dữ liệu checker
   trong [pinout.json](pinout.json).
@@ -79,4 +80,5 @@ LED không báo được trạng thái khi mất nguồn/chưa cấu hình, và 
 mất clock; không thay E-stop. Không nối health HIGH giả để trình diễn LED.
 
 `timing-report.md` và `timing-evidence.json` là snapshot nguồn17a0ccb trước LED;
-bản LED phải có báo cáo build/STA/mapped mới, không dùng lại các con số đó.
+bản LED có báo cáo build/STA/mapped mới ở `status-leds-report.md`, không dùng
+lại các con số đó. Người dùng đã xác nhận6 LED sáng sau nạp SRAM bản LED.

@@ -1,5 +1,9 @@
 # Tài liệu
 
+- [LED trạng thái Nano9K và bằng chứng không can thiệp điều khiển](../fpga/targets/tang_nano9k/status-leds-report.md),
+  [JSON nguồn và kết quả](fpga-status-led-evidence.json): source30d45ed,
+  đã nạp SRAM/quan sát FAULT; chưa nghiệm thu gate/motor.
+
 Lưu yêu cầu, quyết định kỹ thuật và kết quả thử nghiệm.
 
 - [Giai đoạn2 Tang Nano9K/Gowin](../fpga/targets/tang_nano9k/README.md): hardware

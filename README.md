@@ -14,7 +14,9 @@ không xuất bus debug thành chân board. Cấu hình tổng hợp ở [`synth
 Giai đoạn2 ngày05/11: [target Tang Nano9K/Gowin](fpga/targets/tang_nano9k/README.md)
 có physical shell POR, pinout17 tín hiệu chức năng +6 LED onboard, CST/SDC, project/CLI và báo cáo STA.
 Bài LED và AW-Car trước observer đã nạp SRAM bằng CLI trên board thật;
-đang bổ sung LED trạng thái. Gate/E-stop chưa có, chưa nghiệm thu truyền động.
+đã bổ sung và nạp LED trạng thái, người dùng xác nhận6 LED sáng; board hiện
+chưa có gate. Xem [báo cáo LED](fpga/targets/tang_nano9k/status-leds-report.md).
+Gate/E-stop chưa có, chưa nghiệm thu truyền động.
 Brain–Motion LOCKED đã chốt tại
 [main4cea85c](https://github.com/TuanDanny/AW-Car/tree/v0.1-brain-motion-locked);
 nhánh FPGA vẫn độc lập, không dùng RTL v1 baseline của main cho Motion v2.

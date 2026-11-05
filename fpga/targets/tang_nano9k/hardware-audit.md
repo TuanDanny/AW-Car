@@ -1,5 +1,8 @@
 # FPGA hardware audit — Giai đoạn2
 
+Mốc audit dưới đây thuộc baseline trước LED. Bổ sung mới về observer,23 I/O,
+timing, nạp và quan sát trên board ở [báo cáo LED](status-leds-report.md).
+
 Ngày05/11/2026, nhánh `feat/f01-tang-nano9k-target`, worktree riêng từ FPGA
 `7ab91b2d6119af211453a1273e3dae978d8af286`. Remote/main mới nhất khi bắt đầu là
 `4cea85c9f34a26a2e8e2af793575a82cbcf11132`, tag `v0.1-brain-motion-locked`.
