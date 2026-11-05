@@ -1,7 +1,7 @@
 # Web Dashboard
 
 Dashboard HTML/CSS/ES modules thuần, cùng asset trên ESP32 và PC simulator.
-Manual/AI, Cho phép/DỪNG/Xóa lỗi, sáu hướng, tốc độ, RGB, transcript/tool events và
+Manual/AI, Cho phép/DỪNG/Xóa lỗi, sáu hướng, tốc độ, transcript/tool events và
 telemetry có cờ hợp lệ. Không CDN/framework hoặc JSON đi thẳng xuống FPGA.
 Contract: [Web-v1](web-brain-protocol.md).
 
@@ -10,15 +10,15 @@ Contract: [Web-v1](web-brain-protocol.md).
 1. Nối Wi-Fi `AW-CAR`, mở `http://192.168.4.1` bằng Chrome hoặc Safari. Nhập PIN hiện
    trên OLED; giữ BOOT lâu để hiện lại. PIN dashboard khác mật khẩu Wi-Fi,
    đổi sau mỗi reset. Chỉ giữ một tab dashboard đang kết nối.
-2. RGB hoạt động bằng các nút bật/tắt, ba màu sẵn hoặc ô chọn màu; không
-   cần ARM. Nút **Bắt đầu/kết thúc nghe** tương đương nhấn/nhả BOOT ngắn.
+2. WS2812 onboard chỉ báo trạng thái; cụm điều khiển đèn và tool RGB demo
+   đã xóa. Nút **Bắt đầu/kết thúc nghe** tương đương nhấn/nhả BOOT ngắn.
    Đợi trạng thái đang nghe rồi nói tiếng Trung; xem nhận dạng, trả lời và
-   tool trong nhật ký. Ví dụ: `开红灯`, `开绿灯`, `开蓝灯`, `关灯`.
+   tool trong nhật ký. Ví dụ chào `你好`; tool xe còn phải đủ mode/quyền/context.
 3. Manual dùng sáu nút giữ để lái, nhả về 0; mức tốc độ mặc định 30%.
    Chỉ mở khi **Cho phép** đã được Motion xác nhận. Khi chưa nối Motion,
    các nút lái khóa và telemetry ghi “Chưa có dữ liệu”.
 4. Chọn AI trên dashboard rồi xin phép Motion để nhận hành động xe ngắn.
-   Manual vẫn trò chuyện/RGB và nhận DỪNG. Đổi mode, DỪNG hoặc mất liên
+   Manual vẫn trò chuyện và nhận DỪNG. Đổi mode, DỪNG hoặc mất liên
    kết an toàn sẽ thu quyền; phải Cho phép lại. Quyền AI tối đa 5 phút.
 5. **Xóa lỗi** chỉ sáng khi Motion báo FAULT còn mới và chưa có quyền chạy.
    Sau khi nguyên nhân đã hết, bấm để yêu cầu phục hồi; thành công vẫn phải
@@ -38,10 +38,14 @@ dùng cross-compiler Xtensa để tạo chương trình chạy trên PC.
 
 ```powershell
 python -m venv .venv
-.venv/Scripts/python.exe -m pip install -r dashboard/requirements-dev.txt
+.venv/Scripts/python.exe -m pip install -r dashboard/requirements-dev.lock
 python tools/build_brain_host.py
 .venv/Scripts/python.exe dashboard/simulator.py --port 8767
 ```
+
+Lockfile dev chốt Python3.13 và các phiên bản đã kiểm thử trong review tích hợp;
+aiohttp3.14.5 thay3.13.2 có advisory đã công bố. Đây là server/test PC, không
+phải dependency runtime ESP32. Nâng lock phải audit và chạy lại Web regression.
 
 Mở `http://127.0.0.1:8767`, mã **123456 chỉ cho simulator localhost**.
 Firmware dùng SSID `AW-CAR`; mật khẩu AP giữ trong NVS hoặc đặt cố định

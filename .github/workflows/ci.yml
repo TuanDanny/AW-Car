@@ -4,27 +4,67 @@ on:
   pull_request:
     branches: [main]
   push:
-    branches: [main]
+    branches: [main, 'integration/**']
+  workflow_dispatch:
 
 permissions:
   contents: read
 
 jobs:
-  brain-host:
+  host-regression:
     runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    env:
+      CXX: g++
     steps:
       - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
       - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
         with:
           python-version: '3.13'
-      - name: Install Brain test dependencies
-        run: python -m pip install -r dashboard/requirements-dev.txt
-      - name: Build and test shared Brain core and Web contracts
+      - run: python -m pip install -r dashboard/requirements-dev.lock
+      - name: Build both production MCU host cores and discover all root tests
         run: |
           python tools/build_brain_host.py
+          python tools/build_motion_host.py
           python -m unittest discover -s tests -v
           node --test dashboard/control.test.mjs dashboard/connection.test.mjs
-          python -B -m unittest discover -s firmware/brain/scripts/tests -v
+
+  motion-peer-integration:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    env:
+      CXX: g++
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with:
+          python-version: '3.13'
+      - name: Check out separately versioned FPGA v2 contract peer
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          ref: 7ab91b2d6119af211453a1273e3dae978d8af286
+          path: build/peers/fpga
+      - name: Install native compiler and simulator
+        run: |
+          sudo apt-get update
+          sudo apt-get install --yes g++ iverilog
+      - name: Execute both production MCU cores from this integration checkout
+        run: python tools/motion_brain_integration.py --brain-root .
+      - name: Co-simulate actual separately pinned FPGA v2 UART and GPIO
+        run: python tools/motion_rtl_cosim.py --fpga-root build/peers/fpga --iverilog /usr/bin/iverilog --vvp /usr/bin/vvp
+      - name: Check bounded host load (not real-time endurance)
+        run: python tools/motion_soak.py --seconds 30 --unpaced --output build/motion/ci-smoke.json
+      - name: Upload sanitized host evidence
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: motion-host-evidence
+          path: |
+            build/motion/brain-integration.json
+            build/motion/rtl-cosim.json
+            build/motion/ci-smoke.json
+            build/motion/*.manifest.json
+          if-no-files-found: warn
 
   structure-and-rules:
     runs-on: ubuntu-latest
@@ -41,7 +81,7 @@ jobs:
           SOURCE_BRANCH: ${{ github.head_ref }}
         run: python tools/check_repo.py --feature-branch "$SOURCE_BRANCH"
       - name: Test repository checks
-        run: python -m unittest discover -s tests -v
+        run: python -m unittest discover -s tests -p test_repo_checks.py -v
       - name: Check whitespace
         run: git show --format= --check HEAD
 
@@ -56,7 +96,7 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install --yes iverilog yosys
-      - name: Run self-checking RTL tests
+      - name: Run self-checking RTL baseline tests
         run: python tools/run_fpga_tests.py --full-timing --timeout 1800 --report fpga/build/regression-report.json --require-module-coverage
       - name: Upload regression evidence
         if: always()
@@ -65,7 +105,7 @@ jobs:
           name: fpga-regression-evidence
           path: fpga/build/regression-report.json
           if-no-files-found: error
-      - name: Check generic Gowin synthesis
+      - name: Check generic Gowin synthesis baseline
         run: |
           yosys -Q -T -l fpga/build/encoder-synth.log -s fpga/synth_encoder.ys
           yosys -Q -T -l fpga/build/pwm-synth.log -s fpga/synth_pwm.ys

@@ -2,7 +2,7 @@ name: Brain host tests
 
 on:
   push:
-    branches: [feat/f03-xiaozhi-ai]
+    branches: [main, feat/f03-xiaozhi-ai, 'integration/**']
     paths:
       - firmware/brain/**
       - .github/workflows/brain.yml

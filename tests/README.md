@@ -1,5 +1,9 @@
 # Kiểm thử
 
+`test_status_indicator.py` compile policy C++ chung hai board: ưu tiên lỗi,
+mask diagnostic, chờ LOCKED/FPGA/gate, cache chỉ ghi khi màu đổi và retry1s.
+Đây là test phần mềm, màu vật lý/build được ghi trong docs/motion-verification.md.
+
 Hiện có test công cụ kiểm tra kho: README thư mục, snapshot đã stage, file ignore,
 tên nhánh và hook chặn commit/push vào main. Test dùng kho Git tạm, không push
 lên GitHub. Chạy bằng `python -m unittest discover -s tests`.
@@ -27,6 +31,14 @@ Brain có kiểm thử phần mềm host, chưa có nghiệm thu phần cứng:
 
 Xem [báo cáo Brain/dashboard](../docs/brain-dashboard-verification.md) và
 [cách chạy simulator](../dashboard/README.md). Các bài FPGA bên dưới độc lập.
+`test_motion_core.py` chạy chính lõi C++ firmware: sáu hướng, kích theo tỷ lệ,
+chờ đảo, encoder không xung, STOP/lease/phiên/sequence, fault/recovery và cấu
+hình. `test_motion_codec.py` đối chiếu reference Python, golden v2, 1.000
+vector ngẫu nhiên và frame lỗi. Cần compiler C++17 hoặc biến môi trường CXX.
+
+`motion_cosim.sv` là fixture ghép core Motion với `aw_car_top` từ checkout
+FPGA v2 riêng qua bit UART/GPIO. Chạy bằng `tools/motion_rtl_cosim.py`; không
+thêm fixture này vào danh sách RTL triển khai. Host/RTL chưa thay test board.
 
 `test_fpga_runner.py` kiểm tra runner không bỏ qua compile lỗi, mã lỗi simulator
 hoặc timeout; kiểm tra đường dẫn tool tương đối và môi trường subprocess.

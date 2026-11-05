@@ -1,5 +1,14 @@
 # Bàn giao AW-Car — 05/11/2026
 
+## Cập nhật milestone source
+
+Chủ dự án đã duyệt chốt Brain+Motion vào main bằng hai squash PR, CI main
+và tag `v0.1-brain-motion-locked` sau khi đạt. Xem
+[nhật ký release](release-v0.1-brain-motion-locked.md). Các checkout/monitor/
+backup bên dưới là snapshot trước release, không tự cập nhật worktree đang dở.
+Source integration đạt CI không thay nghiệm thu binary mới; không flash trong
+release. Giữ FPGA/CAD riêng và driver Motion LOCKED.
+
 ## Nhánh và checkout
 
 - Brain/Xiaozhi/dashboard: `feat/f03-xiaozhi-ai`, checkout
