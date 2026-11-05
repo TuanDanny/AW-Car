@@ -230,13 +230,16 @@ def main():
         require(args.iverilog and args.vvp, "Icarus/VVP required for post-map test")
         sim_env = dict(os.environ)
         sim_env["PATH"] = str(Path(args.iverilog).resolve().parent) + os.pathsep + sim_env.get("PATH", "")
-        test = BUILD / "mapped-functional.vvp"
-        execute([args.iverilog, "-g2012", "-s", "tb_nano9k_mapped", "-o", test,
-                 ide / "simlib/gw1n/prim_sim.v", vo, TARGET / "tb_nano9k_mapped.sv"],
-                BUILD / "mapped-compile.log", sim_env)
-        output = execute([args.vvp, test], BUILD / "mapped-functional.log", sim_env, timeout=1200)
-        require("PASS tb_nano9k_mapped:" in output, "Missing mapped test PASS marker")
-        result["mapped_functional_test"] = "PASS; no SDF, physical timing covered by STA separately"
+        result["mapped_functional_tests"] = []
+        for mode in [0, 1]:
+            test = BUILD / f"mapped-functional-{mode}.vvp"
+            execute([args.iverilog, "-g2012", "-s", "tb_nano9k_mapped",
+                     "-Ptb_nano9k_mapped.CHECK_HELLO=" + str(mode), "-o", test,
+                     ide / "simlib/gw1n/prim_sim.v", vo, TARGET / "tb_nano9k_mapped.sv"],
+                    BUILD / f"mapped-compile-{mode}.log", sim_env)
+            output = execute([args.vvp, test], BUILD / f"mapped-functional-{mode}.log", sim_env, timeout=1200)
+            require("PASS tb_nano9k_mapped:" in output, "Missing mapped test PASS marker")
+            result["mapped_functional_tests"].append({"hello": bool(mode), "result": "PASS", "sdf": False})
     result["wall_seconds"] = round(time.monotonic() - started, 3)
     result["rtl_tests"] = args.rtl_tests
     (BUILD / "build-report.json").write_text(json.dumps(result, indent=2) + "\n", encoding="utf-8")
