@@ -45,6 +45,10 @@ Các sửa đổi cần thiết có bằng chứng:
    fixed slice8bit, giữ mọi byte/CRC. Bản chẩn đoán trước sửa FAIL count0/0;
    netlist sửa PASS count3/5, period32, age, hai frame STATUS/CRC. Đây là lý do
    không chỉ dựa vào build exit0/Fmax hoặc regression RTL.
+   Lượt HELLO nonzero còn phát hiện TX gửi12340000 thay vì12345678, trong khi
+   cả parser và active_session trong netlist đều là12345678. Sửa các lát bit
+   header session/sequence thành chỉ số cố định; không sửa RX hoặc wire format.
+   Mapped test bắt buộc cả DISARMED/session0 và HANDSHAKE/session12345678.
 3. Physical shell `aw_car_nano9k` thêm POR1024clock (~37,93us), FF init0 và
    mask reset ở boundary. Logical core đã đồng bộ nhả reset hai FF. Không thêm
    clock mới, quyền ARM hoặc lệnh motor. Netlist Gowin có INIT0 cho10 FF counter

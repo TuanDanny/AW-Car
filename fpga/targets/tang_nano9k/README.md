@@ -41,6 +41,9 @@ chạy RTL đó và được ghi rõ trong JSON; không được trình bày nh�
 `--post-map-test` dùng netlist thật sau PnR và thư viện primitive của chính Gowin
 (không chép/commit thư viện hãng). Netlist functional không annotate SDF; STA
 route là bằng chứng timing riêng. Test bắt được trường hợp compiler bỏ encoder.
+Hai mode mapped kiểm tra cả boot DISARMED/session0 và GPIO recovery/HELLO với
+session12345678 ở trạng thái HANDSHAKE, mỗi mode hai frame CRC/sequence/count/
+period/age. Logical permit vẫn LOW, không gửi ARM/MOVE trong mapped test này.
 
 Output chỉ ở `build/tang-nano9k/` và `fpga/build/`, đều ignored. JSON ghi commit,
 dirty flag, hash từng source/report, constraint state, warning, pad/POR/timing.

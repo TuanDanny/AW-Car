@@ -30,6 +30,8 @@ khi đấu. `—` nghĩa nối nội bộ board, không có chân header trong c
 
 Các tín hiệu ngoài UART ở3,3V; riêng reset là nút S2 trên bank3,1,8V.
 **Không nối ESP32/3,3V vào reset package3. Package4/JTAGSEL_N không sử dụng.**
+Một số revision cũ đảo tên silk S1/S2; phải xác nhận nút nối package3 bằng
+schematic/continuity, không chỉ dựa vào tên nút trên board.
 Không đưa5V OUT encoder vào FPGA. Logic converter cần đúng hướng, mức điện áp
 và trạng thái khi một board mất nguồn. Các chân RGB/SPI LCD ở bảng phải để trống
 ngoại vi; chúng vẫn nối tới connector LCD. Pin51 có chức năng clock phụ nhưng

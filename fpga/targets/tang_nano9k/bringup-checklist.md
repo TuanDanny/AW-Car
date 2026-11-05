@@ -22,7 +22,7 @@ trước SRAM Program. Không chọn thiết bị/JTAG theo index lưu từ lầ
 | Bước | Phép thử | Kỳ vọng / bằng chứng lưu |
 | --- | --- | --- |
 | 1 | Power-up/config, chưa lệnh | IN4 và fpga_permit/gate_clear LOW; ghi waveform từ trước DONE; cần bias/gate ngoài khi tristate |
-| 2 | Nhấn/nhả S2, reset khi đang có UART | POR rồi DISARMED; không phát PWM/ARM/MOVE cũ |
+| 2 | Nhấn/nhả nút package3, reset khi có UART | POR/reset về DISARMED; nếu safety/gate LOW hoặc thả nổi thì chuyển FAULT là đúng; không phát PWM/ARM/MOVE cũ |
 | 3 | Thu UART không cấp quyền | 1152008N1, STATUSv2 length34/frame47, CRC đúng, snapshot mới10ms |
 | 4 | Xung OUT_L riêng rồi OUT_R riêng | Chỉ đúng count/period/age đổi; mode bit4=1, direction-known bit7=0 |
 | 5 | Frame CRC/version/length/session/seq sai | Không áp CMD, diagnostic đúng; malformed không được gia hạn watchdog |
@@ -36,6 +36,11 @@ trước SRAM Program. Không chọn thiết bị/JTAG theo index lưu từ lầ
 Các bước ARM/CMD chỉ là phương án fixture không công suất, **không phải quyền
 sửa CONFIG_AWCAR_ENABLE_DRIVER hoặc motioncfg validated**. Nếu firmware LOCKED
 chặn bước đó, ghi NOT RUN và thiết kế fixture riêng để duyệt trước; không lách khóa.
+
+Không nối giả safety_ok/gate_fault_n HIGH chỉ để hiển thị DISARMED. Khi gate
+chưa có, input pull-down có thể giữ FAULT; UART vẫn phải hoạt động và output
+vẫn OFF. Bench số dùng healthHIGH để kiểm logic, không phải hướng dẫn nối tắt
+phần cứng. Một số revision cũ đảo silk S1/S2: package3 và thông mạch là chuẩn.
 
 ## Điều kiện kết thúc
 

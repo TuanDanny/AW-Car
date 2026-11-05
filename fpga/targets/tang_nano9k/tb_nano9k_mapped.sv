@@ -79,7 +79,8 @@ module tb_nano9k_mapped #(
                 {bytes[44],bytes[43],bytes[42],bytes[41]} == 0)
                 $fatal(1, "encoder age bytes lost");
             if ({bytes[8],bytes[7],bytes[6],bytes[5]} !== (CHECK_HELLO ? 32'h12345678 : 0))
-                $fatal(1, "mapped session header bytes lost");
+                $fatal(1, "mapped session mismatch: got=%08x state=%0d fault=%04x",
+                       {bytes[8],bytes[7],bytes[6],bytes[5]},bytes[25],{bytes[27],bytes[26]});
             if ({bytes[10],bytes[9]} !== {bytes[24],bytes[23]} ||
                 {bytes[10],bytes[9]} <= previous_sequence)
                 $fatal(1, "mapped snapshot sequence/header mismatch");

@@ -58,8 +58,14 @@ module frame_tx #(
                 2: select_byte = PROTOCOL_VERSION;
                 3: select_byte = 8'h80;
                 4: select_byte = STATUS_LENGTH;
-                5, 6, 7, 8: select_byte = session_value[(idx-5)*8 +: 8];
-                9, 10: select_byte = sample[96+(idx-9)*8 +: 8];
+                // Fixed header slices avoid the same Gowin variable-select
+                // issue: a mapped HELLO used to transmit 12340000 for12345678.
+                5: select_byte = session_value[7:0];
+                6: select_byte = session_value[15:8];
+                7: select_byte = session_value[23:16];
+                8: select_byte = session_value[31:24];
+                9: select_byte = sample[103:96];
+                10: select_byte = sample[111:104];
                 default: begin
                     if (idx == 11 + STATUS_LENGTH)
                         select_byte = checksum[7:0];
