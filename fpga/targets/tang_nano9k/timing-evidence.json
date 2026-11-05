@@ -1,0 +1,193 @@
+{
+  "schema": 1,
+  "implementation_commit": "17a0ccbd26c2e6fe916877c0290ebebc3f3a514d",
+  "fpga_base_commit": "7ab91b2d6119af211453a1273e3dae978d8af286",
+  "motion_peer_commit": "4cea85c9f34a26a2e8e2af793575a82cbcf11132",
+  "branch": "feat/f01-tang-nano9k-target",
+  "device": "GW1NR-9C",
+  "part": "GW1NR-LV9QN88PC6/I5",
+  "tool_version": "V1.9.11.03 Education",
+  "clock_hz": 27000000,
+  "timing": {
+    "fmax_mhz": 35.963,
+    "setup_violated_endpoints": 0,
+    "hold_violated_endpoints": 0,
+    "paths_analyzed": 4672,
+    "endpoints_analyzed": 4487,
+    "delay_models": {
+      "Setup": "Slow 1.14V 85C C6/I5",
+      "Hold": "Fast 1.26V 0C C6/I5"
+    },
+    "worst_setup_slack_ns": 9.23,
+    "worst_hold_slack_ns": 0.357,
+    "worst_recovery_slack_ns": 29.294,
+    "worst_removal_slack_ns": 1.906,
+    "tns_ns": {
+      "setup": 0.0,
+      "hold": 0.0
+    },
+    "active_constraints": 9,
+    "asynchronous_first_stage_exceptions": 4,
+    "unconstrained_path_count": null,
+    "unconstrained_note": "Not enumerated by Gowin automatic report; all17 boundary ports inventoried,9 constraints active;4 first-sampler D pins intentionally excepted. CDC/MTBF and board IO remain separate sign-off.",
+    "lut4": 1663,
+    "alu": 311,
+    "logic_cells": 1974,
+    "logic_ff": 1568,
+    "io_ff": 4,
+    "latches": 0,
+    "io_latches": 0,
+    "io_ports": 17,
+    "io_buffers": 17,
+    "bram_primitives": 0,
+    "mapped_encoder_inputs_present": true,
+    "por_initialization_checked": true,
+    "timing_pass": true
+  },
+  "pin_audit": {
+    "ports": 17,
+    "package_db_checked": true,
+    "external_io_v": 3.3,
+    "onboard_reset_v": 1.8,
+    "board_measurements": "NOT VERIFIED"
+  },
+  "routed_pin_contract": "PASS",
+  "rtl_regression": {
+    "status": "PASS",
+    "testbenches": 34,
+    "full_timing": true,
+    "module_evidence": "20/20",
+    "recovery_after_interruption": {
+      "completed_before_interruption": 33,
+      "rerun_after_interruption": [
+        "tb_drive_maneuvers"
+      ],
+      "old_report_results_used": false,
+      "source_hashes_verified": true,
+      "nominal_full_timing_scale_checked_in_compiled_model": true,
+      "interrupted_log_sha256": "5f568419299ea960f7fd7e55353a857fc8c4f422a67a753c261c55d626f1e328",
+      "resume_report_sha256": "f0d3edc8b53ad457499b5f473af32b25d52a479df6dfbc8211c46091451376db",
+      "compiled_vvp_sha256": {
+        "tb_encoder_units": "7b57d4765a16d3a971d9991df9678a91241f0f58ed1b565978718088d8bcd3aa",
+        "tb_encoder_pair": "6da387d9d5d2808a2b31c14716025cf6634390a6ba99f73ab1fa53563bcc670f",
+        "tb_encoder_timing": "28d749fcca25a78fbab66f47b349c7044f3fe972e2acaad5479a9a035b3ffc50",
+        "tb_encoder_single_out": "20ed3dfef573544ed7af280f3438b11bce738391daf706395bf617963b9bddb8",
+        "tb_pulse_encoder_pair": "f43bd75edb322a2bdd266a77648f64aad21f24dc0abd451605ffd425820c24b9",
+        "tb_single_out_protocol": "9de957c236fdb5e08d272d0a6f36c7a79e613eba3772b4e97a79b89e7542367c",
+        "tb_single_out_v2_rx": "41ce59e6014f77d48bbbcdee6e684ca859f3fd875c8455adedeab2364c68c6a9",
+        "tb_aw_car_top": "1bf17b7e3c3e54325c56abbff2ac0fe0e490a4cb4944df3626260f2f906d872a",
+        "tb_runtime_diagnostics": "ab9db1d015538caf25f3ab45523145878f6201574f3771323b4d80ee35cc68f0",
+        "tb_encoder_period_random": "b7ac96d92a82de263e89110c083549622180304b515d6257b064f011744719f9",
+        "tb_diagnostics_uart": "8c21fae6e93ec56043f714a6fe4ccd7ee04c3e5bf0e85bd7ee8655a24f0276ab",
+        "tb_diagnostics_default_timeout": "6a70d2b0c02dfda92a1e878b2248ee1a455c14928529b735b6d6661e440787d1",
+        "tb_common_matrix": "4f5f623c2ef74af396da500397daeb09dd2426c6bfa16e92ba3560d6ecb388f8",
+        "tb_crc16_matrix": "f51606ef1b428942ac962cd378afe545f89b8dde04cbb98307b84c7cfd3730fa",
+        "tb_guard_sequence": "829b9022aefe37f05eb2e863d8e10148b4811cc20e789a610a1a8db9b032bb4a",
+        "tb_uart_matrix": "71bb0d9b76ca9d6e345ff73cef736e5197440f37e2068b221df63da19e1b68b7",
+        "tb_frame_tx_random": "5a4af768093e1fdcb498f12ac9d811ac7d7fee0f55c321268e4cdf6e047ea89d",
+        "tb_safety_matrix": "ec858f0739c84433b7d9dcb7fe5c9b752fea74f968646bd3abd320b69e8d9f05",
+        "tb_fault_recovery_deadline": "e08cedb698cad3fcd69ac0557ef6f4899d4e25c43ac572a28b460a3c6daceae6",
+        "tb_pwm_pair": "fa2421fd76856ca5fabb20a9976f94de095753b000efaa895097d590ce5a6132",
+        "tb_motor_pwm_pair": "5776f7b7d6817bd5bc8f95c3b3d0832732ed7b8a1ca97706bb4b4b30b908b95d",
+        "tb_pwm_timing": "b78a62b63c3ff7a2a197acdab61e86d7e90f86ed73b3b1b2700ed0727b293bf1",
+        "tb_pwm_widths": "0ed1ea8de1991b90959f0187e2d386c75e1c4f24063c9be9029a3458253a54ea",
+        "tb_drv8833_adapter": "938d9f946ac49837fb3edd167ac1201958cee70469dfe2b20b55d1ebf2652fd8",
+        "tb_uart": "47764830be9c0138a533b8a690080a6327a0202adcde7eb2e0fefc6de90d7a9b",
+        "tb_frame_rx": "964e4ecf29595275551fc5e647e04bc7e97d42879af088988185a20c800b7170",
+        "tb_frame_tx": "b0bfd5da795d54a1fd0381d78f3d43121ed6d988716147ab2d4752dbf77cc57f",
+        "tb_command_guard": "fb0b3c263434930a0c36e437dc27e95f3fc89865c62560a2ce3db6e968a8e290",
+        "tb_fpga_link": "f6c9b4209178af0b728522a4ba1122faef25a733c1c6b1279438c9985dbd791f",
+        "tb_safety_fsm": "d1ac6502de8210177d68f5a8d6db7fb3c2c658fe7a666c58afa29dc7c74b8df5",
+        "tb_safety_timing": "63e3e9d090ac6eea02e9be2f742dc1c04ea4f6b908d16a1c12291c72768a2360",
+        "tb_drive_core": "172483d605b700ed43ca14557071596018ccf9cb9c9b2278374306f850c8b1f3",
+        "tb_drive_defaults": "14cd2829a39a9e8077c74efc8a6f948ac33de0e3be067c1c9055adc751cc7cd3",
+        "tb_drive_maneuvers": "19b34a4cebb8dc4dfd6b3e2bdb404dd0f60a58bf4eeab29bafe7f616dd54d113"
+      }
+    }
+  },
+  "root_tests": {
+    "status": "PASS",
+    "tests": 56
+  },
+  "mapped_functional_tests": [
+    {
+      "hello": false,
+      "result": "PASS",
+      "sdf": false
+    },
+    {
+      "hello": true,
+      "result": "PASS",
+      "sdf": false
+    }
+  ],
+  "motion_cosim": {
+    "status": "PASS",
+    "checks": [
+      "boot_and_status_v2_wire_crc",
+      "real_gpio_pending_status_arm_and_wake",
+      "real_uart_duty_and_differential_pwm",
+      "separate_driver_stop_without_lost_permit_fault",
+      "clock_stopped_motion_independent_cutoff",
+      "real_fault_clear_gpio_uart_no_auto_arm"
+    ],
+    "clock_hz": 27000000,
+    "simulated_us": 430000,
+    "hardware": false
+  },
+  "source_sha256": {
+    "fpga/rtl/aw_car_top.sv": "2b8f92cda28bea1bc1bf183d2bd79f3ce007a235e229802f6e5771b1dc6268ab",
+    "fpga/rtl/common/input_sync_filter.sv": "e3ede4e386ce6e6694f7bb5c1eceff4ee71650d8fa8f9c45f2427ff3d18c2d22",
+    "fpga/rtl/common/reset_sync.sv": "e09df8f0ffdeabe72a2a2932b887ede320490e0d809f6c137b9b1ad1e253a357",
+    "fpga/rtl/drive_core.sv": "3fe348093c70979e350eba7d1ad966ccc1aba05ea49aa4eeac1604582698729d",
+    "fpga/rtl/encoder/encoder_pair.sv": "6f824e997bdde3eda3deba02f112668359a4ae9f52370a6290c9eb7875f27e6f",
+    "fpga/rtl/encoder/pulse_counter.sv": "0a3bccf81008fad2a6314f796a6c6e32124f88a96248e0896700cfe0776cfdab",
+    "fpga/rtl/encoder/pulse_encoder_pair.sv": "a2896507afd8c14e6997fd1f55ea221cd4aa6a5b27c08a82aedef3e2acda47a4",
+    "fpga/rtl/encoder/quadrature_decoder.sv": "34d838b4f940d49b6f708eb4ca6d4bdec11d62ac490dec7938a5529cd4cf31ac",
+    "fpga/rtl/link/command_guard.sv": "e37bf10cbd2e7acc794bb54cb29355b9e835e41ce9244b10ec0f83ddd1581618",
+    "fpga/rtl/link/crc16_byte.sv": "f152a5e1a23b386b6b1ba978d83c16a68f23c7f37def73c5c73841978c896916",
+    "fpga/rtl/link/fpga_link.sv": "06c813c00ef9723426e1d98176a703f9a60362cecc577b5c0b220c48edd4f6c9",
+    "fpga/rtl/link/frame_rx.sv": "04dbf6363540d3f79e68695c6fbd491b0cd4b9cbb7d62bea03c10d970a75725d",
+    "fpga/rtl/link/frame_tx.sv": "6dfb562e2ad64b669fd540af78172b249ef228ab3b06f24feca6740244b2abd0",
+    "fpga/rtl/link/uart_rx.sv": "2db18dbdf89d44062e6160bf808cf987feb7f2980d62b0d9c5b4f7a5275b1232",
+    "fpga/rtl/link/uart_tx.sv": "6258dae78d3c8b572cf2650046ea04172efbd0879dd861e850b1ed67396d3f83",
+    "fpga/rtl/pwm/drv8833_adapter.sv": "6646330d195fbcf73e1d4db835b28ebd6f9058fccefa5aced6aa9bdb775ddcb4",
+    "fpga/rtl/pwm/motor_pwm_pair.sv": "942f702dfd897bd4398601d3b37b460881a1a60c527b45e0603f77b0991567a4",
+    "fpga/rtl/pwm/pwm_pair.sv": "9a88ec562cc2daf92de2383cd247343d70d86ced7e10e09aa8fcc218c14f7f8d",
+    "fpga/rtl/safety/runtime_diagnostics.sv": "40cb7fa83917f1427066d97076ac7ae4cb95c855362cbbfce48d891ff0e65a91",
+    "fpga/rtl/safety/safety_fsm.sv": "5a45eac037c6f80b9aa2863139271eca34ed9b0112aec8c121dd8812e689787b",
+    "fpga/targets/tang_nano9k/aw_car_nano9k.cst": "87f0648e9433884601344e6a3b826675fe4944d682172366b0f9baca4b0b6507",
+    "fpga/targets/tang_nano9k/aw_car_nano9k.gprj": "c6c463eb302c4ac5f191dfab4673507eeedc823ce1f779f2cf13ede31644b17c",
+    "fpga/targets/tang_nano9k/aw_car_nano9k.sdc": "71dd6ad70c68f350015ca9ed0d77e09932bd181c7a0a0c1d1cb9229f1718d2b5",
+    "fpga/targets/tang_nano9k/aw_car_nano9k.sv": "0b254fee2995f00ff061aa26d99fd12501d93142e2d797bcae020bd15f667f90",
+    "fpga/targets/tang_nano9k/build.tcl": "fe372ac3f9e1a07d56d2c26c4fb4bbfa50d52e74c9f86ff5c0d6782cc03d9727",
+    "fpga/targets/tang_nano9k/pinout.json": "b68050228a30c6d0c97de03c6fe6fb816e887762ac2e39fd43d64f5c6c1c5036",
+    "fpga/targets/tang_nano9k/tb_nano9k_mapped.sv": "2ae3e9f8e41a03eedb6a6f507a4204430de875e9150ce565f54b0d7f199dad5b"
+  },
+  "report_sha256": {
+    "aw_car_nano9k.tr": "52249ebda791ecd9ffdc9db88b19060ced60eab1da0290c910bedda33c5cdf56",
+    "aw_car_nano9k.rpt.txt": "d06c4037ee0aee36fa82923c0b4182e57a5a8a4630b729413c0d87b90ec81fdc",
+    "aw_car_nano9k.vo": "a6119959fb30e3cfcb2df5943721a5f97b8f576416998c0f498f39f508a2d3a8",
+    "aw_car_nano9k.fs": "70b539c6063bd7d1fa3012439978c40778cdf7564215007ae0fe04f3fd0d4913"
+  },
+  "warning_review": "EX3791 pwm next_phase width is bounded; NL0002 inlining is checked by pad/cone/mapped tests. See hardware-audit.md.",
+  "cli_rtl_tests_option": "skip: the independently executed full34 report above has identical source hashes; not represented as a CLI full rerun",
+  "original_worktree_preserved": {
+    "head": "7ab91b2d6119af211453a1273e3dae978d8af286",
+    "existing_files_checked": 50,
+    "status_unchanged": false,
+    "unchanged_baseline_files": 49,
+    "changed_baseline_files": [
+      "fpga/led_just_test/led_test/led_test.gprj.user"
+    ],
+    "added_status": [
+      "?? fpga/led_just_test/led_test/impl/led_test_process_config.json"
+    ],
+    "note": "Only LED GUI metadata differs from the initial snapshot; this task did not write the original checkout or revert these changes."
+  },
+  "hardware": "NOT VERIFIED for AW-Car bitstream",
+  "gate_estop": "NOT PRESENT; no power-stage approval",
+  "programming_performed": false,
+  "motion_locked_changed": false,
+  "main_merged_or_remote_pushed": false
+}

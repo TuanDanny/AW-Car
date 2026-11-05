@@ -1,61 +1,92 @@
 # AW-Car Nano9K — timing và kiểm thử
 
-Target GW1NR-9C / GW1NR-LV9QN88PC6/I5, Gowin1.9.11.03 Education. Báo cáo này
-chỉ áp dụng AW-Car/physical shell cùng source hash trong build-report.json,
-không dùng Fmax/slack của LED. Bitstream AW-Car chưa nạp board.
+**BUILD/CONSTRAINED STA/SOFTWARE PASS — HARDWARE NOT VERIFIED.**
 
-## Kết quả khảo sát sau route
+## Nguồn và công cụ
 
-RTL tham chiếu7ab91b2 với sửa net type/serializer và physical target của nhánh
-này. Commit/source hash của build nghiệm thu cuối được ghi trong
-`build/tang-nano9k/build-report.json`; artifact build không được commit.
-Bảng này sẽ được đóng bằng snapshot JSON sau khi hoàn tất regression và build CLI.
+- Implementation commit: `17a0ccbd26c2e6fe916877c0290ebebc3f3a514d`; branch `feat/f01-tang-nano9k-target`.
+- FPGA base: `7ab91b2`; production Motion peer: main`4cea85c` LOCKED.
+- Gowin1.9.11.03 Education; GW1NR-9C / GW1NR-LV9QN88PC6/I5.
+- Source và report hashes: [timing-evidence.json](timing-evidence.json). Raw artifacts chỉ trong build ignored.
+- Mọi kết quả là AW-Car/physical shell, không dùng Fmax hoặc slack bài LED.
 
-| Chỉ số | Khảo sát target đầy đủ |
+## STA sau route
+
+| Chỉ số | Kết quả |
 | --- | ---: |
-| Clock constraint | 27MHz,37,037037ns |
-| Actual Fmax | 41,091MHz |
-| Worst setup slack (gồm I/O budget) | +11,700ns |
-| Worst hold slack | +0,358ns |
-| Worst recovery / removal slack | +27,645 / +1,866ns |
+| Clock constraint | 27MHz /37,037037ns |
+| Actual Fmax | 35.963MHz |
+| Worst setup slack (gồm I/O budget) | +9.230ns |
+| Worst hold slack | +0.357ns |
+| Worst recovery / removal | +29.294 /+1.906ns |
 | TNS setup / hold | 0 /0ns |
 | Setup / hold violated endpoints | 0 /0 |
-| LUT4 / ALU | 1668 /311 |
-| Logic cells | 1979/8640 |
+| Paths / endpoints analyzed | 4672 /4487 |
+| LUT4 / ALU | 1663 /311 |
+| Logic cells | 1974/8640 |
 | Logic FF / I/O FF | 1568 /4 |
-| BRAM | 0 primitive |
+| BRAM | 0 primitive; không có BSRAM trong netlist |
 | Logic / I/O latch | 0 /0 |
-| I/O ports / buffers | 17/71 /17 |
-| SDC active constraints | 9 |
-| False-path sampler D pins | 4, exact names; không blanket cut |
-| Unconstrained-path total | Không được tool format này xuất; ghi null |
+| I/O port / buffer | 17/71 /17 |
+| Constraint active | 9 |
+| First-sampler D pin exceptions | 4, exact names |
+| Tổng số unconstrained paths | Tool format không xuất; null, không bịa0 |
 
-Đây là timing dưới các giả định SDC trong [audit](hardware-audit.md), gồm
-guardband0,2ns và ngân sách propagation một clock cho I/O. Không có clock ngoài
-đồng bộ để công bố setup/hold giữa hai chip. GPIO mask/reset/metastability/gate
-và biên nguồn vẫn cần review/đo độc lập. Tổng số unconstrained không được đổi
-thành0 chỉ vì tool không in;17 boundary ports đã kiểm kê và exceptions tường minh.
+Setup model: Slow 1.14V 85C C6/I5; hold model: Fast 1.26V 0C C6/I5.
 
-## Bằng chứng chức năng sau mapping
+STA PASS dưới [SDC/audit](hardware-audit.md): guardband0,2ns là giả định kỹ thuật,
+I/O propagation budget một clock37,037ns. Không dựng clock chung giả giữa ESP32/
+encoder và FPGA. Chỉ cắt bốn first-sampler D pins; stage1→stage2, raw shutdown
+và reset distribution vẫn timed. Không có tổng unconstrained để công bố0:
+17 cổng và9 constraints đã audit; sign-off CDC/MTBF và giao tiếp ngoài chip còn mở.
 
-Giữ netlist trước sửa trong build chẩn đoán: không có IBUF left_out/right_out.
-Cùng test `tb_nano9k_mapped` trả FAIL encoder count0/0, mặc dù PnR exit0 và
-timing FF có thể xanh. Bản sửa chọn byte bằng full-width shift khôi phục hai pad.
-Mapped functional test với primitive Gowin PASS: bắt đầu resetHIGH để thử INIT/
-POR, hai frame STATUSv2 đủ47byte/CRC, count3/5, period32, age khác0, reset/OFF.
-Đây không phải timing simulation có SDF hoặc phép đo board.
+## Kiểm thử và mức bằng chứng
 
-## Các tầng nghiệm thu
-
-| Tầng | Bằng chứng / phạm vi |
+| Tầng | Kết quả |
 | --- | --- |
-| Static pin/project audit | Checker17 cổng/điện áp/package/GPRJ; negative tests chống đổi bank/pin/false-path |
-| RTL Icarus | 34 bench full-timing27MHz, report riêng; đang chạy lại nguồn sửa cuối |
-| Native Motion + FPGA v2 | Peer main4cea85c,27MHz co-sim; chạy lại với serializer đã sửa |
-| Gowin synth/PnR/STA | Khảo sát PASS dưới SDC; chạy CLI nghiệm thu sau cùng |
-| Post-PnR mapped function | PASS như trên; counterexample cũ FAIL có chủ đích |
-| Physical AW-Car | **NOT VERIFIED**; bài LED của người dùng là thiết kế khác |
+| Repository / Python | 56/56PASS, không cần board |
+| RTL Icarus | 34/34PASS full-timing; bài core2010,544ms ở27MHz,20/20 module evidence |
+| Gowin actual synthesis/PnR/STA | PASS; điện áp/pin sau route khớp contract17 cổng |
+| Post-PnR functional | 2 mode PASS, mỗi mode2 STATUS/CRC: DISARMED/session0 và GPIO HELLO/HANDSHAKE/session12345678 |
+| Encoder mapped | count3/5, period32, age khác0, bit mode/valid và header/payload sequence đúng |
+| POR/reset mapped | Bắt đầu resetHIGH, INIT0/POR và boundary OFF đạt; không gửi ARM/MOVE |
+| Production Motion + FPGA v2 co-sim | 6 kịch bản PASS ở27MHz, peer main4cea85c;430000us thời gian mô phỏng |
+| Physical AW-Car/gate/E-stop/VM | NOT VERIFIED / không thực hiện |
 
-Lượt benchmark hủy để sửa source không được tính PASS. Chỉ report full cuối và
-hash khớp nguồn cuối được dùng khi chốt. Mạch gate/E-stop chưa có; không có quyền
-nâng driver, thử VM hoặc tự merge FPGA vào main từ kết quả phần mềm này.
+Mapped functional không annotate SDF; timing sau route là STA riêng. Không dùng
+thời gian chạy host/co-sim như độ trễ MCU hoặc xe. Lệnh CLI nghiệm thu dùng
+`--rtl-tests skip --post-map-test` vì bộ34 full đã chạy độc lập song song;
+hash tất cả nguồn regression và netlist build được đối chiếu cùng nguồn cuối.
+Script mặc định `--rtl-tests full` để tái lập toàn bộ trong một lượt.
+
+Lượt full bị người dùng ngắt sau33 bài đã có PASS/$finish, khi bài maneuvers
+đang chạy. Chạy lại riêng bài cuối bằng runner gốc; báo cáo tổng hợp kiểm hash
+nguồn, compiled VVP và log của33 bài hoàn tất, không lấy PASS từ báo cáo cũ.
+Thời gian host từng bài bị ngắt không được lưu nên ghi null, không ước lượng.
+
+## Hai counterexample compiler đã bắt được
+
+1. Trước sửa default payload selection: netlist không có pad encoder; cùng
+   test mapped FAIL count0/0. Full-width shift +fixed slice giữ đúng body.
+2. Sau sửa body nhưng trước sửa header: parser và active_session đều12345678,
+   header TX thành12340000 dù CRC hợp lệ. Fixed header slices khôi phục đủ byte.
+   Test HELLO nonzero là điều kiện bắt buộc, không bỏ để xanh build.
+
+Không đổi timer, CRC, wire format, epoch/session policy hoặc điều kiện ARM.
+Một lượt build/test bị hủy hoặc FAIL trong chẩn đoán không được tính PASS.
+Báo cáo này ghi lượt cuối đã đạt và hash khớp source commit ở trên.
+
+## Giới hạn và bước tiếp theo
+
+Source chỉ chốt ở nhánh riêng; chưa push/merge FPGA vào main. Checkout FPGA/CAD/
+LED gốc giữ HEAD7ab91b2;49/50 file baseline còn nguyên hash. Metadata GUI
+`led_test.gprj.user` đã đổi và có thêm `impl/led_test_process_config.json`
+so với ảnh chụp ban đầu; tác vụ target không ghi checkout đó và giữ nguyên
+những thay đổi này, không khôi phục snapshot để làm sạch status.
+Không flash/reset/mở COM,
+không đổi Motion LOCKED, không cấp VM. Gate/chốt lỗi/E-stop độc lập chưa có.
+Bài LED thật do người dùng xác nhận không phải nghiệm thu bitstream AW-Car.
+
+Chỉ tiếp tục [bring-up không VM](bringup-checklist.md) sau phê duyệt riêng;
+đo revision/header/điện áp/POR, UART và encoder trước. Không nối tắt safety/gate
+để có DISARMED. Trước thử công suất phải đóng các rủi ro trong hardware-audit.
