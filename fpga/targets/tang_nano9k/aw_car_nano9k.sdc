@@ -8,8 +8,8 @@ set_clock_uncertainty -hold 0.2 -to [get_clocks {clk_27m}]
 set_max_delay -from [get_ports {arst_n rx left_out right_out motion_permit_async recovery_req_async safety_ok_async gate_fault_n_async}] 37.037037
 set_min_delay -from [get_ports {arst_n rx left_out right_out motion_permit_async recovery_req_async safety_ok_async gate_fault_n_async}] 0
 # Receivers are asynchronous / driver logic. Bound clock-to-pad propagation.
-set_max_delay -to [get_ports {tx drv_left_in1 drv_left_in2 drv_right_in1 drv_right_in2 fpga_permit recovery_ack gate_clear}] 37.037037
-set_min_delay -to [get_ports {tx drv_left_in1 drv_left_in2 drv_right_in1 drv_right_in2 fpga_permit recovery_ack gate_clear}] 0
+set_max_delay -to [get_ports {tx drv_left_in1 drv_left_in2 drv_right_in1 drv_right_in2 fpga_permit recovery_ack gate_clear leds_n[0] leds_n[1] leds_n[2] leds_n[3] leds_n[4] leds_n[5]}] 37.037037
+set_min_delay -to [get_ports {tx drv_left_in1 drv_left_in2 drv_right_in1 drv_right_in2 fpga_permit recovery_ack gate_clear leds_n[0] leds_n[1] leds_n[2] leds_n[3] leds_n[4] leds_n[5]}] 0
 # Retain and explicitly time raw asynchronous shutdown. No false-path waiver.
 set_max_delay -from [get_ports {arst_n motion_permit_async safety_ok_async gate_fault_n_async}] -to [get_ports {drv_left_in1 drv_left_in2 drv_right_in1 drv_right_in2 fpga_permit gate_clear}] 37.037037
 # An asynchronous first sampler has no synchronous setup/hold relationship.

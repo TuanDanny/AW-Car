@@ -10,6 +10,7 @@ module tb_aw_car_top;
     logic drv_left_in1,drv_left_in2,drv_right_in1,drv_right_in2;
     logic [7:0] safety_state;
     logic [15:0] fault;
+    logic [5:0] leds_n;
     aw_car_top #(.SNAPSHOT_CYCLES(32),
         .HANDSHAKE_CYCLES(270), .CLEAR_CYCLES(135),
         .CLEAR_HOLD_CYCLES(27)) dut (.*);

@@ -1,7 +1,7 @@
 `timescale 1ns/1ps
 `default_nettype none
 // Canonical AW-Car integration top: two single-OUT encoders, protocol v2.
-// Pure wiring/configuration around drive_core; no extra registers or clocks.
+// Wiring/configuration plus a read-only LED observer; no extra clocks.
 // No unused quadrature GPIOs are exposed at the board boundary.
 // Version 2 UART frames only: Motion must explicitly implement v2 decoding.
 module aw_car_top #(
@@ -19,7 +19,8 @@ module aw_car_top #(
     parameter int SETUP_CYCLES = 27,
     parameter int FILTER_N = 3,
     parameter int ENCODER_STALE_CYCLES = CLK_HZ / 2,
-    parameter bit ALLOW_REVERSE = 1
+    parameter bit ALLOW_REVERSE = 1,
+    parameter int LED_HALF_CYCLES = CLK_HZ / 2
 ) (
     input wire logic clk, arst_n, rx,
     input wire logic left_out, right_out,
@@ -27,9 +28,16 @@ module aw_car_top #(
     input wire logic safety_ok_async, gate_fault_n_async,
     output logic tx,
     output logic drv_left_in1, drv_left_in2, drv_right_in1, drv_right_in2,
-    output logic fpga_permit, recovery_ack, gate_clear
+    output logic fpga_permit, recovery_ack, gate_clear,
+    output logic [5:0] leds_n
 );
-    // PWM/DIR and status/fault stay internal; telemetry is carried by UART.
+    // State/fault fan out to the observer only; no LED feeds the control core.
+    logic [7:0] observed_state;
+    logic [15:0] observed_fault;
+    status_leds #(.BLINK_HALF_CYCLES(LED_HALF_CYCLES)) indicators (
+        .clk(clk), .rst_n(arst_n), .safety_state(observed_state),
+        .fault(observed_fault), .leds_n(leds_n)
+    );
     drive_core #(
         .CLK_HZ(CLK_HZ), .BAUD(BAUD), .PERIOD_CYCLES(PERIOD_CYCLES),
         .SNAPSHOT_CYCLES(SNAPSHOT_CYCLES), .WATCHDOG_CYCLES(WATCHDOG_CYCLES),
@@ -50,7 +58,7 @@ module aw_car_top #(
         .drv_left_in1(drv_left_in1), .drv_left_in2(drv_left_in2),
         .drv_right_in1(drv_right_in1), .drv_right_in2(drv_right_in2),
         .recovery_ack(recovery_ack), .gate_clear(gate_clear),
-        .safety_state(), .fault()
+        .safety_state(observed_state), .fault(observed_fault)
     );
 endmodule
 `default_nettype wire

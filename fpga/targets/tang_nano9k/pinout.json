@@ -350,6 +350,120 @@
         "S3674",
         "GOWIN_PIN_DB"
       ]
+    },
+    {
+      "signal": "leds_n[0]",
+      "direction": "output",
+      "package_pin": 10,
+      "package_name": "IOL15A",
+      "header": null,
+      "bank": 3,
+      "vccio": 1.8,
+      "io_standard": "LVCMOS18",
+      "pull": "UP",
+      "drive_ma": 4,
+      "peer": "Onboard active-low LED1 (firmware numbering)",
+      "shared_with": "Onboard LED only; not external3.3V",
+      "source_ids": [
+        "S3672",
+        "S3674",
+        "GOWIN_PIN_DB"
+      ]
+    },
+    {
+      "signal": "leds_n[1]",
+      "direction": "output",
+      "package_pin": 11,
+      "package_name": "IOL16B",
+      "header": null,
+      "bank": 3,
+      "vccio": 1.8,
+      "io_standard": "LVCMOS18",
+      "pull": "UP",
+      "drive_ma": 4,
+      "peer": "Onboard active-low LED2 (firmware numbering)",
+      "shared_with": "Onboard LED only; not external3.3V",
+      "source_ids": [
+        "S3672",
+        "S3674",
+        "GOWIN_PIN_DB"
+      ]
+    },
+    {
+      "signal": "leds_n[2]",
+      "direction": "output",
+      "package_pin": 13,
+      "package_name": "IOL21B",
+      "header": null,
+      "bank": 3,
+      "vccio": 1.8,
+      "io_standard": "LVCMOS18",
+      "pull": "UP",
+      "drive_ma": 4,
+      "peer": "Onboard active-low LED3 (firmware numbering)",
+      "shared_with": "Onboard LED only; not external3.3V",
+      "source_ids": [
+        "S3672",
+        "S3674",
+        "GOWIN_PIN_DB"
+      ]
+    },
+    {
+      "signal": "leds_n[3]",
+      "direction": "output",
+      "package_pin": 14,
+      "package_name": "IOL22B",
+      "header": null,
+      "bank": 3,
+      "vccio": 1.8,
+      "io_standard": "LVCMOS18",
+      "pull": "UP",
+      "drive_ma": 4,
+      "peer": "Onboard active-low LED4 (firmware numbering)",
+      "shared_with": "Onboard LED only; not external3.3V",
+      "source_ids": [
+        "S3672",
+        "S3674",
+        "GOWIN_PIN_DB"
+      ]
+    },
+    {
+      "signal": "leds_n[4]",
+      "direction": "output",
+      "package_pin": 15,
+      "package_name": "IOL25B",
+      "header": null,
+      "bank": 3,
+      "vccio": 1.8,
+      "io_standard": "LVCMOS18",
+      "pull": "UP",
+      "drive_ma": 4,
+      "peer": "Onboard active-low LED5 (firmware numbering)",
+      "shared_with": "Onboard LED only; not external3.3V",
+      "source_ids": [
+        "S3672",
+        "S3674",
+        "GOWIN_PIN_DB"
+      ]
+    },
+    {
+      "signal": "leds_n[5]",
+      "direction": "output",
+      "package_pin": 16,
+      "package_name": "IOL26B",
+      "header": null,
+      "bank": 3,
+      "vccio": 1.8,
+      "io_standard": "LVCMOS18",
+      "pull": "UP",
+      "drive_ma": 4,
+      "peer": "Onboard active-low LED6 (firmware numbering)",
+      "shared_with": "Onboard LED only; not external3.3V",
+      "source_ids": [
+        "S3672",
+        "S3674",
+        "GOWIN_PIN_DB"
+      ]
     }
   ],
   "external_gate_present": false,
@@ -364,12 +478,6 @@
     7,
     8,
     9,
-    10,
-    11,
-    13,
-    14,
-    15,
-    16,
     17,
     18,
     36,
@@ -406,5 +514,6 @@
     86,
     87,
     88
-  ]
+  ],
+  "onboard_led_policy": "Read-only observer; priority FAULT > CONNECTED > WAITING; no control feedback"
 }

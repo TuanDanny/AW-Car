@@ -12,8 +12,9 @@ Top FPGA triển khai là **[`aw_car_top`](fpga/rtl/aw_car_top.sv)**, bọc lõi
 không xuất bus debug thành chân board. Cấu hình tổng hợp ở [`synth_aw_car.ys`](fpga/synth_aw_car.ys).
 
 Giai đoạn2 ngày05/11: [target Tang Nano9K/Gowin](fpga/targets/tang_nano9k/README.md)
-có physical shell POR, pinout17 tín hiệu, CST/SDC, project/CLI và báo cáo STA.
-Bài LED đã chạy trên board thật; bitstream **AW-Car chưa nạp**, gate/E-stop chưa có.
+có physical shell POR, pinout17 tín hiệu chức năng +6 LED onboard, CST/SDC, project/CLI và báo cáo STA.
+Bài LED và AW-Car trước observer đã nạp SRAM bằng CLI trên board thật;
+đang bổ sung LED trạng thái. Gate/E-stop chưa có, chưa nghiệm thu truyền động.
 Brain–Motion LOCKED đã chốt tại
 [main4cea85c](https://github.com/TuanDanny/AW-Car/tree/v0.1-brain-motion-locked);
 nhánh FPGA vẫn độc lập, không dùng RTL v1 baseline của main cho Motion v2.

@@ -11,7 +11,8 @@ module aw_car_nano9k #(
     input wire logic safety_ok_async, gate_fault_n_async,
     output logic tx,
     output logic drv_left_in1, drv_left_in2, drv_right_in1, drv_right_in2,
-    output logic fpga_permit, recovery_ack, gate_clear
+    output logic fpga_permit, recovery_ack, gate_clear,
+    output logic [5:0] leds_n
 );
     localparam int POR_WIDTH = (POR_CYCLES > 1) ? $clog2(POR_CYCLES) : 1;
     logic [POR_WIDTH-1:0] por_count = '0;
@@ -37,7 +38,8 @@ module aw_car_nano9k #(
         .safety_ok_async(safety_ok_async), .gate_fault_n_async(gate_fault_n_async),
         .tx(tx), .drv_left_in1(raw_left_in1), .drv_left_in2(raw_left_in2),
         .drv_right_in1(raw_right_in1), .drv_right_in2(raw_right_in2),
-        .fpga_permit(raw_permit), .recovery_ack(raw_ack), .gate_clear(raw_clear)
+        .fpga_permit(raw_permit), .recovery_ack(raw_ack), .gate_clear(raw_clear),
+        .leds_n(leds_n)
     );
     // Also mask the board boundary during POR / an asynchronous button reset.
     assign drv_left_in1 = core_arst_n && raw_left_in1;

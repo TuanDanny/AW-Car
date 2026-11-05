@@ -14,6 +14,7 @@ module tb_drive_maneuvers;
     logic [1:0] direction;
     logic [7:0] safety_state;
     logic [15:0] fault;
+    logic [5:0] leds_n;
     // No parameter overrides: exercise the actual 27 MHz hardware defaults,
     // including reverse enabled, single OUT, 20 kHz PWM and 50 ms watchdog.
     aw_car_top dut (.left_out(encoder_left_out), .right_out(encoder_right_out), .*);

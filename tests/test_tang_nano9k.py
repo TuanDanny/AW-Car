@@ -22,7 +22,19 @@ class TangNanoTargetTests(unittest.TestCase):
         return root
 
     def test_actual_target_is_complete(self):
-        self.assertEqual(target.audit()["ports"], 17)
+        self.assertEqual(target.audit()["ports"], 23)
+
+    def test_onboard_led_pin_drift_rejected_even_with_matching_cst(self):
+        root = self.fixture()
+        path = root / "fpga/targets/tang_nano9k/pinout.json"
+        data = json.loads(path.read_text())
+        led = next(p for p in data['pins'] if p['signal'] == 'leds_n[0]')
+        led['package_pin'] = 12
+        path.write_text(json.dumps(data))
+        cst = root / "fpga/targets/tang_nano9k/aw_car_nano9k.cst"
+        cst.write_text(cst.read_text().replace('"leds_n[0]" 10;', '"leds_n[0]" 12;'))
+        with self.assertRaisesRegex(ValueError, "LED mapping"):
+            target.audit(root)
 
     def test_duplicate_package_pin_rejected(self):
         root = self.fixture()

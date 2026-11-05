@@ -121,3 +121,10 @@ công suất/điện/cơ hoặc nghiệm thu driver thật. Không có chế đ�
 - `tb_diagnostics_default_timeout`:ngưỡng encoder mặc định13.500.000 tick
   (500ms ở27MHz), heartbeat snapshot270.000tick/10ms vẫn khỏe, cảnh báo
   không phát sớm/không tự khóa và giữ lịch sử khi encoder phục hồi.
+
+- `tb_status_leds`: active-low; blink HALF1/7/16;256 mã trạng thái x16 bit
+  fault; ưu tiên lỗi, warning không tự thành fatal, reset khi clock đứng.
+- `tb_led_noninterference`: cùng input27MHz cho top cóLED và `drive_core`
+  không observer; so từng chu kỳ UART/Safety/PWM/permit/ACK/clear, có ARM,
+  CRC sai, đảo chiều, STOP, watchdog và E-stop bất đồng bộ. Baud/timer rút ngắn
+  tường minh chỉ cho miter; không trình bày như phép đo timing vật lý.

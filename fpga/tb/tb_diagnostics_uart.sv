@@ -6,6 +6,7 @@ module tb_diagnostics_uart;
     logic pwm_left,pwm_right,fpga_permit,recovery_ack,gate_clear;
     logic drv_left_in1,drv_left_in2,drv_right_in1,drv_right_in2;
     logic [1:0] direction;logic [7:0] safety_state;logic [15:0] fault;
+    logic [5:0] leds_n;
     aw_car_top #(.CLK_HZ(800000),.BAUD(100000),.PERIOD_CYCLES(16),
         .SNAPSHOT_CYCLES(1000),.WATCHDOG_CYCLES(10000),.HANDSHAKE_CYCLES(50000),
         .CLEAR_CYCLES(16),.CLEAR_HOLD_CYCLES(3),.ZERO_CYCLES(8),.SETUP_CYCLES(2),

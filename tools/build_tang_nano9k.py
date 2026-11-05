@@ -22,6 +22,8 @@ SAMPLERS = (
     "core/core_0/g_single_out.encoders/left_filter/meta_ff_0_s0",
     "core/core_0/g_single_out.encoders/right_filter/meta_ff_0_s0",
 )
+LED_PINS = (10, 11, 13, 14, 15, 16)
+SIGNAL = r'([A-Za-z_]\w*(?:\[\d+\])?)'
 
 
 def require(condition, message):
@@ -45,23 +47,29 @@ def audit(root=ROOT, pin_db=None):
     target = root / "fpga/targets/tang_nano9k"
     data = json.loads((target / "pinout.json").read_text(encoding="utf-8"))
     pins = data["pins"]
-    require(len(pins) == 17, "Expected exactly17 scalar physical ports")
+    require(len(pins) == 23, "Expected17 functional signals plus6 onboard LEDs")
     names = [p["signal"] for p in pins]
     numbers = [p["package_pin"] for p in pins]
-    require(len(set(names)) == len(set(numbers)) == 17, "Duplicate signal/package pin")
+    require(len(set(names)) == len(set(numbers)) == 23, "Duplicate signal/package pin")
     cst = (target / "aw_car_nano9k.cst").read_text(encoding="utf-8")
-    locs = re.findall(r'IO_LOC\s+"(\w+)"\s+(\d+)\s*;', cst)
-    ports = re.findall(r'IO_PORT\s+"(\w+)"\s+([^;]+);', cst)
-    require(len(locs) == len(ports) == 17, "CST must bind every port exactly once")
+    locs = re.findall(r'IO_LOC\s+"' + SIGNAL + r'"\s+(\d+)\s*;', cst)
+    ports = re.findall(r'IO_PORT\s+"' + SIGNAL + r'"\s+([^;]+);', cst)
+    require(len(locs) == len(ports) == 23, "CST must bind every port exactly once")
     require(dict(locs) == {p["signal"]: str(p["package_pin"]) for p in pins}, "CST pin drift")
     require(set(dict(ports)) == set(names), "CST IO standard port drift")
+    for index, number in enumerate(LED_PINS):
+        led = next((p for p in pins if p['signal'] == f'leds_n[{index}]'), None)
+        require(led is not None and led['package_pin'] == number and led['bank'] == 3 and
+                led['header'] is None and led['direction'] == 'output' and led['pull'] == 'UP',
+                "Onboard LED mapping/bank/polarity drift")
     for pin in pins:
         require(pin["package_pin"] not in data["reserved_package_pins"], "Reserved/config/peripheral pin")
         voltage = 1.8 if pin["bank"] == 3 else 3.3
         require(pin["vccio"] == voltage, "Wrong bank voltage")
         require(pin["io_standard"] == ("LVCMOS18" if voltage == 1.8 else "LVCMOS33"), "Wrong IO standard")
-        require(voltage == 3.3 or pin["signal"] == "arst_n" and pin["header"] is None,
-                "External AW-Car IO must be3.3V; reset1.8V is onboard only")
+        require(voltage == 3.3 or pin['header'] is None and
+                (pin['signal'] == 'arst_n' or pin['signal'] in {f'leds_n[{i}]' for i in range(6)}),
+                "External AW-Car IO must be3.3V; reset/LED1.8V are onboard only")
         options = dict(re.findall(r'(\w+)=([\w.]+)', dict(ports)[pin["signal"]]))
         require(options.get("IO_TYPE") == pin["io_standard"] and
                 options.get("BANK_VCCIO") == str(voltage) and options.get("PULL_MODE") == pin["pull"],
@@ -80,7 +88,14 @@ def audit(root=ROOT, pin_db=None):
         declared = {}
         parts = re.split(r'\b(input|output)\s+(?:wire\s+)?logic\s+', header)
         for index in range(1, len(parts), 2):
-            declared.update({x.strip(): parts[index] for x in parts[index + 1].strip().strip(',').split(',')})
+            group = parts[index + 1].strip().strip(',')
+            vector = re.match(r'\[(\d+):(\d+)\]\s*(.*)', group, re.S)
+            if vector:
+                high, low, group = int(vector[1]), int(vector[2]), vector[3]
+                for name in group.split(','):
+                    declared.update({f'{name.strip()}[{bit}]': parts[index] for bit in range(low, high+1)})
+            else:
+                declared.update({x.strip(): parts[index] for x in group.split(',')})
         require(declared == {p["signal"]: p["direction"] for p in pins}, "Physical/logical port contract mismatch")
     project = ET.parse(target / "aw_car_nano9k.gprj").getroot()
     require(project.find("Device").attrib == {"name": "GW1NR-9C", "pn": data["part"]}, "Wrong device")
@@ -97,8 +112,9 @@ def audit(root=ROOT, pin_db=None):
             "Unexpected extra false-path endpoint")
     require(set(re.findall(r'get_ports\s+\{([^}]+)\}', exceptions[0])[0].split()) ==
             {"rx", "recovery_req_async", "left_out", "right_out"}, "Unexpected false-path source")
-    return {"ports": 17, "package_db_checked": bool(pin_db), "external_io_v": 3.3,
-            "onboard_reset_v": 1.8, "board_measurements": "NOT VERIFIED"}
+    return {"ports": 23, "functional_signals": 17, "onboard_leds": 6,
+            "package_db_checked": bool(pin_db), "external_io_v": 3.3,
+            "onboard_reset_v": 1.8, "onboard_led_v": 1.8, "board_measurements": "NOT VERIFIED"}
 
 
 def parse_reports(timing, pnr, netlist):
@@ -128,7 +144,7 @@ def parse_reports(timing, pnr, netlist):
     # This Gowin text format provides no exhaustive unconstrained-path counter.
     # Never silently turn an absent metric into zero.
     result["unconstrained_path_count"] = None
-    result["unconstrained_note"] = "Not enumerated by Gowin automatic report; all17 boundary ports inventoried,9 constraints active;4 first-sampler D pins intentionally excepted. CDC/MTBF and board IO remain separate sign-off."
+    result["unconstrained_note"] = "Not enumerated by Gowin automatic report; all23 boundary signals inventoried,9 constraints active;4 first-sampler D pins intentionally excepted. CDC/MTBF and board IO remain separate sign-off."
     result["lut4"] = number(r'\((\d+) LUT,', pnr, integer=True)
     result["alu"] = number(r'LUT, (\d+) ALU,', pnr, integer=True)
     result["logic_cells"] = number(r'^\s+Logic\s+\| (\d+)/8640', pnr, integer=True)
@@ -159,15 +175,15 @@ def parse_reports(timing, pnr, netlist):
         result["setup_violated_endpoints"] == result["hold_violated_endpoints"] == 0 and
         all(result["worst_" + k + "_slack_ns"] >= 0 for k in ["setup", "hold", "recovery", "removal"]) and
         all(v == 0 for v in result["tns_ns"].values()) and result["latches"] == result["io_latches"] == 0 and
-        result["io_ports"] == result["io_buffers"] == 17)
+        result["io_ports"] == result["io_buffers"] == 23)
     return result
 
 
 def check_routed_pins(cst, target=TARGET):
     pins = json.loads((target / "pinout.json").read_text())["pins"]
-    locs = re.findall(r'IO_LOC\s+"(\w+)"\s+(\d+)\s*;', cst)
-    ports = re.findall(r'IO_PORT\s+"(\w+)"\s+([^;]+);', cst)
-    require(len(locs) == len(ports) == 17 and dict(locs) ==
+    locs = re.findall(r'IO_LOC\s+"' + SIGNAL + r'"\s+(\d+)\s*;', cst)
+    ports = re.findall(r'IO_PORT\s+"' + SIGNAL + r'"\s+([^;]+);', cst)
+    require(len(locs) == len(ports) == 23 and dict(locs) ==
             {p["signal"]: str(p["package_pin"]) for p in pins}, "Routed package pin drift")
     for pin in pins:
         options = dict(re.findall(r'(\w+)=([\w.]+)', dict(ports)[pin["signal"]]))

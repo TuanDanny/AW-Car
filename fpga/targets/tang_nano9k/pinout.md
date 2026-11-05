@@ -1,4 +1,4 @@
-# Tang Nano9K — hợp đồng chân AW-Car
+# Tang Nano9K — hợp đồng chân AW-Car và LED
 
 **SCHEMATIC AUDITED; BOARD MEASUREMENTS PENDING.** Đây là ứng viên cho board
 không gắn LCD/HDMI/microSD. Mã revision trên board chưa xác nhận; các chân dùng
@@ -27,8 +27,16 @@ khi đấu. `—` nghĩa nối nội bộ board, không có chân header trong c
 | `fpga_permit` | output | 51 | J5.17 | 1 / 3.3V | External gate and Motion GPIO7 input |
 | `recovery_ack` | output | 48 | J6.19 | 1 / 3.3V | Motion GPIO6 input |
 | `gate_clear` | output | 49 | J6.20 | 1 / 3.3V | External latch clear request |
+| `leds_n[0]` | output | 10 | — | 3 / 1.8V | Onboard LED1, active-low |
+| `leds_n[1]` | output | 11 | — | 3 / 1.8V | Onboard LED2, active-low |
+| `leds_n[2]` | output | 13 | — | 3 / 1.8V | Onboard LED3, active-low |
+| `leds_n[3]` | output | 14 | — | 3 / 1.8V | Onboard LED4, active-low |
+| `leds_n[4]` | output | 15 | — | 3 / 1.8V | Onboard LED5, active-low |
+| `leds_n[5]` | output | 16 | — | 3 / 1.8V | Onboard LED6, active-low |
 
-Các tín hiệu ngoài UART ở3,3V; riêng reset là nút S2 trên bank3,1,8V.
+17 tín hiệu chức năng giữ nguyên; thêm6 output LED onboard thành23 tín hiệu.
+LED1–6 là thứ tự firmware theo bảng; xác nhận silk thực trước gọi tên vị trí.
+Các tín hiệu ngoài UART ở3,3V; reset và LED onboard dùng bank3,1,8V.
 **Không nối ESP32/3,3V vào reset package3. Package4/JTAGSEL_N không sử dụng.**
 Một số revision cũ đảo tên silk S1/S2; phải xác nhận nút nối package3 bằng
 schematic/continuity, không chỉ dựa vào tên nút trên board.

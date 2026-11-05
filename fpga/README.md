@@ -128,3 +128,10 @@ qua UART hoặc testbench; không cần gán chân board cho28 bit debug cũ.
 Protocol v2 có thêm [runtime diagnostics](../firmware/shared/fpga-protocol-v2.md#6-runtime-diagnostics--extension-02112026).
 Không đổi kích thước STATUS. Target mới có constraints/PnR/STA; Motion LOCKED
 trong main4cea85c nhận v2. Chưa nghiệm thu UART FPGA/gate/motor trên board AW-Car.
+
+## LED onboard Nano9K
+
+Top bổ sung6 output `leds_n` quan sát, giữ nguyên17 tín hiệu chức năng.
+Xem [quy tắc LED và build target](targets/tang_nano9k/README.md#led-trạng-thái--observer-độc-lập).
+Observer dùng một counter24bit +1 bit pha, clock27MHz; không tham gia ARM,
+PWM, watchdog hoặc gate. Bộ kiểm thử hiện có36 bench,21 module RTL.

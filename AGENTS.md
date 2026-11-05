@@ -14,8 +14,8 @@
   snapshot stall/invariant (mask 0x8800) yêu cầu reset; không coi mọi cảnh báo
   encoder/RX là lỗi tự khóa. ESP32 vẫn phải timeout STATUS độc lập.
   Phân tải ở `docs/fpga-drive-plan.md`; Tang Nano9K đã chạy bài LED thật theo
-  người dùng. Target AW-Car/Gowin ở `fpga/targets/tang_nano9k`; chưa nạp AW-Car
-  lên board. STA dưới constraints không thay nghiệm thu gate/E-stop/motor.
+  người dùng. Target AW-Car/Gowin ở `fpga/targets/tang_nano9k`; người dùng đã cho phép
+  và đã nạp SRAM AW-Car qua CLI ngày05/11, chưa thử công suất. STA dưới constraints không thay nghiệm thu gate/E-stop/motor.
 - Trao đổi và báo cáo bằng tiếng Việt, ngắn gọn; nêu giả định ảnh hưởng thiết kế.
 
 ## Nhánh và merge
@@ -35,7 +35,7 @@
 - Tác vụ đang bàn bạc/setup chỉ chuẩn bị nhánh để xem trước, chưa merge.
 - Ngoại lệ được người dùng giao05/11/2026: `feat/f01-tang-nano9k-target` ở worktree
   sạch riêng cho target Gowin, dựa FPGA7ab91b2 và đối chiếu main4cea85c LOCKED.
-  Không sửa worktree FPGA/CAD đang dở, flash AW-Car, thay Motion LOCKED hoặc
+  Chỉ sửa workspace Gowin khi người dùng giao; không sửa CAD đang dở, ghi flash, thay Motion LOCKED hoặc
   tự merge FPGA vào main. Đã xác nhận board trống/USB; gate/E-stop chưa có.
 - Không force-push main, bỏ qua hook/CI hoặc xóa thay đổi của người khác.
 - Khi dọn nhánh cũ, kiểm tra phần đã merge và sao lưu commit/thay đổi còn lại
@@ -55,7 +55,7 @@
   `common/`, `encoder/`, `pwm/`, `link/`, `safety/`, mỗi nhóm có README.
   Khi chuyển nguồn, cập nhật đường dẫn tổng hợp và runner tìm `.sv` đệ quy.
 - Physical shell `fpga/targets/tang_nano9k/aw_car_nano9k.sv` chỉ thêm POR/mask
-  reset cho logical top trên; đây là top board của Gowin, không phải lõi truyền
+  reset và nối6 LED observer cho logical top trên; đây là top board của Gowin, không phải lõi truyền
   động thứ hai. Build target dùng SystemVerilog2017, không bỏ default_nettype
   none. Cổng module input dùng `wire logic` tường minh; tham số function/task
   giữ logic. Kiểm tra post-PnR encoder/STATUS để phát hiện tối ưu sai của tool.
@@ -80,3 +80,10 @@
   AI/Web không ghi PWM trực tiếp; E-stop không phụ thuộc MCU hay clock FPGA.
 - Báo rõ đã đổi gì, kiểm tra nào đạt/chưa chạy và rủi ro còn lại. Không gọi
   tính năng là hoàn tất nếu chưa có bằng chứng kiểm thử phù hợp.
+
+## LED quan sát Nano9K
+
+- 23 tín hiệu vật lý:17 chức năng giữ nguyên và6 LED active-low1,8V ở package
+  10/11/13/14/15/16. FAULT > CONNECTED > WAITING; dùng cùng27MHz, không clock
+  phụ hoặc phản hồi LED tới ARM/PWM/watchdog/gate. Chưa cấu hình/mất nguồn
+  không thể hiển thị; mất clock có thể đứng hình. LED không thay E-stop.

@@ -7,6 +7,7 @@
   <FileList>
     <File path="../../rtl/aw_car_top.sv" type="file.verilog" enable="1" />
     <File path="../../rtl/common/input_sync_filter.sv" type="file.verilog" enable="1" />
+    <File path="../../rtl/common/status_leds.sv" type="file.verilog" enable="1" />
     <File path="../../rtl/common/reset_sync.sv" type="file.verilog" enable="1" />
     <File path="../../rtl/drive_core.sv" type="file.verilog" enable="1" />
     <File path="../../rtl/encoder/encoder_pair.sv" type="file.verilog" enable="1" />

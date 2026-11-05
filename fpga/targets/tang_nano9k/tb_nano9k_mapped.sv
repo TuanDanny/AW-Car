@@ -10,6 +10,7 @@ module tb_nano9k_mapped #(
     logic safety_ok_async = 1, gate_fault_n_async = 1;
     wire tx, drv_left_in1, drv_left_in2, drv_right_in1, drv_right_in2;
     wire fpga_permit, recovery_ack, gate_clear;
+    wire [5:0] leds_n;
     logic [7:0] bytes [0:46];
     integer frames = 0;
     logic [15:0] previous_sequence = 0;
@@ -109,11 +110,17 @@ module tb_nano9k_mapped #(
             hello();
         end
         wait (frames == 2);
+        if (leds_n !== 6'b111110) $fatal(1,"mapped waiting/connected LED1 polarity");
+        safety_ok_async = 0;
+        repeat (8) @(negedge clk);
+        if (leds_n !== 6'b000000) $fatal(1,"mapped FAULT must light all six LEDs");
         #3 arst_n = 0;
         #100;
         if ({fpga_permit,recovery_ack,gate_clear,drv_left_in1,drv_left_in2,
              drv_right_in1,drv_right_in2} !== 0) $fatal(1, "reset boundary not OFF");
+        if (leds_n !== 6'b111111) $fatal(1,"mapped reset LEDs must be OFF");
         repeat (20) @(negedge clk);
+        safety_ok_async = 1;
         arst_n = 1;
         repeat (1100) @(negedge clk);
         if (tx !== 1) $fatal(1, "UART must return idle after reset/POR");

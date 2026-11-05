@@ -4,7 +4,7 @@ Lõi SystemVerilog (`.sv`), một clock domain, không tạo clock bằng logic.
 RTL dùng `logic`, `always_ff` cho thanh ghi, `assign` cho tổ hợp đơn giản và
 enum cho FSM. Không dùng khởi tạo biến thay phép gán liên tục.
 Top tích hợp **duy nhất cho bản triển khai là `aw_car_top`**, đặt ngay root
-và chứa một instance `drive_core`. Lõi không phụ thuộc chân board; module con
+và chứa một instance `drive_core` cùng observer `status_leds` chỉ đọc state/fault. Lõi không phụ thuộc chân board; module con
 phân theo chức năng:
 
 ```text
@@ -47,7 +47,7 @@ thứ tự chạy như các hàm trong chương trình MCU. `drive_core` nối c
 | Link | [fpga_link.sv](link/fpga_link.sv) | Ghép UART, CRC, nhận/gửi khung và guard thành một cổng giao tiếp Motion–FPGA; xác nhận STATUS sau khi gửi đủ byte cuối. |
 | Safety | [safety_fsm.sv](safety/safety_fsm.sv) | Quản lý chưa arm/bắt tay/chờ arm/đang arm/lỗi/xóa lỗi; chỉ cho chạy đúng trình tự và hết hạn lệnh thì thu quyền chạy. |
 
-Trạng thái: có 20 module, có testbench và script tổng hợp generic; chưa có target
+Trạng thái: có 21 module, có testbench và script tổng hợp generic; chưa có target
 board/driver thực hoặc báo cáo timing sau route. Runner tìm đệ quy toàn bộ
 `.sv` trong cây này; script tổng hợp ở `fpga/` dùng đường dẫn nhóm tương ứng.
 Testbench vẫn ở [tb](../tb/README.md), ngoài cây nguồn RTL.
@@ -136,3 +136,7 @@ Xem [hợp đồng an toàn](../../firmware/shared/fpga-safety.md),
 [wire v1](../../firmware/shared/fpga-protocol.md),
 [wire v2](../../firmware/shared/fpga-protocol-v2.md) và
 [bằng chứng kiểm thử](../verification.md).
+
+Observer LED thêm6 output active-low trên logical top, physical shell nối tới
+LED onboard1,8V;17 tín hiệu chức năng không đổi. Không xuất state/fault thành
+bus debug ở chân chip. Runtime control vẫn ở20 module cũ; observer không phản hồi.
