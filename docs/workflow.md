@@ -1,19 +1,27 @@
 # Quy trình Git
 
-`main -> feat/fXX-ten-ngan -> kiểm tra + review -> PR -> squash merge -> main`.
-Mỗi tính năng một nhánh và một commit sau squash; lỗi/tài liệu/setup dùng
-`fix/`, `docs/`, `chore/`. Nhánh setup hiện tại: `chore/repo-setup`.
+Giai đoạn hiện tại dùng `main` ổn định và ba nhánh phát triển:
+
+| Nhánh | Phần việc |
+| --- | --- |
+| `feat/f01-fpga-drive` | FPGA, truyền động, giao tiếp Motion–FPGA và tài liệu liên quan |
+| `feat/f03-xiaozhi-ai` | AI/Xiaozhi, Web, âm thanh, OLED và tài liệu liên quan |
+| `codex/esp32-s3-motion` | Motion, hai UART, truyền động và gate; từ main 094b37c |
+
+Dùng lại nhánh phù hợp cho sửa lỗi, tài liệu và tối ưu; theo dõi từng bước
+bằng task/commit. Quy tắc ở [AGENTS.md](../AGENTS.md).
 
 ## Bắt đầu
 
-Kiểm tra `git status`, bảo toàn thay đổi đang có rồi lấy main mới nhất:
+Kiểm tra `git status`, bảo toàn thay đổi đang có rồi lấy thông tin mới nhất:
 
 ```sh
 git fetch origin
-git switch -c feat/f01-drive origin/main
+git switch feat/f01-fpga-drive
 ```
 
-Tên trên là ví dụ; chọn mã tính năng đúng tác vụ. Khi lấy bản setup về lần đầu:
+Nếu nhánh đang được dùng ở worktree khác, làm trong worktree đó. Khi làm AI,
+dùng `feat/f03-xiaozhi-ai`. Không tự tạo thêm nhánh cho mỗi task. Lần setup đầu:
 
 ```sh
 git config --local core.hooksPath .githooks
@@ -21,13 +29,19 @@ git config --local core.hooksPath .githooks
 
 ## Trước khi merge
 
-- Một PR chỉ chứa phạm vi tính năng và sửa đổi cần thiết để tính năng hoạt động.
+- Một PR bàn giao một mốc của FPGA, Brain hoặc Motion, với diff và kiểm tra rõ ràng.
 - Chạy kiểm tra ở [tools](../tools/README.md), build/test phần mã nguồn đã đổi
   khi có, và ghi rõ phần cần kiểm tra trên phần cứng.
 - Review diff, xử lý lỗi, cập nhật nhánh nếu main thay đổi; chỉ squash merge khi
   các kiểm tra phù hợp đã đạt. Với tác vụ đang bàn bạc/setup, giữ nhánh để xem trước.
-- Sau merge: `git fetch origin`, chuyển về main và `git pull --ff-only` khi cây
-  làm việc sạch; nhánh tiếp theo bắt đầu từ main mới. Không sửa trực tiếp trên main.
+- Sau merge: lấy main mới rồi đồng bộ vào ba nhánh phát triển khi cây làm việc
+  sạch. Không sửa trực tiếp trên main.
+
+## Dọn nhánh cũ
+
+Các PR encoder/PWM/UART/watchdog/tối ưu đã squash vào main. Kiểm tra nội dung
+và sao lưu lịch sử trước khi bỏ tên nhánh cũ. Thay đổi phần cứng/CAD chưa
+commit ở checkout khác phải được giữ nguyên, không tự gộp vào bản đã nghiệm thu.
 
 ## Mức bảo vệ
 
@@ -35,7 +49,8 @@ git config --local core.hooksPath .githooks
 - Hooks cục bộ: chặn commit trên main/sai tên nhánh và push trực tiếp lên main;
   pre-commit kiểm tra nội dung **đã stage**. Mỗi bản clone phải bật hooks riêng.
 - CI `Repository checks / structure-and-rules`: kiểm tra cấu trúc và test công
-  cụ trên PR/main; hiện chưa build firmware vì chưa có mã nguồn.
+  cụ trên PR/main; host tests biên dịch core C++; build ESP-IDF ghi riêng trong báo cáo.
+  CI cấu trúc không chứng minh giao tiếp trên board.
 
 **Chưa cấu hình bảo vệ nhánh trên GitHub.** Khi đưa setup lên GitHub, đặt ruleset
 cho main: yêu cầu PR, chỉ squash merge, yêu cầu status check `structure-and-rules`,

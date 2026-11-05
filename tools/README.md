@@ -1,6 +1,14 @@
 # Công cụ phát triển
 
-Python 3.10+ và Git, không cần cài thư viện Python ngoài.
+Kiểm tra cấu trúc dùng Python3.10+ và Git. Kiểm thử Brain cần compiler host
+C++17; HTTP/WebSocket/serial dev tools dùng dashboard/requirements-dev.txt.
+
+Brain tools: `build_brain_host.py` compile chính control core/VoiceGate;
+`brain_simulator.py` bind thư viện đó và Motion peer Python độc lập;
+`motion_serial_peer.py` dùng USB–UART TTL3,3V để thử Brain thật với PC;
+`brain_soak.py` thử tải thời gian thực, không giả lập deadline thành benchmark.
+`embed_dashboard.py` tạo header asset trong build, không đổi partition.
+Chi tiết lệnh ở [dashboard](../dashboard/README.md).
 
 ```sh
 python tools/check_repo.py

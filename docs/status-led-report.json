@@ -1,0 +1,213 @@
+{
+  "date_local": "2026-11-05",
+  "timezone": "Asia/Saigon",
+  "scope": "WS2812 status-only; remove AI/Web RGB demo; visible Wi-Fi/Xiaozhi state; reset recovery and preferred Wi-Fi persistence",
+  "tests": {
+    "brain_root_unittest_passed": 96,
+    "motion_root_unittest_passed": 72,
+    "dashboard_node_passed": 9,
+    "production_cpp_brain_motion_integration": "passed",
+    "esp_idf_version": "6.1",
+    "brain_build": "passed",
+    "motion_build": "passed",
+    "stock_profile_build": "not rerun in this change",
+    "new_reset_regressions": 4,
+    "policy_same_color_iterations": 100000,
+    "retired_tool_string_occurrences_in_brain_app": 0
+  },
+  "flash": {
+    "brain": {
+      "port": "COM3",
+      "offset": "0x0000",
+      "nvs_byte_preserved": true,
+      "motioncfg_byte_preserved": null,
+      "app_sha256": "9dbaf5443129e7fbc8fd46d402252fa75dcc733a8173d40e5a5842b910efff08"
+    },
+    "motion": {
+      "port": "COM7",
+      "offset": "0x0000",
+      "nvs_byte_preserved": true,
+      "motioncfg_byte_preserved": true,
+      "app_sha256": "0a7a616a91f30b1dad3fffe60be1b7f31326e947b16ff43c99465034a96309ec"
+    }
+  },
+  "final_two_board_monitor": {
+    "configured_duration_s": 65,
+    "no_reset_or_flash_during_window": true,
+    "serial_interruptions": {
+      "COM7": [],
+      "COM3": []
+    },
+    "reset_or_panic_signatures": 0,
+    "brain": {
+      "sample_span_s": 60.12,
+      "status_frames_delta": 1202,
+      "status_hz": 19.99,
+      "telemetry_age_max_ms": 45,
+      "parser_errors_first_last": [
+        0,
+        0
+      ],
+      "uart_driver_errors_max": 0,
+      "ws_fd_first_last": [
+        -1,
+        -1
+      ],
+      "ws_closed_first_last": [
+        0,
+        0
+      ],
+      "ws_send_fail_first_last": [
+        0,
+        0
+      ],
+      "ws_queue_fail_first_last": [
+        0,
+        0
+      ]
+    },
+    "motion": {
+      "samples": 7,
+      "configured": false,
+      "driver_and_logical_gpio": "LOW",
+      "color": "blue",
+      "reason": "locked",
+      "led_writes_first_last": [
+        1,
+        1
+      ],
+      "led_errors_max": 0,
+      "led_write_max_us": 471,
+      "heap_free_min_max_bytes": [
+        350316,
+        350316
+      ],
+      "heap_min_since_boot_bytes": 346112,
+      "rx_errors_max": 0,
+      "queue_drops_max": 0,
+      "tx_drops_max": 0,
+      "log_drops_max": 0
+    },
+    "network": {
+      "all_samples_online": true,
+      "ip_valid": true,
+      "attempts": 2,
+      "failures": 1,
+      "historical_disconnect_reason": 202,
+      "api_errors": 0,
+      "ap_clients": 0,
+      "note": "Auto-reconnect after final flash succeeded on attempt 2 after authentication cooldown; this final idle window has no Dashboard client."
+    }
+  },
+  "earlier_active_dashboard_monitor": {
+    "configured_duration_s": 120,
+    "brain": {
+      "sample_span_s": 115.911,
+      "status_frames_delta": 2320,
+      "status_hz": 20.02,
+      "telemetry_age_max_ms": 49,
+      "parser_errors_first_last": [
+        0,
+        0
+      ],
+      "uart_driver_errors_max": 0,
+      "ws_fd_first_last": [
+        57,
+        57
+      ],
+      "ws_closed_first_last": [
+        0,
+        0
+      ],
+      "ws_send_fail_first_last": [
+        0,
+        0
+      ],
+      "ws_queue_fail_first_last": [
+        0,
+        0
+      ]
+    },
+    "note": "Before final STOP-rediscovery and heartbeat read-order fixes; LED/audio/UI paths unchanged."
+  },
+  "intentional_motion_flash_recovery": {
+    "brain_led_transitions": [
+      {
+        "elapsed_s": 10.581,
+        "event": "AwCarLed: color=red reason=motion_stale writes=2 max_us=417"
+      },
+      {
+        "elapsed_s": 25.477,
+        "event": "AwCarLed: color=blue reason=wifi_offline writes=3 max_us=417"
+      }
+    ],
+    "note": "Peer flash deliberately interrupted STATUS; red then blue while STA was offline. Fresh STATUS recovered without auto-ARM."
+  },
+  "user_hardware_confirmations": [
+    "Both onboard WS2812 physically blue initially; Brain green after Wi-Fi connects.",
+    "Dashboard reports Wi-Fi connected and Xiaozhi service connected.",
+    "AI hears/replies; Brain LED remains green during conversation."
+  ],
+  "computer_use": {
+    "environment": "PC Motion simulator using production C++ core/policy",
+    "evidence": "status-led-dashboard.png",
+    "checked": [
+      "No RGB controls",
+      "Connected/Manual/AI/ARM/STOP",
+      "Wi-Fi badge and IP/RSSI",
+      "Independent Xiaozhi service state",
+      "Wi-Fi submit acknowledgement does not claim connection; password cleared"
+    ]
+  },
+  "limitations": [
+    "Motion remains LOCKED; FPGA/gate/E-stop/motor not commissioned.",
+    "LED cannot detect every fault or prove movement/ARM/Internet; no end-to-end control latency claim.",
+    "Earlier WebSocket 1006 cause unresolved; speaker distortion/power not measured.",
+    "No new 30-minute Wi-Fi/audio soak or stock profile build in this change.",
+    "Public report excludes SSIDs, passwords, MACs, PINs, cookies, transcripts and raw NVS."
+  ],
+  "source_sha256": {
+    "brain": {
+      "dashboard/app.mjs": "0685e28df66b7d4db1cf4710f64c63986a7db6263399e671855fe360e964bf17",
+      "dashboard/connection.mjs": "b5a92f49881ee318cfc89a0c336741f51e401fbdfa9999ca71c9778f73fa8773",
+      "dashboard/connection.test.mjs": "4aca4393908df502c878b2d951913644f7709905e02fec0c9daf774d6b238f75",
+      "dashboard/control.mjs": "4c6ad7d4325951c33184f2b652f2eb39a7a10cc73c0fd01566f1f770dfc3bc0f",
+      "dashboard/control.test.mjs": "951588934ae1600f3643b1d8548c9a155529be4719ef0b4d87b8d1d44d34d4b4",
+      "dashboard/index.html": "4c7b612809e4ba5b3cd2ba4aa3e14752b01f4981b0aa0484fa22f3325559ccd9",
+      "dashboard/style.css": "8719049dc3328673342ef5333cbae2ad86a61f6cbb0639ea85f8fa16d23699c5",
+      "firmware/brain/main/aw_car/aw_car_network.cc": "430c116c720a3c5f299ccd5092a31d2d9065ebb267a87ec315d9cc427f66e3b2",
+      "firmware/brain/main/aw_car/aw_car_network.h": "c79e17ecfdea9d88a8612c1d115d83be06ead03a37d3d337acde36c7d0dc6f93",
+      "firmware/brain/main/aw_car/brain_runtime.cc": "edd3bc4d9a755ccf6ac36f52e75dbb1ce9a76b804b63f57584b85d1fe59899b1",
+      "firmware/brain/main/aw_car/brain_runtime.h": "868cd6e4926a56ebd1b8bda93f365d4b3ef91103d104cc2a1d390f2d905ed370",
+      "firmware/brain/main/aw_car/control_core.cc": "b9581bac91a3290dacc70fd33f8539909666a3a5546d7a9ffce53a130a421e2f",
+      "firmware/brain/main/aw_car/control_core.h": "30f993090a432e83e4f0e4663b8eb07e9d5f92097bcaad9dc02a08ebb3aee063",
+      "firmware/brain/main/aw_car/network_policy.h": "93023f24e1d53e4a0254c0652b3c194165b1df2f513c5430bdf1e90edca74da8",
+      "firmware/brain/main/aw_car/socket_writer.h": "b23681345de36fbb88c12e4ead508a850b1dcf452fd82eb2fd7ee6bfc8113b0d",
+      "firmware/brain/main/aw_car/voice_gate.h": "c468af19340d6bc68c9a771250e59736a6fef2bd9efce5a482de1c7340f074df",
+      "firmware/brain/main/aw_car/websocket_transport.cc": "31eafa433f66cd4410c9b730252463bad5cb860c02e226f91d14475aa211e032",
+      "firmware/brain/main/aw_car/websocket_transport.h": "a5108686a0d341d36dbce9cd5af271ce9bee0d64b6dc385bf95c04d4f2b93eac",
+      "firmware/brain/main/boards/aw-car-ai-rgb/aw_car_board.cc": "6a4791f23fe9ed37503841b887fadac8ba9afc609d85f25a1a5c65cf9c070cdd",
+      "firmware/brain/main/boards/aw-car-ai-rgb/config.h": "b8a7bb00353d243a757f183cf3e1d99f8bf7b952b1591226181f57a99130754f",
+      "firmware/brain/main/boards/aw-car-ai-rgb/status_led.cc": "8c901ebb2063016345502b7ab512ba8507f222c1252c4cf8da52987c5d5b82f0",
+      "firmware/brain/main/boards/aw-car-ai-rgb/status_led.h": "8c29bd547e1257fa836e9a3c8c36ff0014964b6cb46326e6d37c72f57da76b41",
+      "firmware/shared/status_indicator.h": "2281cc05306dd2d753b39ff596117197ef0829213c3181911c0e7387561fd0a7"
+    },
+    "motion": {
+      "firmware/motion/main/app_main.cc": "7db896ec248995c24c20a63db146a8a5f15cf3f640479a5efb673f7788fb9419",
+      "firmware/motion/main/board_config.h": "d3d37d585033dbc293ca733fc834c61873464558a7b891598607408863f4f454",
+      "firmware/motion/main/console.cc": "fbad0573e51e87e8e637e3f1052af6e970d465391dab16205a584fc8fda08d13",
+      "firmware/motion/main/drive_model.cc": "730b2433c431b35addebedbb660f8678773bc2c128bed541af41effcea6959fc",
+      "firmware/motion/main/drive_model.h": "d1a00b3f60c2d9da5292955ae4ef34745ffb397941e4f0df2b74980efaf18129",
+      "firmware/motion/main/fpga_link.cc": "85ad0e8df79a66dc0e3891690c31b53994f24b2dfd5f5d23bbb5edbfa3773cbd",
+      "firmware/motion/main/fpga_link.h": "722c87503595cc0422d7dbc5c7e3f9cf07d01612d228386fcf0c688d4322a03b",
+      "firmware/motion/main/idf_component.yml": "dc02223b695e12dd23dccbf9f46567db489834ac0856675aa46a43239bb03630",
+      "firmware/motion/main/motion_core.cc": "0301a9c324447b09f559afd4f8f14c77e5b992dc827038f8f3a9c01f8a05785f",
+      "firmware/motion/main/motion_core.h": "6a951aabd9f7c5a135967244dcb025df8b0d5cdc7d0ec8536796b3ec34d64eb9",
+      "firmware/motion/main/runtime.cc": "8471d54ff46f6d870021ac8df32408f46dc50e4fa75aabc7312a6f0af71d5369",
+      "firmware/motion/main/runtime.h": "d0db0c7b896dc9a7699382a48e27c460e582686f3899cfb6045e9067bd62b0fa",
+      "firmware/motion/main/status_led.cc": "04ccfe83c4cef6fcd17464a75a9495d2975144e61ab7510d2d9ebbbbf00d351a",
+      "firmware/motion/main/status_led.h": "8cbc3b04e708e78572421e61daf3da53f40421c484f97722992f0d62a98a3e2a",
+      "firmware/shared/status_indicator.h": "2281cc05306dd2d753b39ff596117197ef0829213c3181911c0e7387561fd0a7"
+    }
+  }
+}

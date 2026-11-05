@@ -1,12 +1,19 @@
 # Phần dùng chung
 
-Nơi đặt đặc tả/kiểu dữ liệu giao thức UART, mã trạng thái và đơn vị đo dùng bởi
-cả Brain và Motion, cùng đặc tả liên kết Motion-FPGA. Không chứa driver chỉ
-dành riêng một MCU; RTL giải mã giao thức nằm trong `fpga/`.
+BM-v1 dùng giữa Brain và Motion: codec C++ độc lập SDK, source Brain/PC
+peer và host tests tại nhánh này. [Contract](brain-motion-protocol.md) phân
+biệt neutral giữ ARM, STOP bỏ ARM và CLEAR chỉ phục hồi, không cấp quyền.
 
-Đã có [Motion–FPGA protocol v1](fpga-protocol.md) và
-[vector nhị phân chung](fpga-vectors.hex), được đối chiếu bằng Python và test RTL.
-[Hợp đồng GPIO/ARM/gate](fpga-safety.md) đã được triển khai trong FSM/top và
-kiểm thử bằng mô hình. Chưa có firmware Motion hoặc giao thức Brain–Motion;
-HELLO không tự bật motor. Hai liên kết có vai trò
-và timeout riêng; telemetry/heartbeat không tự gia hạn quyền chạy motor.
+Firmware Motion 0.1 đã có ở [nhánh Motion](https://github.com/TuanDanny/AW-Car/tree/codex/esp32-s3-motion/firmware/motion),
+build/nạp COM7 mặc định khóa driver; chưa nghiệm thu UART hai board/gate/motor.
+Motion yêu cầu FPGA v2/encoder một OUT mỗi bên, STATUS34/frame47; không suy
+chiều đo từ chiều yêu cầu. Tham khảo [contract v2 hiện tại](https://github.com/TuanDanny/AW-Car/blob/codex/esp32-s3-motion/firmware/shared/fpga-protocol-v2.md)
+và [hai đường permit/gate](https://github.com/TuanDanny/AW-Car/blob/codex/esp32-s3-motion/hardware/motion-wiring.md).
+
+[Protocol v1](fpga-protocol.md), [vectors](fpga-vectors.hex) và
+[safety baseline](fpga-safety.md) ở checkout AI giữ cho tương thích/hồi quy.
+Phần RTL v2 phát triển ở nhánh FPGA, không tự nhập vào Brain. Hai liên kết
+UART có session/CRC/sequence/timeout riêng; heartbeat không cấp quyền chạy.
+
+`status_indicator.h` là policy C++ thuần cho hai board: ưu tiên fault, chờ,
+khỏe và cache chỉ ghi khi màu đổi/retry lỗi tối đa1Hz; không có I/O hoặc RTOS.

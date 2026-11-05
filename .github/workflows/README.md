@@ -9,5 +9,9 @@ tổng hợp trong `fpga/`, gồm top hoàn chỉnh. Bài top dài chạy>=2s t�
 
 Gowin mapping generic chưa phải báo cáo fit/timing sau route trên chip cụ thể.
 
-Khi có firmware/Dashboard, thêm job build/test tương ứng; job cấu trúc đạt
-không chứng minh tính năng xe đã hoạt động.
+`brain.yml` chạy khi nhánh feat/f03-xiaozhi-ai nhận thay đổi Brain/workflow,
+hoặc PR tương ứng vào main. Job xiaozhi-host-tests chạy bộ kiểm thử công cụ
+build/release của Xiaozhi bằng Python 3.13 trên Ubuntu24.04. Đây chưa phải
+compile ESP-IDF hoặc kiểm thử runtime của ESP32.
+
+Job cấu trúc hoặc host test đạt không chứng minh tính năng xe đã hoạt động.
