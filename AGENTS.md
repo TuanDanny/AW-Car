@@ -35,8 +35,12 @@
 - Tác vụ đang bàn bạc/setup chỉ chuẩn bị nhánh để xem trước, chưa merge.
 - Ngoại lệ được người dùng giao05/11/2026: `feat/f01-tang-nano9k-target` ở worktree
   sạch riêng cho target Gowin, dựa FPGA7ab91b2 và đối chiếu main4cea85c LOCKED.
-  Chỉ sửa workspace Gowin khi người dùng giao; không sửa CAD đang dở, ghi flash, thay Motion LOCKED hoặc
-  tự merge FPGA vào main. Đã xác nhận board trống/USB; gate/E-stop chưa có.
+  Chỉ sửa workspace Gowin khi người dùng giao; không sửa CAD đang dở, thay Motion
+  LOCKED hoặc tự merge FPGA vào main. Ngày06/11 người dùng giao hai mốc: lưu
+  AW-Car vào Flash Tang và kiểm tra reset/mất liên kết ba board. Cho phép ghi
+  đúng image đã audit/hash vào embedded Flash, giữ CRC/Security; không ghi khóa/
+  OTP, user flash hoặc đổi firmware/NVS hai ESP32. Kiểm tra cả log ngữ nghĩa,
+  không coi exit0 là PASS nếu Programmer in Verify Failed. Gate/E-stop chưa có.
 - Không force-push main, bỏ qua hook/CI hoặc xóa thay đổi của người khác.
 - Khi dọn nhánh cũ, kiểm tra phần đã merge và sao lưu commit/thay đổi còn lại
   trước khi xóa tham chiếu. Báo tên nhánh, commit đã push và kiểm tra khi bàn giao.

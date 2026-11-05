@@ -3,8 +3,10 @@
 Target chuẩn bị trên nhánh `feat/f01-tang-nano9k-target`, kế thừa RTL `7ab91b2`.
 Physical top `aw_car_nano9k` thêm POR/mask reset và đưa sáu LED quan sát ra chân, bọc logical top duy nhất
 `aw_car_top`. Device `GW1NR-9C`, part `GW1NR-LV9QN88PC6/I5`; clock ngoài27MHz,
-không PLL hoặc generated clock. Người dùng đã cho phép thử SRAM không VM bằng CLI;
-đã nạp bản trước LED ngày05/11, chưa nghiệm thu truyền động/gate/E-stop.
+không PLL hoặc generated clock. Đã nạp SRAM không VM bằng CLI ngày05/11;
+ngày06/11 người dùng giao lưu Flash và thử reset/liên kết. Flash reload đạt,
+readback verify FAIL, power-cycle thật còn chờ; mốc liên kết PARTIAL do có lỗi
+parser. Xem báo cáo dưới, chưa nghiệm thu truyền động/gate/E-stop.
 
 `aw_car_nano9k.gprj` mở được bằng Gowin EDA. Chọn top `aw_car_nano9k`, chuẩn
 SystemVerilog2017, giữ JTAG/MSPI/SSPI cấu hình mặc định, rồi Synthesize/Place & Route.
@@ -20,6 +22,9 @@ trong netlist Gowin, vẫn cần nghiệm thu power-up thật. Gate default-off 
 
 ## Tài liệu và trạng thái
 
+- [Lưu Flash và kiểm tra liên kết/reset ba board ngày06/11](flash-link-report.md):
+  reload Flash đúng UserCode, reset Brain/Motion và mất cấu hình FPGA đã thử;
+  verify đọc lại FAIL, power-cycle/ngắt dây thật còn chờ, parser cần chẩn đoán.
 - [LED observer: kiểm thử không can thiệp, timing, nạp SRAM và quan sát thật](status-leds-report.md).
 - [Hardware audit, review warnings, CDC, risk register và integration readiness](hardware-audit.md).
 - [Pinout 17 tín hiệu chức năng và6 LED onboard, package/header/bank/nguồn](pinout.md), dữ liệu checker

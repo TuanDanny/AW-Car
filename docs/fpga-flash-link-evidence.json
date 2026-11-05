@@ -1,0 +1,305 @@
+{
+  "schema": 1,
+  "recorded_at": "2026-11-06T03:18:24.082777+07:00",
+  "branch": "feat/f01-tang-nano9k-target",
+  "implementation_commit": "30d45edd9d8ad068175134d05cf6279e46d76d75",
+  "brain_motion_reference": "4cea85c9f34a26a2e8e2af793575a82cbcf11132",
+  "source_rtl_changed": false,
+  "esp_firmware_nvs_changed": false,
+  "motion_locked": true,
+  "gate_hardware_present": false,
+  "motor_power_tested": false,
+  "milestone1": {
+    "status": "flash_reload_passed_power_cycle_pending",
+    "operation_index": 6,
+    "operation": "embFlash Erase,Program,Verify",
+    "bitstream_sha256": "23304499f5c36af116a5b78d1f75a73e17356bd0fb7024d83b81fc5f5b7092c2",
+    "native_exit": 0,
+    "readback_verify": "FAILED_AT_0",
+    "exit_zero_not_accepted_as_verify_pass": true,
+    "configuration_crc": "ON",
+    "security_bit": "ON",
+    "readback_protection_disabled": false,
+    "reload_operation1": "PASS",
+    "sram_erase_then_reload_without_fs_file": "PASS",
+    "usercode_after_both_reloads": "0x00009EF7",
+    "device_id": "0x1100481B",
+    "status_code": "0x0003F020",
+    "actual_all_power_removed": "PENDING_USER_ACTION"
+  },
+  "milestone2": {
+    "status": "PARTIAL",
+    "fpga_configuration_absent_fresh_false_then_recovery": "PASS_LOCKED_CONSOLE",
+    "motion_held_reset_8s_brain_status_stale_then_recovery": "PASS_LOCKED_CONSOLE",
+    "brain_reset_recovery": "PASS_LOCKED_CONSOLE",
+    "all_motion_samples_zero_permit_and_duty": true,
+    "total_motion_console_samples": 404,
+    "physical_uart_disconnect": "PENDING_USER_ACTION",
+    "reverse_direction_ack_handshake": "NOT_RUN_NO_GATE_LOCKED",
+    "parser_errors_observed": true,
+    "parser_error_cause": "UNRESOLVED",
+    "armed_driving_stop_test": "NOT_RUN_LOCKED"
+  },
+  "phase_measurements": {
+    "baseline": {
+      "motion_console_samples": 32,
+      "brain_health_samples": 7,
+      "incomplete_interleaved_brain_lines": 1,
+      "fresh_values": [
+        true
+      ],
+      "all_zero_permit_and_duty": true,
+      "fpga_fault_values": [
+        2
+      ],
+      "motion_fault_values": [
+        1
+      ],
+      "queue_drop_max": 0,
+      "uart_hardware_error_max": 0,
+      "parser_first": 1,
+      "parser_last": 6,
+      "counter_reset_during_phase": false,
+      "observed_interval_s": 31.173,
+      "additional_valid_frames": 3112,
+      "valid_frames_per_s": 99.829,
+      "brain_telemetry_age_max_ms": 48,
+      "brain_uart_errors_max": 0
+    },
+    "flash_program": {
+      "motion_console_samples": 51,
+      "brain_health_samples": 10,
+      "incomplete_interleaved_brain_lines": 0,
+      "fresh_values": [
+        false,
+        true
+      ],
+      "all_zero_permit_and_duty": true,
+      "fpga_fault_values": [
+        2
+      ],
+      "motion_fault_values": [
+        1
+      ],
+      "queue_drop_max": 0,
+      "uart_hardware_error_max": 0,
+      "parser_first": 6,
+      "parser_last": 9,
+      "counter_reset_during_phase": false,
+      "observed_interval_s": 50.278,
+      "additional_valid_frames": 4338,
+      "valid_frames_per_s": 86.28,
+      "brain_telemetry_age_max_ms": 48,
+      "brain_uart_errors_max": 0
+    },
+    "reload_from_flash": {
+      "motion_console_samples": 15,
+      "brain_health_samples": 3,
+      "incomplete_interleaved_brain_lines": 0,
+      "fresh_values": [
+        true
+      ],
+      "all_zero_permit_and_duty": true,
+      "fpga_fault_values": [
+        2
+      ],
+      "motion_fault_values": [
+        1
+      ],
+      "queue_drop_max": 0,
+      "uart_hardware_error_max": 0,
+      "parser_first": 9,
+      "parser_last": 23,
+      "counter_reset_during_phase": false,
+      "observed_interval_s": 14.094,
+      "additional_valid_frames": 1396,
+      "valid_frames_per_s": 99.047,
+      "brain_telemetry_age_max_ms": 34,
+      "brain_uart_errors_max": 0
+    },
+    "power_cycle_window": {
+      "motion_console_samples": 206,
+      "brain_health_samples": 41,
+      "incomplete_interleaved_brain_lines": 0,
+      "fresh_values": [
+        true
+      ],
+      "all_zero_permit_and_duty": true,
+      "fpga_fault_values": [
+        2
+      ],
+      "motion_fault_values": [
+        1
+      ],
+      "queue_drop_max": 0,
+      "uart_hardware_error_max": 0,
+      "parser_first": 23,
+      "parser_last": 62,
+      "counter_reset_during_phase": false,
+      "observed_interval_s": 206.086,
+      "additional_valid_frames": 20570,
+      "valid_frames_per_s": 99.813,
+      "brain_telemetry_age_max_ms": 49,
+      "brain_uart_errors_max": 0
+    },
+    "motion_reset_held_8s": {
+      "motion_console_samples": 25,
+      "brain_health_samples": 7,
+      "incomplete_interleaved_brain_lines": 0,
+      "fresh_values": [
+        true
+      ],
+      "all_zero_permit_and_duty": true,
+      "fpga_fault_values": [
+        2
+      ],
+      "motion_fault_values": [
+        1
+      ],
+      "queue_drop_max": 0,
+      "uart_hardware_error_max": 0,
+      "parser_first": 1,
+      "parser_last": 1,
+      "counter_reset_during_phase": false,
+      "observed_interval_s": 23.075,
+      "additional_valid_frames": 2307,
+      "valid_frames_per_s": 99.978,
+      "brain_telemetry_age_max_ms": 6693,
+      "brain_uart_errors_max": 0
+    },
+    "brain_reset": {
+      "motion_console_samples": 29,
+      "brain_health_samples": 6,
+      "incomplete_interleaved_brain_lines": 0,
+      "fresh_values": [
+        true
+      ],
+      "all_zero_permit_and_duty": true,
+      "fpga_fault_values": [
+        2
+      ],
+      "motion_fault_values": [
+        1
+      ],
+      "queue_drop_max": 0,
+      "uart_hardware_error_max": 0,
+      "parser_first": 1,
+      "parser_last": 6,
+      "counter_reset_during_phase": false,
+      "observed_interval_s": 28.733,
+      "additional_valid_frames": 2910,
+      "valid_frames_per_s": 101.277,
+      "brain_telemetry_age_max_ms": 33,
+      "brain_uart_errors_max": 0
+    },
+    "end_poll_1hz": {
+      "motion_console_samples": 0,
+      "brain_health_samples": 0,
+      "incomplete_interleaved_brain_lines": 0
+    },
+    "low_console_poll_5s": {
+      "motion_console_samples": 8,
+      "brain_health_samples": 8,
+      "incomplete_interleaved_brain_lines": 0,
+      "fresh_values": [
+        true
+      ],
+      "all_zero_permit_and_duty": true,
+      "fpga_fault_values": [
+        2
+      ],
+      "motion_fault_values": [
+        1
+      ],
+      "queue_drop_max": 0,
+      "uart_hardware_error_max": 0,
+      "parser_first": 6,
+      "parser_last": 26,
+      "counter_reset_during_phase": false,
+      "observed_interval_s": 35.043,
+      "additional_valid_frames": 3484,
+      "valid_frames_per_s": 99.422,
+      "brain_telemetry_age_max_ms": 29,
+      "brain_uart_errors_max": 0
+    },
+    "fpga_sram_erased": {
+      "motion_console_samples": 3,
+      "brain_health_samples": 3,
+      "incomplete_interleaved_brain_lines": 0,
+      "fresh_values": [
+        false,
+        true
+      ],
+      "all_zero_permit_and_duty": true,
+      "fpga_fault_values": [
+        2
+      ],
+      "motion_fault_values": [
+        1
+      ],
+      "queue_drop_max": 0,
+      "uart_hardware_error_max": 0,
+      "parser_first": 26,
+      "parser_last": 26,
+      "counter_reset_during_phase": false,
+      "observed_interval_s": 10.018,
+      "additional_valid_frames": 39,
+      "valid_frames_per_s": 3.893,
+      "brain_telemetry_age_max_ms": 28,
+      "brain_uart_errors_max": 0
+    },
+    "fpga_reload_after_erase": {
+      "motion_console_samples": 35,
+      "brain_health_samples": 35,
+      "incomplete_interleaved_brain_lines": 0,
+      "fresh_values": [
+        true
+      ],
+      "all_zero_permit_and_duty": true,
+      "fpga_fault_values": [
+        2
+      ],
+      "motion_fault_values": [
+        1
+      ],
+      "queue_drop_max": 0,
+      "uart_hardware_error_max": 0,
+      "parser_first": 27,
+      "parser_last": 32,
+      "counter_reset_during_phase": false,
+      "observed_interval_s": 170.185,
+      "additional_valid_frames": 17013,
+      "valid_frames_per_s": 99.968,
+      "brain_telemetry_age_max_ms": 28,
+      "brain_uart_errors_max": 0
+    },
+    "capture_complete_waiting_physical_tests": {
+      "motion_console_samples": 0,
+      "brain_health_samples": 0,
+      "incomplete_interleaved_brain_lines": 0
+    }
+  },
+  "limits": [
+    "Console polling is not a logic analyzer or a measurement of the 30ms physical cutoff.",
+    "Parser errors increased in stable as well as reconfiguration windows; no clean soak pass claimed.",
+    "Gate fault stays latched on reconnect; no fabricated health HIGH.",
+    "Readback verification failed despite native CLI returncode0; functional Flash reload is separate evidence."
+  ],
+  "private_log_sha256": {
+    "codes-after-flash.log": "2563abab55cb9087afe30dd4eb89b80ad739292d7dbbb93d4a3741ba1b48272f",
+    "codes-after-reload.log": "2563abab55cb9087afe30dd4eb89b80ad739292d7dbbb93d4a3741ba1b48272f",
+    "codes-after-sram-erase-reload.log": "a8538f00c46177b0a9bf2c8bc32eb2ac800f43a8fcd729c035fd4fa3352f5909",
+    "COM3-private.log": "15e7ad8b84784bcb2ec08d26ce8f85be9a713d59e9801f5060ce046bf5c3a0f0",
+    "COM7-private.log": "75f4a1f2da0c8739dfa86dfbb060d40757fc25414324fba5b0065372df1f0e5c",
+    "flash-program.log": "f902d84b5a74f5b7f380b2afc151d929f5263b5b95c25f1915bdb78e8b6d6eb7",
+    "reload-after-sram-erase.log": "150bdc8301a88c9ae54c1149dfdb288bb904a284ab14039db6fd526359cff7a6",
+    "reload-from-flash.log": "af926042ce7eb745c45b00233990902cd3608b31b2feacb8b62e9a69710655f8",
+    "sram-erase-only.log": "198d408ae5a10dc78dc7965ecb2e7e39b3bf3bfedec0aed84f20e3d43f62af3a"
+  },
+  "journal_sha256": "84153da15e035233ad6de9ce5693bb02c088654770119082acec23b15517d7c8",
+  "checks": {
+    "repository": "PASS",
+    "root_python_tests": 57,
+    "source_diff_check": "PASS"
+  }
+}

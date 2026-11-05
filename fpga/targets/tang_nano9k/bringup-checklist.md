@@ -1,7 +1,9 @@
-# Bring-up AW-Car không motor — chỉ kế hoạch
+# Bring-up AW-Car không motor — checklist
 
-Chưa thực hiện các bước dưới trên board AW-Car. Cần người dùng phê duyệt riêng
-trước SRAM Program. Không chọn thiết bị/JTAG theo index lưu từ lần LED.
+Ngày05/11 đã nạp SRAM; ngày06/11 người dùng giao lưu Flash và thử reset/liên
+kết ba board. Tiến độ và giới hạn ở [báo cáo](flash-link-report.md); bảng dưới
+giữ tiêu chí thử, không có nghĩa toàn bộ đã đạt. ARM/CMD/gate/công suất vẫn
+ngoài mốc đang thử. Không chọn thiết bị/JTAG theo index lưu từ lần LED.
 
 ## Chuẩn bị và điều kiện dừng
 
