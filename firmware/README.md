@@ -1,13 +1,15 @@
 # Firmware
 
-Hai ứng dụng ESP-IDF độc lập, giao tiếp BM-v1, dùng chung codec C++ thuần.
+Hai ứng dụng ESP-IDF6.1 độc lập dùng BM-v1 và shared source trong cùng repository:
 
-- [brain](brain/README.md): Xiaozhi, INMP441, OLED I²C, RGB, AP+STA và Web;
-  source hoạt động ở nhánh `feat/f03-xiaozhi-ai`, PR #13 draft.
-- [motion](motion/README.md): MCU 2, hai UART, vòng hở, lease và gate;
-  ESP-IDF 6.1, mặc định khóa driver. PI/PID và cảm biến ở mốc sau.
-- [shared](shared/README.md): BM-v1 và Motion–FPGA v2, không phụ thuộc SDK.
+- [brain](brain/README.md): Xiaozhi, AP+STA, Dashboard Manual/AI, mic/loa/OLED,
+  WS2812 trạng thái; không cấp PWM trực tiếp hoặc tự ARM sau reconnect.
+- [motion](motion/README.md): UART1 BrainTX13/RX14, UART2 FPGA15/16, vòng hở,
+  lease/gate; mặc định ENABLE_DRIVER=n/validated=0. PID/cảm biến để mốc sau.
+- [shared](shared/README.md): codec BM-v1/FPGA v2 và policy LED C++ thuần.
 
-Checkout Motion từ main không chứa toàn bộ ứng dụng Brain hoặc RTL v2.
-Xem README từng ứng dụng và [bằng chứng Motion](../docs/motion-verification.md)
-trước khi build/nạp; hai board có image và dữ liệu NVS riêng.
+Mỗi ứng dụng có CMake, sdkconfig.defaults và dependencies.lock riêng. Không dùng
+sdkconfig/NVS hoặc binary của board này cho board kia. Baseline RTL trong `fpga/`
+vẫn là main cũ; Motion yêu cầu v2 ở peer riêng. Build không chứng minh phần cứng.
+Bản tích hợp chỉ chuẩn bị review, không flash/reset/nâng quyền driver. Xem
+[MERGE-READINESS](../docs/MERGE-READINESS.md) và README từng ứng dụng.

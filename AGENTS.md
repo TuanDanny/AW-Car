@@ -13,6 +13,7 @@
   V2: fault[7:0] là lỗi Safety, fault[15:8] là diagnostic sticky. Chỉ các cờ
   snapshot stall/invariant (mask 0x8800) yêu cầu reset; không coi mọi cảnh báo
   encoder/RX là lỗi tự khóa. ESP32 vẫn phải timeout STATUS độc lập.
+  Nhánh AI giữ lịch sử source và không tự kéo toàn bộ RTL sang.
   Phân tải ở `docs/fpga-drive-plan.md`; đã có Tang Nano 9K theo xác nhận
   03/11/2026, chưa xác nhận fit/timing đúng chip. Không đổi mục tiêu về 1K.
 - Trao đổi và báo cáo bằng tiếng Việt, ngắn gọn; nêu giả định ảnh hưởng thiết kế.
@@ -24,6 +25,14 @@
   `feat/f01-fpga-drive` cho FPGA/truyền động và tài liệu liên quan;
   `feat/f03-xiaozhi-ai` cho AI/Xiaozhi, âm thanh, OLED và tài liệu liên quan;
   `codex/esp32-s3-motion` tách từ main cho firmware Motion, hai UART và gate.
+- Theo yêu cầu05/11/2026, cho phép nhánh tạm `integration/brain-motion-v0.1`
+  từ origin/main để audit Brain+Motion. Không flash/reset, không đổi driver,
+  không push bản tích hợp hoặc merge main trước khi chủ dự án duyệt.
+- Chủ dự án đã duyệt chốt milestone05/11: squash Brain PR13 trước, cập nhật
+  Motion PR14 theo main trong worktree riêng, kiểm CI tổ hợp trước squash
+  Motion; chạy CI main cuối rồi tạo tag `v0.1-brain-motion-locked`.
+  Worktree tạm `codex/motion-release-v0.1` chỉ phục vụ cập nhật PR14; giữ
+  nguyên worktree nguồn/FPGA/CAD. Không flash/reset hoặc mở driver trong release.
 - Dùng lại nhánh đúng phần việc; không tạo thêm nhánh cho từng module, bản sửa
   lỗi, ghi chú hoặc lần tối ưu. Theo dõi các bước nhỏ bằng task và commit.
 - Giữ thay đổi chưa commit của checkout khác tại chỗ; không đưa công việc
@@ -47,8 +56,8 @@
   độc lập hãng; Quartus chỉ tham khảo cho chip Altera/Intel, Tang Nano dùng Gowin.
 - Trong nhánh FPGA, top triển khai duy nhất là `aw_car_top.sv` ở root,
   bọc lõi `drive_core.sv`; lõi vẫn là top kiểm thử/tổng hợp riêng. Checkout
-  Motion từ main có thể còn baseline RTL v1; co-sim v2 dùng checkout FPGA
-  riêng, không tự kéo toàn bộ RTL/CAD vào khi sửa firmware.
+  Integration và các nhánh firmware giữ RTL baseline main; FPGA v2 dùng
+  checkout peer cố định riêng để co-sim, không kéo RTL/CAD vào merge MCU.
   Module con phân theo
   `common/`, `encoder/`, `pwm/`, `link/`, `safety/`, mỗi nhóm có README.
   Khi chuyển nguồn, cập nhật đường dẫn tổng hợp và runner tìm `.sv` đệ quy.
@@ -58,6 +67,9 @@
   Yosys/Gowin và mô phỏng bằng Icarus. Build bật chế độ SystemVerilog; khi đổi tên
   file, cập nhật mọi script/danh sách nguồn và chạy lại mô phỏng/tổng hợp.
 - `dashboard`: giao diện Web; `hardware`: BOM/nguồn/sơ đồ/PCB; `docs`: kế hoạch.
+- Brain/dashboard: hai mode Manual/AI, nguồn lệnh độc quyền; neutral giữ ARM,
+  STOP bỏ ARM. Host simulator phải dùng chính control core C++, không dựng
+  bản sao phân xử bằng JS. Mọi số đo giả lập phải ghi rõ môi trường.
 - `tests`: kiểm thử; `tools`: công cụ phát triển. Chỉ thêm thư mục con khi cần.
 - Không thêm framework, dependency hay mã firmware giả để lấp khung thư mục.
 - Không commit bí mật, thông tin Wi-Fi, file build; giữ lockfile của dependency.

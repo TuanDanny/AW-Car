@@ -36,3 +36,19 @@ Hooks kiểm tra snapshot staged và tên nhánh, chặn commit/push main; mỗi
 clone phải bật riêng. CI kiểm cấu trúc, host tests và hồi quy RTL; không thay
 build firmware hay đo trên xe. Không bỏ qua hook/CI hoặc force-push main.
 Ruleset phía GitHub cần được xác minh riêng khi nghiệm thu merge.
+
+## Tích hợp milestone Brain+Motion LOCKED
+
+Theo yêu cầu05/11, nhánh tạm `integration/brain-motion-v0.1` từ origin/main
+chuẩn bị tổ hợp Brain rồi Motion; giữ commit gốc và merge resolution truy nguyên.
+Audit tất cả worktree, pin HEAD và peer v2, giữ nguyên RTL/CAD/dirty source.
+Chạy host/regression/build trong worktree riêng; không flash/reset trong review.
+Không push integration hoặc merge main trước duyệt. Khi được phép công bố ứng viên,
+CI chạy trên push integration/** và PR main; CI chưa chạy phải ghi PENDING.
+
+Phê duyệt merge main là bước riêng: squash Brain PR trước, đồng bộ Motion trong
+worktree mới theo main mới, chạy CI lại rồi mới squash Motion PR. So sánh cây cuối
+với ứng viên đã duyệt, không dùng Git merge clean làm bằng chứng firmware.
+Rollback bằng PR `git revert` các squash commit theo thứ tự Motion rồi Brain;
+không reset/force-push main. Chủ dự án đã duyệt tag milestone0.1 sau CI main
+cuối đạt; không tạo tag trước kết quả đó hoặc dùng tag làm bằng chứng hardware.

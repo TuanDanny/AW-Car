@@ -18,3 +18,16 @@ class StatusIndicatorTests(unittest.TestCase):
                 "-o", str(executable), *(["-static"] if os.name == "nt" else [])], check=True, capture_output=True)
             result = subprocess.run([str(executable)], check=True, capture_output=True, text=True)
             self.assertIn("PASS status", result.stdout)
+
+    def test_retired_rgb_controls_and_tools_are_removed(self):
+        if not (ROOT / "dashboard/app.mjs").exists():
+            self.skipTest("Brain UI is maintained on the AI branch")
+        for relative in ("dashboard/app.mjs", "dashboard/index.html"):
+            text = (ROOT / relative).read_text(encoding="utf-8")
+            self.assertNotIn("rgb-power", text)
+            self.assertNotIn("data-rgb", text)
+        board = ROOT / "firmware/brain/main/boards/aw-car-ai-rgb"
+        if board.exists():
+            text = "\n".join(p.read_text(encoding="utf-8") for p in board.glob("*.cc"))
+            self.assertNotIn("self.rgb_light", text)
+            self.assertFalse((board / "rgb_light.cc").exists())

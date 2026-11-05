@@ -1,23 +1,20 @@
 # Giao thức dùng chung
 
-`brain_motion_codec`: BM-v1 (SET_TWIST20/STATUS30byte), dùng cùng Brain/Motion.
-`fpga_codec`: v2 tường minh (CMD19/STATUS47byte). C++17, little-endian,
-CRC16/CCITT-FALSE, parser bounded/timeout, không ESP-IDF/driver/GPIO.
-Test dùng Python CRC/vector độc lập.
+Một nguồn codec C++17 cho mỗi liên kết, không phụ thuộc ESP-IDF/RTOS/GPIO:
 
-- [BM-v1](brain-motion-protocol.md): lease/session/seq, neutral giữ ARM;
-  HELLO trong FAULT chỉ mở phục hồi, CLEAR không ARM.
-- [FPGA v2](fpga-protocol-v2.md): encoder một OUT, count/period/age và diagnostics.
-- [GPIO/gate](fpga-safety.md): driver_permit riêng, phục hồi xác nhận,
-  snapshot stale30+1ms và watchdog FPGA50ms.
-- [V1](fpga-protocol.md) và vector cũ giữ hồi quy RTL baseline main;
-  Motion không fallback v1. Có vector v2 riêng47byte.
+- `brain_motion_codec.h/.cc`: BM-v1, SET_TWIST20/STATUS30byte; chung Brain/Motion.
+- `fpga_codec.h/.cc`: FPGA v2 tường minh, CMD19/STATUS47byte; Motion không fallback v1.
+- `status_indicator.h`: policy LED chung hai board, mask lỗi0x88ff, cache đổi màu/retry1Hz.
 
-Đã có Motion vòng hở và test host/RTL/console; chưa thử UART các board/gate/
-motor. Brain đầy đủ ở nhánh AI/PR13 draft. Nhánh Motion chỉ đồng bộ contract/
-codec, không gom toàn bộ RTL v2. [Bằng chứng](../../docs/motion-verification.md).
+[BM-v1](brain-motion-protocol.md) giữ neutral/STOP/CLEAR tách quyền; CRC16/CCITT-FALSE,
+little-endian, session/sequence/TTL và parser timeout có test reference Python.
+[FPGA v2](fpga-protocol-v2.md) có encoder một OUT/bên, count/period/age và diagnostics.
+[GPIO/gate](fpga-safety.md) mô tả driver_permit độc lập, snapshot stale30+1ms,
+watchdog FPGA50ms và phục hồi không tự ARM. [Bảng dây](../../hardware/motion-wiring.md).
 
-WS2812 GPIO48 (`AWCAR_STATUS_LED_GPIO`) chỉ báo trạng thái. StatsTask100ms
-chọn màu bằng policy C++ chung, ghi RMT khi đổi màu, không thêm I/O vào ISR/
-control/UART. Fault đỏ; LOCKED/chờ FPGA hoặc gate xanh dương; sẵn sàng cục bộ
-xanh lá, không đồng nghĩa ARM. Console status có indicator và số lần ghi/lỗi.
+[V1](fpga-protocol.md)/vector cũ giữ hồi quy RTL baseline main trong checkout này.
+RTL v2 không nằm trong mốc tích hợp Brain+Motion; co-sim dùng peer commit7ab91b2
+riêng. Không nạp RTL v1 baseline để ghép Motion v2. UART hai MCU đã thử ở source
+riêng, nhưng bản integration chưa được flash; gate/FPGA/motor chưa nghiệm thu.
+Xem [bằng chứng Motion](../../docs/motion-verification.md) và
+[MERGE-READINESS](../../docs/MERGE-READINESS.md).

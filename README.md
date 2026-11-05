@@ -1,72 +1,72 @@
 # AW-Car
 
-Xe TT 4WD dùng **hai ESP32-S3, Tang Nano 9K và một INMP441**. Hai nhóm
-motor trái/phải lái bằng chênh lệch tốc độ, không có servo lái. Brain phụ trách
-Xiaozhi, Web, OLED I²C và âm thanh; Motion giữ quyền truyền động; FPGA đọc
-encoder một OUT mỗi bên và phát PWM. DoA dành cho nâng cấp.
+Xe TT4WD dùng hai ESP32-S3, Tang Nano9K và một INMP441; hai nhóm motor trái/phải,
+lái bằng tốc độ hai bên, không servo. Brain giữ Xiaozhi/Web/âm thanh/OLED;
+Motion giữ quyền truyền động; FPGA phát PWM/đọc encoder. DoA để nâng cấp.
 
 Tác giả: **TuanDanny**. Cộng tác viên: **Minh Nho** và **Nhan Duc**.
 
-## Trạng thái mốc 03–04/11/2026
+## Milestone0.1 — Brain+Motion LOCKED
 
-Cập nhật05/11: WS2812 GPIO48 dành báo trạng thái, không còn điều khiển đèn
-demo AI/Web trên nhánh Brain. Motion đang LOCKED nên xanh dương là đúng;
-lỗi đỏ, sẵn sàng cục bộ xanh lá. [Bằng chứng LED/UART](docs/motion-verification.md)
-ghi riêng host/build và thử hai board; không thay điều kiện ARM.
+Baseline phần mềm tích hợp Brainfe776f0 và Motionbc27255, đã review ở ứng viên
+`a27a098` với5/5job CI đạt. Chủ dự án duyệt squash Brain rồi Motion, kiểm tra
+CI trên main và đánh dấu `v0.1-brain-motion-locked` sau khi CI đạt.
+[Nhật ký release](docs/release-v0.1-brain-motion-locked.md) và
+[MERGE-READINESS](docs/MERGE-READINESS.md) phân biệt Git/compile/host/hardware.
+Lượt chốt source không flash/reset hoặc đổi cấu hình các board.
 
-Đây là nhánh **codex/esp32-s3-motion**, tạo từ main `094b37c`. Motion 0.1 có
-hai UART, vòng hở, kích đề-pa, chờ đảo chiều, lease và khóa driver độc lập.
-Đã build ESP-IDF 6.1 và thử console/NVS/đầu ra mặc định LOW trên COM7.
-**Bản nạp mặc định khóa driver, từ chối ARM.** PID và cảm biến để mốc tiếp.
+- Brain: Dashboard Manual/AI, sáu hướng, authentication/WebSocket, AP+STA,
+  Xiaozhi tiếng Trung, INMP441/MAX98357A/OLED I²C, phục hồi reset Motion và
+  lưu Wi-Fi ưu tiên. STOP/đổi mode/mất liên kết thu quyền, không tự ARM/MOVE.
+- Motion: BM-v1, hai UART, vòng hở/kích đề-pa/chờ đảo, lease và gate riêng.
+  **ENABLE_DRIVER=n, validated=0**; PID/cảm biến để mốc sau.
+- WS2812 GPIO48 hai board chỉ báo trạng thái; code RGB demo AI/Web đã xóa.
+  Brain xanh lá không chứng minh Motion/motor đã sẵn sàng hoặc được ARM.
 
-Brain/dashboard phát triển riêng ở `feat/f03-xiaozhi-ai`, PR #13 giữ draft;
-mic/OLED/RGB và Safari đã được thử trước đó. Bản Brain đã nạp lại COM3 để chẩn đoán mạng/UART. Ngày04/11 xác nhận
-GPIO17/18 trên Motion thông0–5Ω cả hai chiều khi rút nguồn/dây. Đã đổi
-UART Brain sang MotionTX13/RX14 (BrainRX18/TX17), nạp COM7 và kiểm tra
-UART hai chiều~20Hz/0lỗi; monitor210s với Android STOP/Cho phép đạt. Console
-`uart` có bộ đếm riêng hai peer.
+Source riêng trước tích hợp đã thử UART hai ESP ~20Hz, dashboard/AP+STA/
+Xiaozhi và màu LED; [report trước merge](docs/status-led-report.json).
+Lỗi1006 cũ chưa rõ nguyên nhân, loa còn rè/nguồn chưa đo. **Không lấy bằng
+chứng đó thay nghiệm thu binary tích hợp. HARDWARE NOT VERIFIED cho mốc này.**
 
-**RTL trong nền main của checkout này còn bản cũ.** Motion yêu cầu protocol
-v2/encoder một OUT của `feat/f01-fpga-drive` (`7ab91b2` trong lần co-sim),
-không tự fallback v1. Không lấy RTL baseline ở checkout này để nạp ghép.
-Tang Nano 9K đã có; chưa nghiệm thu CST/PnR/STA hoặc UART/gate/motor thật.
+## FPGA tách milestone
 
-- [Kế hoạch Motion](docs/motion-plan.md), [bằng chứng kiểm thử](docs/motion-verification.md).
-- [Đấu nối và gate](hardware/motion-wiring.md), [BM-v1](firmware/shared/brain-motion-protocol.md),
-  [Motion–FPGA v2](firmware/shared/fpga-protocol-v2.md).
-- [Issue #1](https://github.com/TuanDanny/AW-Car/issues/1) và
-  [kế hoạch toàn hệ thống](docs/fpga-drive-plan.md).
+Toàn bộ cây `fpga/` giữ nguyên origin/main094b37c, chưa nhập RTL từ nhánh FPGA.
+Motion bắt buộc [protocol v2](firmware/shared/fpga-protocol-v2.md), STATUS34/
+frame47byte/encoder một OUT mỗi bên. RTL v1 baseline ở checkout này chỉ để
+hồi quy; không dùng để ghép Motion. Co-sim v2 dùng peer7ab91b2 riêng trong build.
+Tang Nano9K đã có; CST/PnR/STA, gate/E-stop, motor/dòng/nhiệt/quãng dừng còn
+phải nghiệm thu. Số đếm một OUT không cho biết chiều quay thực.
 
-## Cấu trúc
+## Mục lục
 
-| Thư mục | Nội dung |
+| Thư mục | Vai trò |
 | --- | --- |
-| [firmware/brain](firmware/brain/README.md) | Brain/Xiaozhi, phát triển ở nhánh AI |
-| [firmware/motion](firmware/motion/README.md) | ESP-IDF, core C++ và adapter FreeRTOS/UART/GPIO |
-| [firmware/shared](firmware/shared/README.md) | Codec và hợp đồng hai liên kết UART |
-| [fpga](fpga/README.md) | RTL baseline; bản v2 triển khai ở nhánh FPGA |
-| [dashboard](dashboard/README.md) | Giao diện ở nhánh AI |
-| [hardware](hardware/README.md) | Nguồn, cơ khí và bảng dây |
-| [docs](docs/README.md) | Kế hoạch và bằng chứng |
-| [tests](tests/README.md) | Host/regression/co-sim |
-| [tools](tools/README.md) | Công cụ kiểm tra, giả lập và board |
+| [Brain](firmware/brain/README.md) | ESP-IDF6.1, Xiaozhi, Web, audio/OLED/mạng |
+| [Motion](firmware/motion/README.md) | ESP-IDF6.1, hai UART, core và adapter an toàn |
+| [Shared](firmware/shared/README.md) | Một codec BM-v1, một codec FPGA v2, policy LED |
+| [Dashboard](dashboard/README.md) | Manual/AI, transcript/telemetry và simulator |
+| [FPGA](fpga/README.md) | RTL baseline main; phát triển v2 ở nhánh FPGA |
+| [Hardware](hardware/README.md) | Linh kiện, nguồn, cơ khí và bảng dây |
+| [Docs](docs/README.md) | Contract, kế hoạch, báo cáo |
+| [Tests](tests/README.md) | Root/host, Web, protocol và co-sim |
+| [Tools](tools/README.md) | Build host, kiểm tra, giả lập và board tooling |
 
-## Kiểm tra và làm việc
+[AGENTS.md](AGENTS.md) là nguồn quy tắc; [workflow](docs/workflow.md) quy định
+audit/duyệt merge. Giữ nhánh FPGA/CAD đang dở tại chỗ. Thiết kế gốc ở
+[issue1](https://github.com/TuanDanny/AW-Car/issues/1),
+[phân tải](docs/fpga-drive-plan.md), [rà soát](docs/issue-1-technical-review.md),
+[linh kiện](hardware/components.md), [khóa gate](firmware/shared/fpga-safety.md).
 
-Ba nhánh theo [AGENTS.md](AGENTS.md) và [quy trình Git](docs/workflow.md).
-Giữ main ổn định; PR chỉ squash merge sau nghiệm thu, không tự merge mốc này.
+## Kiểm tra cục bộ, không tác động thiết bị
 
 ```sh
-git config --local core.hooksPath .githooks
-python tools/check_repo.py
-python -m unittest discover -s tests
+python tools/check_repo.py --feature-branch
+python -m unittest discover -s tests -v
+node --test dashboard/control.test.mjs dashboard/connection.test.mjs
+python tools/motion_brain_integration.py --brain-root .
 git diff --check
 ```
 
-Host tests cần compiler C++17 (`g++`/`clang++`, hoặc biến `CXX`). Build MCU,
-co-sim và board check có hướng dẫn riêng tại README Motion. Thử phần mềm
-không thay phép đo Wi-Fi/RTOS/I²S/GPIO/dòng motor hoặc quãng dừng trên xe.
-
-Motion ngắt driver độc lập khi Brain/FPGA mất liên kết. Gate/E-stop phải tắt
-được khi MCU hoặc clock FPGA hỏng; không dùng UART làm đường E-stop duy nhất.
-Chỉ tiến tới PID/cảm biến sau khi Manual local, hướng quay và dừng đã đạt.
+Build từng firmware theo README riêng. Không chạy công cụ board/flash/reset
+trong review này. Không commit sdkconfig riêng, credential, raw log, NVS hay
+build output. Tag v0.1-brain-motion-locked chỉ trỏ main đã đạt CI sau merge.
