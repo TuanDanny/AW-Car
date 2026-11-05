@@ -21,10 +21,10 @@ module aw_car_top #(
     parameter int ENCODER_STALE_CYCLES = CLK_HZ / 2,
     parameter bit ALLOW_REVERSE = 1
 ) (
-    input logic clk, arst_n, rx,
-    input logic left_out, right_out,
-    input logic motion_permit_async, recovery_req_async,
-    input logic safety_ok_async, gate_fault_n_async,
+    input wire logic clk, arst_n, rx,
+    input wire logic left_out, right_out,
+    input wire logic motion_permit_async, recovery_req_async,
+    input wire logic safety_ok_async, gate_fault_n_async,
     output logic tx,
     output logic drv_left_in1, drv_left_in2, drv_right_in1, drv_right_in2,
     output logic fpga_permit, recovery_ack, gate_clear

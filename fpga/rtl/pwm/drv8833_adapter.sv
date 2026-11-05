@@ -4,11 +4,11 @@
 // direction must come from motor_pwm_pair's zero/setup sequence. This block
 // has no clock/PWM generator; it does not replace the independent hardware gate.
 module drv8833_adapter (
-    input  logic rst_n,
-    input  logic enable,
-    input  logic pwm_left,
-    input  logic pwm_right,
-    input  logic [1:0] direction,
+    input  wire logic rst_n,
+    input  wire logic enable,
+    input  wire logic pwm_left,
+    input  wire logic pwm_right,
+    input  wire logic [1:0] direction,
     output logic drv_left_in1,
     output logic drv_left_in2,
     output logic drv_right_in1,

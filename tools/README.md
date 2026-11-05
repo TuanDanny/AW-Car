@@ -2,6 +2,13 @@
 
 Python 3.10+ và Git, không cần cài thư viện Python ngoài.
 
+`build_tang_nano9k.py` audit pin/điện áp/GPRJ/SDC, chạy RTL regression, Gowin
+synthesis/PnR/STA và tùy chọn test netlist thật với primitive Gowin. Dùng
+`--audit-only` cho checker không cần chạy compiler; lệnh đầy đủ và giới hạn ở
+[target](../fpga/targets/tang_nano9k/README.md). Script không flash/mở COM/ARM.
+Output/hash/report ở build ignored. Missing metric unconstrained ghi null,
+không biến thành0; pin drift, latch, timing âm hoặc pad/sampler bị mất đều fail.
+
 ```sh
 python tools/check_repo.py
 python -m unittest discover -s tests

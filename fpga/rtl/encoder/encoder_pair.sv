@@ -10,12 +10,12 @@ module encoder_pair #(
     parameter int INVERT_LEFT = 0,
     parameter int INVERT_RIGHT = 0
 ) (
-    input  logic clk,
-    input  logic rst_n,
-    input  logic [1:0] left_ab,
-    input  logic [1:0] right_ab,
-    input  logic left_out,
-    input  logic right_out,
+    input  wire logic clk,
+    input  wire logic rst_n,
+    input  wire logic [1:0] left_ab,
+    input  wire logic [1:0] right_ab,
+    input  wire logic left_out,
+    input  wire logic right_out,
     output logic [COUNT_WIDTH-1:0] left_count,
     output logic [COUNT_WIDTH-1:0] right_count,
     output logic snapshot_valid,

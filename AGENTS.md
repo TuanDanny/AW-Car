@@ -13,8 +13,9 @@
   V2: fault[7:0] là lỗi Safety, fault[15:8] là diagnostic sticky. Chỉ các cờ
   snapshot stall/invariant (mask 0x8800) yêu cầu reset; không coi mọi cảnh báo
   encoder/RX là lỗi tự khóa. ESP32 vẫn phải timeout STATUS độc lập.
-  Phân tải ở `docs/fpga-drive-plan.md`; board mục tiêu Tang Nano 9K, chưa mua
-  và chưa xác nhận fit/timing đúng chip. Tối ưu RTL không đổi mục tiêu về 1K.
+  Phân tải ở `docs/fpga-drive-plan.md`; Tang Nano9K đã chạy bài LED thật theo
+  người dùng. Target AW-Car/Gowin ở `fpga/targets/tang_nano9k`; chưa nạp AW-Car
+  lên board. STA dưới constraints không thay nghiệm thu gate/E-stop/motor.
 - Trao đổi và báo cáo bằng tiếng Việt, ngắn gọn; nêu giả định ảnh hưởng thiết kế.
 
 ## Nhánh và merge
@@ -32,6 +33,10 @@
 - Hoàn tất kiểm tra và review rồi mở PR vào `main`; dùng **squash merge**.
   Chỉ merge một mốc đã nghiệm thu; sau đó đồng bộ main về hai nhánh đang dùng.
 - Tác vụ đang bàn bạc/setup chỉ chuẩn bị nhánh để xem trước, chưa merge.
+- Ngoại lệ được người dùng giao05/11/2026: `feat/f01-tang-nano9k-target` ở worktree
+  sạch riêng cho target Gowin, dựa FPGA7ab91b2 và đối chiếu main4cea85c LOCKED.
+  Không sửa worktree FPGA/CAD đang dở, flash AW-Car, thay Motion LOCKED hoặc
+  tự merge FPGA vào main. Đã xác nhận board trống/USB; gate/E-stop chưa có.
 - Không force-push main, bỏ qua hook/CI hoặc xóa thay đổi của người khác.
 - Khi dọn nhánh cũ, kiểm tra phần đã merge và sao lưu commit/thay đổi còn lại
   trước khi xóa tham chiếu. Báo tên nhánh, commit đã push và kiểm tra khi bàn giao.
@@ -49,6 +54,11 @@
   Module con phân theo
   `common/`, `encoder/`, `pwm/`, `link/`, `safety/`, mỗi nhóm có README.
   Khi chuyển nguồn, cập nhật đường dẫn tổng hợp và runner tìm `.sv` đệ quy.
+- Physical shell `fpga/targets/tang_nano9k/aw_car_nano9k.sv` chỉ thêm POR/mask
+  reset cho logical top trên; đây là top board của Gowin, không phải lõi truyền
+  động thứ hai. Build target dùng SystemVerilog2017, không bỏ default_nettype
+  none. Cổng module input dùng `wire logic` tường minh; tham số function/task
+  giữ logic. Kiểm tra post-PnR encoder/STATUS để phát hiện tối ưu sai của tool.
 - Toàn bộ mã HDL của dự án, gồm RTL và testbench, bắt buộc dùng **SystemVerilog
   với đuôi `.sv`**; không thêm nguồn `.v`, `.vh`, `.svh`, `.vhd` hoặc `.vhdl`.
   RTL dùng `logic`, `always_ff`/`always_comb` đúng vai trò; tổng hợp bằng

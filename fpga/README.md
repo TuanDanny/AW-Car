@@ -10,12 +10,14 @@ Trạng thái: đã có RTL/testbench cho reset, encoder một OUT/A-B hai bên,
 count/period/age theo protocol v2 mặc định (STATUS 34 byte/frame 47 byte),
 PWM hai kênh, trình tự đổi chiều độc lập driver và UART/parser/CRC/serializer/
 command guard, FSM/watchdog và lõi `drive_core` đã nối link với PWM/adapter
-DRV8833 drive/coast. Chưa có wrapper/constraints cho Tang Nano 9K hoặc báo cáo timing. Hợp đồng GPIO phục hồi/ARM
+DRV8833 drive/coast. Đã bổ sung [target Nano9K](targets/tang_nano9k/README.md)
+với POR,17 chân, CST/SDC, Gowin project/CLI và STA. Chưa nạp AW-Car lên board.
+Hợp đồng GPIO phục hồi/ARM
 và gate ngoài ở [fpga-safety.md](../firmware/shared/fpga-safety.md). Xem
 [vai trò từng file, luồng tín hiệu và rà soát nhẹ RTL](rtl/README.md),
 ca thử ở [tb](tb/README.md).
 
-Top triển khai duy nhất là **`rtl/aw_car_top.sv`**. Top này bọc một instance
+Top chức năng duy nhất là **`rtl/aw_car_top.sv`**. Top này bọc một instance
 `drive_core`, cố định một OUT/v2 và nối các cổng bên ngoài; không thêm thanh ghi.
 `drive_core.sv` là lõi độc lập board, vẫn tổng hợp riêng để hồi quy A/B/v1.
 Module con chia theo `common`, `encoder`,
@@ -58,13 +60,14 @@ hoặc YoWASP-Yosys. Đã chạy Yosys0.70 cục bộ; CI cũng chạy năm scri
 Script encoder và drive tổng hợp riêng cả mode một OUT mặc định lẫn mode A/B;
 artifact có hậu tố `_ab` thuộc mode A/B.
 Script PWM còn tổng hợp riêng adapter để kiểm tra ánh xạ tổ hợp không latch.
-Chưa có pinout/constraints/PnR/STA đúng chip; cell count sơ bộ không kết luận fit.
+Có target Gowin đúng chip trong thư mục targets; các số cell Yosys cũ vẫn chỉ
+là tổng hợp sơ bộ, không dùng thay báo cáo PnR/STA target.
 Luồng đề xuất: Icarus/VVP + GTKWave để mô phỏng, Gowin Education để tổng hợp,
 place-and-route và kiểm tra timing đúng chip Tang Nano 9K; không cần Quartus.
 Tcd/Tpd min/max, setup/hold và slack được kiểm tra bằng STA sau route ở bước
 target, trước khi mua board; xem [tiêu chí timing](../docs/fpga-rtl-design-test-plan.md#5-tổng-hợp-và-điều-kiện-quyết-định-mua-board).
-Board mục tiêu **Nano 9K / GW1NR-LV9QN88PC6/I5**, chưa mua hoặc xác nhận
-fit/timing/giá. Tối ưu duty và timer vẫn giữ mục tiêu 9K; số liệu trước/sau
+Board mục tiêu **Nano 9K / GW1NR-LV9QN88PC6/I5** đã có; bài LED đã chạy thật,
+AW-Car chưa nạp. Tối ưu duty và timer vẫn giữ mục tiêu 9K; số liệu trước/sau
 ở [verification.md](verification.md). Công cụ kiểm chứng tương đương với bản
 trước: `python tools/check_fpga_equivalence.py --base 821cfae --yosys <yosys>`.
 Baseline này phục vụ refactor giữ chức năng; thay đổi thời gian/quy tắc cập
@@ -86,7 +89,8 @@ Cấu hình một OUT v1 cũ cần đặt riêng `PROTOCOL_VERSION=1`, không c�
 Hai đầu vào encoder là `encoder_left_out` và `encoder_right_out`; mỗi cảm biến
 có VCC/GND/OUT. Cổng `left_ab/right_ab` không dùng ở mode này, wrapper nối 0.
 OUT phải có mức điện áp phù hợp bank I/O đã chọn; không nối OUT 5 V trực tiếp
-vào GPIO 3,3 V. Chưa có pinout Tang Nano 9K hoặc xác nhận điện trên module thật.
+vào GPIO 3,3 V. [Pinout target](targets/tang_nano9k/pinout.md) đã đối chiếu
+schematic/package; còn chờ xác nhận điện áp/thông mạch trên board thật.
 
 Duty là số tick HIGH trong 1.350 tick, không phải phần trăm. `direction[0]`
 là bên trái, `[1]` là bên phải; 0 thuận, 1 ngược theo quy ước lắp motor:
@@ -122,4 +126,5 @@ Top chỉ lộ **17 tín hiệu một bit**:9 input (clk/reset/RX/2 encoder/4 sa
 8 output (TX/4 IN/permit/ack/clear). PWM/DIR/state/fault ở trong lõi, quan sát
 qua UART hoặc testbench; không cần gán chân board cho28 bit debug cũ.
 Protocol v2 có thêm [runtime diagnostics](../firmware/shared/fpga-protocol-v2.md#6-runtime-diagnostics--extension-02112026).
-Không đổi kích thước STATUS. Chưa có constraints/PnR/STA hoặc firmware Motion.
+Không đổi kích thước STATUS. Target mới có constraints/PnR/STA; Motion LOCKED
+trong main4cea85c nhận v2. Chưa nghiệm thu UART FPGA/gate/motor trên board AW-Car.

@@ -1,5 +1,10 @@
 # Bằng chứng kiểm thử RTL
 
+Cập nhật Giai đoạn2 ngày05/11/2026: báo cáo Gowin đúng Nano9K, pinout,
+POR và kiểm thử netlist ở [target](targets/tang_nano9k/README.md). Các mốc bên
+dưới là lịch sử trước target; câu “chưa mua/chưa có PnR/STA” chỉ đúng tại mốc
+đó. Không lấy số liệu Yosys hoặc LED lịch sử thay cho STA AW-Car sau route.
+
 ## Encoder/snapshot — 23/10/2026
 
 Đã chạy trên Windows với Icarus Verilog/VVP **13.0 stable (v13_0)**, package

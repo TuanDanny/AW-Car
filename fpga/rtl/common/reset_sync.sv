@@ -1,8 +1,8 @@
 `timescale 1ns/1ps
 `default_nettype none
 module reset_sync (
-    input  logic clk,
-    input  logic arst_n,
+    input  wire logic clk,
+    input  wire logic arst_n,
     output logic rst_n
 );
     (* ASYNC_REG = "TRUE" *) logic [1:0] release_ff;

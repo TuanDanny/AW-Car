@@ -7,10 +7,10 @@ module pulse_counter #(
     parameter int COUNT_WIDTH = 32,
     parameter int TIME_WIDTH = 32
 ) (
-    input  logic clk,
-    input  logic rst_n,
-    input  logic sample_valid,
-    input  logic pulse,
+    input  wire logic clk,
+    input  wire logic rst_n,
+    input  wire logic sample_valid,
+    input  wire logic pulse,
     output logic [COUNT_WIDTH-1:0] count,
     output logic [TIME_WIDTH-1:0] period_ticks,
     output logic [TIME_WIDTH-1:0] age_ticks,

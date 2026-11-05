@@ -23,11 +23,11 @@ module drive_core #(
     parameter bit INVERT_LEFT = 0,
     parameter bit INVERT_RIGHT = 0
 ) (
-    input logic clk, arst_n, rx,
-    input logic [1:0] left_ab, right_ab,
-    input logic encoder_left_out, encoder_right_out,
-    input logic motion_permit_async, recovery_req_async,
-    input logic safety_ok_async, gate_fault_n_async,
+    input wire logic clk, arst_n, rx,
+    input wire logic [1:0] left_ab, right_ab,
+    input wire logic encoder_left_out, encoder_right_out,
+    input wire logic motion_permit_async, recovery_req_async,
+    input wire logic safety_ok_async, gate_fault_n_async,
     output logic tx, pwm_left, pwm_right,
     output logic [1:0] direction,
     output logic drv_left_in1, drv_left_in2, drv_right_in1, drv_right_in2,

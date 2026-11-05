@@ -1,6 +1,6 @@
 # Motion ↔ FPGA protocol v2 — encoder 1 OUT mỗi bên
 
-**Trạng thái:** Có RTL FPGA và mô phỏng unit/serializer/parser/top logic ở `fpga/rtl/aw_car_top.sv`; **chưa có firmware ESP32-S3 Motion nhận v2, chưa nạp Tang Nano 9K hoặc đo thực**. Protocol v1 A/B tại [fpga-protocol.md](fpga-protocol.md) vẫn giữ regression; KHÔNG trộn v1/v2.
+**Trạng thái 03/11/2026:** RTL v2 ở nhánh FPGA (`7ab91b2` trong co-sim), top `aw_car_top.sv`; đã có Motion 0.1 parser/core/ESP-IDF và co-sim UART/GPIO. **Checkout Motion từ main còn baseline RTL v1; chưa nạp/đo Tang Nano 9K hoặc motor thật**. Protocol v1 A/B tại [fpga-protocol.md](fpga-protocol.md) vẫn giữ regression; KHÔNG trộn v1/v2.
 
 ## 1. Framing và UART
 
@@ -18,7 +18,7 @@
 | +8 | `timestamp` | uint32, 4B | Tick FPGA mặc định 27 MHz, modulo 2³² |
 | +12 | `snapshot_seq` | uint16, 2B | Seq snapshot 10ms, tăng dù TX drop |
 | +14 | `safety_state` | uint8, 1B | Safety FSM |
-| +15 | `fault` | uint16, 2B | Bitmask lỗi Safety FSM |
+| +15 | `fault` | uint16, 2B | Low byte Safety FSM, high byte diagnostic sticky (mục 6) |
 | +17 | `encoder_status` | uint8, 1B | Các bit v2 (bảng dưới) |
 | +18 | `left_period_ticks` | uint32, 4B | Chu kỳ giữa 2 cạnh lên trái; 0 nếu chưa có đủ 2 |
 | +22 | `right_period_ticks` | uint32, 4B | Chu kỳ giữa 2 cạnh lên phải |
@@ -54,8 +54,9 @@
 ## 4. An toàn và việc còn lại
 
 - GPIO Safety độc lập `motion_permit`, `fpga_permit`, `safety_ok`, `gate_fault_n`, `recovery_req/ack`, `gate_clear` và watchdog CMD **50ms** không đổi. Mất xung encoder không tự mở gate.
-- Motion phải **triển khai parser STATUS v2**, xác nhận version/status bit4 và bit7, xử lý period/age validity, trần tốc độ, xe đứng yên vs đứt dây/đĩa kẹt; firmware hiện chưa triển khai.
-- Chưa có pinout/constraint, PnR/STA cho Tang Nano 9K và mạch gate/driver vật lý; không coi mô phỏng là xe đã hoạt động.
+- Motion 0.1 đã có **parser STATUS v2**, xác nhận version/status bit4 và bit7, period/age validity và độ mới. Timeout không xung dùng tốc độ/độ phân giải; một OUT không chứng minh đứng yên hay chiều thực. Có thêm driver_permit độc lập; xem [safety](fpga-safety.md).
+- Nhánh target có [pinout/constraints/PnR/STA Nano9K](../../fpga/targets/tang_nano9k/README.md);
+  chưa nạp AW-Car và chưa có mạch gate/E-stop vật lý. Không coi mô phỏng là xe đã hoạt động.
 - V1 golden vectors/bench vẫn giữ. Test v2: `tb_pulse_encoder_pair`, `tb_single_out_protocol`, `tb_single_out_v2_rx`, `tb_aw_car_top`.
 
 ## 5. Chú thích Draw.io
@@ -97,8 +98,8 @@ Mất clock/nguồn/UART hỏng hoàn toàn có thể khiến FPGA **không gử
 Motion vẫn phải timeout STATUS mới, hạ permit/khóa gate độc lập; E-stop phần
 cứng không phụ thuộc clock. UART STATUS là log số, không chen chuỗi printf vào
 luồng nhị phân. ESP32 nên in khi state/fault thay đổi, giới hạn tần suất log
-để không làm nghẽn tác vụ điều khiển. Firmware Motion chưa triển khai, chưa
-có log đo từ board thật.
+để không làm nghẽn tác vụ điều khiển. Motion 0.1 đã có log giới hạn tốc độ
+và console USB; chưa có log UART FPGA/gate/motor vật lý.
 
 ESP32 chỉ xử lý sau khi CRC/version/length/session/độ mới hợp lệ. Với payload
 34 byte đã kiểm tra, cách lấy trường để ghi console (đoạn ghép vào firmware thật):

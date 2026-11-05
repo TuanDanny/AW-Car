@@ -9,6 +9,11 @@ netlist trong build đã ignore không bị áp quy tắc nguồn.
 Chưa có test firmware/phần cứng. Khi thêm tính năng, đặt test tương ứng tại đây
 hoặc trong project MCU nếu bộ test ESP-IDF yêu cầu, rồi ghi lệnh chạy thực tế.
 
+`test_tang_nano9k.py` kiểm đủ17 cổng và negative cases: đổi pin/bank/điện áp,
+pin trùng, GPRJ bỏ source, blanket false-path và report thiếu dữ liệu. Không
+cần Gowin hoặc board để chạy unit tests. Mapped functional test riêng nằm tại
+target Nano9K và dùng netlist thật sau PnR; không biến unit PASS thành hardware PASS.
+
 `test_fpga_runner.py` kiểm tra runner không bỏ qua compile lỗi, mã lỗi simulator
 hoặc timeout; kiểm tra đường dẫn tool tương đối và môi trường subprocess.
 Đồng thời kiểm tra compiler nhận đủ nguồn `.sv`, tùy chọn SystemVerilog và

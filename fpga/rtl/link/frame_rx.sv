@@ -5,12 +5,12 @@ module frame_rx #(
     parameter int FRAME_CYCLES = 135000,
     parameter int PROTOCOL_VERSION = 1
 ) (
-    input  logic clk,
-    input  logic rst_n,
-    input  logic flush,
-    input  logic [7:0] byte_data,
-    input  logic byte_valid,
-    input  logic byte_error,
+    input  wire logic clk,
+    input  wire logic rst_n,
+    input  wire logic flush,
+    input  wire logic [7:0] byte_data,
+    input  wire logic byte_valid,
+    input  wire logic byte_error,
     output logic frame_valid,
     output logic frame_error,
     output logic [7:0] frame_type,

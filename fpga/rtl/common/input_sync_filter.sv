@@ -4,9 +4,9 @@ module input_sync_filter #(
     parameter int WIDTH = 2,
     parameter int FILTER_N = 3
 ) (
-    input  logic clk,
-    input  logic rst_n,
-    input  logic [WIDTH-1:0] async_in,
+    input  wire logic clk,
+    input  wire logic rst_n,
+    input  wire logic [WIDTH-1:0] async_in,
     output logic [WIDTH-1:0] filtered,
     output logic valid
 );

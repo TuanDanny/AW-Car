@@ -2,6 +2,10 @@
 
 Lưu yêu cầu, quyết định kỹ thuật và kết quả thử nghiệm.
 
+- [Giai đoạn2 Tang Nano9K/Gowin](../fpga/targets/tang_nano9k/README.md): hardware
+  audit, pinout17 tín hiệu, source/constraints/build CLI, STA, risk register và
+  bring-up không VM. Bài LED thật đã đạt; AW-Car và gate/E-stop chưa nghiệm thu.
+
 Mốc đồng bộ 02/11/2026: `feat/f01-fpga-drive` là nguồn FPGA chung,
 [protocol v2](../firmware/shared/fpga-protocol-v2.md) dùng STATUS34/frame47.
 Các sơ đồ/cơ khí concept được giữ để tiếp tục chỉnh; nhãn v1 hoặc số module cũ

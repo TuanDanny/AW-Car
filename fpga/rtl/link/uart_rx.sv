@@ -4,9 +4,9 @@ module uart_rx #(
     parameter int CLK_HZ = 27000000,
     parameter int BAUD = 115200
 ) (
-    input  logic clk,
-    input  logic rst_n,
-    input  logic rx,
+    input  wire logic clk,
+    input  wire logic rst_n,
+    input  wire logic rx,
     output logic [7:0] data,
     output logic valid,
     output logic framing_error,

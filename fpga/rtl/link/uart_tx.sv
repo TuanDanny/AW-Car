@@ -4,10 +4,10 @@ module uart_tx #(
     parameter int CLK_HZ = 27000000,
     parameter int BAUD = 115200
 ) (
-    input  logic clk,
-    input  logic rst_n,
-    input  logic [7:0] data,
-    input  logic valid,
+    input  wire logic clk,
+    input  wire logic rst_n,
+    input  wire logic [7:0] data,
+    input  wire logic valid,
     output logic ready,
     output logic tx,
     output logic done

@@ -1,0 +1,5 @@
+# GUI-generated implementation; CLI uses root build/ instead.
+/impl/
+/*.gprj.user
+/*.gprj.user.old
+/*.log

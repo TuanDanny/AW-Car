@@ -1,8 +1,8 @@
 `timescale 1ns/1ps
 `default_nettype none
 module crc16_byte (
-    input  logic [15:0] crc,
-    input  logic [7:0] data,
+    input  wire logic [15:0] crc,
+    input  wire logic [7:0] data,
     output logic [15:0] next_crc
 );
     function automatic logic [15:0] update_crc(input logic [15:0] previous_crc,

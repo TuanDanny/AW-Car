@@ -1,0 +1,410 @@
+{
+  "schema": 1,
+  "status": "SCHEMATIC_AUDITED_BOARD_MEASUREMENTS_PENDING",
+  "physical_top": "aw_car_nano9k",
+  "logical_top": "aw_car_top",
+  "part": "GW1NR-LV9QN88PC6/I5",
+  "device": "GW1NR-9C",
+  "clock_hz": 27000000,
+  "motion_reference": "4cea85c9f34a26a2e8e2af793575a82cbcf11132",
+  "sources": [
+    {
+      "id": "S3672",
+      "url": "https://dl.sipeed.com/fileList/TANG/Nano%209K/2_Schematic/Tang_Nano_9k_3672_Schematic.pdf",
+      "sha256": "71ccf1b7731589c8bc5b4c1dcf0c8906f52831785c703732d43a70f01ec574ec",
+      "page": 2
+    },
+    {
+      "id": "S3674",
+      "url": "https://dl.sipeed.com/fileList/TANG/Nano%209K/2_Schematic/Tang_nano_9K_3674_schematics.pdf",
+      "sha256": "5e720b0d128dab277896290ca41bb290c5a533adf04b4c4baa4546844be8f3d8",
+      "page": 2
+    },
+    {
+      "id": "GOWIN_PIN_DB",
+      "path": "IDE/data/device/GW1NR-9C/QFN88P.json",
+      "tool_version": "V1.9.11.03 Education",
+      "sha256": "e5d43d424fc067a046a0c1c7ec87e60045401da3870ed8b0f116a35b3fd6ccac"
+    }
+  ],
+  "pins": [
+    {
+      "signal": "clk",
+      "direction": "input",
+      "package_pin": 52,
+      "package_name": "IOR17A",
+      "header": null,
+      "bank": 1,
+      "vccio": 3.3,
+      "io_standard": "LVCMOS33",
+      "pull": "NONE",
+      "drive_ma": null,
+      "peer": "Oscillator U16.OUT",
+      "shared_with": "onboard27MHz",
+      "source_ids": [
+        "S3672",
+        "S3674",
+        "GOWIN_PIN_DB"
+      ]
+    },
+    {
+      "signal": "arst_n",
+      "direction": "input",
+      "package_pin": 3,
+      "package_name": "IOT2A",
+      "header": null,
+      "bank": 3,
+      "vccio": 1.8,
+      "io_standard": "LVCMOS18",
+      "pull": "UP",
+      "drive_ma": null,
+      "peer": "Onboard S2 only",
+      "shared_with": "1.8V button; JTAGSEL pin4 reserved",
+      "source_ids": [
+        "S3672",
+        "S3674",
+        "GOWIN_PIN_DB"
+      ]
+    },
+    {
+      "signal": "rx",
+      "direction": "input",
+      "package_pin": 25,
+      "package_name": "IOB8A",
+      "header": "J5.5",
+      "bank": 2,
+      "vccio": 3.3,
+      "io_standard": "LVCMOS33",
+      "pull": "UP",
+      "drive_ma": null,
+      "peer": "Motion GPIO15 TX",
+      "shared_with": "none",
+      "source_ids": [
+        "S3672",
+        "S3674",
+        "GOWIN_PIN_DB"
+      ]
+    },
+    {
+      "signal": "tx",
+      "direction": "output",
+      "package_pin": 26,
+      "package_name": "IOB8B",
+      "header": "J5.6",
+      "bank": 2,
+      "vccio": 3.3,
+      "io_standard": "LVCMOS33",
+      "pull": "UP",
+      "drive_ma": 4,
+      "peer": "Motion GPIO16 RX",
+      "shared_with": "none",
+      "source_ids": [
+        "S3672",
+        "S3674",
+        "GOWIN_PIN_DB"
+      ]
+    },
+    {
+      "signal": "left_out",
+      "direction": "input",
+      "package_pin": 27,
+      "package_name": "IOB11A",
+      "header": "J5.7",
+      "bank": 2,
+      "vccio": 3.3,
+      "io_standard": "LVCMOS33",
+      "pull": "DOWN",
+      "drive_ma": null,
+      "peer": "Encoder left via 5V-to-3.3V conditioner",
+      "shared_with": "none",
+      "source_ids": [
+        "S3672",
+        "S3674",
+        "GOWIN_PIN_DB"
+      ]
+    },
+    {
+      "signal": "right_out",
+      "direction": "input",
+      "package_pin": 28,
+      "package_name": "IOB11B",
+      "header": "J5.8",
+      "bank": 2,
+      "vccio": 3.3,
+      "io_standard": "LVCMOS33",
+      "pull": "DOWN",
+      "drive_ma": null,
+      "peer": "Encoder right via 5V-to-3.3V conditioner",
+      "shared_with": "none",
+      "source_ids": [
+        "S3672",
+        "S3674",
+        "GOWIN_PIN_DB"
+      ]
+    },
+    {
+      "signal": "motion_permit_async",
+      "direction": "input",
+      "package_pin": 29,
+      "package_name": "IOB13A",
+      "header": "J5.9",
+      "bank": 2,
+      "vccio": 3.3,
+      "io_standard": "LVCMOS33",
+      "pull": "DOWN",
+      "drive_ma": null,
+      "peer": "Motion GPIO4 logical permit",
+      "shared_with": "none",
+      "source_ids": [
+        "S3672",
+        "S3674",
+        "GOWIN_PIN_DB"
+      ]
+    },
+    {
+      "signal": "recovery_req_async",
+      "direction": "input",
+      "package_pin": 30,
+      "package_name": "IOB13B",
+      "header": "J5.10",
+      "bank": 2,
+      "vccio": 3.3,
+      "io_standard": "LVCMOS33",
+      "pull": "DOWN",
+      "drive_ma": null,
+      "peer": "Motion GPIO5",
+      "shared_with": "none",
+      "source_ids": [
+        "S3672",
+        "S3674",
+        "GOWIN_PIN_DB"
+      ]
+    },
+    {
+      "signal": "safety_ok_async",
+      "direction": "input",
+      "package_pin": 33,
+      "package_name": "IOB23A",
+      "header": "J5.11",
+      "bank": 2,
+      "vccio": 3.3,
+      "io_standard": "LVCMOS33",
+      "pull": "DOWN",
+      "drive_ma": null,
+      "peer": "External safety; also Motion GPIO8 input",
+      "shared_with": "RGB LCD DE",
+      "source_ids": [
+        "S3672",
+        "S3674",
+        "GOWIN_PIN_DB"
+      ]
+    },
+    {
+      "signal": "gate_fault_n_async",
+      "direction": "input",
+      "package_pin": 34,
+      "package_name": "IOB23B",
+      "header": "J5.12",
+      "bank": 2,
+      "vccio": 3.3,
+      "io_standard": "LVCMOS33",
+      "pull": "DOWN",
+      "drive_ma": null,
+      "peer": "External latch; also Motion GPIO9 input",
+      "shared_with": "RGB LCD VS",
+      "source_ids": [
+        "S3672",
+        "S3674",
+        "GOWIN_PIN_DB"
+      ]
+    },
+    {
+      "signal": "drv_left_in1",
+      "direction": "output",
+      "package_pin": 35,
+      "package_name": "IOB29A",
+      "header": "J5.14",
+      "bank": 2,
+      "vccio": 3.3,
+      "io_standard": "LVCMOS33",
+      "pull": "DOWN",
+      "drive_ma": 4,
+      "peer": "Left driver IN1, VM disconnected",
+      "shared_with": "RGB LCD CLK",
+      "source_ids": [
+        "S3672",
+        "S3674",
+        "GOWIN_PIN_DB"
+      ]
+    },
+    {
+      "signal": "drv_left_in2",
+      "direction": "output",
+      "package_pin": 40,
+      "package_name": "IOB33B",
+      "header": "J5.13",
+      "bank": 2,
+      "vccio": 3.3,
+      "io_standard": "LVCMOS33",
+      "pull": "DOWN",
+      "drive_ma": 4,
+      "peer": "Left driver IN2, VM disconnected",
+      "shared_with": "RGB LCD HS",
+      "source_ids": [
+        "S3672",
+        "S3674",
+        "GOWIN_PIN_DB"
+      ]
+    },
+    {
+      "signal": "drv_right_in1",
+      "direction": "output",
+      "package_pin": 41,
+      "package_name": "IOB41A",
+      "header": "J5.15",
+      "bank": 2,
+      "vccio": 3.3,
+      "io_standard": "LVCMOS33",
+      "pull": "DOWN",
+      "drive_ma": 4,
+      "peer": "Right driver IN1, VM disconnected",
+      "shared_with": "RGB LCD B7",
+      "source_ids": [
+        "S3672",
+        "S3674",
+        "GOWIN_PIN_DB"
+      ]
+    },
+    {
+      "signal": "drv_right_in2",
+      "direction": "output",
+      "package_pin": 42,
+      "package_name": "IOB41B",
+      "header": "J5.16",
+      "bank": 2,
+      "vccio": 3.3,
+      "io_standard": "LVCMOS33",
+      "pull": "DOWN",
+      "drive_ma": 4,
+      "peer": "Right driver IN2, VM disconnected",
+      "shared_with": "RGB LCD B6",
+      "source_ids": [
+        "S3672",
+        "S3674",
+        "GOWIN_PIN_DB"
+      ]
+    },
+    {
+      "signal": "fpga_permit",
+      "direction": "output",
+      "package_pin": 51,
+      "package_name": "IOR17B",
+      "header": "J5.17",
+      "bank": 1,
+      "vccio": 3.3,
+      "io_standard": "LVCMOS33",
+      "pull": "DOWN",
+      "drive_ma": 4,
+      "peer": "External gate and Motion GPIO7 input",
+      "shared_with": "RGB LCD B5/GCLKT_3",
+      "source_ids": [
+        "S3672",
+        "S3674",
+        "GOWIN_PIN_DB"
+      ]
+    },
+    {
+      "signal": "recovery_ack",
+      "direction": "output",
+      "package_pin": 48,
+      "package_name": "IOR24B",
+      "header": "J6.19",
+      "bank": 1,
+      "vccio": 3.3,
+      "io_standard": "LVCMOS33",
+      "pull": "DOWN",
+      "drive_ma": 4,
+      "peer": "Motion GPIO6 input",
+      "shared_with": "SPI LCD CS",
+      "source_ids": [
+        "S3672",
+        "S3674",
+        "GOWIN_PIN_DB"
+      ]
+    },
+    {
+      "signal": "gate_clear",
+      "direction": "output",
+      "package_pin": 49,
+      "package_name": "IOR24A",
+      "header": "J6.20",
+      "bank": 1,
+      "vccio": 3.3,
+      "io_standard": "LVCMOS33",
+      "pull": "DOWN",
+      "drive_ma": 4,
+      "peer": "External latch clear request",
+      "shared_with": "SPI LCD RS",
+      "source_ids": [
+        "S3672",
+        "S3674",
+        "GOWIN_PIN_DB"
+      ]
+    }
+  ],
+  "external_gate_present": false,
+  "estop_present": false,
+  "board_peripherals": "USB only, confirmed by user",
+  "hardware_verification": "NOT VERIFIED",
+  "driver_policy": "LOCKED; VM disconnected",
+  "reserved_package_pins": [
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    13,
+    14,
+    15,
+    16,
+    17,
+    18,
+    36,
+    37,
+    38,
+    39,
+    53,
+    54,
+    55,
+    56,
+    57,
+    59,
+    60,
+    61,
+    62,
+    63,
+    68,
+    69,
+    70,
+    71,
+    72,
+    73,
+    74,
+    75,
+    76,
+    77,
+    79,
+    80,
+    81,
+    82,
+    83,
+    84,
+    85,
+    86,
+    87,
+    88
+  ]
+}

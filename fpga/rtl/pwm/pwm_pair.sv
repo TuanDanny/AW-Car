@@ -4,12 +4,12 @@ module pwm_pair #(
     parameter int PERIOD_CYCLES = 1350,
     parameter int DUTY_WIDTH = 16
 ) (
-    input  logic clk,
-    input  logic rst_n,
-    input  logic enable,
-    input  logic command_valid,
-    input  logic [DUTY_WIDTH-1:0] command_left,
-    input  logic [DUTY_WIDTH-1:0] command_right,
+    input  wire logic clk,
+    input  wire logic rst_n,
+    input  wire logic enable,
+    input  wire logic command_valid,
+    input  wire logic [DUTY_WIDTH-1:0] command_left,
+    input  wire logic [DUTY_WIDTH-1:0] command_right,
     output logic pwm_left,
     output logic pwm_right,
     output logic period_start,

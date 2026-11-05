@@ -4,10 +4,10 @@ module quadrature_decoder #(
     parameter int COUNT_WIDTH = 32,
     parameter int INVERT = 0
 ) (
-    input  logic clk,
-    input  logic rst_n,
-    input  logic sample_valid,
-    input  logic [1:0] ab,
+    input  wire logic clk,
+    input  wire logic rst_n,
+    input  wire logic sample_valid,
+    input  wire logic [1:0] ab,
     output logic [COUNT_WIDTH-1:0] count,
     output logic invalid_event,
     output logic initialized

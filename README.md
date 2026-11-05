@@ -11,6 +11,13 @@ Top FPGA triển khai là **[`aw_car_top`](fpga/rtl/aw_car_top.sv)**, bọc lõi
 `drive_core`; chẩn đoán khi chạy đi qua STATUS v2 (RX/lệnh/mất mẫu/encoder/invariant),
 không xuất bus debug thành chân board. Cấu hình tổng hợp ở [`synth_aw_car.ys`](fpga/synth_aw_car.ys).
 
+Giai đoạn2 ngày05/11: [target Tang Nano9K/Gowin](fpga/targets/tang_nano9k/README.md)
+có physical shell POR, pinout17 tín hiệu, CST/SDC, project/CLI và báo cáo STA.
+Bài LED đã chạy trên board thật; bitstream **AW-Car chưa nạp**, gate/E-stop chưa có.
+Brain–Motion LOCKED đã chốt tại
+[main4cea85c](https://github.com/TuanDanny/AW-Car/tree/v0.1-brain-motion-locked);
+nhánh FPGA vẫn độc lập, không dùng RTL v1 baseline của main cho Motion v2.
+
 Đồng bộ ngày **02/11/2026**: phần FPGA và encoder một OUT được gom vào
 `feat/f01-fpga-drive`. Bản mặc định dùng **protocol v2: STATUS 34 byte payload,
 47 byte frame**, có count/period/age; giữ lùi/quay tại chỗ, coast đổi chiều
@@ -20,9 +27,10 @@ không xuất bus debug thành chân board. Cấu hình tổng hợp ở [`synth
 Dự án đang chọn linh kiện, chưa lắp xe thử nghiệm. Kho hiện có khung thư mục,
 tài liệu, quy tắc làm việc, RTL encoder/snapshot/PWM/UART/giao thức/FSM/watchdog/top,
 adapter DRV8833 và mô phỏng;
-chưa có firmware Motion hoặc bản xe tích hợp được nghiệm thu. Cách chạy RTL
+chưa có bản xe tích hợp được nghiệm thu. Firmware Motion nằm trong main LOCKED;
+checkout FPGA chỉ đồng bộ contract cần thiết. Cách chạy RTL
 ở [fpga](fpga/README.md). Source Xiaozhi và demo AI điều khiển RGB đã thử được
-giữ trên [nhánh AI](https://github.com/TuanDanny/AW-Car/tree/feat/f03-xiaozhi-ai).
+ghi trong lịch sử nhánh AI; main hiện dùng WS2812 chỉ báo trạng thái và đã xóa demo RGB.
 Toàn bộ mã HDL dùng SystemVerilog (`.sv`); hook và CI kiểm tra quy ước này.
 
 - Yêu cầu ban đầu: [issue #1](https://github.com/TuanDanny/AW-Car/issues/1).
@@ -45,8 +53,8 @@ lái bằng tốc độ hai bên, không servo. FPGA đọc encoder và phát PW
 nhóm motor; Motion tính PID theo bên và giám sát an toàn. RTL mặc định đọc
 encoder một OUT mỗi bên, hỗ trợ tiến/lùi/rẽ/quay tại chỗ; A/B là tùy chọn.
 Số đếm một OUT không cho biết chiều quay thực. Board mục tiêu là **Tang Nano 9K**
-(`GW1NR-LV9QN88PC6/I5`), chưa mua. Tối ưu RTL vẫn giữ mục tiêu 9K;
-mô phỏng và tổng hợp sơ bộ chưa thay kết quả fit/timing trên đúng chip.
+(`GW1NR-LV9QN88PC6/I5`), đã có và chạy bài LED. Target mới có Gowin PnR/STA,
+nhưng chưa thay kiểm thử AW-Car trên board và gate an toàn độc lập.
 Xem [kế hoạch FPGA và toàn hệ thống](docs/fpga-drive-plan.md) và
 [hợp đồng ARM/gate](firmware/shared/fpga-safety.md).
 

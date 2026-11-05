@@ -1,0 +1,37 @@
+// Sipeed schematics 3672 and 3674, PDF page2; GW1NR-9C QFN88P pin database.
+// Physical FPGA package numbers, NOT header ordinal or ESP32 GPIO numbers.
+IO_LOC "clk" 52;
+IO_PORT "clk" IO_TYPE=LVCMOS33 PULL_MODE=NONE BANK_VCCIO=3.3;
+// Onboard S2: 1.8V bank3; do not connect a 3.3V ESP32 reset here.
+IO_LOC "arst_n" 3;
+IO_PORT "arst_n" IO_TYPE=LVCMOS18 PULL_MODE=UP BANK_VCCIO=1.8;
+IO_LOC "rx" 25;
+IO_PORT "rx" IO_TYPE=LVCMOS33 PULL_MODE=UP BANK_VCCIO=3.3;
+IO_LOC "tx" 26;
+IO_PORT "tx" IO_TYPE=LVCMOS33 PULL_MODE=UP DRIVE=4 BANK_VCCIO=3.3;
+IO_LOC "left_out" 27;
+IO_PORT "left_out" IO_TYPE=LVCMOS33 PULL_MODE=DOWN BANK_VCCIO=3.3;
+IO_LOC "right_out" 28;
+IO_PORT "right_out" IO_TYPE=LVCMOS33 PULL_MODE=DOWN BANK_VCCIO=3.3;
+IO_LOC "motion_permit_async" 29;
+IO_PORT "motion_permit_async" IO_TYPE=LVCMOS33 PULL_MODE=DOWN BANK_VCCIO=3.3;
+IO_LOC "recovery_req_async" 30;
+IO_PORT "recovery_req_async" IO_TYPE=LVCMOS33 PULL_MODE=DOWN BANK_VCCIO=3.3;
+IO_LOC "safety_ok_async" 33;
+IO_PORT "safety_ok_async" IO_TYPE=LVCMOS33 PULL_MODE=DOWN BANK_VCCIO=3.3;
+IO_LOC "gate_fault_n_async" 34;
+IO_PORT "gate_fault_n_async" IO_TYPE=LVCMOS33 PULL_MODE=DOWN BANK_VCCIO=3.3;
+IO_LOC "drv_left_in1" 35;
+IO_PORT "drv_left_in1" IO_TYPE=LVCMOS33 PULL_MODE=DOWN DRIVE=4 BANK_VCCIO=3.3;
+IO_LOC "drv_left_in2" 40;
+IO_PORT "drv_left_in2" IO_TYPE=LVCMOS33 PULL_MODE=DOWN DRIVE=4 BANK_VCCIO=3.3;
+IO_LOC "drv_right_in1" 41;
+IO_PORT "drv_right_in1" IO_TYPE=LVCMOS33 PULL_MODE=DOWN DRIVE=4 BANK_VCCIO=3.3;
+IO_LOC "drv_right_in2" 42;
+IO_PORT "drv_right_in2" IO_TYPE=LVCMOS33 PULL_MODE=DOWN DRIVE=4 BANK_VCCIO=3.3;
+IO_LOC "fpga_permit" 51;
+IO_PORT "fpga_permit" IO_TYPE=LVCMOS33 PULL_MODE=DOWN DRIVE=4 BANK_VCCIO=3.3;
+IO_LOC "recovery_ack" 48;
+IO_PORT "recovery_ack" IO_TYPE=LVCMOS33 PULL_MODE=DOWN DRIVE=4 BANK_VCCIO=3.3;
+IO_LOC "gate_clear" 49;
+IO_PORT "gate_clear" IO_TYPE=LVCMOS33 PULL_MODE=DOWN DRIVE=4 BANK_VCCIO=3.3;

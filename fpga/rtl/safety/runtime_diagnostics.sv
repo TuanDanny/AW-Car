@@ -6,13 +6,13 @@ module runtime_diagnostics #(
     parameter int SNAPSHOT_LIMIT = 540000,
     parameter int ENCODER_LIMIT = 13500000
 ) (
-    input logic clk, rst_n,
-    input logic receive_error, command_rejected, snapshot_dropped, pwm_rejected,
-    input logic snapshot_valid, motor_enable, interlock_active,
-    input logic request_left, request_right,
-    input logic raw_left, raw_right,
-    input logic [7:0] safety_state,
-    input logic [31:0] left_count, right_count,
+    input wire logic clk, rst_n,
+    input wire logic receive_error, command_rejected, snapshot_dropped, pwm_rejected,
+    input wire logic snapshot_valid, motor_enable, interlock_active,
+    input wire logic request_left, request_right,
+    input wire logic raw_left, raw_right,
+    input wire logic [7:0] safety_state,
+    input wire logic [31:0] left_count, right_count,
     output logic [7:0] flags,
     output logic critical_fault
 );

@@ -4,27 +4,27 @@ module frame_tx #(
     parameter bit ENCODER_SINGLE_OUT = 0,
     parameter int PROTOCOL_VERSION = 1
 ) (
-    input  logic clk,
-    input  logic rst_n,
-    input  logic flush,
-    input  logic snapshot_valid,
+    input  wire logic clk,
+    input  wire logic rst_n,
+    input  wire logic flush,
+    input  wire logic snapshot_valid,
     output logic snapshot_ready,
     output logic snapshot_dropped,
-    input  logic [31:0] session,
-    input  logic [31:0] snapshot_left,
-    input  logic [31:0] snapshot_right,
-    input  logic [31:0] snapshot_time,
-    input  logic [15:0] snapshot_seq,
-    input  logic [3:0] snapshot_status,
-    input  logic [7:0] snapshot_status_ext,
-    input  logic [31:0] snapshot_left_period,
-    input  logic [31:0] snapshot_right_period,
-    input  logic [31:0] snapshot_left_age,
-    input  logic [31:0] snapshot_right_age,
-    input  logic [7:0] safety_state,
-    input  logic [15:0] fault,
+    input  wire logic [31:0] session,
+    input  wire logic [31:0] snapshot_left,
+    input  wire logic [31:0] snapshot_right,
+    input  wire logic [31:0] snapshot_time,
+    input  wire logic [15:0] snapshot_seq,
+    input  wire logic [3:0] snapshot_status,
+    input  wire logic [7:0] snapshot_status_ext,
+    input  wire logic [31:0] snapshot_left_period,
+    input  wire logic [31:0] snapshot_right_period,
+    input  wire logic [31:0] snapshot_left_age,
+    input  wire logic [31:0] snapshot_right_age,
+    input  wire logic [7:0] safety_state,
+    input  wire logic [15:0] fault,
     output logic byte_valid,
-    input  logic byte_ready,
+    input  wire logic byte_ready,
     output logic [7:0] byte_data,
     output logic byte_last,
     output logic [31:0] frame_session,
@@ -45,7 +45,12 @@ module frame_tx #(
     function automatic logic [7:0] select_byte(input logic [5:0] idx,
             input logic [31:0] session_value, input logic [271:0] sample,
             input logic [15:0] checksum);
+        logic [271:0] shifted_sample;
         begin
+            // Gowin 1.9.11.03 drops the payload cone for the equivalent
+            // sample[(idx-11)*8 +: 8] inside this default case. A full-width
+            // shift and fixed slice preserve every STATUS byte in the netlist.
+            shifted_sample = sample >> ((idx-11)*8);
             select_byte = 0;
             case (idx)
                 0: select_byte = 8'ha5;
@@ -61,7 +66,7 @@ module frame_tx #(
                     else if (idx == 12 + STATUS_LENGTH)
                         select_byte = checksum[15:8];
                     else if (idx >= 11 && idx < 11 + STATUS_LENGTH)
-                        select_byte = sample[(idx-11)*8 +: 8];
+                        select_byte = shifted_sample[7:0];
                 end
             endcase
         end
