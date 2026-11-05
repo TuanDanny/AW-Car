@@ -2,6 +2,8 @@
 
 Lưu yêu cầu, quyết định kỹ thuật và kết quả thử nghiệm.
 
+- [MERGE-READINESS](MERGE-READINESS.md): audit, conflict, test/build và điều kiện duyệt.
+
 - [WS2812 báo trạng thái](status-led.md): policy hai board, bỏ RGB AI/Web,
   luồng nền và giới hạn quan sát.
 
@@ -18,6 +20,9 @@ Lưu yêu cầu, quyết định kỹ thuật và kết quả thử nghiệm.
   UI hẹp/mất socket và bằng chứng browser; chưa nạp lại Brain.
 - [Bằng chứng Brain/dashboard](brain-dashboard-verification.md): bản Manual/AI,
   C++ host, WebSocket, firmware build, soak và giới hạn nghiệm thu phần cứng.
+- [Motion 0.1](motion-plan.md): contract vòng hở, hai UART, kích/đảo và gate.
+- [Bằng chứng Motion](motion-verification.md): host, hai core, RTL, soak,
+  build ESP-IDF và COM7; nêu riêng phần chưa nghiệm thu vật lý.
 
 - [Rà soát issue #1](issue-1-technical-review.md): kiến trúc, lỗi thiết kế cần
   tránh, phạm vi 1 mic và lộ trình nghiệm thu; ghi chú F01 về giữ tốc độ,

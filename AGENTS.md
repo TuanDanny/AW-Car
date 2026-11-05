@@ -24,7 +24,10 @@
 - Theo quyết định cập nhật 03/11/2026, dùng ba nhánh phát triển:
   `feat/f01-fpga-drive` cho FPGA/truyền động và tài liệu liên quan;
   `feat/f03-xiaozhi-ai` cho AI/Xiaozhi, âm thanh, OLED và tài liệu liên quan;
-  `codex/esp32-s3-motion` tách từ main cho Motion, hai UART và gate.
+  `codex/esp32-s3-motion` tách từ main cho firmware Motion, hai UART và gate.
+- Theo yêu cầu05/11/2026, cho phép nhánh tạm `integration/brain-motion-v0.1`
+  từ origin/main để audit Brain+Motion. Không flash/reset, không đổi driver,
+  không push bản tích hợp hoặc merge main trước khi chủ dự án duyệt.
 - Dùng lại nhánh đúng phần việc; không tạo thêm nhánh cho từng module, bản sửa
   lỗi, ghi chú hoặc lần tối ưu. Theo dõi các bước nhỏ bằng task và commit.
 - Giữ thay đổi chưa commit của checkout khác tại chỗ; không đưa công việc
@@ -48,7 +51,8 @@
   độc lập hãng; Quartus chỉ tham khảo cho chip Altera/Intel, Tang Nano dùng Gowin.
 - Trong nhánh FPGA, top triển khai duy nhất là `aw_car_top.sv` ở root,
   bọc lõi `drive_core.sv`; lõi vẫn là top kiểm thử/tổng hợp riêng. Checkout
-  AI có thể còn snapshot RTL cũ, không tự đồng bộ phần này khi sửa Brain.
+  Integration và các nhánh firmware giữ RTL baseline main; FPGA v2 dùng
+  checkout peer cố định riêng để co-sim, không kéo RTL/CAD vào merge MCU.
   Module con phân theo
   `common/`, `encoder/`, `pwm/`, `link/`, `safety/`, mỗi nhóm có README.
   Khi chuyển nguồn, cập nhật đường dẫn tổng hợp và runner tìm `.sv` đệ quy.

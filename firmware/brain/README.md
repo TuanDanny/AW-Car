@@ -74,7 +74,7 @@ tách BOOT, thời điểm thu thật, codec và mạng/AI; ưu tiên đường 
 warmup mic và callback timer. Chưa thay đổi/nạp firmware tối ưu; các mục
 tiêu thời gian và kiểm thử hồi quy trong tài liệu là kế hoạch cần xác minh.
 
-## Build demo RGB
+## Build profile AW-Car
 
 Trong môi trường ESP-IDF 6.1 đã export, từ thư mục này:
 
@@ -83,10 +83,10 @@ $env:CMAKE_NINJA_FORCE_RESPONSE_FILE = '1'
 python scripts/build.py aw-car-ai-rgb --name aw-car-ai-rgb-128x64 --language zh-CN
 ```
 
-LED GPIO48 mặc định tắt khi boot; OLED vẫn báo trạng thái. Nhấn/nhả BOOT
-để bắt đầu nghe. Ví dụ: 把灯打开 (bật), 把灯关掉吧 (tắt), 把红灯打开 (đỏ),
-把绿灯打开 (xanh lá), 把蓝灯打开 (xanh dương).
-Có thêm cách gọi theo số: 一号灯 (đỏ), 二号灯 (xanh lá), 三号灯 (xanh dương).
+Tên profile aw-car-ai-rgb giữ tương thích build; GPIO48 nay báo trạng thái,
+boot xanh dương. Tool RGB và UI đèn demo đã xóa. Nhấn/nhả BOOT hoặc nút nghe
+Web để bắt đầu hội thoại; màu trạng thái không bị nghe/nói ghi đè. Các kết quả
+demo RGB ngày29/10 ở trên là lịch sử, không phải tính năng của bản hiện tại.
 
 ## Build bản stock
 
