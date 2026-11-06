@@ -41,6 +41,10 @@
   đúng image đã audit/hash vào embedded Flash, giữ CRC/Security; không ghi khóa/
   OTP, user flash hoặc đổi firmware/NVS hai ESP32. Kiểm tra cả log ngữ nghĩa,
   không coi exit0 là PASS nếu Programmer in Verify Failed. Gate/E-stop chưa có.
+- Yêu cầu tiếp ngày06/11: xử lý lỗi parser/Flash workflow. Cho phép sửa và
+  nạp Motion LOCKED trên nhánh Motion hiện có, giữ NVS/motioncfg, không đổi
+  firmware Brain hoặc mở driver; nhánh target lưu công cụ/báo cáo tích hợp.
+  Không vô hiệu hóa CRC, deadline hoặc protection để đổi kết quả thành PASS.
 - Không force-push main, bỏ qua hook/CI hoặc xóa thay đổi của người khác.
 - Khi dọn nhánh cũ, kiểm tra phần đã merge và sao lưu commit/thay đổi còn lại
   trước khi xóa tham chiếu. Báo tên nhánh, commit đã push và kiểm tra khi bàn giao.

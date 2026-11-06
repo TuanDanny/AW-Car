@@ -120,3 +120,64 @@ Encoder, GPIO recovery, gate/E-stop, PWM pad và motor chưa nghiệm thu.
 
 Không tự push/merge; việc ghi Flash không thay source RTL, image hai ESP32,
 NVS/motioncfg, cấu hình mạng hoặc quyền mở driver.
+
+
+## Bổ sung: sửa UART và kiểm tra kết quả Programmer
+
+Các số liệu/parser chưa đạt bên trên là lịch sử của firmware Motion cũ,
+không bị ghi đè. Lượt sửa06/11 dùng nhánh Motion riêng, giữ Brain và RTL.
+Đã tái hiện timeout từ API read có chờ của ESP-IDF, sửa read0 sau event;
+sửa lấy đồng hồ sau dequeue để không bỏ nhầm event mới; sửa rediscovery khi
+FPGA reset ở các pha seq/timestamp khác nhau. Chỉ rebaseline sau khi revoke,
+STATUS stale và hai candidate session0 cùng tiến trong<30ms, không tự ARM.
+Số đo và commit Motion cuối được bổ sung ở báo cáo sửa UART riêng.
+
+`tools/gowin_programmer_result.py` phân tích log ngữ nghĩa cùng native exit.
+Log operation6 trước đây được regression test phân loại `FAIL_VERIFY`, dù
+configuration status hợp lệ, Program Finished và native exit0. Timeout,
+output thiếu/cắt, wrong device/UserCode, status lỗi hoặc thiếu completion
+đều không PASS. Op1 phải có op0 riêng sau reload, không suy VALID từ việc
+Reprogram hoàn tất. Công cụ không chạy Programmer hoặc truy cập hardware.
+
+Đường nạp đề xuất cho debugger Tang này dùng operation5 `embFlash
+Erase,Program`, sau đó op0 kiểm ID/UserCode/status và quan sát UART. Sipeed
+khuyến cáo tránh operation chứa Verify và dùng<=2,5MHz ở [troubleshooting
+Programmer](https://wiki.sipeed.com/hardware/en/tang/common-doc/questions.html#Download-slowly).
+Đây là hướng dẫn chọn workflow, **không chứng minh nguyên nhân chính xác**
+của Verify Failed. UG290 có phân biệt đọc SRAM bị bảo vệ và chế độ đọc
+embedded Flash; không khẳng định mọi embedded Flash verify đều bị security
+chặn. Không tắt CRC/Security để làm đẹp kết quả.
+
+Workflow op5 ghi `readback_verify=NOT_REQUESTED`; cấu hình VALID và UART
+chạy không có nghĩa so byte Flash thành công. Lỗi verify đọc lại ở lượt
+operation6 lịch sử vẫn là FAIL. Kết quả lượt workflow mới lưu riêng, không
+nối nhiều operation vào một log rồi gọi chung là PASS.
+
+
+Lượt workflow đã chạy trên board: scan lại USB Debugger A/0/location529,
+đối chiếu SHA256 image, op0 trước nạp đạt; op5 hoàn tất7,99s, op0 sau nạp
+đạt ID0x1100481B, UserCode0x00009EF7, status0x0003F020. CRC/Security giữ ON;
+không OTP/key/userflash. Ba operation đều phân loại PASS trong đúng phạm vi,
+`readback_verify=NOT_REQUESTED`. [JSON đã lọc và hash log](../../../docs/fpga-programmer-workflow-evidence.json).
+78/78 root tests đạt, gồm21 test phân loại Programmer. Không chạy lại Gowin
+synthesis/PnR/STA vì RTL/constraint/artifact không đổi trong lượt sửa này.
+
+
+Chốt bản sửa Motion: `codex/esp32-s3-motion` commit `4af21b8`, đã nạp COM7,
+NVS/PHY/motioncfg so byte không đổi. Bản cuối chạy62.072 frame/620,725s ở
+100Hz, parser/HW/queue/TX/log drops0,125 mẫu Motion đều fresh và permit/duty0.
+Giữ Motion reset8s làm Brain age lên6.510ms rồi phục hồi; reset Brain cũng
+nhận lại STATUS. Ghi lại FPGA/op5 quan sát fresh=false→true. Reprogram từ
+Flash ở pha counter tiếp theo quan sát seq14.130→354 và fresh phục hồi,
+fault Gate1 vẫn giữ; có1 timeout partial33byte đúng lúc tái cấu hình,
+không tăng tiếp trong65,079s sau đó. Không tự CLEAR/ARM/MOVE.
+
+[JSON số đo sửa UART/queue/reboot](../../../docs/fpga-uart-repair-evidence.json)
+ghi branch/commit/hash firmware, các phase riêng và giới hạn; báo cáo đầy đủ
+ở `docs/motion-uart-receive-fix.md` trên nhánh Motion. Root Motion147 tests:
+134 đạt,13 Web tests skip vì môi trường thiếu dependency. Hai core tích hợp
+5/5checks và co-sim Motion+RTL thực27MHz6/6checks đạt. Không dùng các phép
+LOCKED/console để nghiệm thu dừng từ ARMED, waveform pad hay motor thật.
+Monitor đã đóng, dây đủ; thiếu gate/E-stop vẫn khóa đúng. Không đổi RTL,
+Brain, protection hoặc nhánh main; source sửa và bằng chứng lưu ở hai nhánh
+riêng, chưa push.

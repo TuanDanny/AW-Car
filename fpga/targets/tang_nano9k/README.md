@@ -24,7 +24,8 @@ trong netlist Gowin, vẫn cần nghiệm thu power-up thật. Gate default-off 
 
 - [Lưu Flash và kiểm tra liên kết/reset ba board ngày06/11](flash-link-report.md):
   reload Flash đúng UserCode, reset Brain/Motion và mất cấu hình FPGA đã thử;
-  power-cycle và ngắt dây thật đã thử, verify đọc lại FAIL, parser cần chẩn đoán.
+  power-cycle và ngắt dây thật đã thử; lịch sử verify FAIL giữ riêng,
+  có bổ sung công cụ kiểm log và bản sửa parser/queue/reboot ở nhánh Motion.
 - [LED observer: kiểm thử không can thiệp, timing, nạp SRAM và quan sát thật](status-leds-report.md).
 - [Hardware audit, review warnings, CDC, risk register và integration readiness](hardware-audit.md).
 - [Pinout 17 tín hiệu chức năng và6 LED onboard, package/header/bank/nguồn](pinout.md), dữ liệu checker

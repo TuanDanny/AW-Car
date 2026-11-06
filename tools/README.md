@@ -9,6 +9,27 @@ synthesis/PnR/STA và tùy chọn test netlist thật với primitive Gowin. Dù
 Output/hash/report ở build ignored. Missing metric unconstrained ghi null,
 không biến thành0; pin drift, latch, timing âm hoặc pad/sampler bị mất đều fail.
 
+`gowin_programmer_result.py` chỉ phân loại log đã thu, không chạy Programmer
+hoặc mở COM/JTAG. API `analyze_programmer_result(stdout, stderr="", returncode=...,
+operation_index=..., expected_usercode=None, timed_out=False, output_truncated=False)`
+trả dict JSON; CLI ví dụ:
+
+```sh
+python tools/gowin_programmer_result.py --log flash-program.log --returncode 0 --operation-index 6 --expected-usercode 0x9EF7
+```
+
+Hỗ trợ op0/1/2/5/6, thêm `--stderr-log`, `--timed-out`, `--truncated` khi cần.
+Exit0 chỉ khi đạt đủ tiêu chí; lỗi Error/Failed thắng Finished/exit0. Thiếu
+`Finished.`, readout hoặc capture bị cắt/timeout đều chưa đạt. Op0 cần ID
+0x1100481B; op0/2/5/6 cần UserCode và status không lỗi CRC/lệnh/ID/timeout,
+VLD/DONE/READY/POR/Security ON. `configuration_status=VALID` chỉ nói về các
+bit status đã đọc, không chứng minh CRC bật trong image hay so byte Flash.
+Op1 completed vẫn configuration UNKNOWN/chưa đạt, cần phân tích op0 kế tiếp.
+`readback_verify=NOT_REQUESTED` cho op0/1/2/5; op6 chỉ PASSED khi log có marker
+verify thành công tường minh. Không suy nguyên nhân Verify Failed từ security.
+API nhận một lượt chạy, từ chối header sai op/nhiều lượt ghép chung; caller
+phải báo capture bị cắt/timeout đã biết.
+
 ```sh
 python tools/check_repo.py
 python -m unittest discover -s tests

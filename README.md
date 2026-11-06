@@ -20,8 +20,12 @@ Ngày06/11 đã lưu vào embedded Flash và kiểm tra xóa SRAM/reload không 
 bitstream, đúng UserCode0x9EF7. Reset Brain/Motion và mất STATUS FPGA giữ
 permit/duty0. [Báo cáo Flash/liên kết](fpga/targets/tang_nano9k/flash-link-report.md)
 ghi power-cycle thật đã khởi động đúng AW-Car; ngắt UART có phát hiện và phục
-hồi trong LOCKED. Verify đọc lại FAIL và lỗi parser UART chưa rõ nguyên nhân
-giữ riêng; chưa chốt ổn định toàn liên kết. Gate/E-stop chưa có, chưa nghiệm thu truyền động.
+hồi trong LOCKED. Bản sửa Motion4af21b8 đã nạp,62.072 frame/620,725s không
+lỗi parser/HW/queue; reset từng board phục hồi, không tự ARM. Verify đọc lại
+lịch sử vẫn FAIL; workflow nạp mới ghi rõ không yêu cầu byte verify. Xem
+[bằng chứng sửa UART](docs/fpga-uart-repair-evidence.json) và
+[kiểm tra Programmer](docs/fpga-programmer-workflow-evidence.json).
+Gate/E-stop chưa có, chưa nghiệm thu truyền động.
 Brain–Motion LOCKED đã chốt tại
 [main4cea85c](https://github.com/TuanDanny/AW-Car/tree/v0.1-brain-motion-locked);
 nhánh FPGA vẫn độc lập, không dùng RTL v1 baseline của main cho Motion v2.
