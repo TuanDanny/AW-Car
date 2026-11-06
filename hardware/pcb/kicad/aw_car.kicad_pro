@@ -1,0 +1,9 @@
+{
+  "meta": {
+    "filename": "aw_car.kicad_pro",
+    "version": 1
+  },
+  "text_variables": {
+    "REVIEW_STATUS": "DRAFT_NOT_FOR_PCB"
+  }
+}

@@ -2,6 +2,14 @@
 
 Python 3.10+ và Git, không cần cài thư viện Python ngoài.
 
+`generate_awcar_schematic.py` sinh bản KiCad review ban đầu, nhúng symbol
+passive/BJT từ thư viện KiCad cài tại máy. Mặc định từ chối ghi đè source
+đã có; `--overwrite` sao lưu trước vào build, không dùng để ghi đè chỉnh tay
+chưa review. `check_awcar_schematic.py` kiểm netlist XML KiCad với contract
+UART/GPIO/audio/driver; `simulate_awcar_clamps.py` dùng ngspice DLL mô phỏng
+R/Q đọc từ netlist đó. Không có lệnh COM/flash/ARM hoặc phát hành PCB.
+Cách mở/chạy và giới hạn mô hình ở [KiCad](../hardware/pcb/kicad/README.md).
+
 `build_tang_nano9k.py` audit pin/điện áp/GPRJ/SDC, chạy RTL regression, Gowin
 synthesis/PnR/STA và tùy chọn test netlist thật với primitive Gowin. Dùng
 `--audit-only` cho checker không cần chạy compiler; lệnh đầy đủ và giới hạn ở

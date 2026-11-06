@@ -1,0 +1,490 @@
+{
+  "schema": 1,
+  "status": "PRELIMINARY_KICAD_CONNECTION_REVIEW",
+  "user_decisions": {
+    "native_cad": "KiCad 10.0.6",
+    "delivery_first": "schematic and simulation; PCB deferred until components settled",
+    "removable_modules": true,
+    "battery_form": "18650; cell model/capacity and assembly details pending",
+    "power_intent": "2S direct motor VM; separate 5V logic/audio converter",
+    "converter": "DSN6000AUD Automatic Buck-Boost Module, user owns",
+    "bms_owned": false,
+    "charger_owned": false,
+    "estop": "motor disabled; Brain/OLED/dashboard stay powered",
+    "usb_debug_with_battery": true,
+    "peripherals": [
+      "OLED I2C",
+      "INMP441",
+      "MAX98357A",
+      "4ohm3W speaker",
+      "MPU6050",
+      "VL53L0X blue module",
+      "2 single-OUT encoders",
+      "2 TCRT5000"
+    ]
+  },
+  "net_contract": [
+    {
+      "net": "BRN_TX_MTN_RX",
+      "endpoints": [
+        {
+          "module": "BRAIN",
+          "logical_pin": "GPIO17"
+        },
+        {
+          "module": "MOTION",
+          "logical_pin": "GPIO14"
+        }
+      ],
+      "logic_v": 3.3,
+      "status": "FIRMWARE_ASSIGNED_FPGA_SCHEMATIC_AUDITED"
+    },
+    {
+      "net": "MTN_TX_BRN_RX",
+      "endpoints": [
+        {
+          "module": "MOTION",
+          "logical_pin": "GPIO13"
+        },
+        {
+          "module": "BRAIN",
+          "logical_pin": "GPIO18"
+        }
+      ],
+      "logic_v": 3.3,
+      "status": "FIRMWARE_ASSIGNED_FPGA_SCHEMATIC_AUDITED"
+    },
+    {
+      "net": "MTN_TX_FPGA_RX",
+      "endpoints": [
+        {
+          "module": "MOTION",
+          "logical_pin": "GPIO15"
+        },
+        {
+          "module": "FPGA",
+          "logical_pin": "25"
+        }
+      ],
+      "logic_v": 3.3,
+      "status": "FIRMWARE_ASSIGNED_FPGA_SCHEMATIC_AUDITED"
+    },
+    {
+      "net": "FPGA_TX_MTN_RX",
+      "endpoints": [
+        {
+          "module": "FPGA",
+          "logical_pin": "26"
+        },
+        {
+          "module": "MOTION",
+          "logical_pin": "GPIO16"
+        }
+      ],
+      "logic_v": 3.3,
+      "status": "FIRMWARE_ASSIGNED_FPGA_SCHEMATIC_AUDITED"
+    },
+    {
+      "net": "MOTION_PERMIT",
+      "endpoints": [
+        {
+          "module": "MOTION",
+          "logical_pin": "GPIO4"
+        },
+        {
+          "module": "FPGA",
+          "logical_pin": "29"
+        }
+      ],
+      "logic_v": 3.3,
+      "status": "FIRMWARE_ASSIGNED_FPGA_SCHEMATIC_AUDITED"
+    },
+    {
+      "net": "RECOVERY_REQ",
+      "endpoints": [
+        {
+          "module": "MOTION",
+          "logical_pin": "GPIO5"
+        },
+        {
+          "module": "FPGA",
+          "logical_pin": "30"
+        }
+      ],
+      "logic_v": 3.3,
+      "status": "FIRMWARE_ASSIGNED_FPGA_SCHEMATIC_AUDITED"
+    },
+    {
+      "net": "RECOVERY_ACK",
+      "endpoints": [
+        {
+          "module": "FPGA",
+          "logical_pin": "48"
+        },
+        {
+          "module": "MOTION",
+          "logical_pin": "GPIO6"
+        }
+      ],
+      "logic_v": 3.3,
+      "status": "FIRMWARE_ASSIGNED_FPGA_SCHEMATIC_AUDITED"
+    },
+    {
+      "net": "FPGA_PERMIT",
+      "endpoints": [
+        {
+          "module": "FPGA",
+          "logical_pin": "51"
+        },
+        {
+          "module": "MOTION",
+          "logical_pin": "GPIO7"
+        }
+      ],
+      "logic_v": 3.3,
+      "status": "FIRMWARE_ASSIGNED_FPGA_SCHEMATIC_AUDITED"
+    }
+  ],
+  "fpga_external_pins": [
+    {
+      "signal": "rx",
+      "direction": "input",
+      "package_pin": 25,
+      "package_name": "IOB8A",
+      "header": "J5.5",
+      "bank": 2,
+      "vccio": 3.3,
+      "io_standard": "LVCMOS33",
+      "pull": "UP",
+      "drive_ma": null,
+      "peer": "Motion GPIO15 TX",
+      "shared_with": "none",
+      "source_ids": [
+        "S3672",
+        "S3674",
+        "GOWIN_PIN_DB"
+      ]
+    },
+    {
+      "signal": "tx",
+      "direction": "output",
+      "package_pin": 26,
+      "package_name": "IOB8B",
+      "header": "J5.6",
+      "bank": 2,
+      "vccio": 3.3,
+      "io_standard": "LVCMOS33",
+      "pull": "UP",
+      "drive_ma": 4,
+      "peer": "Motion GPIO16 RX",
+      "shared_with": "none",
+      "source_ids": [
+        "S3672",
+        "S3674",
+        "GOWIN_PIN_DB"
+      ]
+    },
+    {
+      "signal": "left_out",
+      "direction": "input",
+      "package_pin": 27,
+      "package_name": "IOB11A",
+      "header": "J5.7",
+      "bank": 2,
+      "vccio": 3.3,
+      "io_standard": "LVCMOS33",
+      "pull": "DOWN",
+      "drive_ma": null,
+      "peer": "Encoder left via 5V-to-3.3V conditioner",
+      "shared_with": "none",
+      "source_ids": [
+        "S3672",
+        "S3674",
+        "GOWIN_PIN_DB"
+      ]
+    },
+    {
+      "signal": "right_out",
+      "direction": "input",
+      "package_pin": 28,
+      "package_name": "IOB11B",
+      "header": "J5.8",
+      "bank": 2,
+      "vccio": 3.3,
+      "io_standard": "LVCMOS33",
+      "pull": "DOWN",
+      "drive_ma": null,
+      "peer": "Encoder right via 5V-to-3.3V conditioner",
+      "shared_with": "none",
+      "source_ids": [
+        "S3672",
+        "S3674",
+        "GOWIN_PIN_DB"
+      ]
+    },
+    {
+      "signal": "motion_permit_async",
+      "direction": "input",
+      "package_pin": 29,
+      "package_name": "IOB13A",
+      "header": "J5.9",
+      "bank": 2,
+      "vccio": 3.3,
+      "io_standard": "LVCMOS33",
+      "pull": "DOWN",
+      "drive_ma": null,
+      "peer": "Motion GPIO4 logical permit",
+      "shared_with": "none",
+      "source_ids": [
+        "S3672",
+        "S3674",
+        "GOWIN_PIN_DB"
+      ]
+    },
+    {
+      "signal": "recovery_req_async",
+      "direction": "input",
+      "package_pin": 30,
+      "package_name": "IOB13B",
+      "header": "J5.10",
+      "bank": 2,
+      "vccio": 3.3,
+      "io_standard": "LVCMOS33",
+      "pull": "DOWN",
+      "drive_ma": null,
+      "peer": "Motion GPIO5",
+      "shared_with": "none",
+      "source_ids": [
+        "S3672",
+        "S3674",
+        "GOWIN_PIN_DB"
+      ]
+    },
+    {
+      "signal": "safety_ok_async",
+      "direction": "input",
+      "package_pin": 33,
+      "package_name": "IOB23A",
+      "header": "J5.11",
+      "bank": 2,
+      "vccio": 3.3,
+      "io_standard": "LVCMOS33",
+      "pull": "DOWN",
+      "drive_ma": null,
+      "peer": "External safety; also Motion GPIO8 input",
+      "shared_with": "RGB LCD DE",
+      "source_ids": [
+        "S3672",
+        "S3674",
+        "GOWIN_PIN_DB"
+      ]
+    },
+    {
+      "signal": "gate_fault_n_async",
+      "direction": "input",
+      "package_pin": 34,
+      "package_name": "IOB23B",
+      "header": "J5.12",
+      "bank": 2,
+      "vccio": 3.3,
+      "io_standard": "LVCMOS33",
+      "pull": "DOWN",
+      "drive_ma": null,
+      "peer": "External latch; also Motion GPIO9 input",
+      "shared_with": "RGB LCD VS",
+      "source_ids": [
+        "S3672",
+        "S3674",
+        "GOWIN_PIN_DB"
+      ]
+    },
+    {
+      "signal": "drv_left_in1",
+      "direction": "output",
+      "package_pin": 35,
+      "package_name": "IOB29A",
+      "header": "J5.14",
+      "bank": 2,
+      "vccio": 3.3,
+      "io_standard": "LVCMOS33",
+      "pull": "DOWN",
+      "drive_ma": 4,
+      "peer": "Left driver IN1, VM disconnected",
+      "shared_with": "RGB LCD CLK",
+      "source_ids": [
+        "S3672",
+        "S3674",
+        "GOWIN_PIN_DB"
+      ]
+    },
+    {
+      "signal": "drv_left_in2",
+      "direction": "output",
+      "package_pin": 40,
+      "package_name": "IOB33B",
+      "header": "J5.13",
+      "bank": 2,
+      "vccio": 3.3,
+      "io_standard": "LVCMOS33",
+      "pull": "DOWN",
+      "drive_ma": 4,
+      "peer": "Left driver IN2, VM disconnected",
+      "shared_with": "RGB LCD HS",
+      "source_ids": [
+        "S3672",
+        "S3674",
+        "GOWIN_PIN_DB"
+      ]
+    },
+    {
+      "signal": "drv_right_in1",
+      "direction": "output",
+      "package_pin": 41,
+      "package_name": "IOB41A",
+      "header": "J5.15",
+      "bank": 2,
+      "vccio": 3.3,
+      "io_standard": "LVCMOS33",
+      "pull": "DOWN",
+      "drive_ma": 4,
+      "peer": "Right driver IN1, VM disconnected",
+      "shared_with": "RGB LCD B7",
+      "source_ids": [
+        "S3672",
+        "S3674",
+        "GOWIN_PIN_DB"
+      ]
+    },
+    {
+      "signal": "drv_right_in2",
+      "direction": "output",
+      "package_pin": 42,
+      "package_name": "IOB41B",
+      "header": "J5.16",
+      "bank": 2,
+      "vccio": 3.3,
+      "io_standard": "LVCMOS33",
+      "pull": "DOWN",
+      "drive_ma": 4,
+      "peer": "Right driver IN2, VM disconnected",
+      "shared_with": "RGB LCD B6",
+      "source_ids": [
+        "S3672",
+        "S3674",
+        "GOWIN_PIN_DB"
+      ]
+    },
+    {
+      "signal": "fpga_permit",
+      "direction": "output",
+      "package_pin": 51,
+      "package_name": "IOR17B",
+      "header": "J5.17",
+      "bank": 1,
+      "vccio": 3.3,
+      "io_standard": "LVCMOS33",
+      "pull": "DOWN",
+      "drive_ma": 4,
+      "peer": "External gate and Motion GPIO7 input",
+      "shared_with": "RGB LCD B5/GCLKT_3",
+      "source_ids": [
+        "S3672",
+        "S3674",
+        "GOWIN_PIN_DB"
+      ]
+    },
+    {
+      "signal": "recovery_ack",
+      "direction": "output",
+      "package_pin": 48,
+      "package_name": "IOR24B",
+      "header": "J6.19",
+      "bank": 1,
+      "vccio": 3.3,
+      "io_standard": "LVCMOS33",
+      "pull": "DOWN",
+      "drive_ma": 4,
+      "peer": "Motion GPIO6 input",
+      "shared_with": "SPI LCD CS",
+      "source_ids": [
+        "S3672",
+        "S3674",
+        "GOWIN_PIN_DB"
+      ]
+    },
+    {
+      "signal": "gate_clear",
+      "direction": "output",
+      "package_pin": 49,
+      "package_name": "IOR24A",
+      "header": "J6.20",
+      "bank": 1,
+      "vccio": 3.3,
+      "io_standard": "LVCMOS33",
+      "pull": "DOWN",
+      "drive_ma": 4,
+      "peer": "External latch clear request",
+      "shared_with": "SPI LCD RS",
+      "source_ids": [
+        "S3672",
+        "S3674",
+        "GOWIN_PIN_DB"
+      ]
+    }
+  ],
+  "audio_brain": {
+    "mic_ws": 4,
+    "mic_bclk": 5,
+    "mic_data_in": 6,
+    "amp_data_out": 7,
+    "amp_bclk": 15,
+    "amp_lrclk": 16,
+    "oled_sda": 41,
+    "oled_scl": 42,
+    "pixel_reserved": 48,
+    "boot_reserved": 0
+  },
+  "motion_reserved_damaged_gpio": [
+    17,
+    18
+  ],
+  "release_blockers": [
+    "module connector/header physical numbering and spacing unverified",
+    "USB VBUS/backfeed topology unverified on actual boards",
+    "converter output setting and continuous thermal load unmeasured",
+    "battery cell specifications, BMS and charger not selected",
+    "motor start/stall and turning load not measured; fuse/wire sizing pending",
+    "safety hardware design and independent clock-loss path pending review",
+    "new sensor GPIO assignments and module IO voltage not finalized",
+    "PCB outline, standoffs, antenna/USB clearances deferred by user"
+  ],
+  "sources": {
+    "brain_config": {
+      "path": "C:\\Users\\tuand\\.codex\\worktrees\\xiaozhi-ai\\AW-Car\\firmware\\brain\\main\\boards\\aw-car-ai-rgb\\config.h",
+      "sha256": "b8a7bb00353d243a757f183cf3e1d99f8bf7b952b1591226181f57a99130754f"
+    },
+    "brain_uart": {
+      "path": "C:\\Users\\tuand\\.codex\\worktrees\\xiaozhi-ai\\AW-Car\\firmware\\brain\\main\\aw_car\\brain_runtime.cc",
+      "sha256": "edd3bc4d9a755ccf6ac36f52e75dbb1ce9a76b804b63f57584b85d1fe59899b1"
+    },
+    "motion_wiring": {
+      "path": "C:\\Users\\tuand\\.codex\\worktrees\\esp32-s3-motion\\AW-Car\\hardware\\motion-wiring.md",
+      "sha256": "d1a9f103b8a7fd7529c4b6d03bdda3786cf13f9ac7183bf1c65a4809a816cf4b"
+    },
+    "motion_board_config": {
+      "path": "C:\\Users\\tuand\\.codex\\worktrees\\esp32-s3-motion\\AW-Car\\firmware\\motion\\main\\board_config.h",
+      "sha256": "d3d37d585033dbc293ca733fc834c61873464558a7b891598607408863f4f454"
+    },
+    "fpga_pinout": {
+      "path": "C:\\Users\\tuand\\.codex\\worktrees\\tang-nano9k-target\\AW-Car\\fpga\\targets\\tang_nano9k\\pinout.json",
+      "sha256": "549637bc40516a4ee3e2c06ece1f3226de41c4f8f6b66883deee2b9636e2d689"
+    }
+  },
+  "limits": "Logical GPIO numbers are not physical header or footprint pad numbers. No guessed footprints or Gerber release.",
+  "updated_date": "2026-11-07",
+  "pending_user_choices": [
+    "carrier with removable modules vs separate power/gate board",
+    "manual RUN/DEBUG isolation vs automatic USB source selection",
+    "assembly/package preference and budget"
+  ]
+}

@@ -2,6 +2,10 @@
 
 Nơi lưu BOM có mã linh kiện, bảng chân, sơ đồ nguồn, cơ khí và thiết kế PCB.
 
+[KiCad schematic review07/11](pcb/kicad/README.md): project native, bảng chân
+đã đối chiếu firmware, tầng STBY ứng viên và testbench ngspice. Module cắm
+rút; chưa chốt nguồn USB, gate hoàn chỉnh, footprint hoặc PCB để sản xuất.
+
 [Giao tiếp DRV8833](drv8833-interface.md): bảng nối bốn chân IN từ FPGA tới
 hai module/bốn motor, chế độ drive/coast và điều kiện STBY/mức logic.
 

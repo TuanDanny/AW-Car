@@ -51,6 +51,14 @@
 
 ## Cấu trúc và phạm vi
 
+- Yêu cầu07/11/2026: schematic KiCad trước, PCB sau khi chốt thành phần;
+  module phải cắm rút, không hàn chết. Bản review ở `hardware/pcb/kicad` trên
+  nhánh target hiện có, không ghi đè CAD/PCB concept hay sửa firmware đang chạy.
+  Symbol GPIO/package chưa phải footprint module; không tự gán số pad/lỗ gá.
+  Mô hình STBY generic chưa thay gate/E-stop/watchdog đầy đủ. Không suppress
+  ERC hoặc coi bench PASS là quyền phát hành PCB/mở driver. Giữ chỉnh tay;
+  generator phải từ chối ghi đè mặc định và sao lưu khi chủ động regenerate.
+
 - Mỗi thư mục được quản lý trong Git có `README.md` giới thiệu ngắn và trạng thái.
 - Root `README.md` là mục lục chính; `AGENTS.md` là nguồn quy tắc duy nhất.
 - `firmware/brain`: âm thanh, Xiaozhi, OLED I²C, mạng. `firmware/motion`: PID và an toàn.

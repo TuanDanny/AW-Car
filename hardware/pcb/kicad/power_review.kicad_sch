@@ -1,0 +1,415 @@
+(kicad_sch (version 20250114) (generator "eeschema") (generator_version "10.0")
+(uuid "a3b835be-4b97-55b5-a83b-00224b3a7eba") (paper "A3")
+(title_block (title "Protected 2S and DSN6000AUD - source selection PENDING") (date "2026-11-07") (rev "0.1 REVIEW") (company "AW-Car") (comment 1 "DRAFT - NO PCB / NO FABRICATION RELEASE") (comment 2 "GPIO/package IDs are NOT module header pad numbers"))
+(lib_symbols
+(symbol "AWCAR:DSN6000AUD" (pin_names (offset 1))
+(in_bom yes) (on_board yes)
+(property "Reference" "U" (at 0 12.7 0) (effects (font (size 1.0 1.0)) ))
+(property "Value" "DSN6000AUD" (at 0 10.16 0) (effects (font (size 1.0 1.0)) ))
+(symbol "DSN6000AUD_0_1" (rectangle (start -19.05 7.62) (end 19.05 -7.62) (stroke (width .254) (type default)) (fill (type background))))
+(symbol "DSN6000AUD_1_1"
+(pin passive line (at -21.59 2.54 0) (length 2.54) (name "IN+" (effects (font (size 0.9 0.9)) )) (number "IN+" (effects (font (size 0.75 0.75)) )))
+(pin passive line (at -21.59 -2.54 0) (length 2.54) (name "IN-" (effects (font (size 0.9 0.9)) )) (number "IN-" (effects (font (size 0.75 0.75)) )))
+(pin passive line (at 21.59 2.54 180) (length 2.54) (name "OUT+ adjust 5V" (effects (font (size 0.9 0.9)) )) (number "OUT+" (effects (font (size 0.75 0.75)) )))
+(pin passive line (at 21.59 -2.54 180) (length 2.54) (name "OUT-" (effects (font (size 0.9 0.9)) )) (number "OUT-" (effects (font (size 0.75 0.75)) )))
+))
+(symbol "AWCAR:Fuse"
+		(pin_numbers
+			(hide yes)
+		)
+		(pin_names
+			(offset 0)
+		)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(in_pos_files yes)
+		(duplicate_pin_numbers_are_jumpers no)
+		(property "Reference" "F"
+			(at 2.032 0 90)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "Fuse"
+			(at -1.905 0 90)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at -1.778 0 90)
+			(show_name no)
+			(do_not_autoplace no)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 0 0 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "Fuse"
+			(at 0 0 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "ki_keywords" "fuse"
+			(at 0 0 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "ki_fp_filters" "*Fuse*"
+			(at 0 0 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(symbol "Fuse_0_1"
+			(rectangle
+				(start -0.762 -2.54)
+				(end 0.762 2.54)
+				(stroke
+					(width 0.254)
+					(type default)
+				)
+				(fill
+					(type none)
+				)
+			)
+			(polyline
+				(pts
+					(xy 0 2.54) (xy 0 -2.54)
+				)
+				(stroke
+					(width 0)
+					(type default)
+				)
+				(fill
+					(type none)
+				)
+			)
+		)
+		(symbol "Fuse_1_1"
+			(pin passive line
+				(at 0 3.81 270)
+				(length 1.27)
+				(name ""
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "1"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+			(pin passive line
+				(at 0 -3.81 90)
+				(length 1.27)
+				(name ""
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "2"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+		)
+		(embedded_fonts no)
+	)
+(symbol "AWCAR:Pack" (pin_names (offset 1))
+(in_bom yes) (on_board yes)
+(property "Reference" "U" (at 0 12.7 0) (effects (font (size 1.0 1.0)) ))
+(property "Value" "Pack" (at 0 10.16 0) (effects (font (size 1.0 1.0)) ))
+(symbol "Pack_0_1" (rectangle (start -12.7 7.62) (end 12.7 -7.62) (stroke (width .254) (type default)) (fill (type background))))
+(symbol "Pack_1_1"
+(pin passive line (at -15.24 2.54 0) (length 2.54) (name "PROTECTED pack +" (effects (font (size 0.9 0.9)) )) (number "1" (effects (font (size 0.75 0.75)) )))
+(pin passive line (at -15.24 -2.54 0) (length 2.54) (name "pack return" (effects (font (size 0.9 0.9)) )) (number "2" (effects (font (size 0.75 0.75)) )))
+))
+(symbol "AWCAR:Switch"
+		(pin_names
+			(offset 0)
+			(hide yes)
+		)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(in_pos_files yes)
+		(duplicate_pin_numbers_are_jumpers no)
+		(property "Reference" "SW"
+			(at 0 3.175 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "SW_SPST"
+			(at 0 -2.54 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 0 0 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 0 0 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "Single Pole Single Throw (SPST) switch"
+			(at 0 0 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "ki_keywords" "switch lever"
+			(at 0 0 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(symbol "Switch_0_0"
+			(circle
+				(center -2.032 0)
+				(radius 0.508)
+				(stroke
+					(width 0)
+					(type default)
+				)
+				(fill
+					(type none)
+				)
+			)
+			(polyline
+				(pts
+					(xy -1.524 0.254) (xy 1.524 1.778)
+				)
+				(stroke
+					(width 0)
+					(type default)
+				)
+				(fill
+					(type none)
+				)
+			)
+			(circle
+				(center 2.032 0)
+				(radius 0.508)
+				(stroke
+					(width 0)
+					(type default)
+				)
+				(fill
+					(type none)
+				)
+			)
+		)
+		(symbol "Switch_1_1"
+			(pin passive line
+				(at -5.08 0 0)
+				(length 2.54)
+				(name "A"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "1"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+			(pin passive line
+				(at 5.08 0 180)
+				(length 2.54)
+				(name "B"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "2"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+		)
+		(embedded_fonts no)
+	)
+(symbol "AWCAR:Testpoint" (pin_names (offset 1))
+(in_bom yes) (on_board yes)
+(property "Reference" "U" (at 0 10.16 0) (effects (font (size 1.0 1.0)) ))
+(property "Value" "Testpoint" (at 0 7.62 0) (effects (font (size 1.0 1.0)) ))
+(symbol "Testpoint_0_1" (rectangle (start -12.7 5.08) (end 12.7 -5.08) (stroke (width .254) (type default)) (fill (type background))))
+(symbol "Testpoint_1_1"
+(pin passive line (at -15.24 0 0) (length 2.54) (name "test point" (effects (font (size 0.9 0.9)) )) (number "1" (effects (font (size 0.75 0.75)) )))
+))
+)
+(text "POWER REVIEW ONLY: cell/BMS/charger/fuse ratings and USB VBUS paths are NOT selected or tested." (at 20 20 0) (effects (font (size 1.35 1.35)) (justify left)) (uuid "f8ce3111-da6b-5f81-9aa9-66a144144812"))
+(wire (pts (xy 54.61 67.31) (xy 49.53 67.31)) (stroke (width 0) (type default)) (uuid "250afe39-5ce5-5bf2-8dc8-bea36a539617"))
+(global_label "PACK_PROTECTED_PLUS" (shape bidirectional) (at 49.53 67.31 180) (effects (font (size 0.9 0.9)) (justify right)) (uuid "31cd2073-7aec-510b-a491-5afe5c31745c"))
+(wire (pts (xy 54.61 72.39) (xy 49.53 72.39)) (stroke (width 0) (type default)) (uuid "5487610e-a7ab-5ea6-9cac-d2053030a867"))
+(global_label "GND" (shape bidirectional) (at 49.53 72.39 180) (effects (font (size 0.9 0.9)) (justify right)) (uuid "acf749f4-4336-5ef8-8d2f-2aa5c8e7b788"))
+(symbol (lib_id "AWCAR:Pack") (at 69.85 69.85 0) (unit 1)
+(in_bom yes) (on_board yes) (dnp no)
+(uuid "f3b1d4e6-83e2-5cc6-a70f-aecdf5658838")
+(property "Reference" "J30" (at 69.85 57.15 0) (effects (font (size 0.95 0.95)) ))
+(property "Value" "2S protected pack output ONLY" (at 69.85 59.69 0) (effects (font (size 0.95 0.95)) ))
+(property "Footprint" "" (at 69.85 69.85 0) (effects (font (size 0.9 0.9)) (hide yes)))
+(property "Review_Status" "DRAFT_NOT_FOR_PCB" (at 69.85 69.85 0) (effects (font (size 0.9 0.9)) (hide yes)))
+(pin "1" (uuid "4b7acaf5-992c-59ea-a1c9-4f1f1bc4c2a1"))
+(pin "2" (uuid "e7da7dcf-bc5f-50c9-b484-3c8fa845a44c"))
+(instances (project "aw_car" (path "/bbd0d7e8-556c-5c65-a7ae-4541ce386bf3/e0eb36b5-8df4-5cbd-88f3-3a3267df3340" (reference "J30") (unit 1)))))
+(wire (pts (xy 170.18 60.96) (xy 175.26 60.96)) (stroke (width 0) (type default)) (uuid "c2e55086-166d-5ac6-9a7b-c5b14d943a66"))
+(global_label "PACK_PROTECTED_PLUS" (shape bidirectional) (at 175.26 60.96 0) (effects (font (size 0.9 0.9)) (justify left)) (uuid "7fd7a747-6fe5-5c7c-9fab-b3a0ad3449fe"))
+(wire (pts (xy 170.18 68.58) (xy 175.26 68.58)) (stroke (width 0) (type default)) (uuid "3725addd-b247-56f6-b451-2f948cbb3dea"))
+(global_label "PACK_FUSED" (shape bidirectional) (at 175.26 68.58 0) (effects (font (size 0.9 0.9)) (justify left)) (uuid "62582ba7-1f0d-5ab8-9554-01a3542ebb51"))
+(symbol (lib_id "AWCAR:Fuse") (at 170.18 64.77 0) (unit 1)
+(in_bom yes) (on_board yes) (dnp no)
+(uuid "8eaab0c6-9a29-569c-8133-7e2bab3e0679")
+(property "Reference" "F1" (at 172.212 64.77 0) (effects (font (size 0.95 0.95)) (justify left)))
+(property "Value" "RATING_TBD" (at 168.275 64.77 0) (effects (font (size 0.95 0.95)) (justify right)))
+(property "Footprint" "" (at 170.18 64.77 0) (effects (font (size 0.9 0.9)) (hide yes)))
+(property "Review_Status" "DRAFT_NOT_FOR_PCB" (at 170.18 64.77 0) (effects (font (size 0.9 0.9)) (hide yes)))
+(pin "1" (uuid "22f10d70-e03d-5958-a9ec-f8d0276b296f"))
+(pin "2" (uuid "52f468a3-ca59-5ff8-ae0f-ad48c792563d"))
+(instances (project "aw_car" (path "/bbd0d7e8-556c-5c65-a7ae-4541ce386bf3/e0eb36b5-8df4-5cbd-88f3-3a3267df3340" (reference "F1") (unit 1)))))
+(wire (pts (xy 260.35 64.77) (xy 255.27 64.77)) (stroke (width 0) (type default)) (uuid "edfb7b5d-d59d-5549-a20e-ca9986e7faab"))
+(global_label "PACK_FUSED" (shape bidirectional) (at 255.27 64.77 180) (effects (font (size 0.9 0.9)) (justify right)) (uuid "7e344a5d-72dc-52d1-ae58-edfcf990119a"))
+(wire (pts (xy 270.51 64.77) (xy 275.59 64.77)) (stroke (width 0) (type default)) (uuid "1e2a9b5f-ef8d-5305-aee4-c0185a927d82"))
+(global_label "VM_MOTOR" (shape bidirectional) (at 275.59 64.77 0) (effects (font (size 0.9 0.9)) (justify left)) (uuid "7a155849-2cea-5e7d-acf0-8f4f01401c87"))
+(symbol (lib_id "AWCAR:Switch") (at 265.43 64.77 0) (unit 1)
+(in_bom yes) (on_board yes) (dnp no)
+(uuid "4bd883ec-2552-56db-be07-ed9e81bc2c74")
+(property "Reference" "SW1" (at 265.43 61.595 0) (effects (font (size 0.95 0.95)) ))
+(property "Value" "MAIN_SWITCH_DC_RATING_TBD" (at 265.43 67.31 0) (effects (font (size 0.95 0.95)) ))
+(property "Footprint" "" (at 265.43 64.77 0) (effects (font (size 0.9 0.9)) (hide yes)))
+(property "Review_Status" "DRAFT_NOT_FOR_PCB" (at 265.43 64.77 0) (effects (font (size 0.9 0.9)) (hide yes)))
+(pin "1" (uuid "f911ce9c-2fd2-54d9-a5d5-54b1c3e9c464"))
+(pin "2" (uuid "21ff03af-7d28-59e6-bb69-a1b80d565c00"))
+(instances (project "aw_car" (path "/bbd0d7e8-556c-5c65-a7ae-4541ce386bf3/e0eb36b5-8df4-5cbd-88f3-3a3267df3340" (reference "SW1") (unit 1)))))
+(wire (pts (xy 78.74 162.56) (xy 73.66 162.56)) (stroke (width 0) (type default)) (uuid "0b2c6af5-86c8-5d4e-9cd9-dc4dd54f0b59"))
+(global_label "VM_MOTOR" (shape bidirectional) (at 73.66 162.56 180) (effects (font (size 0.9 0.9)) (justify right)) (uuid "00068a14-bd40-53e1-8c81-70001b3bfd0e"))
+(wire (pts (xy 78.74 167.64) (xy 73.66 167.64)) (stroke (width 0) (type default)) (uuid "69d120bc-af09-5a41-8ad7-6377e238d198"))
+(global_label "GND" (shape bidirectional) (at 73.66 167.64 180) (effects (font (size 0.9 0.9)) (justify right)) (uuid "e645eeae-5a2c-5bf4-8edd-a464e6d148ed"))
+(wire (pts (xy 121.92 162.56) (xy 127 162.56)) (stroke (width 0) (type default)) (uuid "7d29ade2-4a8b-57b1-a2c7-e4b8143785c3"))
+(global_label "5V_DSN_UNVERIFIED" (shape bidirectional) (at 127 162.56 0) (effects (font (size 0.9 0.9)) (justify left)) (uuid "a7e48d88-56dd-5aa9-8b57-5e0516729bec"))
+(wire (pts (xy 121.92 167.64) (xy 127 167.64)) (stroke (width 0) (type default)) (uuid "c1f06c94-2dd9-5df9-9233-1fb2fbb8e9ce"))
+(global_label "GND" (shape bidirectional) (at 127 167.64 0) (effects (font (size 0.9 0.9)) (justify left)) (uuid "d400a328-fc87-56c3-9fcd-919160c4833c"))
+(symbol (lib_id "AWCAR:DSN6000AUD") (at 100.33 165.1 0) (unit 1)
+(in_bom yes) (on_board yes) (dnp no)
+(uuid "46a3d0dc-94b8-5404-aac1-3c0218814de5")
+(property "Reference" "U11" (at 100.33 152.4 0) (effects (font (size 0.95 0.95)) ))
+(property "Value" "DSN6000AUD removable module" (at 100.33 154.94 0) (effects (font (size 0.95 0.95)) ))
+(property "Footprint" "" (at 100.33 165.1 0) (effects (font (size 0.9 0.9)) (hide yes)))
+(property "Review_Status" "DRAFT_NOT_FOR_PCB" (at 100.33 165.1 0) (effects (font (size 0.9 0.9)) (hide yes)))
+(pin "IN+" (uuid "e2760f32-a8d8-5418-a811-410d68e268c6"))
+(pin "IN-" (uuid "39796e6e-3d97-53e1-bc13-26b1fd45edfc"))
+(pin "OUT+" (uuid "9390b76d-c649-5c64-b413-3754cb1f82df"))
+(pin "OUT-" (uuid "17482e84-d6dd-545c-94ca-eff99494cf32"))
+(instances (project "aw_car" (path "/bbd0d7e8-556c-5c65-a7ae-4541ce386bf3/e0eb36b5-8df4-5cbd-88f3-3a3267df3340" (reference "U11") (unit 1)))))
+(wire (pts (xy 214.63 154.94) (xy 209.55 154.94)) (stroke (width 0) (type default)) (uuid "91463631-ca2e-5c7e-83d1-2adfff24652c"))
+(global_label "5V_DSN_UNVERIFIED" (shape bidirectional) (at 209.55 154.94 180) (effects (font (size 0.9 0.9)) (justify right)) (uuid "b73de4e3-9e6c-5c38-af33-49fa5b867da1"))
+(symbol (lib_id "AWCAR:Testpoint") (at 229.87 154.94 0) (unit 1)
+(in_bom yes) (on_board yes) (dnp no)
+(uuid "501db0a6-bc10-5e24-b458-2d273b836472")
+(property "Reference" "TP3" (at 229.87 144.78 0) (effects (font (size 0.95 0.95)) ))
+(property "Value" "Adjust/test 5V BEFORE boards" (at 229.87 147.32 0) (effects (font (size 0.95 0.95)) ))
+(property "Footprint" "" (at 229.87 154.94 0) (effects (font (size 0.9 0.9)) (hide yes)))
+(property "Review_Status" "DRAFT_NOT_FOR_PCB" (at 229.87 154.94 0) (effects (font (size 0.9 0.9)) (hide yes)))
+(pin "1" (uuid "70513f14-a42b-50a4-9e82-279e80576d48"))
+(instances (project "aw_car" (path "/bbd0d7e8-556c-5c65-a7ae-4541ce386bf3/e0eb36b5-8df4-5cbd-88f3-3a3267df3340" (reference "TP3") (unit 1)))))
+(text "VM_MOTOR branches directly to motor drivers and to the logic converter input. NO motor buck; E-stop circuit pending." (at 20 220 0) (effects (font (size 1.1 1.1)) (justify left)) (uuid "b4e44eab-31ee-5ef3-b697-1c24f11ccf2c"))
+(text "5V_DSN_UNVERIFIED -> board/amp source-selection network PENDING; board 5V nets intentionally remain separate." (at 20 230 0) (effects (font (size 1.1 1.1)) (justify left)) (uuid "81d0a071-adbc-53e6-b649-2eb3c6fa3c0c"))
+(text "Do NOT substitute raw 18650 cells for J30. BMS/common-vs-separate charge ports and charger must match the actual pack." (at 20 240 0) (effects (font (size 1.1 1.1)) (justify left)) (uuid "b8c3a9e2-e825-53ee-b9ec-7b7ff036a132"))
+(text "Converter listing is not proof of continuous 5V load/ripple/thermal behavior. Place the physical fuse close to the pack." (at 20 250 0) (effects (font (size 1.1 1.1)) (justify left)) (uuid "a446b45a-3be8-5f0d-ab96-78b0ac78ef3a"))
+(text "No direct DSN/USB VBUS connection is approved. GPIO power-off/backfeed, switch DC rating and fuse/wire sizing remain blockers." (at 20 260 0) (effects (font (size 1.1 1.1)) (justify left)) (uuid "563acc46-2e0c-5834-8196-70a71d8abded"))
+(embedded_fonts no))

@@ -1,5 +1,11 @@
 # Kiểm thử
 
+`test_awcar_schematic.py` chạy KiCad CLI thật để round-trip schematic,
+kiểm contract và negative cases: sai UART, nối GND loa BTL, chập hai cầu H,
+bỏ chuyển mức encoder, nối rail3V3, STBY nối VM và đảo chân transistor.
+Nếu thiếu KiCad CLI thì ghi SKIP; không gọi ERC hoặc mô phỏng phần cứng là
+đạt từ các unit test này. Schematic vẫn là bản review chưa có quyền đi PCB.
+
 Hiện có test công cụ kiểm tra kho: README thư mục, snapshot đã stage, file ignore,
 tên nhánh và hook chặn commit/push vào main. Test dùng kho Git tạm, không push
 lên GitHub. Chạy bằng `python -m unittest discover -s tests`.

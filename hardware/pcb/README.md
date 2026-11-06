@@ -1,5 +1,11 @@
 # AW-Car PCB v0.3 — bố trí bo mạch đẹp, rõ đường dây, chưa sản xuất
 
+Ngày07/11/2026 bắt đầu [schematic KiCad để review](kicad/README.md), dùng
+module cắm rút và pinout firmware hiện tại. Đây là luồng schematic mới;
+PCB/footprint/Gerber chờ chốt linh kiện theo yêu cầu chủ dự án. Kiến trúc
+hai PCB, kích thước và motor buck trong concept cũ bên dưới chưa được chọn
+cho schematic mới; phương án nguồn hiện hành là2S cấp thẳng VM motor.
+
 Đây là **bản concept điện–cơ** liên kết với CAD xe (ngày 30/10/2026). Mục tiêu:
 xe gọn, ít dây chéo, dễ tháo ráp/đo kiểm và không cho nhiễu motor lan vào
 AI/FPGA. Tất cả phép đặt mạch đang theo **khối bao hình học giả định**, không

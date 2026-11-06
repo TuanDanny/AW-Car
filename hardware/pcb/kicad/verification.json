@@ -1,0 +1,158 @@
+{
+  "date": "2026-11-07",
+  "branch": "feat/f01-tang-nano9k-target",
+  "base_commit": "af584d3c5c7817285b80d633bd00848e965c16fa",
+  "status": "DRAFT_CONNECTION_REVIEW_NOT_FOR_ASSEMBLY_OR_PCB",
+  "native_main_sheets": 8,
+  "kicad_version": "10.0.6",
+  "pin_contract": {
+    "pin_contract_passed": true,
+    "checks": [
+      "firmware_uart_and_recovery_permit_contract",
+      "damaged_motion_pins_unused",
+      "audio_oled_gpio_and_floating_speaker",
+      "four_independent_h_bridges_and_correct_direction_inputs",
+      "local_3v3_rails_and_pending_usb_sources_separate",
+      "both_candidate_stby_clamps_no_vm_to_gpio",
+      "single_out_encoder_raw_and_3v3_conditioned_nets_separate"
+    ],
+    "components": 44,
+    "nets": 69,
+    "exported_netlist_sha256": "323712d522d10c75f45ab45256bb291468cc5b7d132ceea1c96ebf2f49d230bd",
+    "schematic_release_ready": false,
+    "limits": "Logical module IDs only; power/gate/USB/footprints unresolved. Not ERC/electrical/hardware sign-off."
+  },
+  "erc": {
+    "native_returncode": 5,
+    "error_count": 0,
+    "warning_count": 4,
+    "warnings": [
+      {
+        "type": "isolated_pin_label",
+        "description": "Label connected to only one pin",
+        "items": [
+          "Global Label '5V_BRAIN_SOURCE_TBD'"
+        ]
+      },
+      {
+        "type": "isolated_pin_label",
+        "description": "Label connected to only one pin",
+        "items": [
+          "Global Label '5V_MOTION_SOURCE_TBD'"
+        ]
+      },
+      {
+        "type": "isolated_pin_label",
+        "description": "Label connected to only one pin",
+        "items": [
+          "Global Label '5V_TANG_SOURCE_TBD'"
+        ]
+      },
+      {
+        "type": "isolated_pin_label",
+        "description": "Label connected to only one pin",
+        "items": [
+          "Global Label '5V_AMP_SOURCE_TBD'"
+        ]
+      }
+    ],
+    "signoff": false,
+    "scope": "Open board 5V sources remain unresolved; no new waivers added"
+  },
+  "simulation": {
+    "coverage": "Candidate STBY output stage only",
+    "model": "GENERIC_NPN_AND_APPROXIMATE_SLEEP_LOAD_NOT_VENDOR_VALIDATED",
+    "dc_cases": 180,
+    "dc_passed": 180,
+    "transients": [
+      {
+        "input_capacitance_f": 1e-11,
+        "settled_intervals_passed": true,
+        "allow_rise_to_vih_s": 4.64753643224583e-07,
+        "allow_fall_to_vil_s": 1.0547953506172963e-06,
+        "limitation": "Settled intervals only; no vendor startup/glitch/driver wake certification."
+      },
+      {
+        "input_capacitance_f": 1e-10,
+        "settled_intervals_passed": true,
+        "allow_rise_to_vih_s": 1.2954793902212117e-06,
+        "allow_fall_to_vil_s": 1.1545490103889722e-06,
+        "limitation": "Settled intervals only; no vendor startup/glitch/driver wake certification."
+      },
+      {
+        "input_capacitance_f": 1e-09,
+        "settled_intervals_passed": true,
+        "allow_rise_to_vih_s": 9.13760876046412e-06,
+        "allow_fall_to_vil_s": 2.068494636396981e-06,
+        "limitation": "Settled intervals only; no vendor startup/glitch/driver wake certification."
+      }
+    ],
+    "native_kicad_exported_bench": {
+      "scope": "ACTUAL_KICAD_EXPORTED_SPICE_BENCH_ONLY",
+      "passed": true,
+      "samples": 30048,
+      "off_max_v": 0.03859904961153782,
+      "on_min_v": 6.607192593158612,
+      "spice_netlist_sha256": "52debea760eead8a76c11a654bb26dc07db91978432940b45c2e0008aa5b6fc3",
+      "full_gate_validated": false
+    },
+    "full_safety_gate_simulated": false,
+    "converter_motor_thermal_simulated": false,
+    "limits": [
+      "No latch/E-stop/clock watchdog implemented by these output stages.",
+      "Real STBY silicon, pull-up and module current/voltage must be measured.",
+      "No DSN6000AUD regulator, cell/BMS/charger, motor, thermal or PCB model.",
+      "Do not claim cable-open fail-safe or sub-microsecond glitch immunity.",
+      "Driver wake margin from actual nSLEEP threshold must be reviewed with Motion firmware."
+    ]
+  },
+  "tests": {
+    "root_run": 87,
+    "root_passed": 87,
+    "root_skipped": 0,
+    "native_topology_and_negative_cases": 9
+  },
+  "visual_review": {
+    "rendered_main_pages": 8,
+    "method": "KiCad native SVG export + PyMuPDF rendering, visual inspection",
+    "notes": "Initial grid/label layout issues corrected; diagrams remain connection-review drafts"
+  },
+  "schematic_release_ready": false,
+  "pcb_created": false,
+  "firmware_changed": false,
+  "serial_flash_or_reset": false,
+  "open_items": [
+    "module connector/header physical numbering and spacing unverified",
+    "USB VBUS/backfeed topology unverified on actual boards",
+    "converter output setting and continuous thermal load unmeasured",
+    "battery cell specifications, BMS and charger not selected",
+    "motor start/stall and turning load not measured; fuse/wire sizing pending",
+    "safety hardware design and independent clock-loss path pending review",
+    "new sensor GPIO assignments and module IO voltage not finalized",
+    "PCB outline, standoffs, antenna/USB clearances deferred by user"
+  ],
+  "source_sha256": {
+    "audio_oled.kicad_sch": "53c726960a878a27e6add1a5d92ef0f9f6cc9ae7e85cbaa8298a3b1642c9acb8",
+    "aw_car.kicad_pro": "658374c275ab2285e29b059cfcfd97e63b2798cb109410dd2cc7a42d37eb4c68",
+    "aw_car.kicad_sch": "1b652806dcdc2bdb8bc86bb735c69bea3abb56c9972bbfd85d624ef82f6462da",
+    "aw_car.kicad_sym": "9c6582881f72e6447269a24f0f5b800aa9f7f31697788d726eb18c6d2f3f420a",
+    "controllers.kicad_sch": "f74a32895cf8a9da6999c2fb354204e80a9921e7eb298e81fd8caa5e48219763",
+    "design-inputs.json": "c1c1766a12e1a103c9e4ff6f1440a59f4a1dc993fd037e9a13c52af4aa115feb",
+    "drivers.kicad_sch": "6c1f763175c35a8c1d4db848803e327da221311d4cdf5cba16ebcd63ba360672",
+    "generic-clamp.lib": "f00991eee192afb8c89f4e60f469f836006d4337b972f235d1bbc9c3e8fc2049",
+    "power_review.kicad_sch": "4ddc9cc1b23eb1fb71c22c09dbb28cbb152329d28789bd473beb74ed63839b36",
+    "safety_contract.kicad_sch": "215cec4348b6fd50fa39230629292696cbc9509efff04927d0ce5c9f384a6c9a",
+    "sensors.kicad_sch": "cd347ab6e957dcae2b39f88ec1f3773122ad3f3fb5549cd441e75f42de332824",
+    "stby_clamps.kicad_sch": "2c1229013b1c69402b6b6969857dd860aae9dfc4c6fa645f7cfd486ab016264a",
+    "stby_simulation.kicad_pro": "b2d8c4ab676b8313b4ec9b38b3815ada7809b5861574946c9faf89b3fb13de19",
+    "stby_simulation.kicad_sch": "3a0bc6834263539bf7fe7e6d35fe5286602c9ccb64989cc8a47ffbd2a61e485e",
+    "sym-lib-table": "b5f331934a5970b71934442e6da61a820e517856f63e10ec2ec26253fe95ead1"
+  },
+  "evidence_sha256": {
+    "erc-final.json": "5a340332918dbecfaf1bd7ce52b7254e157bb78dc31a41c3e9e2530df8173653",
+    "pin-contract-report.json": "a102ab993663b88665e550aad0e18d0913793a353cebb98115832c17995e60a7",
+    "clamp-sim\\report.json": "47865697448814371ea2598d18585fe16763e841824fa92814a617167d82853f",
+    "root-tests.log": "e4436eb7ffacc6f37a1502fc98ddc4bdd81575e8d447a0186053adc8bc791b9b",
+    "stby-from-kicad.cir": "52debea760eead8a76c11a654bb26dc07db91978432940b45c2e0008aa5b6fc3"
+  }
+}

@@ -1,0 +1,571 @@
+(kicad_sch (version 20250114) (generator "eeschema") (generator_version "10.0")
+(uuid "d3902c72-1463-5691-b589-ebe7d5097eb0") (paper "A3")
+(title_block (title "Candidate default-OFF STBY output stage - simulation required") (date "2026-11-07") (rev "0.1 REVIEW") (company "AW-Car") (comment 1 "DRAFT - NO PCB / NO FABRICATION RELEASE") (comment 2 "GPIO/package IDs are NOT module header pad numbers"))
+(lib_symbols
+(symbol "AWCAR:NPN"
+		(pin_names
+			(offset 0)
+			(hide yes)
+		)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(in_pos_files yes)
+		(duplicate_pin_numbers_are_jumpers no)
+		(property "Reference" "Q"
+			(at 5.08 1.27 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "Q_NPN_EBC"
+			(at 5.08 -1.27 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" ""
+			(at 5.08 2.54 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 0 0 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "NPN transistor, emitter/base/collector"
+			(at 0 0 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Sim.Device" "NPN"
+			(at 0 0 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Sim.Pins" "1=E 2=B 3=C"
+			(at 0 0 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "ki_keywords" "BJT"
+			(at 0 0 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(symbol "NPN_0_1"
+			(polyline
+				(pts
+					(xy -2.54 0) (xy 0.635 0)
+				)
+				(stroke
+					(width 0)
+					(type default)
+				)
+				(fill
+					(type none)
+				)
+			)
+			(polyline
+				(pts
+					(xy 0.635 1.905) (xy 0.635 -1.905)
+				)
+				(stroke
+					(width 0.508)
+					(type default)
+				)
+				(fill
+					(type none)
+				)
+			)
+			(circle
+				(center 1.27 0)
+				(radius 2.8194)
+				(stroke
+					(width 0.254)
+					(type default)
+				)
+				(fill
+					(type none)
+				)
+			)
+		)
+		(symbol "NPN_1_1"
+			(polyline
+				(pts
+					(xy 0.635 0.635) (xy 2.54 2.54)
+				)
+				(stroke
+					(width 0)
+					(type default)
+				)
+				(fill
+					(type none)
+				)
+			)
+			(polyline
+				(pts
+					(xy 0.635 -0.635) (xy 2.54 -2.54)
+				)
+				(stroke
+					(width 0)
+					(type default)
+				)
+				(fill
+					(type none)
+				)
+			)
+			(polyline
+				(pts
+					(xy 1.27 -1.778) (xy 1.778 -1.27) (xy 2.286 -2.286) (xy 1.27 -1.778)
+				)
+				(stroke
+					(width 0)
+					(type default)
+				)
+				(fill
+					(type outline)
+				)
+			)
+			(pin passive line
+				(at 2.54 -5.08 90)
+				(length 2.54)
+				(name "E"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "1"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+			(pin input line
+				(at -5.08 0 0)
+				(length 2.54)
+				(name "B"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "2"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+			(pin passive line
+				(at 2.54 5.08 270)
+				(length 2.54)
+				(name "C"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "3"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+		)
+		(embedded_fonts no)
+	)
+(symbol "AWCAR:R"
+		(pin_numbers
+			(hide yes)
+		)
+		(pin_names
+			(offset 0)
+		)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(in_pos_files yes)
+		(duplicate_pin_numbers_are_jumpers no)
+		(property "Reference" "R"
+			(at 2.032 0 90)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "R"
+			(at 0 0 90)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at -1.778 0 90)
+			(show_name no)
+			(do_not_autoplace no)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Datasheet" ""
+			(at 0 0 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Description" "Resistor"
+			(at 0 0 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "ki_keywords" "R res resistor"
+			(at 0 0 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "ki_fp_filters" "R_*"
+			(at 0 0 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(hide yes)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(symbol "R_0_1"
+			(rectangle
+				(start -1.016 -2.54)
+				(end 1.016 2.54)
+				(stroke
+					(width 0.254)
+					(type default)
+				)
+				(fill
+					(type none)
+				)
+			)
+		)
+		(symbol "R_1_1"
+			(pin passive line
+				(at 0 3.81 270)
+				(length 1.27)
+				(name ""
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "1"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+			(pin passive line
+				(at 0 -3.81 90)
+				(length 1.27)
+				(name ""
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "2"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+		)
+		(embedded_fonts no)
+	)
+)
+(text "Candidate: 2x NPN per driver; raw VM never connects to a GPIO. Not a complete safety gate." (at 20 20 0) (effects (font (size 1.35 1.35)) (justify left)) (uuid "5d7b91a9-77b2-5c1e-9aab-0ff8d04f07b0"))
+(text "Rpull assumes real STBY is nSLEEP with only a resistor pull-up. Verify module; stop if tied directly to VM." (at 20 30 0) (effects (font (size 1.1 1.1)) (justify left)) (uuid "1c6a20c8-9a1b-56e2-950a-c11dbc0dcb06"))
+(symbol (lib_id "AWCAR:R") (at 124.46 80.01 0) (unit 1)
+(in_bom yes) (on_board yes) (dnp no)
+(uuid "30973ea6-f5af-5cba-8897-cc37e808785c")
+(property "Reference" "R101" (at 126.492 80.01 0) (effects (font (size 0.95 0.95)) (justify left)))
+(property "Value" "47k" (at 124.46 80.01 0) (effects (font (size 0.95 0.95)) ))
+(property "Footprint" "" (at 124.46 80.01 0) (effects (font (size 0.9 0.9)) (hide yes)))
+(property "Review_Status" "DRAFT_NOT_FOR_PCB" (at 124.46 80.01 0) (effects (font (size 0.9 0.9)) (hide yes)))
+(pin "1" (uuid "24433045-7eed-53fc-a8fa-4eb19eec360f"))
+(pin "2" (uuid "de24abbb-8ed0-5e69-9822-2d36ef27f05c"))
+(instances (project "aw_car" (path "/bbd0d7e8-556c-5c65-a7ae-4541ce386bf3/e06cde34-7bd7-5918-9776-215c704b1d0f" (reference "R101") (unit 1)))(project "stby_simulation" (path "/434eaea7-7069-5e1e-845d-9b8525147f0a/e06cde34-7bd7-5918-9776-215c704b1d0f" (reference "R101") (unit 1)))))
+(symbol (lib_id "AWCAR:R") (at 142.24 80.01 0) (unit 1)
+(in_bom yes) (on_board yes) (dnp no)
+(uuid "4fc2e479-ea5e-5d4e-8fe8-ab01eef0039c")
+(property "Reference" "R102" (at 144.272 80.01 0) (effects (font (size 0.95 0.95)) (justify left)))
+(property "Value" "47k" (at 142.24 80.01 0) (effects (font (size 0.95 0.95)) ))
+(property "Footprint" "" (at 142.24 80.01 0) (effects (font (size 0.9 0.9)) (hide yes)))
+(property "Review_Status" "DRAFT_NOT_FOR_PCB" (at 142.24 80.01 0) (effects (font (size 0.9 0.9)) (hide yes)))
+(pin "1" (uuid "746b4b5d-11ca-5067-af27-601d15f9b8c7"))
+(pin "2" (uuid "b3065b2b-6bb0-59e1-9c94-ce5466f94c22"))
+(instances (project "aw_car" (path "/bbd0d7e8-556c-5c65-a7ae-4541ce386bf3/e06cde34-7bd7-5918-9776-215c704b1d0f" (reference "R102") (unit 1)))(project "stby_simulation" (path "/434eaea7-7069-5e1e-845d-9b8525147f0a/e06cde34-7bd7-5918-9776-215c704b1d0f" (reference "R102") (unit 1)))))
+(symbol (lib_id "AWCAR:R") (at 80.01 100.33 0) (unit 1)
+(in_bom yes) (on_board yes) (dnp no)
+(uuid "c12b12fc-959a-5f8a-b4be-9b0fbf70a2b0")
+(property "Reference" "R103" (at 82.042 100.33 0) (effects (font (size 0.95 0.95)) (justify left)))
+(property "Value" "10k" (at 80.01 100.33 0) (effects (font (size 0.95 0.95)) ))
+(property "Footprint" "" (at 80.01 100.33 0) (effects (font (size 0.9 0.9)) (hide yes)))
+(property "Review_Status" "DRAFT_NOT_FOR_PCB" (at 80.01 100.33 0) (effects (font (size 0.9 0.9)) (hide yes)))
+(pin "1" (uuid "8cb9c244-7c02-597d-839e-11428ccdcea4"))
+(pin "2" (uuid "c9e59f4d-37e1-5c41-9248-aef34a791136"))
+(instances (project "aw_car" (path "/bbd0d7e8-556c-5c65-a7ae-4541ce386bf3/e06cde34-7bd7-5918-9776-215c704b1d0f" (reference "R103") (unit 1)))(project "stby_simulation" (path "/434eaea7-7069-5e1e-845d-9b8525147f0a/e06cde34-7bd7-5918-9776-215c704b1d0f" (reference "R103") (unit 1)))))
+(symbol (lib_id "AWCAR:R") (at 80.01 134.62 0) (unit 1)
+(in_bom yes) (on_board yes) (dnp no)
+(uuid "ef038930-bf48-5f9a-872e-0edfeeab277e")
+(property "Reference" "R104" (at 82.042 134.62 0) (effects (font (size 0.95 0.95)) (justify left)))
+(property "Value" "100k" (at 80.01 134.62 0) (effects (font (size 0.95 0.95)) ))
+(property "Footprint" "" (at 80.01 134.62 0) (effects (font (size 0.9 0.9)) (hide yes)))
+(property "Review_Status" "DRAFT_NOT_FOR_PCB" (at 80.01 134.62 0) (effects (font (size 0.9 0.9)) (hide yes)))
+(pin "1" (uuid "18e74ac3-fafd-59b0-a23a-2231a7ecfa38"))
+(pin "2" (uuid "3181b977-c368-500e-98dc-952119627a3c"))
+(instances (project "aw_car" (path "/bbd0d7e8-556c-5c65-a7ae-4541ce386bf3/e06cde34-7bd7-5918-9776-215c704b1d0f" (reference "R104") (unit 1)))(project "stby_simulation" (path "/434eaea7-7069-5e1e-845d-9b8525147f0a/e06cde34-7bd7-5918-9776-215c704b1d0f" (reference "R104") (unit 1)))))
+(symbol (lib_id "AWCAR:NPN") (at 139.7 100.33 0) (unit 1)
+(in_bom yes) (on_board yes) (dnp no)
+(uuid "65faf220-af53-5067-8edb-02cefafdc24e")
+(property "Reference" "Q101" (at 144.78 99.06 0) (effects (font (size 0.95 0.95)) (justify left)))
+(property "Value" "2N3904 candidate" (at 144.78 101.6 0) (effects (font (size 0.95 0.95)) (justify left)))
+(property "Footprint" "" (at 139.7 100.33 0) (effects (font (size 0.9 0.9)) (hide yes)))
+(property "Review_Status" "DRAFT_NOT_FOR_PCB" (at 139.7 100.33 0) (effects (font (size 0.9 0.9)) (hide yes)))
+(property "Circuit_Block" "STBY_CLAMP" (at 139.7 100.33 0) (effects (font (size 0.9 0.9)) (hide yes)))
+(property "Simulation_Model" "GENERIC_NPN_NOT_VENDOR_CHARACTERIZATION" (at 139.7 100.33 0) (effects (font (size 0.9 0.9)) (hide yes)))
+(property "Sim.Library" "generic-clamp.lib" (at 139.7 100.33 0) (effects (font (size 0.9 0.9)) (hide yes)))
+(property "Sim.Name" "QGEN" (at 139.7 100.33 0) (effects (font (size 0.9 0.9)) (hide yes)))
+(property "Sim.Pins" "3=1 2=2 1=3" (at 139.7 100.33 0) (effects (font (size 0.9 0.9)) (hide yes)))
+(pin "1" (uuid "a6887d6f-af1c-5695-b5e5-f25e70590358"))
+(pin "2" (uuid "b6a00c6d-c73e-576b-be35-72168b6c6639"))
+(pin "3" (uuid "938286ef-4875-5710-8954-96d2c61c5144"))
+(instances (project "aw_car" (path "/bbd0d7e8-556c-5c65-a7ae-4541ce386bf3/e06cde34-7bd7-5918-9776-215c704b1d0f" (reference "Q101") (unit 1)))(project "stby_simulation" (path "/434eaea7-7069-5e1e-845d-9b8525147f0a/e06cde34-7bd7-5918-9776-215c704b1d0f" (reference "Q101") (unit 1)))))
+(symbol (lib_id "AWCAR:NPN") (at 95.25 119.38 0) (unit 1)
+(in_bom yes) (on_board yes) (dnp no)
+(uuid "dd0e8ae5-7dbd-5903-8d50-db58391c9168")
+(property "Reference" "Q102" (at 100.33 118.11 0) (effects (font (size 0.95 0.95)) (justify left)))
+(property "Value" "2N3904 candidate" (at 100.33 120.65 0) (effects (font (size 0.95 0.95)) (justify left)))
+(property "Footprint" "" (at 95.25 119.38 0) (effects (font (size 0.9 0.9)) (hide yes)))
+(property "Review_Status" "DRAFT_NOT_FOR_PCB" (at 95.25 119.38 0) (effects (font (size 0.9 0.9)) (hide yes)))
+(property "Circuit_Block" "STBY_CLAMP" (at 95.25 119.38 0) (effects (font (size 0.9 0.9)) (hide yes)))
+(property "Simulation_Model" "GENERIC_NPN_NOT_VENDOR_CHARACTERIZATION" (at 95.25 119.38 0) (effects (font (size 0.9 0.9)) (hide yes)))
+(property "Sim.Library" "generic-clamp.lib" (at 95.25 119.38 0) (effects (font (size 0.9 0.9)) (hide yes)))
+(property "Sim.Name" "QGEN" (at 95.25 119.38 0) (effects (font (size 0.9 0.9)) (hide yes)))
+(property "Sim.Pins" "3=1 2=2 1=3" (at 95.25 119.38 0) (effects (font (size 0.9 0.9)) (hide yes)))
+(pin "1" (uuid "b2b47f33-124f-58a8-acd6-204f1360fe04"))
+(pin "2" (uuid "12ebf5fb-fe42-5f92-a0de-2860fb7fa140"))
+(pin "3" (uuid "d679e80d-863b-5bc0-ae72-08e72d068c49"))
+(instances (project "aw_car" (path "/bbd0d7e8-556c-5c65-a7ae-4541ce386bf3/e06cde34-7bd7-5918-9776-215c704b1d0f" (reference "Q102") (unit 1)))(project "stby_simulation" (path "/434eaea7-7069-5e1e-845d-9b8525147f0a/e06cde34-7bd7-5918-9776-215c704b1d0f" (reference "Q102") (unit 1)))))
+(wire (pts (xy 124.46 76.2) (xy 124.46 68.58)) (stroke (width 0) (type default)) (uuid "50822511-ebb3-5893-ad8e-a7aea57246ba"))
+(global_label "VM_MOTOR" (shape bidirectional) (at 124.46 68.58 0) (effects (font (size 0.9 0.9)) (justify left)) (uuid "c7a1472b-3043-5bc2-82bb-09835096ff3b"))
+(wire (pts (xy 142.24 76.2) (xy 142.24 68.58)) (stroke (width 0) (type default)) (uuid "c3abe8aa-6dc9-5698-a02d-07e55a799b9f"))
+(global_label "VM_MOTOR" (shape bidirectional) (at 142.24 68.58 0) (effects (font (size 0.9 0.9)) (justify left)) (uuid "931c1c13-5b28-585b-b3f4-557625d014b4"))
+(wire (pts (xy 80.01 96.52) (xy 80.01 88.9)) (stroke (width 0) (type default)) (uuid "a56c38e9-ab03-525c-990f-b41f815185b7"))
+(global_label "GATE_ALLOW" (shape bidirectional) (at 80.01 88.9 0) (effects (font (size 0.9 0.9)) (justify left)) (uuid "a82824da-0fda-51ef-8aea-72942caf4769"))
+(wire (pts (xy 80.01 138.43) (xy 80.01 146.05)) (stroke (width 0) (type default)) (uuid "e8a6950e-0781-5247-8a55-b1d43683218d"))
+(global_label "GND" (shape bidirectional) (at 80.01 146.05 0) (effects (font (size 0.9 0.9)) (justify left)) (uuid "98b1f068-fb32-525f-805c-c2b952dafb15"))
+(wire (pts (xy 142.24 105.41) (xy 142.24 113.03)) (stroke (width 0) (type default)) (uuid "f27db862-f2cc-5062-bfc5-5174e8222ab8"))
+(global_label "GND" (shape bidirectional) (at 142.24 113.03 0) (effects (font (size 0.9 0.9)) (justify left)) (uuid "7f34494b-28d4-5e8f-a5b2-6f2370a6de40"))
+(wire (pts (xy 97.79 124.46) (xy 97.79 132.08)) (stroke (width 0) (type default)) (uuid "8276fed7-559b-556e-bad0-4f7108a8d712"))
+(global_label "GND" (shape bidirectional) (at 97.79 132.08 0) (effects (font (size 0.9 0.9)) (justify left)) (uuid "53be3621-1ae0-5d64-8d12-84080465b130"))
+(wire (pts (xy 124.46 83.82) (xy 124.46 100.33)) (stroke (width 0) (type default)) (uuid "cf927d0c-f13f-510c-ad69-7d1a2e3ac3d8"))
+(wire (pts (xy 124.46 100.33) (xy 134.62 100.33)) (stroke (width 0) (type default)) (uuid "2d2ec787-3ed4-56d2-aeda-8eaff6cc87da"))
+(wire (pts (xy 97.79 114.3) (xy 97.79 100.33)) (stroke (width 0) (type default)) (uuid "287210f9-3509-5bec-9459-dee4113de1fc"))
+(wire (pts (xy 97.79 100.33) (xy 124.46 100.33)) (stroke (width 0) (type default)) (uuid "9f22dd03-73d5-5b96-b40c-64929e72620d"))
+(wire (pts (xy 80.01 104.14) (xy 80.01 119.38)) (stroke (width 0) (type default)) (uuid "76c799e7-014a-5468-90e7-8d598916ab94"))
+(wire (pts (xy 80.01 119.38) (xy 90.17 119.38)) (stroke (width 0) (type default)) (uuid "d214fb47-79ea-5644-8a5b-e8de8b47b3bb"))
+(wire (pts (xy 80.01 119.38) (xy 80.01 130.81)) (stroke (width 0) (type default)) (uuid "46704620-9de0-5a87-bcb5-e2901dfdc30b"))
+(wire (pts (xy 142.24 83.82) (xy 142.24 95.25)) (stroke (width 0) (type default)) (uuid "8edfda39-0daa-5b40-9fd4-02e0a5a9f57b"))
+(global_label "STBY_L" (shape bidirectional) (at 142.24 83.82 0) (effects (font (size 0.9 0.9)) (justify left)) (uuid "9bf34915-af88-5759-af8a-be4c2adabf09"))
+(junction (at 124.46 100.33) (diameter 0) (color 0 0 0 0) (uuid "82b894c5-0b33-53b5-b350-29c7b669b483"))
+(junction (at 80.01 119.38) (diameter 0) (color 0 0 0 0) (uuid "5c34f6f4-d740-537e-94b7-e55d7f29e8ac"))
+(symbol (lib_id "AWCAR:R") (at 313.69 80.01 0) (unit 1)
+(in_bom yes) (on_board yes) (dnp no)
+(uuid "4fac8594-f0c8-58d6-9d28-022aea49bbea")
+(property "Reference" "R111" (at 315.722 80.01 0) (effects (font (size 0.95 0.95)) (justify left)))
+(property "Value" "47k" (at 313.69 80.01 0) (effects (font (size 0.95 0.95)) ))
+(property "Footprint" "" (at 313.69 80.01 0) (effects (font (size 0.9 0.9)) (hide yes)))
+(property "Review_Status" "DRAFT_NOT_FOR_PCB" (at 313.69 80.01 0) (effects (font (size 0.9 0.9)) (hide yes)))
+(pin "1" (uuid "3b27f6e7-daa9-5015-bd13-6c870a23dcdb"))
+(pin "2" (uuid "da25a025-5ea2-55a1-9301-29573fe5c955"))
+(instances (project "aw_car" (path "/bbd0d7e8-556c-5c65-a7ae-4541ce386bf3/e06cde34-7bd7-5918-9776-215c704b1d0f" (reference "R111") (unit 1)))(project "stby_simulation" (path "/434eaea7-7069-5e1e-845d-9b8525147f0a/e06cde34-7bd7-5918-9776-215c704b1d0f" (reference "R111") (unit 1)))))
+(symbol (lib_id "AWCAR:R") (at 332.74 80.01 0) (unit 1)
+(in_bom yes) (on_board yes) (dnp no)
+(uuid "e7a4ed5a-045e-5e45-b2c6-4374aab80e56")
+(property "Reference" "R112" (at 334.772 80.01 0) (effects (font (size 0.95 0.95)) (justify left)))
+(property "Value" "47k" (at 332.74 80.01 0) (effects (font (size 0.95 0.95)) ))
+(property "Footprint" "" (at 332.74 80.01 0) (effects (font (size 0.9 0.9)) (hide yes)))
+(property "Review_Status" "DRAFT_NOT_FOR_PCB" (at 332.74 80.01 0) (effects (font (size 0.9 0.9)) (hide yes)))
+(pin "1" (uuid "e6693ef0-c981-5361-86d8-752e469c259e"))
+(pin "2" (uuid "34fad5f0-729e-5d63-b7e0-1fd2307ac78e"))
+(instances (project "aw_car" (path "/bbd0d7e8-556c-5c65-a7ae-4541ce386bf3/e06cde34-7bd7-5918-9776-215c704b1d0f" (reference "R112") (unit 1)))(project "stby_simulation" (path "/434eaea7-7069-5e1e-845d-9b8525147f0a/e06cde34-7bd7-5918-9776-215c704b1d0f" (reference "R112") (unit 1)))))
+(symbol (lib_id "AWCAR:R") (at 270.51 100.33 0) (unit 1)
+(in_bom yes) (on_board yes) (dnp no)
+(uuid "416e60d2-12e3-5e3a-922f-4301641eae26")
+(property "Reference" "R113" (at 272.542 100.33 0) (effects (font (size 0.95 0.95)) (justify left)))
+(property "Value" "10k" (at 270.51 100.33 0) (effects (font (size 0.95 0.95)) ))
+(property "Footprint" "" (at 270.51 100.33 0) (effects (font (size 0.9 0.9)) (hide yes)))
+(property "Review_Status" "DRAFT_NOT_FOR_PCB" (at 270.51 100.33 0) (effects (font (size 0.9 0.9)) (hide yes)))
+(pin "1" (uuid "492cffae-ed0e-592e-859c-36e956c058bb"))
+(pin "2" (uuid "9364aa82-935b-5812-9c72-57bb25f706a1"))
+(instances (project "aw_car" (path "/bbd0d7e8-556c-5c65-a7ae-4541ce386bf3/e06cde34-7bd7-5918-9776-215c704b1d0f" (reference "R113") (unit 1)))(project "stby_simulation" (path "/434eaea7-7069-5e1e-845d-9b8525147f0a/e06cde34-7bd7-5918-9776-215c704b1d0f" (reference "R113") (unit 1)))))
+(symbol (lib_id "AWCAR:R") (at 270.51 134.62 0) (unit 1)
+(in_bom yes) (on_board yes) (dnp no)
+(uuid "d3fde0e6-f43b-5de5-a819-2fe4ae070bb3")
+(property "Reference" "R114" (at 272.542 134.62 0) (effects (font (size 0.95 0.95)) (justify left)))
+(property "Value" "100k" (at 270.51 134.62 0) (effects (font (size 0.95 0.95)) ))
+(property "Footprint" "" (at 270.51 134.62 0) (effects (font (size 0.9 0.9)) (hide yes)))
+(property "Review_Status" "DRAFT_NOT_FOR_PCB" (at 270.51 134.62 0) (effects (font (size 0.9 0.9)) (hide yes)))
+(pin "1" (uuid "40696544-fbe8-5bca-8ee6-a35b2b209134"))
+(pin "2" (uuid "357723a2-f311-5be5-aa62-e6febd6a275f"))
+(instances (project "aw_car" (path "/bbd0d7e8-556c-5c65-a7ae-4541ce386bf3/e06cde34-7bd7-5918-9776-215c704b1d0f" (reference "R114") (unit 1)))(project "stby_simulation" (path "/434eaea7-7069-5e1e-845d-9b8525147f0a/e06cde34-7bd7-5918-9776-215c704b1d0f" (reference "R114") (unit 1)))))
+(symbol (lib_id "AWCAR:NPN") (at 330.2 100.33 0) (unit 1)
+(in_bom yes) (on_board yes) (dnp no)
+(uuid "5aca4c44-1cc9-5f0d-9f5c-29ce5785800c")
+(property "Reference" "Q111" (at 335.28 99.06 0) (effects (font (size 0.95 0.95)) (justify left)))
+(property "Value" "2N3904 candidate" (at 335.28 101.6 0) (effects (font (size 0.95 0.95)) (justify left)))
+(property "Footprint" "" (at 330.2 100.33 0) (effects (font (size 0.9 0.9)) (hide yes)))
+(property "Review_Status" "DRAFT_NOT_FOR_PCB" (at 330.2 100.33 0) (effects (font (size 0.9 0.9)) (hide yes)))
+(property "Circuit_Block" "STBY_CLAMP" (at 330.2 100.33 0) (effects (font (size 0.9 0.9)) (hide yes)))
+(property "Simulation_Model" "GENERIC_NPN_NOT_VENDOR_CHARACTERIZATION" (at 330.2 100.33 0) (effects (font (size 0.9 0.9)) (hide yes)))
+(property "Sim.Library" "generic-clamp.lib" (at 330.2 100.33 0) (effects (font (size 0.9 0.9)) (hide yes)))
+(property "Sim.Name" "QGEN" (at 330.2 100.33 0) (effects (font (size 0.9 0.9)) (hide yes)))
+(property "Sim.Pins" "3=1 2=2 1=3" (at 330.2 100.33 0) (effects (font (size 0.9 0.9)) (hide yes)))
+(pin "1" (uuid "5e7b54c8-c923-589a-9c03-4ded0d3a7787"))
+(pin "2" (uuid "34f5a59a-e82c-5aca-8e4a-921607f8a374"))
+(pin "3" (uuid "95b06542-d81c-5649-838b-2574b7ff7d92"))
+(instances (project "aw_car" (path "/bbd0d7e8-556c-5c65-a7ae-4541ce386bf3/e06cde34-7bd7-5918-9776-215c704b1d0f" (reference "Q111") (unit 1)))(project "stby_simulation" (path "/434eaea7-7069-5e1e-845d-9b8525147f0a/e06cde34-7bd7-5918-9776-215c704b1d0f" (reference "Q111") (unit 1)))))
+(symbol (lib_id "AWCAR:NPN") (at 284.48 119.38 0) (unit 1)
+(in_bom yes) (on_board yes) (dnp no)
+(uuid "9d6a73c6-fcbc-58cb-bae2-3962a0fe328b")
+(property "Reference" "Q112" (at 289.56 118.11 0) (effects (font (size 0.95 0.95)) (justify left)))
+(property "Value" "2N3904 candidate" (at 289.56 120.65 0) (effects (font (size 0.95 0.95)) (justify left)))
+(property "Footprint" "" (at 284.48 119.38 0) (effects (font (size 0.9 0.9)) (hide yes)))
+(property "Review_Status" "DRAFT_NOT_FOR_PCB" (at 284.48 119.38 0) (effects (font (size 0.9 0.9)) (hide yes)))
+(property "Circuit_Block" "STBY_CLAMP" (at 284.48 119.38 0) (effects (font (size 0.9 0.9)) (hide yes)))
+(property "Simulation_Model" "GENERIC_NPN_NOT_VENDOR_CHARACTERIZATION" (at 284.48 119.38 0) (effects (font (size 0.9 0.9)) (hide yes)))
+(property "Sim.Library" "generic-clamp.lib" (at 284.48 119.38 0) (effects (font (size 0.9 0.9)) (hide yes)))
+(property "Sim.Name" "QGEN" (at 284.48 119.38 0) (effects (font (size 0.9 0.9)) (hide yes)))
+(property "Sim.Pins" "3=1 2=2 1=3" (at 284.48 119.38 0) (effects (font (size 0.9 0.9)) (hide yes)))
+(pin "1" (uuid "59b28b14-1fb3-563c-8ed9-a73c5d2549ed"))
+(pin "2" (uuid "07c9f315-f9c7-5333-919b-07a3d4192f27"))
+(pin "3" (uuid "28d4dc5d-b473-51c1-a7a7-0e8e4a4c04fc"))
+(instances (project "aw_car" (path "/bbd0d7e8-556c-5c65-a7ae-4541ce386bf3/e06cde34-7bd7-5918-9776-215c704b1d0f" (reference "Q112") (unit 1)))(project "stby_simulation" (path "/434eaea7-7069-5e1e-845d-9b8525147f0a/e06cde34-7bd7-5918-9776-215c704b1d0f" (reference "Q112") (unit 1)))))
+(wire (pts (xy 313.69 76.2) (xy 313.69 68.58)) (stroke (width 0) (type default)) (uuid "a7046def-ae9c-5a94-9c25-8aea6fee1051"))
+(global_label "VM_MOTOR" (shape bidirectional) (at 313.69 68.58 0) (effects (font (size 0.9 0.9)) (justify left)) (uuid "c7c90fd7-3016-5f0b-ade0-7d07edd91146"))
+(wire (pts (xy 332.74 76.2) (xy 332.74 68.58)) (stroke (width 0) (type default)) (uuid "640707c0-c288-5b00-9ff1-00750f2cb3fc"))
+(global_label "VM_MOTOR" (shape bidirectional) (at 332.74 68.58 0) (effects (font (size 0.9 0.9)) (justify left)) (uuid "e1f18e1e-9866-5416-abca-3097d2f7eaeb"))
+(wire (pts (xy 270.51 96.52) (xy 270.51 88.9)) (stroke (width 0) (type default)) (uuid "e1d97bdc-e281-586d-9663-be0af0cb2886"))
+(global_label "GATE_ALLOW" (shape bidirectional) (at 270.51 88.9 0) (effects (font (size 0.9 0.9)) (justify left)) (uuid "11ec021d-a0c1-5f13-ba36-17c06bd5ae96"))
+(wire (pts (xy 270.51 138.43) (xy 270.51 146.05)) (stroke (width 0) (type default)) (uuid "6e203c68-f2e4-5f32-b899-63e9b4176ac2"))
+(global_label "GND" (shape bidirectional) (at 270.51 146.05 0) (effects (font (size 0.9 0.9)) (justify left)) (uuid "de8ac900-a398-5543-90e1-39c806917341"))
+(wire (pts (xy 332.74 105.41) (xy 332.74 113.03)) (stroke (width 0) (type default)) (uuid "3003abd7-06d2-5958-a9a0-96c1ba454aec"))
+(global_label "GND" (shape bidirectional) (at 332.74 113.03 0) (effects (font (size 0.9 0.9)) (justify left)) (uuid "72eb08bd-c2c9-58b8-a18b-76cd39022536"))
+(wire (pts (xy 287.02 124.46) (xy 287.02 132.08)) (stroke (width 0) (type default)) (uuid "bcbd8260-16ae-5c96-9874-e52cca3d3cd4"))
+(global_label "GND" (shape bidirectional) (at 287.02 132.08 0) (effects (font (size 0.9 0.9)) (justify left)) (uuid "ed1a4f4d-486f-5361-9720-0d60e15afe17"))
+(wire (pts (xy 313.69 83.82) (xy 313.69 100.33)) (stroke (width 0) (type default)) (uuid "7a0805d3-04c2-5526-ac27-0147f9e96a62"))
+(wire (pts (xy 313.69 100.33) (xy 325.12 100.33)) (stroke (width 0) (type default)) (uuid "4550a913-6420-5c21-ae8d-976e9170994d"))
+(wire (pts (xy 287.02 114.3) (xy 287.02 100.33)) (stroke (width 0) (type default)) (uuid "2351ffda-eebf-52fb-bea6-dbb5d9f087b3"))
+(wire (pts (xy 287.02 100.33) (xy 313.69 100.33)) (stroke (width 0) (type default)) (uuid "f76c5929-5e52-53ad-9b08-87120d59962c"))
+(wire (pts (xy 270.51 104.14) (xy 270.51 119.38)) (stroke (width 0) (type default)) (uuid "d415245e-f7d7-5fda-855b-ba2c0a795826"))
+(wire (pts (xy 270.51 119.38) (xy 279.4 119.38)) (stroke (width 0) (type default)) (uuid "82c7bc0e-6376-5f94-ad9d-cb7dd6dba5f4"))
+(wire (pts (xy 270.51 119.38) (xy 270.51 130.81)) (stroke (width 0) (type default)) (uuid "1125b19c-c0da-5c8c-aa66-a8052d90cb78"))
+(wire (pts (xy 332.74 83.82) (xy 332.74 95.25)) (stroke (width 0) (type default)) (uuid "3eed57fe-e978-5e1e-a2f5-fe05958bc0c8"))
+(global_label "STBY_R" (shape bidirectional) (at 332.74 83.82 0) (effects (font (size 0.9 0.9)) (justify left)) (uuid "4ed303b3-ec6a-5fae-84ef-ce682c632396"))
+(junction (at 313.69 100.33) (diameter 0) (color 0 0 0 0) (uuid "54a22970-809b-5f07-8ede-f5eacc51ed94"))
+(junction (at 270.51 119.38) (diameter 0) (color 0 0 0 0) (uuid "e11d7bd9-ef9e-5e44-9514-0d274db1fa05"))
+(text "ALLOW LOW/floating -> release transistor OFF -> VM biases clamp ON -> STBY LOW, including loss of logic supply." (at 20 185 0) (effects (font (size 1.1 1.1)) (justify left)) (uuid "5b4d28b9-0488-5077-9a91-3aaf6dae5406"))
+(text "ALLOW HIGH -> release sinks clamp base -> STBY rises through the verified pull-up. No high-voltage GPIO feedback." (at 20 195 0) (effects (font (size 1.1 1.1)) (justify left)) (uuid "3bbad85c-6206-55fc-9992-bd4540350109"))
+(text "Prototype/measure before use. Transistor, module pull-up, startup behavior, wake margin and cable-open behavior remain review items." (at 20 205 0) (effects (font (size 1.1 1.1)) (justify left)) (uuid "53e76158-6883-5551-8376-2ea98bc0010d"))
+(text "No footprint is assigned. Generic simulation is NOT a TI DRV8833 / vendor transistor / production safety certification." (at 20 215 0) (effects (font (size 1.1 1.1)) (justify left)) (uuid "6059ce22-f4f1-5065-b8d2-2fd08ed47879"))
+(embedded_fonts no))

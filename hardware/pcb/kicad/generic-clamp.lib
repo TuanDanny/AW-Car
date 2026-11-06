@@ -1,0 +1,3 @@
+* Generic approximations only; NOT manufacturer-validated 2N3904/DRV8833 models.
+.model QGEN NPN(IS=6.7f BF=40 VAF=80 IKF=.1 CJE=8p CJC=4p TF=.3n)
+.model DZGEN D(BV=6.5 IBV=1u IS=1f)
