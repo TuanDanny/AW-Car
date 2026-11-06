@@ -2,7 +2,7 @@
 
 - [Flash và kiểm tra reset/liên kết ba board06/11](../fpga/targets/tang_nano9k/flash-link-report.md),
   [JSON số đo](fpga-flash-link-evidence.json): reload Flash và reset LOCKED
-  đã thử; verify đọc lại FAIL, power-cycle/ngắt dây còn chờ, parser chưa chốt.
+  và power-cycle/ngắt dây đã thử; verify đọc lại FAIL, parser chưa chốt.
 - [LED trạng thái Nano9K và bằng chứng không can thiệp điều khiển](../fpga/targets/tang_nano9k/status-leds-report.md),
   [JSON nguồn và kết quả](fpga-status-led-evidence.json): source30d45ed,
   đã nạp SRAM/quan sát FAULT; chưa nghiệm thu gate/motor.

@@ -19,8 +19,9 @@ chưa có gate. Xem [báo cáo LED](fpga/targets/tang_nano9k/status-leds-report.
 Ngày06/11 đã lưu vào embedded Flash và kiểm tra xóa SRAM/reload không gửi
 bitstream, đúng UserCode0x9EF7. Reset Brain/Motion và mất STATUS FPGA giữ
 permit/duty0. [Báo cáo Flash/liên kết](fpga/targets/tang_nano9k/flash-link-report.md)
-ghi verify đọc lại FAIL, power-cycle/ngắt dây thật còn chờ và lỗi parser UART
-chưa rõ nguyên nhân; chưa chốt mốc liên kết. Gate/E-stop chưa có, chưa nghiệm thu truyền động.
+ghi power-cycle thật đã khởi động đúng AW-Car; ngắt UART có phát hiện và phục
+hồi trong LOCKED. Verify đọc lại FAIL và lỗi parser UART chưa rõ nguyên nhân
+giữ riêng; chưa chốt ổn định toàn liên kết. Gate/E-stop chưa có, chưa nghiệm thu truyền động.
 Brain–Motion LOCKED đã chốt tại
 [main4cea85c](https://github.com/TuanDanny/AW-Car/tree/v0.1-brain-motion-locked);
 nhánh FPGA vẫn độc lập, không dùng RTL v1 baseline của main cho Motion v2.

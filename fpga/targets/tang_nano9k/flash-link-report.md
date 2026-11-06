@@ -41,9 +41,13 @@ cửa sổ chưa cấu hình, sau đó nhận snapshot mới và read codes vẫ
 0x3F020. Phép này xác nhận image Flash có thể tự nạp vào SRAM, chưa thay phép
 mất nguồn thật. Lượt sau reload nhận17.013 frame/170,185s, khoảng99,968Hz.
 
-**Power-cycle thật: PENDING.** Đã yêu cầu rút USB cả ba board, LED tắt hẳn,
-chờ10s rồi cắm lại để tránh nguồn còn qua dây UART. Sau đó cần scan/read codes
-và quan sát STATUS mới; không SRAM Program lại trước phép xác nhận này.
+**Power-cycle thật: PASS chức năng.** Người dùng xác nhận đã làm thao tác rút
+USB cả ba board/chờ10s/cắm lại. Lượt sau chỉ scan và operation0 đọc mã, không
+nạp SRAM, không Reprogram và không ghi Flash: ID0x1100481B, UserCode0x9EF7,
+status0x3F020. Motion nhận STATUS mới, snapshot tăng và fresh=true. Như vậy
+bản AW-Car tự khởi động từ Flash sau mất nguồn. Việc LED tắt hết/mất nguồn
+dựa xác nhận người dùng; không có phép đo rail nguồn bằng oscilloscope.
+Kết quả verify đọc lại FAIL ở lượt ghi ban đầu vẫn được giữ riêng.
 
 ## Mốc2: reset và mất liên kết
 
@@ -54,7 +58,10 @@ và quan sát STATUS mới; không SRAM Program lại trước phép xác nhận
 | Brain nhận Motion | STATUS khoảng20Hz, dữ liệu tiếp tục cập nhật |
 | Giữ Motion reset8s rồi thả | Brain age lên6.693ms, STATUS dừng tăng; sau boot phục hồi, không tự ARM |
 | Reset Brain USB-Serial-JTAG | Có boot reason0x15 và STATUS mới; Motion vẫn permit/duty0 |
-| Ngắt và nối lại UART vật lý | PENDING, cần người dùng thao tác |
+| Rút TangTX26→MotionRX16 | fresh=false; snapshot/frame đứng yên; permit/duty0 |
+| Nối lại TangTX26→MotionRX16 | fresh=true, snapshot/frame tăng; chốt Gate vẫn giữ, không tự ARM |
+| Rút MotionTX13→BrainRX18 | Brain STATUS đứng yên, age vượt20s; Motion tiếp tục permit/duty0 |
+| Nối lại MotionTX13→BrainRX18 | STATUS tăng lại, age về dưới150ms; Motion permit/duty0, không tự ARM |
 | Motion→FPGA và ARM/recovery đầy đủ | Chưa có ACK/fixture; LOCKED và health/gate LOW không được nối giả để thử |
 
 **Mốc2 là PARTIAL, chưa nghiệm thu ổn định hoàn toàn.** Lượt console tần
@@ -65,10 +72,32 @@ cho việc nạp hoặc hỏi console. Chưa xác định timeout/parser, dây h
 không tăng deadline hay bỏ CRC để làm số lỗi biến mất. Cần chẩn đoán nguyên
 nhân bằng counter nguyên nhân và/hoặc trace UART trước khi chốt mốc2.
 
-404 mẫu console toàn lượt đều có driver/logical permit readback0, duty0.
+404 mẫu console ở lượt trước đều có driver/logical permit readback0, duty0.
 Brain UART errors0 trong các mẫu health đầy đủ. Có1 dòng Brain bị log khác
 chen ngang nên thiếu trường; loại khỏi thống kê age, ghi số lượng trong JSON,
 không thay dữ liệu thiếu bằng0. Chưa có Dashboard client trong lượt này.
+
+Lượt sau power-cycle đã kiểm tra cả hai dây STATUS vật lý, rút/nối từng dây
+theo xác nhận người dùng, không reset hay nạp để phục hồi. Khi TangTX26 bị
+rút khỏi MotionRX16: count frame/snapshot đứng, fresh=false. Khi nối lại:
+fresh=true, snapshot mới chạy tiếp. Khi MotionTX13 bị rút khỏi BrainRX18:
+STATUS ở Brain đứng; age ghi nhận tới86.640ms trong cửa sổ mất dây. Nối lại
+STATUS tăng, age dưới150ms. Motion vẫn nhận thêm frame hợp lệ từ Brain theo
+chiều còn lại, HW/parser phía Brain–Motion0 ở các mẫu đọc. Chốt gate vẫn giữ,
+không tự CLEAR/ARM. Tất cả dây UART đã được người dùng xác nhận nối lại.
+
+Lỗi parser phía Motion nhận FPGA vẫn xuất hiện cả sau power-cycle; không
+đánh dấu vấn đề này đã sửa nhờ ghi Flash. Lượt nối đủ cuối, số đo thời gian/
+frame/lỗi và wrap sequence thực nằm trong `post_power_cycle` của JSON. Các
+phép mất dây/phục hồi đạt hành vi trong LOCKED; mốc ổn định toàn liên kết vẫn
+PARTIAL. Chưa thử điều khiển xe từ ARMED hay đo deadline cắt chân bằng analyzer.
+
+Chốt lượt sau power-cycle:113 mẫu Motion, tổng517 mẫu hai lượt, tất cả
+permit/duty0. Lượt nối đủ cuối16.514 frame/165,198s, khoảng99,965Hz; HW errors0,
+queue/TX drops0, parser_errors tăng6→11. Brain age17–43ms, UART errors0.
+Đã quan sát snapshot_seq wrap65509→474 giữa hai mẫu cách5,004s và fresh vẫn
+true. Không thấy chữ ký panic/brownout trong log thu được. Đã đóng monitor,
+ba board giữ nguyên image và dây kết nối; không tự CLEAR/ARM hoặc thay NVS.
 
 Mẫu đo dùng console read-only `status`, `uart`, `config`, log COM3 và đồng hồ
 đơn điệu trên PC. Quan sát `fresh`, sequence, lỗi, state, duty, driver_gpio và
@@ -86,6 +115,7 @@ Encoder, GPIO recovery, gate/E-stop, PWM pad và motor chưa nghiệm thu.
 - Log/operation/monitor riêng: `build/tang-nano9k/flash-link-20261106/`.
 - Bằng chứng trước lượt này: `build/tang-nano9k/uart-bringup-20261106/link-check.json`.
 - [JSON số đo đã lọc và hash log](../../../docs/fpga-flash-link-evidence.json).
+- Lượt sau mất nguồn và rút/nối dây: `build/tang-nano9k/flash-link-20261106/post-powercycle-01/`.
 - Kiểm tra repo,57 root Python tests và diff check đạt; không có thay đổi RTL.
 
 Không tự push/merge; việc ghi Flash không thay source RTL, image hai ESP32,

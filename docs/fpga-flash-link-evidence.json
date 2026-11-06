@@ -10,7 +10,7 @@
   "gate_hardware_present": false,
   "motor_power_tested": false,
   "milestone1": {
-    "status": "flash_reload_passed_power_cycle_pending",
+    "status": "FUNCTIONAL_PERSISTENCE_PASS_READBACK_VERIFY_FAILED",
     "operation_index": 6,
     "operation": "embFlash Erase,Program,Verify",
     "bitstream_sha256": "23304499f5c36af116a5b78d1f75a73e17356bd0fb7024d83b81fc5f5b7092c2",
@@ -25,7 +25,8 @@
     "usercode_after_both_reloads": "0x00009EF7",
     "device_id": "0x1100481B",
     "status_code": "0x0003F020",
-    "actual_all_power_removed": "PENDING_USER_ACTION"
+    "actual_all_power_removed": "USER_CONFIRMED_PASS_WITH_READ_ONLY_USERCODE_AND_LIVE_STATUS",
+    "post_power_cycle_configuration_written": false
   },
   "milestone2": {
     "status": "PARTIAL",
@@ -33,12 +34,15 @@
     "motion_held_reset_8s_brain_status_stale_then_recovery": "PASS_LOCKED_CONSOLE",
     "brain_reset_recovery": "PASS_LOCKED_CONSOLE",
     "all_motion_samples_zero_permit_and_duty": true,
-    "total_motion_console_samples": 404,
-    "physical_uart_disconnect": "PENDING_USER_ACTION",
+    "total_motion_console_samples": 517,
+    "physical_uart_disconnect": "PASS_BOTH_LINKS_LOCKED_CONSOLE",
     "reverse_direction_ack_handshake": "NOT_RUN_NO_GATE_LOCKED",
     "parser_errors_observed": true,
     "parser_error_cause": "UNRESOLVED",
-    "armed_driving_stop_test": "NOT_RUN_LOCKED"
+    "armed_driving_stop_test": "NOT_RUN_LOCKED",
+    "physical_uart_reconnect": "PASS_BOTH_LINKS_NO_AUTO_ARM",
+    "total_motion_console_samples_before_power_cycle": 404,
+    "post_power_cycle_motion_console_samples": 113
   },
   "phase_measurements": {
     "baseline": {
@@ -301,5 +305,269 @@
     "repository": "PASS",
     "root_python_tests": 57,
     "source_diff_check": "PASS"
+  },
+  "post_power_cycle": {
+    "recorded_at": "2026-11-06T21:11:18.869411+07:00",
+    "power_cycle": {
+      "user_reported_all_boards_power_cycle": true,
+      "operation_index": 0,
+      "configuration_written_this_turn": false,
+      "expected_usercode": "0x00009EF7",
+      "observed_usercode": "0x00009EF7",
+      "observed_status": "0x0003F020",
+      "device_id": "0x1100481B",
+      "native_returncode": 0,
+      "recorded_at_utc": "2026-11-06T14:01:39.929849+00:00"
+    },
+    "physical_wire_tests": {
+      "physical-fpga-wire-removed": {
+        "user_confirmed_wire_removed": "Tang package26 TX to Motion GPIO16 RX",
+        "stale_samples": 5,
+        "first_stale_t": 353.6697852,
+        "last_stale_t": 373.7028053,
+        "stale_duration_sampled_s": 20.033020100000044,
+        "driver_logical_and_duty_zero": true,
+        "last_snapshot_seq": 24420,
+        "frames_first_last": [
+          24419,
+          24419
+        ]
+      },
+      "physical-fpga-wire-reconnected": {
+        "user_confirmed_wire_reconnected": true,
+        "fresh_samples": 12,
+        "snapshot_first": 30473,
+        "snapshot_last": 35978,
+        "driver_logical_and_duty_zero": true,
+        "fault_kept": 1
+      },
+      "physical-brain-wire-removed": {
+        "user_confirmed_wire_removed": "Motion GPIO13 TX to Brain GPIO18 RX",
+        "stale_samples": 5,
+        "max_telemetry_age_ms": 20983,
+        "status_counts_while_stale": [
+          "8272",
+          "8272"
+        ],
+        "motion_driver_logical_and_duty_zero": true,
+        "motion_rx_brain_frames_first_last": [
+          4,
+          5
+        ]
+      },
+      "physical-brain-wire-reconnected": {
+        "user_confirmed_wire_reconnected": true,
+        "fresh_samples": 6,
+        "brain_status_count_first_last": [
+          "8342",
+          "8847"
+        ],
+        "max_fresh_telemetry_age_ms": 25,
+        "motion_driver_logical_and_duty_zero": true,
+        "brain_frames_seen_at_motion_first_last": [
+          5,
+          6
+        ]
+      }
+    },
+    "phase_measurements": {
+      "baseline": {
+        "motion_samples": 0,
+        "complete_brain_health_samples": 0,
+        "incomplete_brain_health_lines": 0
+      },
+      "post_powercycle_read_only": {
+        "motion_samples": 12,
+        "complete_brain_health_samples": 11,
+        "incomplete_brain_health_lines": 0,
+        "fresh_values": [
+          true
+        ],
+        "snapshot_seq_first": 12956,
+        "snapshot_seq_last": 18461,
+        "all_permit_and_duty_zero": true,
+        "motion_fault_values": [
+          1
+        ],
+        "fpga_fault_values": [
+          2
+        ],
+        "queue_drop_max": 0,
+        "tx_drop_max": 0,
+        "interval_s": 54.796,
+        "additional_valid_frames": 5504,
+        "frames_per_s": 100.445,
+        "uart_hardware_errors_max": 0,
+        "parser_first": 0,
+        "parser_last": 1,
+        "brain_telemetry_age_min_ms": 4,
+        "brain_telemetry_age_max_ms": 21,
+        "brain_uart_errors_max": 0
+      },
+      "physical_fpga_rx_disconnect_window": {
+        "motion_samples": 18,
+        "complete_brain_health_samples": 18,
+        "incomplete_brain_health_lines": 0,
+        "fresh_values": [
+          false,
+          true
+        ],
+        "snapshot_seq_first": 18960,
+        "snapshot_seq_last": 24420,
+        "all_permit_and_duty_zero": true,
+        "motion_fault_values": [
+          1
+        ],
+        "fpga_fault_values": [
+          2
+        ],
+        "queue_drop_max": 0,
+        "tx_drop_max": 0,
+        "interval_s": 85.095,
+        "additional_valid_frames": 5453,
+        "frames_per_s": 64.081,
+        "uart_hardware_errors_max": 0,
+        "parser_first": 1,
+        "parser_last": 1,
+        "brain_telemetry_age_min_ms": 18,
+        "brain_telemetry_age_max_ms": 31,
+        "brain_uart_errors_max": 0
+      },
+      "physical_fpga_rx_reconnect_window": {
+        "motion_samples": 17,
+        "complete_brain_health_samples": 17,
+        "incomplete_brain_health_lines": 0,
+        "fresh_values": [
+          false,
+          true
+        ],
+        "snapshot_seq_first": 24420,
+        "snapshot_seq_last": 35978,
+        "all_permit_and_duty_zero": true,
+        "motion_fault_values": [
+          1
+        ],
+        "fpga_fault_values": [
+          2
+        ],
+        "queue_drop_max": 0,
+        "tx_drop_max": 0,
+        "interval_s": 80.084,
+        "additional_valid_frames": 5678,
+        "frames_per_s": 70.9,
+        "uart_hardware_errors_max": 0,
+        "parser_first": 1,
+        "parser_last": 1,
+        "brain_telemetry_age_min_ms": 24,
+        "brain_telemetry_age_max_ms": 36,
+        "brain_uart_errors_max": 0
+      },
+      "physical_brain_rx_disconnect_window": {
+        "motion_samples": 17,
+        "complete_brain_health_samples": 17,
+        "incomplete_brain_health_lines": 0,
+        "fresh_values": [
+          true
+        ],
+        "snapshot_seq_first": 36479,
+        "snapshot_seq_last": 44487,
+        "all_permit_and_duty_zero": true,
+        "motion_fault_values": [
+          1
+        ],
+        "fpga_fault_values": [
+          2
+        ],
+        "queue_drop_max": 0,
+        "tx_drop_max": 0,
+        "interval_s": 80.082,
+        "additional_valid_frames": 8005,
+        "frames_per_s": 99.96,
+        "uart_hardware_errors_max": 0,
+        "parser_first": 1,
+        "parser_last": 5,
+        "brain_telemetry_age_min_ms": 30,
+        "brain_telemetry_age_max_ms": 41190,
+        "brain_uart_errors_max": 0
+      },
+      "physical_brain_rx_reconnect_window": {
+        "motion_samples": 15,
+        "complete_brain_health_samples": 15,
+        "incomplete_brain_health_lines": 0,
+        "fresh_values": [
+          true
+        ],
+        "snapshot_seq_first": 44988,
+        "snapshot_seq_last": 51993,
+        "all_permit_and_duty_zero": true,
+        "motion_fault_values": [
+          1
+        ],
+        "fpga_fault_values": [
+          2
+        ],
+        "queue_drop_max": 0,
+        "tx_drop_max": 0,
+        "interval_s": 70.056,
+        "additional_valid_frames": 7004,
+        "frames_per_s": 99.977,
+        "uart_hardware_errors_max": 0,
+        "parser_first": 5,
+        "parser_last": 6,
+        "brain_telemetry_age_min_ms": 22,
+        "brain_telemetry_age_max_ms": 86640,
+        "brain_uart_errors_max": 0
+      },
+      "final_all_connected_soak": {
+        "motion_samples": 34,
+        "complete_brain_health_samples": 34,
+        "incomplete_brain_health_lines": 0,
+        "fresh_values": [
+          true
+        ],
+        "snapshot_seq_first": 52493,
+        "snapshot_seq_last": 3477,
+        "all_permit_and_duty_zero": true,
+        "motion_fault_values": [
+          1
+        ],
+        "fpga_fault_values": [
+          2
+        ],
+        "queue_drop_max": 0,
+        "tx_drop_max": 0,
+        "interval_s": 165.198,
+        "additional_valid_frames": 16514,
+        "frames_per_s": 99.965,
+        "uart_hardware_errors_max": 0,
+        "parser_first": 6,
+        "parser_last": 11,
+        "brain_telemetry_age_min_ms": 17,
+        "brain_telemetry_age_max_ms": 43,
+        "brain_uart_errors_max": 0
+      },
+      "post_powercycle_capture_complete": {
+        "motion_samples": 0,
+        "complete_brain_health_samples": 0,
+        "incomplete_brain_health_lines": 0
+      }
+    },
+    "total_motion_samples": 113,
+    "all_permit_and_duty_zero": true,
+    "observed_snapshot_seq_wraps": [
+      {
+        "before": 65509,
+        "after": 474,
+        "pc_delta_s": 5.004
+      }
+    ],
+    "firmware_panic_signatures": 0,
+    "raw_log_sha256": {
+      "COM3-private.log": "767d3622406d77ead4f3252372e8a7d4210b110c31a6b1367fdf02f738b1ea97",
+      "COM7-private.log": "953cdab65cd048b0485120054abf1af851820d710d47e37ba7c2a8bf63db6335",
+      "device-codes-read-only.log": "2563abab55cb9087afe30dd4eb89b80ad739292d7dbbb93d4a3741ba1b48272f",
+      "scan.log": "b6a707dcdaa0734658e019c11042d640604c601361efac566775c2b84c773df7"
+    },
+    "journal_sha256": "3464073d4093cc77f40e4a9e65c4d7847a188c39531d2e3259e279fae1310079"
   }
 }
