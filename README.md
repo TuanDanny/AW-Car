@@ -28,6 +28,10 @@ Xiaozhi và màu LED; [report trước merge](docs/status-led-report.json).
 Lỗi1006 cũ chưa rõ nguyên nhân, loa còn rè/nguồn chưa đo. **Không lấy bằng
 chứng đó thay nghiệm thu binary tích hợp. HARDWARE NOT VERIFIED cho mốc này.**
 
+Bản sửa Motion ngày06/11 và phép đo ba board được ghi riêng ở
+[báo cáo UART/queue/reboot](docs/motion-uart-receive-fix.md); không thay đổi
+trạng thái nghiệm thu của tag milestone0.1 bên trên.
+
 ## FPGA tách milestone
 
 Toàn bộ cây `fpga/` giữ nguyên origin/main094b37c, chưa nhập RTL từ nhánh FPGA.

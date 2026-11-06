@@ -59,6 +59,10 @@ class FpgaLink {
   fpga::Frame tx_{};
   bool have_sample_ = false, have_seq_ = false, pending_ = false;
   bool permit_ = false, clear_ = false, pending_seen_ = false;
+  bool discovery_pending_ = false;
+  uint16_t discovery_seq_ = 0;
+  uint32_t discovery_ticks_ = 0;
+  uint64_t discovery_at_ = 0;
   uint32_t seed_ = 1, session_ = 0, generation_ = 1, last_timestamp_ = 0;
   uint16_t seq_ = 0, last_snapshot_ = 0, fault_ = 0;
   uint64_t sample_at_ = 0, until_ = 0, quiet_until_ = 0, wake_until_ = 0,

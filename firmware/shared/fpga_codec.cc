@@ -64,9 +64,20 @@ Frame CommandFrame(uint32_t session, uint16_t seq, uint8_t dir, uint16_t left,
   bm::Put16(f.payload.data() + 4, right);
   return f;
 }
+void Parser::Reject(ErrorReason reason, uint64_t now, uint64_t gap) {
+  ++errors;
+  if (reason == ErrorReason::Timeout) ++diagnostics_.timeout_errors;
+  else if (reason == ErrorReason::Header) ++diagnostics_.header_errors;
+  else if (reason == ErrorReason::Crc) ++diagnostics_.crc_errors;
+  diagnostics_.last_reason = reason;
+  diagnostics_.last_size = uint8_t(size_);
+  diagnostics_.last_gap_us = uint32_t(std::min<uint64_t>(gap, UINT32_MAX));
+  diagnostics_.last_frame_us = uint32_t(std::min<uint64_t>(now - start_, UINT32_MAX));
+}
 bool Parser::Feed(uint8_t byte, uint64_t now, Frame& out) {
-  if (size_ && (now - last_ >= 2000 || now - start_ >= 6000)) {
-    ++errors;
+  const uint64_t gap = now - last_;
+  if (size_ && (gap >= 2000 || now - start_ >= 6000)) {
+    Reject(ErrorReason::Timeout, now, gap);
     size_ = 0;
   }
   last_ = now;
@@ -87,16 +98,16 @@ bool Parser::Feed(uint8_t byte, uint64_t now, Frame& out) {
                    (size_ == 4 && Length(byte) < 0) ||
                    (size_ == 5 && byte != Length(bytes_[3]));
   if (bad) {
-    ++errors;
+    Reject(ErrorReason::Header, now, gap);
     size_ = byte == 0xa5 ? 1 : 0;
     start_ = now;
     return false;
   }
   if (size_ < 5 || size_ < size_t(13 + bytes_[4])) return false;
   const size_t n = size_;
-  size_ = 0;
   if (bm::Crc(bytes_.data() + 2, n - 4) != bm::U16(bytes_.data() + n - 2)) {
-    ++errors;
+    Reject(ErrorReason::Crc, now, gap);
+    size_ = 0;
     if (byte == 0xa5) {
       bytes_[0] = byte;
       size_ = 1;
@@ -104,6 +115,7 @@ bool Parser::Feed(uint8_t byte, uint64_t now, Frame& out) {
     }
     return false;
   }
+  size_ = 0;
   out = {};
   out.type = bytes_[3];
   out.length = bytes_[4];

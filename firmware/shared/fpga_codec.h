@@ -31,13 +31,23 @@ Frame CommandFrame(uint32_t session, uint16_t seq, uint8_t direction,
                    uint16_t left, uint16_t right);
 class Parser {
  public:
+  enum class ErrorReason : uint8_t { None, Timeout, Header, Crc };
+  struct Diagnostics {
+    uint32_t timeout_errors = 0, header_errors = 0, crc_errors = 0;
+    uint32_t last_gap_us = 0, last_frame_us = 0;
+    uint8_t last_size = 0;
+    ErrorReason last_reason = ErrorReason::None;
+  };
   bool Feed(uint8_t byte, uint64_t now_us, Frame& out);
   void Reset() { size_ = 0; }
+  const Diagnostics& GetDiagnostics() const { return diagnostics_; }
   uint32_t errors = 0;
 
  private:
   std::array<uint8_t, 64> bytes_{};
   size_t size_ = 0;
   uint64_t start_ = 0, last_ = 0;
+  Diagnostics diagnostics_{};
+  void Reject(ErrorReason reason, uint64_t now, uint64_t gap);
 };
 }  // namespace awcar::fpga

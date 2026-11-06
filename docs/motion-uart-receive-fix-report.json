@@ -1,0 +1,2402 @@
+{
+  "date": "2026-11-06",
+  "branch": "codex/esp32-s3-motion",
+  "base_commit": "7a45fad8f45b304ba92e748563820181cab279a2",
+  "scope": "Motion runtime/parser/link only; Brain and FPGA RTL unchanged",
+  "hardware": "Brain COM3, Motion COM7, Tang Nano9K JTAG; USB only, VM absent, no gate",
+  "production_locked": true,
+  "stages": {
+    "baseline_instrumented_old_reader": {
+      "phase": null,
+      "motion_samples": 47,
+      "fresh_samples": 47,
+      "safe_all_samples": true,
+      "interval_s": 230.202,
+      "new_fpga_frames": 23016,
+      "fpga": {
+        "frames": {
+          "first": 5208,
+          "last": 28224,
+          "min": 5208,
+          "max": 28224,
+          "delta": 23016
+        },
+        "hw_errors": {
+          "first": 0,
+          "last": 0,
+          "min": 0,
+          "max": 0,
+          "delta": 0
+        },
+        "parser_errors": {
+          "first": 0,
+          "last": 4,
+          "min": 0,
+          "max": 4,
+          "delta": 4
+        }
+      },
+      "motion": {
+        "rx_errors": {
+          "first": 0,
+          "last": 4,
+          "min": 0,
+          "max": 4,
+          "delta": 4
+        },
+        "queue_drops": {
+          "first": 0,
+          "last": 0,
+          "min": 0,
+          "max": 0,
+          "delta": 0
+        },
+        "tx_drops": {
+          "first": 0,
+          "last": 0,
+          "min": 0,
+          "max": 0,
+          "delta": 0
+        },
+        "log_drops": {
+          "first": 0,
+          "last": 0,
+          "min": 0,
+          "max": 0,
+          "delta": 0
+        },
+        "heap_free": {
+          "first": 350284,
+          "last": 350284,
+          "min": 350284,
+          "max": 350284,
+          "delta": 0
+        },
+        "heap_min": {
+          "first": 346080,
+          "last": 346080,
+          "min": 346080,
+          "max": 346080,
+          "delta": 0
+        }
+      },
+      "brain": {
+        "uart_status": {
+          "first": 14282,
+          "last": 18913,
+          "min": 14282,
+          "max": 18913,
+          "delta": 4631
+        },
+        "uart_errors": {
+          "first": 1,
+          "last": 1,
+          "min": 1,
+          "max": 1,
+          "delta": 0
+        },
+        "telemetry_age": {
+          "first": 15,
+          "last": 48,
+          "min": 0,
+          "max": 48,
+          "delta": 33
+        },
+        "driver_errors": {
+          "first": 0,
+          "last": 0,
+          "min": 0,
+          "max": 0,
+          "delta": 0
+        }
+      },
+      "first_snapshot_seq": 9682,
+      "last_snapshot_seq": 32702,
+      "port_errors": 0,
+      "raw_journal_sha256": "9f7b2884b76b01543dd810ba5237153de903141607d8fddf960180d3c0ca63a7",
+      "parser_reject_contexts": [
+        {
+          "peer": "FPGA",
+          "timeouts": 0,
+          "header_errors": 0,
+          "crc_errors": 0,
+          "last_reason": 0,
+          "last_gap_us": 0,
+          "last_frame_us": 0,
+          "last_size": 0
+        },
+        {
+          "peer": "FPGA",
+          "timeouts": 1,
+          "header_errors": 0,
+          "crc_errors": 0,
+          "last_reason": 1,
+          "last_gap_us": 2005,
+          "last_frame_us": 2040,
+          "last_size": 8
+        },
+        {
+          "peer": "FPGA",
+          "timeouts": 2,
+          "header_errors": 0,
+          "crc_errors": 0,
+          "last_reason": 1,
+          "last_gap_us": 2006,
+          "last_frame_us": 3015,
+          "last_size": 16
+        },
+        {
+          "peer": "FPGA",
+          "timeouts": 3,
+          "header_errors": 0,
+          "crc_errors": 0,
+          "last_reason": 1,
+          "last_gap_us": 2000,
+          "last_frame_us": 3018,
+          "last_size": 16
+        },
+        {
+          "peer": "FPGA",
+          "timeouts": 4,
+          "header_errors": 0,
+          "crc_errors": 0,
+          "last_reason": 1,
+          "last_gap_us": 2003,
+          "last_frame_us": 4014,
+          "last_size": 32
+        }
+      ]
+    },
+    "read0_only_not_qualified": {
+      "phase": null,
+      "motion_samples": 90,
+      "fresh_samples": 90,
+      "safe_all_samples": true,
+      "interval_s": 445.505,
+      "new_fpga_frames": 44550,
+      "fpga": {
+        "frames": {
+          "first": 3140,
+          "last": 47690,
+          "min": 3140,
+          "max": 47690,
+          "delta": 44550
+        },
+        "hw_errors": {
+          "first": 0,
+          "last": 0,
+          "min": 0,
+          "max": 0,
+          "delta": 0
+        },
+        "parser_errors": {
+          "first": 0,
+          "last": 0,
+          "min": 0,
+          "max": 0,
+          "delta": 0
+        }
+      },
+      "motion": {
+        "rx_errors": {
+          "first": 0,
+          "last": 0,
+          "min": 0,
+          "max": 0,
+          "delta": 0
+        },
+        "queue_drops": {
+          "first": 14,
+          "last": 164,
+          "min": 14,
+          "max": 164,
+          "delta": 150
+        },
+        "tx_drops": {
+          "first": 0,
+          "last": 0,
+          "min": 0,
+          "max": 0,
+          "delta": 0
+        },
+        "log_drops": {
+          "first": 0,
+          "last": 0,
+          "min": 0,
+          "max": 0,
+          "delta": 0
+        },
+        "heap_free": {
+          "first": 350284,
+          "last": 350284,
+          "min": 350284,
+          "max": 350284,
+          "delta": 0
+        },
+        "heap_min": {
+          "first": 346080,
+          "last": 346080,
+          "min": 346080,
+          "max": 346080,
+          "delta": 0
+        }
+      },
+      "brain": {
+        "uart_status": {
+          "first": 22985,
+          "last": 31822,
+          "min": 22985,
+          "max": 31822,
+          "delta": 8837
+        },
+        "uart_errors": {
+          "first": 1,
+          "last": 1,
+          "min": 1,
+          "max": 1,
+          "delta": 0
+        },
+        "telemetry_age": {
+          "first": 1,
+          "last": 24,
+          "min": 0,
+          "max": 49,
+          "delta": 23
+        },
+        "driver_errors": {
+          "first": 0,
+          "last": 0,
+          "min": 0,
+          "max": 0,
+          "delta": 0
+        }
+      },
+      "first_snapshot_seq": 53860,
+      "last_snapshot_seq": 32875,
+      "port_errors": 0,
+      "raw_journal_sha256": "3824269bc3b66cd5cc079cf74a0c8185e4065197c5e4dd7154a43db1e19d6906",
+      "parser_reject_contexts": [
+        {
+          "peer": "FPGA",
+          "timeouts": 0,
+          "header_errors": 0,
+          "crc_errors": 0,
+          "last_reason": 0,
+          "last_gap_us": 0,
+          "last_frame_us": 0,
+          "last_size": 0
+        }
+      ]
+    },
+    "read0_and_post_dequeue_clock": {
+      "phase": null,
+      "motion_samples": 167,
+      "fresh_samples": 167,
+      "safe_all_samples": true,
+      "interval_s": 830.838,
+      "new_fpga_frames": 83083,
+      "fpga": {
+        "frames": {
+          "first": 57,
+          "last": 83140,
+          "min": 57,
+          "max": 83140,
+          "delta": 83083
+        },
+        "hw_errors": {
+          "first": 0,
+          "last": 0,
+          "min": 0,
+          "max": 0,
+          "delta": 0
+        },
+        "parser_errors": {
+          "first": 0,
+          "last": 0,
+          "min": 0,
+          "max": 0,
+          "delta": 0
+        }
+      },
+      "motion": {
+        "rx_errors": {
+          "first": 0,
+          "last": 0,
+          "min": 0,
+          "max": 0,
+          "delta": 0
+        },
+        "queue_drops": {
+          "first": 0,
+          "last": 0,
+          "min": 0,
+          "max": 0,
+          "delta": 0
+        },
+        "tx_drops": {
+          "first": 0,
+          "last": 0,
+          "min": 0,
+          "max": 0,
+          "delta": 0
+        },
+        "log_drops": {
+          "first": 0,
+          "last": 0,
+          "min": 0,
+          "max": 0,
+          "delta": 0
+        },
+        "heap_free": {
+          "first": 350284,
+          "last": 350284,
+          "min": 350284,
+          "max": 350284,
+          "delta": 0
+        },
+        "heap_min": {
+          "first": 346080,
+          "last": 346080,
+          "min": 346080,
+          "max": 346080,
+          "delta": 0
+        }
+      },
+      "brain": {
+        "uart_status": {
+          "first": 35275,
+          "last": 51962,
+          "min": 35275,
+          "max": 51962,
+          "delta": 16687
+        },
+        "uart_errors": {
+          "first": 1,
+          "last": 1,
+          "min": 1,
+          "max": 1,
+          "delta": 0
+        },
+        "telemetry_age": {
+          "first": 38,
+          "last": 15,
+          "min": 0,
+          "max": 49,
+          "delta": -23
+        },
+        "driver_errors": {
+          "first": 0,
+          "last": 0,
+          "min": 0,
+          "max": 0,
+          "delta": 0
+        }
+      },
+      "first_snapshot_seq": 50834,
+      "last_snapshot_seq": 2845,
+      "port_errors": 0,
+      "raw_journal_sha256": "3d93ad4016b7768e6d399412ced7e9541c951495d567120ab74b22a515c69e85",
+      "parser_reject_contexts": [
+        {
+          "peer": "FPGA",
+          "timeouts": 0,
+          "header_errors": 0,
+          "crc_errors": 0,
+          "last_reason": 0,
+          "last_gap_us": 0,
+          "last_frame_us": 0,
+          "last_size": 0
+        }
+      ]
+    }
+  },
+  "final_firmware": {
+    "stage": "all_three_fixes_and_coherent_diagnostics",
+    "driver_build": "LOCKED",
+    "port": "COM7",
+    "source_hashes": {
+      "firmware/motion/main/runtime.cc": "3080bf4c63990789dab069e25a1f5bcadf8058c81da50b3c9d3f135a524359a1",
+      "firmware/motion/main/runtime.h": "9694e28b391da1410af1fcab4e4ec58e82393f4b06ad4286e5c402cc67d209c7",
+      "firmware/motion/main/fpga_link.cc": "74f0e6f08bce2280080b45d2ed82d9cc7069730f0fc979235f827ff640abcecd",
+      "firmware/motion/main/fpga_link.h": "8bb788557100afa62b8bb9b7bb68c7e8fd1229115e1de1d082440facb57cf47c",
+      "firmware/shared/fpga_codec.cc": "3ee22ced7336243d94665bbf8998df1cbd937e6b35a1eb1d33aa834f7aa591f6",
+      "firmware/shared/fpga_codec.h": "983c0fa861bcfda9c9dfeb1294557c269e0e590e0d1b8bf819c001994a88efc7"
+    },
+    "written_segments": {
+      "0x0": "67fb385e115c22f6005b2d4ee0e146fa86d2cf95231c1eee07600d8433a900e4",
+      "0x8000": "7eb355f46fb655b7ff4c0ff5164b297dfb615b193f25ce4f0838a97c400bae51",
+      "0x10000": "0f17f249b6b5a9c6ce7fec6dccf0661108a6b067e7547e331b7eb3624dd1ba7e"
+    },
+    "parser_limits_us": {
+      "interbyte": 2000,
+      "frame": 6000
+    },
+    "event_admission_limit_us": 10000,
+    "nvs_phy_preserved": true,
+    "motioncfg_preserved": true,
+    "returncode": 0
+  },
+  "tests": {
+    "root": {
+      "run": 147,
+      "passed": 134,
+      "skipped": 13,
+      "reason": "Web integration dependency unavailable in current Python"
+    },
+    "brain_motion": {
+      "passed": true,
+      "motion_digest": "562f57b4a6b4f43c",
+      "brain_digest": "bd274b66e833",
+      "simulated_us": 1035000,
+      "checks": [
+        "manual_hello_arm_twist_both_cpp_cores",
+        "stop_exact_ack_no_fpga_fault",
+        "ai_short_action_neutral_keeps_arm",
+        "web_clear_new_session_actual_motion_gpio_recovery_no_auto_arm",
+        "ai_disconnect_contract_and_cloud_loss_stop"
+      ],
+      "limits": "Two compiled cores and Python FPGA peer; no physical UART/WiFi/motor."
+    },
+    "motion_rtl": {
+      "passed": true,
+      "motion_digest": "562f57b4a6b4f43c",
+      "clock_hz": 27000000,
+      "fpga_commit": "96ae0a785bfaef840ce6078372b0e5229f380876",
+      "rtl_sha256": {
+        "fpga/rtl/aw_car_top.sv": "5f4b33ed69e329c4bad64967e1eeca9274a651e7af413e1197f3855b5c01d67b",
+        "fpga/rtl/common/input_sync_filter.sv": "e3ede4e386ce6e6694f7bb5c1eceff4ee71650d8fa8f9c45f2427ff3d18c2d22",
+        "fpga/rtl/common/reset_sync.sv": "e09df8f0ffdeabe72a2a2932b887ede320490e0d809f6c137b9b1ad1e253a357",
+        "fpga/rtl/common/status_leds.sv": "3edad75c8318742e1040cb21d23a20f083b8149072adabec5c7be0286cac42bb",
+        "fpga/rtl/drive_core.sv": "3fe348093c70979e350eba7d1ad966ccc1aba05ea49aa4eeac1604582698729d",
+        "fpga/rtl/encoder/encoder_pair.sv": "6f824e997bdde3eda3deba02f112668359a4ae9f52370a6290c9eb7875f27e6f",
+        "fpga/rtl/encoder/pulse_counter.sv": "0a3bccf81008fad2a6314f796a6c6e32124f88a96248e0896700cfe0776cfdab",
+        "fpga/rtl/encoder/pulse_encoder_pair.sv": "a2896507afd8c14e6997fd1f55ea221cd4aa6a5b27c08a82aedef3e2acda47a4",
+        "fpga/rtl/encoder/quadrature_decoder.sv": "34d838b4f940d49b6f708eb4ca6d4bdec11d62ac490dec7938a5529cd4cf31ac",
+        "fpga/rtl/link/command_guard.sv": "e37bf10cbd2e7acc794bb54cb29355b9e835e41ce9244b10ec0f83ddd1581618",
+        "fpga/rtl/link/crc16_byte.sv": "f152a5e1a23b386b6b1ba978d83c16a68f23c7f37def73c5c73841978c896916",
+        "fpga/rtl/link/fpga_link.sv": "06c813c00ef9723426e1d98176a703f9a60362cecc577b5c0b220c48edd4f6c9",
+        "fpga/rtl/link/frame_rx.sv": "04dbf6363540d3f79e68695c6fbd491b0cd4b9cbb7d62bea03c10d970a75725d",
+        "fpga/rtl/link/frame_tx.sv": "6dfb562e2ad64b669fd540af78172b249ef228ab3b06f24feca6740244b2abd0",
+        "fpga/rtl/link/uart_rx.sv": "2db18dbdf89d44062e6160bf808cf987feb7f2980d62b0d9c5b4f7a5275b1232",
+        "fpga/rtl/link/uart_tx.sv": "6258dae78d3c8b572cf2650046ea04172efbd0879dd861e850b1ed67396d3f83",
+        "fpga/rtl/pwm/drv8833_adapter.sv": "6646330d195fbcf73e1d4db835b28ebd6f9058fccefa5aced6aa9bdb775ddcb4",
+        "fpga/rtl/pwm/motor_pwm_pair.sv": "942f702dfd897bd4398601d3b37b460881a1a60c527b45e0603f77b0991567a4",
+        "fpga/rtl/pwm/pwm_pair.sv": "9a88ec562cc2daf92de2383cd247343d70d86ced7e10e09aa8fcc218c14f7f8d",
+        "fpga/rtl/safety/runtime_diagnostics.sv": "40cb7fa83917f1427066d97076ac7ae4cb95c855362cbbfce48d891ff0e65a91",
+        "fpga/rtl/safety/safety_fsm.sv": "5a45eac037c6f80b9aa2863139271eca34ed9b0112aec8c121dd8812e689787b"
+      },
+      "checks": [
+        "boot_and_status_v2_wire_crc",
+        "real_gpio_pending_status_arm_and_wake",
+        "real_uart_duty_and_differential_pwm",
+        "separate_driver_stop_without_lost_permit_fault",
+        "clock_stopped_motion_independent_cutoff",
+        "real_fault_clear_gpio_uart_no_auto_arm"
+      ],
+      "wall_seconds": 149.08428619999995,
+      "simulated_us": 430000
+    }
+  },
+  "limitations": [
+    "Console samples are not waveform/deadline evidence.",
+    "No physical ARMED/motor/gate/E-stop validation.",
+    "No dashboard client in this UART soak.",
+    "Historical FPGA readback verify remains FAIL."
+  ],
+  "release_stable": {
+    "phase": "release_final_stable_soak",
+    "motion_samples": 125,
+    "fresh_samples": 125,
+    "safe_all_samples": true,
+    "interval_s": 620.725,
+    "new_fpga_frames": 62072,
+    "fpga": {
+      "frames": {
+        "first": 1662,
+        "last": 63734,
+        "min": 1662,
+        "max": 63734,
+        "delta": 62072
+      },
+      "hw_errors": {
+        "first": 0,
+        "last": 0,
+        "min": 0,
+        "max": 0,
+        "delta": 0
+      },
+      "parser_errors": {
+        "first": 0,
+        "last": 0,
+        "min": 0,
+        "max": 0,
+        "delta": 0
+      }
+    },
+    "motion": {
+      "rx_errors": {
+        "first": 0,
+        "last": 0,
+        "min": 0,
+        "max": 0,
+        "delta": 0
+      },
+      "queue_drops": {
+        "first": 0,
+        "last": 0,
+        "min": 0,
+        "max": 0,
+        "delta": 0
+      },
+      "tx_drops": {
+        "first": 0,
+        "last": 0,
+        "min": 0,
+        "max": 0,
+        "delta": 0
+      },
+      "log_drops": {
+        "first": 0,
+        "last": 0,
+        "min": 0,
+        "max": 0,
+        "delta": 0
+      },
+      "heap_free": {
+        "first": 350268,
+        "last": 350268,
+        "min": 350268,
+        "max": 350268,
+        "delta": 0
+      },
+      "heap_min": {
+        "first": 346064,
+        "last": 346064,
+        "min": 346064,
+        "max": 346064,
+        "delta": 0
+      }
+    },
+    "brain": {
+      "uart_status": {
+        "first": 59630,
+        "last": 71966,
+        "min": 59630,
+        "max": 71966,
+        "delta": 12336
+      },
+      "uart_errors": {
+        "first": 1,
+        "last": 1,
+        "min": 1,
+        "max": 1,
+        "delta": 0
+      },
+      "telemetry_age": {
+        "first": 32,
+        "last": 48,
+        "min": 0,
+        "max": 48,
+        "delta": 16
+      },
+      "driver_errors": {
+        "first": 0,
+        "last": 0,
+        "min": 0,
+        "max": 0,
+        "delta": 0
+      }
+    },
+    "first_snapshot_seq": 42106,
+    "last_snapshot_seq": 38642,
+    "port_errors": 0,
+    "raw_journal_sha256": "bd587b8ce0dca417d43ccce25c0623753594f899bd01b6dd8daeec6fe910a57f",
+    "parser_reject_contexts": [
+      {
+        "peer": "FPGA",
+        "timeouts": 0,
+        "header_errors": 0,
+        "crc_errors": 0,
+        "last_reason": 0,
+        "last_gap_us": 0,
+        "last_frame_us": 0,
+        "last_size": 0
+      }
+    ]
+  },
+  "recovery_phases": {
+    "baseline": {
+      "phase": "baseline",
+      "motion_samples": 0,
+      "fresh_samples": 0,
+      "safe_all_samples": false,
+      "interval_s": null,
+      "new_fpga_frames": null,
+      "fpga": {
+        "frames": null,
+        "hw_errors": null,
+        "parser_errors": null
+      },
+      "motion": {
+        "rx_errors": null,
+        "queue_drops": null,
+        "tx_drops": null,
+        "log_drops": null,
+        "heap_free": null,
+        "heap_min": null
+      },
+      "brain": {
+        "uart_status": null,
+        "uart_errors": null,
+        "telemetry_age": null,
+        "driver_errors": null
+      },
+      "first_snapshot_seq": null,
+      "last_snapshot_seq": null,
+      "port_errors": 0,
+      "raw_journal_sha256": "bd587b8ce0dca417d43ccce25c0623753594f899bd01b6dd8daeec6fe910a57f",
+      "parser_reject_contexts": [],
+      "timeline": []
+    },
+    "release_brain_reset": {
+      "phase": "release_brain_reset",
+      "motion_samples": 19,
+      "fresh_samples": 19,
+      "safe_all_samples": true,
+      "interval_s": 90.064,
+      "new_fpga_frames": 9007,
+      "fpga": {
+        "frames": {
+          "first": 2479,
+          "last": 11486,
+          "min": 2479,
+          "max": 11486,
+          "delta": 9007
+        },
+        "hw_errors": {
+          "first": 0,
+          "last": 0,
+          "min": 0,
+          "max": 0,
+          "delta": 0
+        },
+        "parser_errors": {
+          "first": 0,
+          "last": 0,
+          "min": 0,
+          "max": 0,
+          "delta": 0
+        }
+      },
+      "motion": {
+        "rx_errors": {
+          "first": 0,
+          "last": 0,
+          "min": 0,
+          "max": 0,
+          "delta": 0
+        },
+        "queue_drops": {
+          "first": 0,
+          "last": 0,
+          "min": 0,
+          "max": 0,
+          "delta": 0
+        },
+        "tx_drops": {
+          "first": 0,
+          "last": 0,
+          "min": 0,
+          "max": 0,
+          "delta": 0
+        },
+        "log_drops": {
+          "first": 0,
+          "last": 0,
+          "min": 0,
+          "max": 0,
+          "delta": 0
+        },
+        "heap_free": {
+          "first": 350268,
+          "last": 350268,
+          "min": 350268,
+          "max": 350268,
+          "delta": 0
+        },
+        "heap_min": {
+          "first": 346064,
+          "last": 346064,
+          "min": 346064,
+          "max": 346064,
+          "delta": 0
+        }
+      },
+      "brain": {
+        "uart_status": {
+          "first": 4,
+          "last": 1921,
+          "min": 4,
+          "max": 1921,
+          "delta": 1917
+        },
+        "uart_errors": {
+          "first": 0,
+          "last": 0,
+          "min": 0,
+          "max": 0,
+          "delta": 0
+        },
+        "telemetry_age": {
+          "first": 38,
+          "last": 39,
+          "min": 5,
+          "max": 49,
+          "delta": 1
+        },
+        "driver_errors": {
+          "first": 0,
+          "last": 0,
+          "min": 0,
+          "max": 0,
+          "delta": 0
+        }
+      },
+      "first_snapshot_seq": 4623,
+      "last_snapshot_seq": 13629,
+      "port_errors": 0,
+      "raw_journal_sha256": "bd587b8ce0dca417d43ccce25c0623753594f899bd01b6dd8daeec6fe910a57f",
+      "parser_reject_contexts": [
+        {
+          "peer": "FPGA",
+          "timeouts": 0,
+          "header_errors": 0,
+          "crc_errors": 0,
+          "last_reason": 0,
+          "last_gap_us": 0,
+          "last_frame_us": 0,
+          "last_size": 0
+        }
+      ],
+      "timeline": [
+        {
+          "elapsed_s": 673.111,
+          "kind": "brain_health",
+          "sample": {
+            "telemetry_age": "38",
+            "uart_status": "4",
+            "uart_errors": "0"
+          }
+        },
+        {
+          "elapsed_s": 676.869,
+          "kind": "motion_status",
+          "sample": {
+            "fresh": true,
+            "snapshot_seq": 4623,
+            "fault": 1,
+            "driver_gpio": 0,
+            "logical_gpio": 0,
+            "left_duty": 0,
+            "right_duty": 0
+          }
+        },
+        {
+          "elapsed_s": 678.163,
+          "kind": "brain_health",
+          "sample": {
+            "telemetry_age": "35",
+            "uart_status": "105",
+            "uart_errors": "0"
+          }
+        },
+        {
+          "elapsed_s": 681.886,
+          "kind": "motion_status",
+          "sample": {
+            "fresh": true,
+            "snapshot_seq": 5123,
+            "fault": 1,
+            "driver_gpio": 0,
+            "logical_gpio": 0,
+            "left_duty": 0,
+            "right_duty": 0
+          }
+        },
+        {
+          "elapsed_s": 683.218,
+          "kind": "brain_health",
+          "sample": {
+            "telemetry_age": "23",
+            "uart_status": "206",
+            "uart_errors": "0"
+          }
+        },
+        {
+          "elapsed_s": 686.879,
+          "kind": "motion_status",
+          "sample": {
+            "fresh": true,
+            "snapshot_seq": 5623,
+            "fault": 1,
+            "driver_gpio": 0,
+            "logical_gpio": 0,
+            "left_duty": 0,
+            "right_duty": 0
+          }
+        },
+        {
+          "elapsed_s": 688.268,
+          "kind": "brain_health",
+          "sample": {
+            "telemetry_age": "22",
+            "uart_status": "307",
+            "uart_errors": "0"
+          }
+        },
+        {
+          "elapsed_s": 691.88,
+          "kind": "motion_status",
+          "sample": {
+            "fresh": true,
+            "snapshot_seq": 6124,
+            "fault": 1,
+            "driver_gpio": 0,
+            "logical_gpio": 0,
+            "left_duty": 0,
+            "right_duty": 0
+          }
+        },
+        {
+          "elapsed_s": 693.312,
+          "kind": "brain_health",
+          "sample": {
+            "telemetry_age": "20",
+            "uart_status": "408",
+            "uart_errors": "0"
+          }
+        },
+        {
+          "elapsed_s": 696.88,
+          "kind": "motion_status",
+          "sample": {
+            "fresh": true,
+            "snapshot_seq": 6624,
+            "fault": 1,
+            "driver_gpio": 0,
+            "logical_gpio": 0,
+            "left_duty": 0,
+            "right_duty": 0
+          }
+        },
+        {
+          "elapsed_s": 698.366,
+          "kind": "brain_health",
+          "sample": {
+            "telemetry_age": "48",
+            "uart_status": "508",
+            "uart_errors": "0"
+          }
+        },
+        {
+          "elapsed_s": 701.885,
+          "kind": "motion_status",
+          "sample": {
+            "fresh": true,
+            "snapshot_seq": 7124,
+            "fault": 1,
+            "driver_gpio": 0,
+            "logical_gpio": 0,
+            "left_duty": 0,
+            "right_duty": 0
+          }
+        },
+        {
+          "elapsed_s": 703.415,
+          "kind": "brain_health",
+          "sample": {
+            "telemetry_age": "36",
+            "uart_status": "609",
+            "uart_errors": "0"
+          }
+        },
+        {
+          "elapsed_s": 706.888,
+          "kind": "motion_status",
+          "sample": {
+            "fresh": true,
+            "snapshot_seq": 7624,
+            "fault": 1,
+            "driver_gpio": 0,
+            "logical_gpio": 0,
+            "left_duty": 0,
+            "right_duty": 0
+          }
+        },
+        {
+          "elapsed_s": 708.467,
+          "kind": "brain_health",
+          "sample": {
+            "telemetry_age": "29",
+            "uart_status": "710",
+            "uart_errors": "0"
+          }
+        },
+        {
+          "elapsed_s": 711.909,
+          "kind": "motion_status",
+          "sample": {
+            "fresh": true,
+            "snapshot_seq": 8126,
+            "fault": 1,
+            "driver_gpio": 0,
+            "logical_gpio": 0,
+            "left_duty": 0,
+            "right_duty": 0
+          }
+        },
+        {
+          "elapsed_s": 713.519,
+          "kind": "brain_health",
+          "sample": {
+            "telemetry_age": "19",
+            "uart_status": "811",
+            "uart_errors": "0"
+          }
+        },
+        {
+          "elapsed_s": 716.903,
+          "kind": "motion_status",
+          "sample": {
+            "fresh": true,
+            "snapshot_seq": 8625,
+            "fault": 1,
+            "driver_gpio": 0,
+            "logical_gpio": 0,
+            "left_duty": 0,
+            "right_duty": 0
+          }
+        },
+        {
+          "elapsed_s": 718.563,
+          "kind": "brain_health",
+          "sample": {
+            "telemetry_age": "12",
+            "uart_status": "912",
+            "uart_errors": "0"
+          }
+        },
+        {
+          "elapsed_s": 721.914,
+          "kind": "motion_status",
+          "sample": {
+            "fresh": true,
+            "snapshot_seq": 9126,
+            "fault": 1,
+            "driver_gpio": 0,
+            "logical_gpio": 0,
+            "left_duty": 0,
+            "right_duty": 0
+          }
+        },
+        {
+          "elapsed_s": 723.611,
+          "kind": "brain_health",
+          "sample": {
+            "telemetry_age": "10",
+            "uart_status": "1013",
+            "uart_errors": "0"
+          }
+        },
+        {
+          "elapsed_s": 726.905,
+          "kind": "motion_status",
+          "sample": {
+            "fresh": true,
+            "snapshot_seq": 9626,
+            "fault": 1,
+            "driver_gpio": 0,
+            "logical_gpio": 0,
+            "left_duty": 0,
+            "right_duty": 0
+          }
+        },
+        {
+          "elapsed_s": 728.669,
+          "kind": "brain_health",
+          "sample": {
+            "telemetry_age": "9",
+            "uart_status": "1114",
+            "uart_errors": "0"
+          }
+        },
+        {
+          "elapsed_s": 731.911,
+          "kind": "motion_status",
+          "sample": {
+            "fresh": true,
+            "snapshot_seq": 10126,
+            "fault": 1,
+            "driver_gpio": 0,
+            "logical_gpio": 0,
+            "left_duty": 0,
+            "right_duty": 0
+          }
+        },
+        {
+          "elapsed_s": 733.719,
+          "kind": "brain_health",
+          "sample": {
+            "telemetry_age": "8",
+            "uart_status": "1215",
+            "uart_errors": "0"
+          }
+        },
+        {
+          "elapsed_s": 736.918,
+          "kind": "motion_status",
+          "sample": {
+            "fresh": true,
+            "snapshot_seq": 10627,
+            "fault": 1,
+            "driver_gpio": 0,
+            "logical_gpio": 0,
+            "left_duty": 0,
+            "right_duty": 0
+          }
+        },
+        {
+          "elapsed_s": 738.768,
+          "kind": "brain_health",
+          "sample": {
+            "telemetry_age": "8",
+            "uart_status": "1316",
+            "uart_errors": "0"
+          }
+        },
+        {
+          "elapsed_s": 741.925,
+          "kind": "motion_status",
+          "sample": {
+            "fresh": true,
+            "snapshot_seq": 11128,
+            "fault": 1,
+            "driver_gpio": 0,
+            "logical_gpio": 0,
+            "left_duty": 0,
+            "right_duty": 0
+          }
+        },
+        {
+          "elapsed_s": 743.817,
+          "kind": "brain_health",
+          "sample": {
+            "telemetry_age": "8",
+            "uart_status": "1417",
+            "uart_errors": "0"
+          }
+        },
+        {
+          "elapsed_s": 746.929,
+          "kind": "motion_status",
+          "sample": {
+            "fresh": true,
+            "snapshot_seq": 11629,
+            "fault": 1,
+            "driver_gpio": 0,
+            "logical_gpio": 0,
+            "left_duty": 0,
+            "right_duty": 0
+          }
+        },
+        {
+          "elapsed_s": 748.864,
+          "kind": "brain_health",
+          "sample": {
+            "telemetry_age": "7",
+            "uart_status": "1518",
+            "uart_errors": "0"
+          }
+        },
+        {
+          "elapsed_s": 751.934,
+          "kind": "motion_status",
+          "sample": {
+            "fresh": true,
+            "snapshot_seq": 12128,
+            "fault": 1,
+            "driver_gpio": 0,
+            "logical_gpio": 0,
+            "left_duty": 0,
+            "right_duty": 0
+          }
+        },
+        {
+          "elapsed_s": 753.911,
+          "kind": "brain_health",
+          "sample": {
+            "telemetry_age": "5",
+            "uart_status": "1619",
+            "uart_errors": "0"
+          }
+        },
+        {
+          "elapsed_s": 756.937,
+          "kind": "motion_status",
+          "sample": {
+            "fresh": true,
+            "snapshot_seq": 12629,
+            "fault": 1,
+            "driver_gpio": 0,
+            "logical_gpio": 0,
+            "left_duty": 0,
+            "right_duty": 0
+          }
+        },
+        {
+          "elapsed_s": 758.962,
+          "kind": "brain_health",
+          "sample": {
+            "telemetry_age": "5",
+            "uart_status": "1720",
+            "uart_errors": "0"
+          }
+        },
+        {
+          "elapsed_s": 761.943,
+          "kind": "motion_status",
+          "sample": {
+            "fresh": true,
+            "snapshot_seq": 13130,
+            "fault": 1,
+            "driver_gpio": 0,
+            "logical_gpio": 0,
+            "left_duty": 0,
+            "right_duty": 0
+          }
+        },
+        {
+          "elapsed_s": 764.014,
+          "kind": "brain_health",
+          "sample": {
+            "telemetry_age": "49",
+            "uart_status": "1820",
+            "uart_errors": "0"
+          }
+        },
+        {
+          "elapsed_s": 766.944,
+          "kind": "motion_status",
+          "sample": {
+            "fresh": true,
+            "snapshot_seq": 13629,
+            "fault": 1,
+            "driver_gpio": 0,
+            "logical_gpio": 0,
+            "left_duty": 0,
+            "right_duty": 0
+          }
+        },
+        {
+          "elapsed_s": 769.062,
+          "kind": "brain_health",
+          "sample": {
+            "telemetry_age": "39",
+            "uart_status": "1921",
+            "uart_errors": "0"
+          }
+        }
+      ]
+    },
+    "release_completed": {
+      "phase": "release_completed",
+      "motion_samples": 0,
+      "fresh_samples": 0,
+      "safe_all_samples": false,
+      "interval_s": null,
+      "new_fpga_frames": null,
+      "fpga": {
+        "frames": null,
+        "hw_errors": null,
+        "parser_errors": null
+      },
+      "motion": {
+        "rx_errors": null,
+        "queue_drops": null,
+        "tx_drops": null,
+        "log_drops": null,
+        "heap_free": null,
+        "heap_min": null
+      },
+      "brain": {
+        "uart_status": null,
+        "uart_errors": null,
+        "telemetry_age": null,
+        "driver_errors": null
+      },
+      "first_snapshot_seq": null,
+      "last_snapshot_seq": null,
+      "port_errors": 0,
+      "raw_journal_sha256": "bd587b8ce0dca417d43ccce25c0623753594f899bd01b6dd8daeec6fe910a57f",
+      "parser_reject_contexts": [],
+      "timeline": []
+    },
+    "release_flash_reconfigure": {
+      "phase": "release_flash_reconfigure",
+      "motion_samples": 4,
+      "fresh_samples": 3,
+      "safe_all_samples": true,
+      "interval_s": 15.018,
+      "new_fpga_frames": 1026,
+      "fpga": {
+        "frames": {
+          "first": 64001,
+          "last": 65027,
+          "min": 64001,
+          "max": 65027,
+          "delta": 1026
+        },
+        "hw_errors": {
+          "first": 0,
+          "last": 0,
+          "min": 0,
+          "max": 0,
+          "delta": 0
+        },
+        "parser_errors": {
+          "first": 0,
+          "last": 0,
+          "min": 0,
+          "max": 0,
+          "delta": 0
+        }
+      },
+      "motion": {
+        "rx_errors": {
+          "first": 0,
+          "last": 0,
+          "min": 0,
+          "max": 0,
+          "delta": 0
+        },
+        "queue_drops": {
+          "first": 0,
+          "last": 0,
+          "min": 0,
+          "max": 0,
+          "delta": 0
+        },
+        "tx_drops": {
+          "first": 0,
+          "last": 0,
+          "min": 0,
+          "max": 0,
+          "delta": 0
+        },
+        "log_drops": {
+          "first": 0,
+          "last": 0,
+          "min": 0,
+          "max": 0,
+          "delta": 0
+        },
+        "heap_free": {
+          "first": 350268,
+          "last": 350268,
+          "min": 350268,
+          "max": 350268,
+          "delta": 0
+        },
+        "heap_min": {
+          "first": 346064,
+          "last": 346064,
+          "min": 346064,
+          "max": 346064,
+          "delta": 0
+        }
+      },
+      "brain": {
+        "uart_status": {
+          "first": 72067,
+          "last": 72368,
+          "min": 72067,
+          "max": 72368,
+          "delta": 301
+        },
+        "uart_errors": {
+          "first": 1,
+          "last": 1,
+          "min": 1,
+          "max": 1,
+          "delta": 0
+        },
+        "telemetry_age": {
+          "first": 41,
+          "last": 41,
+          "min": 41,
+          "max": 48,
+          "delta": 0
+        },
+        "driver_errors": {
+          "first": 0,
+          "last": 0,
+          "min": 0,
+          "max": 0,
+          "delta": 0
+        }
+      },
+      "first_snapshot_seq": 38916,
+      "last_snapshot_seq": 1019,
+      "port_errors": 0,
+      "raw_journal_sha256": "bd587b8ce0dca417d43ccce25c0623753594f899bd01b6dd8daeec6fe910a57f",
+      "parser_reject_contexts": [
+        {
+          "peer": "FPGA",
+          "timeouts": 0,
+          "header_errors": 0,
+          "crc_errors": 0,
+          "last_reason": 0,
+          "last_gap_us": 0,
+          "last_frame_us": 0,
+          "last_size": 0
+        }
+      ],
+      "timeline": [
+        {
+          "elapsed_s": 625.161,
+          "kind": "brain_health",
+          "sample": {
+            "telemetry_age": "41",
+            "uart_status": "72067",
+            "uart_errors": "1"
+          }
+        },
+        {
+          "elapsed_s": 625.823,
+          "kind": "motion_status",
+          "sample": {
+            "fresh": false,
+            "snapshot_seq": 38916,
+            "fault": 1,
+            "driver_gpio": 0,
+            "logical_gpio": 0,
+            "left_duty": 0,
+            "right_duty": 0
+          }
+        },
+        {
+          "elapsed_s": 630.172,
+          "kind": "brain_health",
+          "sample": {
+            "telemetry_age": "48",
+            "uart_status": "72167",
+            "uart_errors": "1"
+          }
+        },
+        {
+          "elapsed_s": 630.822,
+          "kind": "motion_status",
+          "sample": {
+            "fresh": true,
+            "snapshot_seq": 18,
+            "fault": 1,
+            "driver_gpio": 0,
+            "logical_gpio": 0,
+            "left_duty": 0,
+            "right_duty": 0
+          }
+        },
+        {
+          "elapsed_s": 635.227,
+          "kind": "brain_health",
+          "sample": {
+            "telemetry_age": "44",
+            "uart_status": "72268",
+            "uart_errors": "1"
+          }
+        },
+        {
+          "elapsed_s": 635.831,
+          "kind": "motion_status",
+          "sample": {
+            "fresh": true,
+            "snapshot_seq": 519,
+            "fault": 1,
+            "driver_gpio": 0,
+            "logical_gpio": 0,
+            "left_duty": 0,
+            "right_duty": 0
+          }
+        },
+        {
+          "elapsed_s": 640.237,
+          "kind": "brain_health",
+          "sample": {
+            "telemetry_age": "41",
+            "uart_status": "72368",
+            "uart_errors": "1"
+          }
+        },
+        {
+          "elapsed_s": 640.84,
+          "kind": "motion_status",
+          "sample": {
+            "fresh": true,
+            "snapshot_seq": 1019,
+            "fault": 1,
+            "driver_gpio": 0,
+            "logical_gpio": 0,
+            "left_duty": 0,
+            "right_duty": 0
+          }
+        }
+      ]
+    },
+    "release_fpga_reboot_counter_phase": {
+      "phase": "release_fpga_reboot_counter_phase",
+      "motion_samples": 7,
+      "fresh_samples": 7,
+      "safe_all_samples": true,
+      "interval_s": 30.031,
+      "new_fpga_frames": 2991,
+      "fpga": {
+        "frames": {
+          "first": 11987,
+          "last": 14978,
+          "min": 11987,
+          "max": 14978,
+          "delta": 2991
+        },
+        "hw_errors": {
+          "first": 0,
+          "last": 0,
+          "min": 0,
+          "max": 0,
+          "delta": 0
+        },
+        "parser_errors": {
+          "first": 0,
+          "last": 1,
+          "min": 0,
+          "max": 1,
+          "delta": 1
+        }
+      },
+      "motion": {
+        "rx_errors": {
+          "first": 0,
+          "last": 1,
+          "min": 0,
+          "max": 1,
+          "delta": 1
+        },
+        "queue_drops": {
+          "first": 0,
+          "last": 0,
+          "min": 0,
+          "max": 0,
+          "delta": 0
+        },
+        "tx_drops": {
+          "first": 0,
+          "last": 0,
+          "min": 0,
+          "max": 0,
+          "delta": 0
+        },
+        "log_drops": {
+          "first": 0,
+          "last": 0,
+          "min": 0,
+          "max": 0,
+          "delta": 0
+        },
+        "heap_free": {
+          "first": 350268,
+          "last": 350268,
+          "min": 350268,
+          "max": 350268,
+          "delta": 0
+        },
+        "heap_min": {
+          "first": 346064,
+          "last": 346064,
+          "min": 346064,
+          "max": 346064,
+          "delta": 0
+        }
+      },
+      "brain": {
+        "uart_status": {
+          "first": 2022,
+          "last": 2627,
+          "min": 2022,
+          "max": 2627,
+          "delta": 605
+        },
+        "uart_errors": {
+          "first": 0,
+          "last": 0,
+          "min": 0,
+          "max": 0,
+          "delta": 0
+        },
+        "telemetry_age": {
+          "first": 32,
+          "last": 44,
+          "min": 2,
+          "max": 45,
+          "delta": 12
+        },
+        "driver_errors": {
+          "first": 0,
+          "last": 0,
+          "min": 0,
+          "max": 0,
+          "delta": 0
+        }
+      },
+      "first_snapshot_seq": 14130,
+      "last_snapshot_seq": 2856,
+      "port_errors": 0,
+      "raw_journal_sha256": "bd587b8ce0dca417d43ccce25c0623753594f899bd01b6dd8daeec6fe910a57f",
+      "parser_reject_contexts": [
+        {
+          "peer": "FPGA",
+          "timeouts": 0,
+          "header_errors": 0,
+          "crc_errors": 0,
+          "last_reason": 0,
+          "last_gap_us": 0,
+          "last_frame_us": 0,
+          "last_size": 0
+        },
+        {
+          "peer": "FPGA",
+          "timeouts": 1,
+          "header_errors": 0,
+          "crc_errors": 0,
+          "last_reason": 1,
+          "last_gap_us": 109541,
+          "last_frame_us": 111848,
+          "last_size": 33
+        }
+      ],
+      "timeline": [
+        {
+          "elapsed_s": 771.951,
+          "kind": "motion_status",
+          "sample": {
+            "fresh": true,
+            "snapshot_seq": 14130,
+            "fault": 1,
+            "driver_gpio": 0,
+            "logical_gpio": 0,
+            "left_duty": 0,
+            "right_duty": 0
+          }
+        },
+        {
+          "elapsed_s": 774.117,
+          "kind": "brain_health",
+          "sample": {
+            "telemetry_age": "32",
+            "uart_status": "2022",
+            "uart_errors": "0"
+          }
+        },
+        {
+          "elapsed_s": 776.953,
+          "kind": "motion_status",
+          "sample": {
+            "fresh": true,
+            "snapshot_seq": 354,
+            "fault": 1,
+            "driver_gpio": 0,
+            "logical_gpio": 0,
+            "left_duty": 0,
+            "right_duty": 0
+          }
+        },
+        {
+          "elapsed_s": 779.169,
+          "kind": "brain_health",
+          "sample": {
+            "telemetry_age": "26",
+            "uart_status": "2123",
+            "uart_errors": "0"
+          }
+        },
+        {
+          "elapsed_s": 781.955,
+          "kind": "motion_status",
+          "sample": {
+            "fresh": true,
+            "snapshot_seq": 853,
+            "fault": 1,
+            "driver_gpio": 0,
+            "logical_gpio": 0,
+            "left_duty": 0,
+            "right_duty": 0
+          }
+        },
+        {
+          "elapsed_s": 784.215,
+          "kind": "brain_health",
+          "sample": {
+            "telemetry_age": "22",
+            "uart_status": "2224",
+            "uart_errors": "0"
+          }
+        },
+        {
+          "elapsed_s": 786.959,
+          "kind": "motion_status",
+          "sample": {
+            "fresh": true,
+            "snapshot_seq": 1354,
+            "fault": 1,
+            "driver_gpio": 0,
+            "logical_gpio": 0,
+            "left_duty": 0,
+            "right_duty": 0
+          }
+        },
+        {
+          "elapsed_s": 789.262,
+          "kind": "brain_health",
+          "sample": {
+            "telemetry_age": "17",
+            "uart_status": "2325",
+            "uart_errors": "0"
+          }
+        },
+        {
+          "elapsed_s": 791.969,
+          "kind": "motion_status",
+          "sample": {
+            "fresh": true,
+            "snapshot_seq": 1855,
+            "fault": 1,
+            "driver_gpio": 0,
+            "logical_gpio": 0,
+            "left_duty": 0,
+            "right_duty": 0
+          }
+        },
+        {
+          "elapsed_s": 794.31,
+          "kind": "brain_health",
+          "sample": {
+            "telemetry_age": "2",
+            "uart_status": "2426",
+            "uart_errors": "0"
+          }
+        },
+        {
+          "elapsed_s": 796.97,
+          "kind": "motion_status",
+          "sample": {
+            "fresh": true,
+            "snapshot_seq": 2355,
+            "fault": 1,
+            "driver_gpio": 0,
+            "logical_gpio": 0,
+            "left_duty": 0,
+            "right_duty": 0
+          }
+        },
+        {
+          "elapsed_s": 799.366,
+          "kind": "brain_health",
+          "sample": {
+            "telemetry_age": "45",
+            "uart_status": "2526",
+            "uart_errors": "0"
+          }
+        },
+        {
+          "elapsed_s": 801.982,
+          "kind": "motion_status",
+          "sample": {
+            "fresh": true,
+            "snapshot_seq": 2856,
+            "fault": 1,
+            "driver_gpio": 0,
+            "logical_gpio": 0,
+            "left_duty": 0,
+            "right_duty": 0
+          }
+        },
+        {
+          "elapsed_s": 804.409,
+          "kind": "brain_health",
+          "sample": {
+            "telemetry_age": "44",
+            "uart_status": "2627",
+            "uart_errors": "0"
+          }
+        }
+      ]
+    },
+    "release_motion_reset_hold": {
+      "phase": "release_motion_reset_hold",
+      "motion_samples": 4,
+      "fresh_samples": 4,
+      "safe_all_samples": true,
+      "interval_s": 15.014,
+      "new_fpga_frames": 1501,
+      "fpga": {
+        "frames": {
+          "first": 477,
+          "last": 1978,
+          "min": 477,
+          "max": 1978,
+          "delta": 1501
+        },
+        "hw_errors": {
+          "first": 0,
+          "last": 0,
+          "min": 0,
+          "max": 0,
+          "delta": 0
+        },
+        "parser_errors": {
+          "first": 0,
+          "last": 0,
+          "min": 0,
+          "max": 0,
+          "delta": 0
+        }
+      },
+      "motion": {
+        "rx_errors": {
+          "first": 0,
+          "last": 0,
+          "min": 0,
+          "max": 0,
+          "delta": 0
+        },
+        "queue_drops": {
+          "first": 0,
+          "last": 0,
+          "min": 0,
+          "max": 0,
+          "delta": 0
+        },
+        "tx_drops": {
+          "first": 0,
+          "last": 0,
+          "min": 0,
+          "max": 0,
+          "delta": 0
+        },
+        "log_drops": {
+          "first": 0,
+          "last": 0,
+          "min": 0,
+          "max": 0,
+          "delta": 0
+        },
+        "heap_free": {
+          "first": 350268,
+          "last": 350268,
+          "min": 350268,
+          "max": 350268,
+          "delta": 0
+        },
+        "heap_min": {
+          "first": 346064,
+          "last": 346064,
+          "min": 346064,
+          "max": 346064,
+          "delta": 0
+        }
+      },
+      "brain": {
+        "uart_status": {
+          "first": 72439,
+          "last": 72806,
+          "min": 72439,
+          "max": 72806,
+          "delta": 367
+        },
+        "uart_errors": {
+          "first": 1,
+          "last": 1,
+          "min": 1,
+          "max": 1,
+          "delta": 0
+        },
+        "telemetry_age": {
+          "first": 1501,
+          "last": 27,
+          "min": 6,
+          "max": 6510,
+          "delta": -1474
+        },
+        "driver_errors": {
+          "first": 0,
+          "last": 0,
+          "min": 0,
+          "max": 0,
+          "delta": 0
+        }
+      },
+      "first_snapshot_seq": 2621,
+      "last_snapshot_seq": 4122,
+      "port_errors": 0,
+      "raw_journal_sha256": "bd587b8ce0dca417d43ccce25c0623753594f899bd01b6dd8daeec6fe910a57f",
+      "parser_reject_contexts": [
+        {
+          "peer": "FPGA",
+          "timeouts": 0,
+          "header_errors": 0,
+          "crc_errors": 0,
+          "last_reason": 0,
+          "last_gap_us": 0,
+          "last_frame_us": 0,
+          "last_size": 0
+        }
+      ],
+      "timeline": [
+        {
+          "elapsed_s": 645.24,
+          "kind": "brain_health",
+          "sample": {
+            "telemetry_age": "1501",
+            "uart_status": "72439",
+            "uart_errors": "1"
+          }
+        },
+        {
+          "elapsed_s": 650.258,
+          "kind": "brain_health",
+          "sample": {
+            "telemetry_age": "6510",
+            "uart_status": "72439",
+            "uart_errors": "1"
+          }
+        },
+        {
+          "elapsed_s": 655.303,
+          "kind": "brain_health",
+          "sample": {
+            "telemetry_age": "6",
+            "uart_status": "72506",
+            "uart_errors": "1"
+          }
+        },
+        {
+          "elapsed_s": 656.853,
+          "kind": "motion_status",
+          "sample": {
+            "fresh": true,
+            "snapshot_seq": 2621,
+            "fault": 1,
+            "driver_gpio": 0,
+            "logical_gpio": 0,
+            "left_duty": 0,
+            "right_duty": 0
+          }
+        },
+        {
+          "elapsed_s": 660.32,
+          "kind": "brain_health",
+          "sample": {
+            "telemetry_age": "15",
+            "uart_status": "72606",
+            "uart_errors": "1"
+          }
+        },
+        {
+          "elapsed_s": 661.856,
+          "kind": "motion_status",
+          "sample": {
+            "fresh": true,
+            "snapshot_seq": 3121,
+            "fault": 1,
+            "driver_gpio": 0,
+            "logical_gpio": 0,
+            "left_duty": 0,
+            "right_duty": 0
+          }
+        },
+        {
+          "elapsed_s": 665.321,
+          "kind": "brain_health",
+          "sample": {
+            "telemetry_age": "23",
+            "uart_status": "72706",
+            "uart_errors": "1"
+          }
+        },
+        {
+          "elapsed_s": 666.866,
+          "kind": "motion_status",
+          "sample": {
+            "fresh": true,
+            "snapshot_seq": 3622,
+            "fault": 1,
+            "driver_gpio": 0,
+            "logical_gpio": 0,
+            "left_duty": 0,
+            "right_duty": 0
+          }
+        },
+        {
+          "elapsed_s": 670.34,
+          "kind": "brain_health",
+          "sample": {
+            "telemetry_age": "27",
+            "uart_status": "72806",
+            "uart_errors": "1"
+          }
+        },
+        {
+          "elapsed_s": 671.867,
+          "kind": "motion_status",
+          "sample": {
+            "fresh": true,
+            "snapshot_seq": 4122,
+            "fault": 1,
+            "driver_gpio": 0,
+            "logical_gpio": 0,
+            "left_duty": 0,
+            "right_duty": 0
+          }
+        }
+      ]
+    },
+    "release_post_recovery_stable": {
+      "phase": "release_post_recovery_stable",
+      "motion_samples": 14,
+      "fresh_samples": 14,
+      "safe_all_samples": true,
+      "interval_s": 65.079,
+      "new_fpga_frames": 6508,
+      "fpga": {
+        "frames": {
+          "first": 15478,
+          "last": 21986,
+          "min": 15478,
+          "max": 21986,
+          "delta": 6508
+        },
+        "hw_errors": {
+          "first": 0,
+          "last": 0,
+          "min": 0,
+          "max": 0,
+          "delta": 0
+        },
+        "parser_errors": {
+          "first": 1,
+          "last": 1,
+          "min": 1,
+          "max": 1,
+          "delta": 0
+        }
+      },
+      "motion": {
+        "rx_errors": {
+          "first": 1,
+          "last": 1,
+          "min": 1,
+          "max": 1,
+          "delta": 0
+        },
+        "queue_drops": {
+          "first": 0,
+          "last": 0,
+          "min": 0,
+          "max": 0,
+          "delta": 0
+        },
+        "tx_drops": {
+          "first": 0,
+          "last": 0,
+          "min": 0,
+          "max": 0,
+          "delta": 0
+        },
+        "log_drops": {
+          "first": 0,
+          "last": 0,
+          "min": 0,
+          "max": 0,
+          "delta": 0
+        },
+        "heap_free": {
+          "first": 350268,
+          "last": 350268,
+          "min": 350268,
+          "max": 350268,
+          "delta": 0
+        },
+        "heap_min": {
+          "first": 346064,
+          "last": 346064,
+          "min": 346064,
+          "max": 346064,
+          "delta": 0
+        }
+      },
+      "brain": {
+        "uart_status": {
+          "first": 2728,
+          "last": 3940,
+          "min": 2728,
+          "max": 3940,
+          "delta": 1212
+        },
+        "uart_errors": {
+          "first": 0,
+          "last": 0,
+          "min": 0,
+          "max": 0,
+          "delta": 0
+        },
+        "telemetry_age": {
+          "first": 43,
+          "last": 19,
+          "min": 19,
+          "max": 43,
+          "delta": -24
+        },
+        "driver_errors": {
+          "first": 0,
+          "last": 0,
+          "min": 0,
+          "max": 0,
+          "delta": 0
+        }
+      },
+      "first_snapshot_seq": 3355,
+      "last_snapshot_seq": 9863,
+      "port_errors": 0,
+      "raw_journal_sha256": "bd587b8ce0dca417d43ccce25c0623753594f899bd01b6dd8daeec6fe910a57f",
+      "parser_reject_contexts": [
+        {
+          "peer": "FPGA",
+          "timeouts": 1,
+          "header_errors": 0,
+          "crc_errors": 0,
+          "last_reason": 1,
+          "last_gap_us": 109541,
+          "last_frame_us": 111848,
+          "last_size": 33
+        }
+      ],
+      "timeline": [
+        {
+          "elapsed_s": 806.975,
+          "kind": "motion_status",
+          "sample": {
+            "fresh": true,
+            "snapshot_seq": 3355,
+            "fault": 1,
+            "driver_gpio": 0,
+            "logical_gpio": 0,
+            "left_duty": 0,
+            "right_duty": 0
+          }
+        },
+        {
+          "elapsed_s": 809.463,
+          "kind": "brain_health",
+          "sample": {
+            "telemetry_age": "43",
+            "uart_status": "2728",
+            "uart_errors": "0"
+          }
+        },
+        {
+          "elapsed_s": 811.986,
+          "kind": "motion_status",
+          "sample": {
+            "fresh": true,
+            "snapshot_seq": 3856,
+            "fault": 1,
+            "driver_gpio": 0,
+            "logical_gpio": 0,
+            "left_duty": 0,
+            "right_duty": 0
+          }
+        },
+        {
+          "elapsed_s": 814.512,
+          "kind": "brain_health",
+          "sample": {
+            "telemetry_age": "41",
+            "uart_status": "2829",
+            "uart_errors": "0"
+          }
+        },
+        {
+          "elapsed_s": 816.996,
+          "kind": "motion_status",
+          "sample": {
+            "fresh": true,
+            "snapshot_seq": 4357,
+            "fault": 1,
+            "driver_gpio": 0,
+            "logical_gpio": 0,
+            "left_duty": 0,
+            "right_duty": 0
+          }
+        },
+        {
+          "elapsed_s": 819.566,
+          "kind": "brain_health",
+          "sample": {
+            "telemetry_age": "42",
+            "uart_status": "2930",
+            "uart_errors": "0"
+          }
+        },
+        {
+          "elapsed_s": 821.991,
+          "kind": "motion_status",
+          "sample": {
+            "fresh": true,
+            "snapshot_seq": 4857,
+            "fault": 1,
+            "driver_gpio": 0,
+            "logical_gpio": 0,
+            "left_duty": 0,
+            "right_duty": 0
+          }
+        },
+        {
+          "elapsed_s": 824.612,
+          "kind": "brain_health",
+          "sample": {
+            "telemetry_age": "40",
+            "uart_status": "3031",
+            "uart_errors": "0"
+          }
+        },
+        {
+          "elapsed_s": 826.995,
+          "kind": "motion_status",
+          "sample": {
+            "fresh": true,
+            "snapshot_seq": 5358,
+            "fault": 1,
+            "driver_gpio": 0,
+            "logical_gpio": 0,
+            "left_duty": 0,
+            "right_duty": 0
+          }
+        },
+        {
+          "elapsed_s": 829.663,
+          "kind": "brain_health",
+          "sample": {
+            "telemetry_age": "40",
+            "uart_status": "3132",
+            "uart_errors": "0"
+          }
+        },
+        {
+          "elapsed_s": 831.996,
+          "kind": "motion_status",
+          "sample": {
+            "fresh": true,
+            "snapshot_seq": 5858,
+            "fault": 1,
+            "driver_gpio": 0,
+            "logical_gpio": 0,
+            "left_duty": 0,
+            "right_duty": 0
+          }
+        },
+        {
+          "elapsed_s": 834.715,
+          "kind": "brain_health",
+          "sample": {
+            "telemetry_age": "37",
+            "uart_status": "3233",
+            "uart_errors": "0"
+          }
+        },
+        {
+          "elapsed_s": 837.003,
+          "kind": "motion_status",
+          "sample": {
+            "fresh": true,
+            "snapshot_seq": 6358,
+            "fault": 1,
+            "driver_gpio": 0,
+            "logical_gpio": 0,
+            "left_duty": 0,
+            "right_duty": 0
+          }
+        },
+        {
+          "elapsed_s": 839.76,
+          "kind": "brain_health",
+          "sample": {
+            "telemetry_age": "35",
+            "uart_status": "3334",
+            "uart_errors": "0"
+          }
+        },
+        {
+          "elapsed_s": 842.017,
+          "kind": "motion_status",
+          "sample": {
+            "fresh": true,
+            "snapshot_seq": 6859,
+            "fault": 1,
+            "driver_gpio": 0,
+            "logical_gpio": 0,
+            "left_duty": 0,
+            "right_duty": 0
+          }
+        },
+        {
+          "elapsed_s": 844.82,
+          "kind": "brain_health",
+          "sample": {
+            "telemetry_age": "33",
+            "uart_status": "3435",
+            "uart_errors": "0"
+          }
+        },
+        {
+          "elapsed_s": 847.011,
+          "kind": "motion_status",
+          "sample": {
+            "fresh": true,
+            "snapshot_seq": 7359,
+            "fault": 1,
+            "driver_gpio": 0,
+            "logical_gpio": 0,
+            "left_duty": 0,
+            "right_duty": 0
+          }
+        },
+        {
+          "elapsed_s": 849.868,
+          "kind": "brain_health",
+          "sample": {
+            "telemetry_age": "32",
+            "uart_status": "3536",
+            "uart_errors": "0"
+          }
+        },
+        {
+          "elapsed_s": 852.032,
+          "kind": "motion_status",
+          "sample": {
+            "fresh": true,
+            "snapshot_seq": 7861,
+            "fault": 1,
+            "driver_gpio": 0,
+            "logical_gpio": 0,
+            "left_duty": 0,
+            "right_duty": 0
+          }
+        },
+        {
+          "elapsed_s": 854.919,
+          "kind": "brain_health",
+          "sample": {
+            "telemetry_age": "22",
+            "uart_status": "3637",
+            "uart_errors": "0"
+          }
+        },
+        {
+          "elapsed_s": 857.026,
+          "kind": "motion_status",
+          "sample": {
+            "fresh": true,
+            "snapshot_seq": 8361,
+            "fault": 1,
+            "driver_gpio": 0,
+            "logical_gpio": 0,
+            "left_duty": 0,
+            "right_duty": 0
+          }
+        },
+        {
+          "elapsed_s": 859.965,
+          "kind": "brain_health",
+          "sample": {
+            "telemetry_age": "21",
+            "uart_status": "3738",
+            "uart_errors": "0"
+          }
+        },
+        {
+          "elapsed_s": 862.037,
+          "kind": "motion_status",
+          "sample": {
+            "fresh": true,
+            "snapshot_seq": 8861,
+            "fault": 1,
+            "driver_gpio": 0,
+            "logical_gpio": 0,
+            "left_duty": 0,
+            "right_duty": 0
+          }
+        },
+        {
+          "elapsed_s": 865.019,
+          "kind": "brain_health",
+          "sample": {
+            "telemetry_age": "20",
+            "uart_status": "3839",
+            "uart_errors": "0"
+          }
+        },
+        {
+          "elapsed_s": 867.048,
+          "kind": "motion_status",
+          "sample": {
+            "fresh": true,
+            "snapshot_seq": 9362,
+            "fault": 1,
+            "driver_gpio": 0,
+            "logical_gpio": 0,
+            "left_duty": 0,
+            "right_duty": 0
+          }
+        },
+        {
+          "elapsed_s": 870.063,
+          "kind": "brain_health",
+          "sample": {
+            "telemetry_age": "19",
+            "uart_status": "3940",
+            "uart_errors": "0"
+          }
+        },
+        {
+          "elapsed_s": 872.054,
+          "kind": "motion_status",
+          "sample": {
+            "fresh": true,
+            "snapshot_seq": 9863,
+            "fault": 1,
+            "driver_gpio": 0,
+            "logical_gpio": 0,
+            "left_duty": 0,
+            "right_duty": 0
+          }
+        }
+      ]
+    }
+  },
+  "evidence_sha256": {
+    "release-final-flash.json": "cc177ba0c6f1fc48c7a7c16d72fa75d7bf5271f6321be41ce31a465b71465033",
+    "root-tests-release.log": "83d9f670116a99bbc2dbdbd5c7ccca1055b352854b778b5e76c4bc5ce7cba4ca",
+    "release-brain-motion-integration.json": "bc7705f03326a7dd40e58a09f56f77804bdfa07cb71ef87354cccdd56c89e964",
+    "release-motion-rtl-cosim.json": "18291fc6675f4fc38348423aa20a3547f97c622b2e25b29928766bf35f69ea32",
+    "uart-release-final-build.log": "33d9b7d437fa8ff71b855dc80a875fb43e23afc83db27c8a7cd76361c91dc1cd"
+  },
+  "unexpected_panic_brownout_signatures": 0
+}

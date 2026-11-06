@@ -6,6 +6,11 @@ Một nguồn codec C++17 cho mỗi liên kết, không phụ thuộc ESP-IDF/RT
 - `fpga_codec.h/.cc`: FPGA v2 tường minh, CMD19/STATUS47byte; Motion không fallback v1.
 - `status_indicator.h`: policy LED chung hai board, mask lỗi0x88ff, cache đổi màu/retry1Hz.
 
+`fpga::Parser::GetDiagnostics()` có counter timeout/header/CRC và context
+reject gần nhất (gap/frame tuổi/size/reason). Reset hủy frame dở, giữ counter
+tích lũy. Đây là API chẩn đoán C++ nội bộ, không thêm byte hoặc đổi layout
+STATUS v2. Hạn inter-byte2ms, toàn frame6ms và CRC16 giữ nguyên.
+
 [BM-v1](brain-motion-protocol.md) giữ neutral/STOP/CLEAR tách quyền; CRC16/CCITT-FALSE,
 little-endian, session/sequence/TTL và parser timeout có test reference Python.
 [FPGA v2](fpga-protocol-v2.md) có encoder một OUT/bên, count/period/age và diagnostics.

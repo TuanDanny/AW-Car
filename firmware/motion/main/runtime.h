@@ -82,6 +82,8 @@ class Runtime {
   std::atomic<unsigned> uart_ready_{0};
   std::atomic<uint32_t> uart_bytes_[2]{}, uart_frames_[2]{},
       uart_hw_errors_[2]{}, uart_parse_errors_[2]{}, uart_tx_frames_[2]{};
+  fpga::Parser::Diagnostics fpga_diagnostics_{};
+  portMUX_TYPE parser_diag_mux_ = portMUX_INITIALIZER_UNLOCKED;
   portMUX_TYPE snapshot_mux_ = portMUX_INITIALIZER_UNLOCKED;
   portMUX_TYPE stop_mux_ = portMUX_INITIALIZER_UNLOCKED;
   portMUX_TYPE driver_mux_ = portMUX_INITIALIZER_UNLOCKED;

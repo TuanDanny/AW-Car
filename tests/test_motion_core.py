@@ -342,6 +342,103 @@ class MotionTests(unittest.TestCase):
         finally:
             m.close()
 
+    def test_idle_fpga_reboot_rebaselines_counter_phases_after_progressing_samples(self):
+        for old_seq, old_ticks in ((1000, 0x10000000), (1000, 0x90000000),
+                                   (35000, 0x90000000), (65000, 0xf0000000)):
+            with self.subTest(old_seq=old_seq, old_ticks=old_ticks):
+                m = Motion(False)
+                def send(now, seq, ticks):
+                    m.tick(now, 0)
+                    p = struct.pack("<IIIHBHBIIII", 0, 0, ticks, seq, 0, 0,
+                                    0x1c, 0, 0, 0xffffffff, 0xffffffff)
+                    m.receive(2, frame(2, 128, 0, seq, p), now)
+                try:
+                    send(10000, old_seq, old_ticks)
+                    self.assertTrue(m.view(10000)["fresh"])
+                    m.tick(50000, 0)
+                    self.assertFalse(m.view(50000)["fresh"])
+                    send(60000, 1, 270000)
+                    if old_seq == 1000:
+                        self.assertFalse(m.view(60000)["fresh"])
+                    send(70000, 2, 540000)
+                    self.assertTrue(m.view(70000)["fresh"])
+                    self.assertEqual(m.view(70000)["state"], 0)
+                    self.assertFalse(m.view(70000)["driver"])
+                finally:
+                    m.close()
+
+    def test_reboot_discovery_does_not_refresh_from_duplicate_or_sparse_candidates(self):
+        m = Motion(False)
+        def send(now, seq, ticks):
+            m.tick(now, 0)
+            p = struct.pack("<IIIHBHBIIII", 0, 0, ticks, seq, 0, 0,
+                            0x1c, 0, 0, 0xffffffff, 0xffffffff)
+            m.receive(2, frame(2, 128, 0, seq, p), now)
+        try:
+            send(10000, 1000, 0x90000000)
+            for now in (60000, 70000, 80000):
+                send(now, 1, 270000)
+                self.assertFalse(m.view(now)["fresh"])
+            send(120000, 2, 540000)
+            self.assertFalse(m.view(120000)["fresh"])
+            send(130000, 3, 810000)
+            self.assertTrue(m.view(130000)["fresh"])
+            self.assertFalse(m.view(130000)["driver"])
+        finally:
+            m.close()
+
+    def test_reboot_discovery_keeps_existing_motion_fault_latched(self):
+        m = Motion(False)
+        def send(now, seq, ticks, state, fault):
+            m.tick(now, 0)
+            p = struct.pack("<IIIHBHBIIII", 0, 0, ticks, seq, state, fault,
+                            0x1c, 0, 0, 0xffffffff, 0xffffffff)
+            m.receive(2, frame(2, 128, 0, seq, p), now)
+        try:
+            send(10000, 1000, 0x90000000, 4, 2)
+            self.assertEqual(m.view(10000)["state"], 3)
+            send(60000, 1, 270000, 0, 0)
+            send(70000, 2, 540000, 0, 0)
+            v = m.view(70000)
+            self.assertTrue(v["fresh"])
+            self.assertEqual(v["state"], 3)
+            self.assertTrue(v["fault"] & 1)
+            self.assertFalse(v["driver"])
+        finally:
+            m.close()
+
+    def test_reboot_discovery_candidate_deadline_is_strict(self):
+        for gap, accepted in ((29999, True), (30000, False)):
+            with self.subTest(gap=gap):
+                m = Motion(False)
+                def send(now, seq, ticks):
+                    m.tick(now, 0)
+                    p = struct.pack("<IIIHBHBIIII", 0, 0, ticks, seq, 0, 0,
+                                    0x1c, 0, 0, 0xffffffff, 0xffffffff)
+                    m.receive(2, frame(2, 128, 0, seq, p), now)
+                try:
+                    send(10000, 1000, 0x90000000)
+                    send(60000, 1, 270000)
+                    self.assertFalse(m.view(60000)["fresh"])
+                    send(60000 + gap, 2, 540000)
+                    self.assertEqual(m.view(60000 + gap)["fresh"], accepted)
+                    self.assertFalse(m.view(60000 + gap)["driver"])
+                finally:
+                    m.close()
+
+    def test_armed_link_does_not_use_session_zero_discovery_to_extend_freshness(self):
+        self.armed()
+        m, start = self.r.motion, self.r.now
+        for delta, seq in ((1000, 1), (11000, 2)):
+            p = struct.pack("<IIIHBHBIIII", 0, 0, seq*270000, seq, 3, 0,
+                            0x1c, 0, 0, 0xffffffff, 0xffffffff)
+            m.receive(2, frame(2, 128, 0, seq, p), start+delta)
+        for delta in range(12000, 40001, 1000):
+            m.tick(start+delta, 15)
+        v = m.view(start+40000)
+        self.assertFalse(v["driver"])
+        self.assertTrue(v["fault"] & 2)
+
     def test_control_stall_cannot_be_hidden_by_uart_task(self):
         self.armed()
         self.r.send(3, 60)

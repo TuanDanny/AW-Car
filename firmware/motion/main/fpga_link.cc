@@ -9,6 +9,7 @@ void FpgaLink::Queue(uint8_t type, uint64_t now) {
   tx_at_ = now;
 }
 void FpgaLink::Begin(bool clear, uint64_t now) {
+  discovery_pending_ = false;
   clear_ = clear;
   permit_ = false;
   pending_ = false;
@@ -24,6 +25,7 @@ void FpgaLink::Begin(bool clear, uint64_t now) {
   ++generation_;
 }
 void FpgaLink::Stop(uint64_t now) {
+  discovery_pending_ = false;
   if (phase_ == LinkPhase::Stopping)
     return;  // Repeated STOP cannot extend time.
   if (phase_ == LinkPhase::Faulted) {
@@ -45,6 +47,7 @@ void FpgaLink::Stop(uint64_t now) {
 }
 void FpgaLink::Fail(uint16_t cause, uint64_t now) {
   const bool was_failed = phase_ == LinkPhase::Faulted;
+  if (!was_failed) discovery_pending_ = false;
   fault_ |= cause;
   phase_ = LinkPhase::Faulted;
   permit_ = false;
@@ -68,14 +71,28 @@ bool FpgaLink::Receive(const fpga::Snapshot& s, uint64_t now) {
   const uint32_t ticks = s.timestamp - last_timestamp_;
   if (have_seq_ &&
       (!delta || delta >= 0x8000 || !ticks || ticks >= 0x80000000u)) {
-    // A peer reboot is not a wrapping fresh sample. Allow rediscovery only
-    // after revocation, never while it could preserve driving authority.
-    if ((phase_ == LinkPhase::Idle || phase_ == LinkPhase::Faulted) &&
-        !Fresh(now) && ticks >= 0x80000000u && s.seq != last_snapshot_ &&
-        s.session == 0)
-      have_seq_ = false;
-    return false;
+    // A reboot resets two counters with different wrap periods. Their
+    // differences from the old sample cannot reliably identify that reboot.
+    // Rebaseline only after revocation/staleness, from two progressing
+    // session-zero samples. Duplicates/sparse candidates never renew age.
+    if ((phase_ != LinkPhase::Idle && phase_ != LinkPhase::Faulted) ||
+        permit_ || Fresh(now) || s.session != 0) {
+      discovery_pending_ = false;
+      return false;
+    }
+    const uint16_t probe_delta = uint16_t(s.seq - discovery_seq_);
+    const uint32_t probe_ticks = s.timestamp - discovery_ticks_;
+    const bool progressing = discovery_pending_ &&
+        now - discovery_at_ < 30000 && probe_delta && probe_delta < 0x8000 &&
+        probe_ticks && probe_ticks < 0x80000000u;
+    discovery_seq_ = s.seq;
+    discovery_ticks_ = s.timestamp;
+    discovery_at_ = now;
+    discovery_pending_ = true;
+    if (!progressing) return false;
+    have_seq_ = false;
   }
+  discovery_pending_ = false;
   have_seq_ = have_sample_ = true;
   last_snapshot_ = s.seq;
   last_timestamp_ = s.timestamp;

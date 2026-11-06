@@ -25,6 +25,24 @@ struct Host {
 #endif
 API void* motion_new(int validated) { return new Host(validated != 0); }
 API void motion_delete(void* p) { delete static_cast<Host*>(p); }
+API unsigned motion_fpga_parse_timed(const uint8_t* data, const uint64_t* times,
+                                    size_t size, uint32_t* diagnostics) {
+  awcar::fpga::Parser parser;
+  awcar::fpga::Frame frame;
+  unsigned accepted = 0;
+  for (size_t i = 0; i < size; ++i)
+    if (parser.Feed(data[i], times[i], frame)) ++accepted;
+  const auto& d = parser.GetDiagnostics();
+  diagnostics[0] = parser.errors;
+  diagnostics[1] = d.timeout_errors;
+  diagnostics[2] = d.header_errors;
+  diagnostics[3] = d.crc_errors;
+  diagnostics[4] = unsigned(d.last_reason);
+  diagnostics[5] = d.last_gap_us;
+  diagnostics[6] = d.last_frame_us;
+  diagnostics[7] = d.last_size;
+  return accepted;
+}
 API void motion_tick(void* p, uint64_t now, unsigned inputs) {
   auto& core = static_cast<Host*>(p)->core;
   core.InputsNow(

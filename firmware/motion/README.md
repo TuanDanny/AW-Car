@@ -1,5 +1,11 @@
 # Motion — ESP32-S3 MCU 2
 
+Lượt06/11 ghép Tang Nano9K thật đã tìm thấy timeout do vòng nhận chờ gom
+byte trong `uart_read_bytes`. Bản sửa chờ event UART rồi đọc nonblocking;
+giữ parser2ms/6ms, CRC, epoch/session, driver LOCKED và NVS. Console `uart`
+thêm `UART_PARSE_DIAG` phân biệt timeout/header/CRC và context frame lỗi.
+Kết quả đo trước/sau ở [báo cáo UART](../../docs/motion-uart-receive-fix.md).
+
 ESP-IDF6.1 cho TT4WD, hai nhóm trái/phải, encoder một OUT/bên. Mốc0.1.0 có
 hai UART, lease/ARM/STOP/CLEAR, khóa driver độc lập, vòng hở, kích đề-pa và
 chờ đảo chiều. PWM do FPGA phát; PI/PID, ToF/TCRT5000/MPU6050 để mốc sau.

@@ -223,35 +223,48 @@ void Runtime::ReceiveTask(int index) {
   uint32_t seen_generation = generation_.load(), seen_epoch = epoch_.load();
   uint8_t bytes[64];
   for (;;) {
+    uart_event_t event;
+    // Wait on ISR notifications, not inside a length-based read. IDF's
+    // uart_read_bytes(..., 1 tick) can wait again for every ring-buffer item;
+    // a 64-byte request can delay a short batch past the parser's 2ms limit.
+    // The bounded wait also observes epoch changes when the wire is silent.
+    if (xQueueReceive(uart_events, &event, pdMS_TO_TICKS(1)) == pdTRUE) {
+      do {
+        if (event.type == UART_FIFO_OVF || event.type == UART_BUFFER_FULL) {
+          ++rx_errors_;
+          ++uart_hw_errors_[index];
+          uart_flush_input(port);
+          brain_parser.Reset();
+          fpga_parser.Reset();
+          fault_pending_.fetch_or(Internal);
+          Inhibit(true);
+          Wake();
+        } else if (event.type == UART_FRAME_ERR ||
+                   event.type == UART_PARITY_ERR) {
+          ++rx_errors_;
+          ++uart_hw_errors_[index];
+          brain_parser.Reset();
+          fpga_parser.Reset();
+        }
+      } while (xQueueReceive(uart_events, &event, 0) == pdTRUE);
+    }
+    // Recheck after the wait: never finish an old partial frame in a new
+    // control epoch or recovery generation.
     const uint32_t generation = generation_.load(), epoch = epoch_.load();
     if ((index == 1 && generation != seen_generation) ||
         (index == 0 && epoch != seen_epoch)) {
       brain_parser.Reset();
       fpga_parser.Reset();
-      uart_flush_input(port);
-      seen_generation = generation;
-      seen_epoch = epoch;
-    }
-    uart_event_t event;
-    while (xQueueReceive(uart_events, &event, 0)) {
-      if (event.type == UART_FIFO_OVF || event.type == UART_BUFFER_FULL) {
-        ++rx_errors_;
-        ++uart_hw_errors_[index];
-        uart_flush_input(port);
-        brain_parser.Reset();
-        fpga_parser.Reset();
+      if (uart_flush_input(port) != ESP_OK) {
         fault_pending_.fetch_or(Internal);
         Inhibit(true);
         Wake();
-      } else if (event.type == UART_FRAME_ERR ||
-                 event.type == UART_PARITY_ERR) {
-        ++rx_errors_;
-        ++uart_hw_errors_[index];
-        brain_parser.Reset();
-        fpga_parser.Reset();
+        continue;
       }
+      seen_generation = generation;
+      seen_epoch = epoch;
     }
-    const int n = uart_read_bytes(port, bytes, sizeof(bytes), pdMS_TO_TICKS(1));
+    const int n = uart_read_bytes(port, bytes, sizeof(bytes), 0);
     if (n > 0) uart_bytes_[index].fetch_add(uint32_t(n));
     for (int i = 0; i < n; ++i) {
       Event message{};
@@ -286,6 +299,13 @@ void Runtime::ReceiveTask(int index) {
     const auto previous = parser_errors[index].exchange(count);
     rx_errors_.fetch_add(count - previous);
     uart_parse_errors_[index] = count;
+    if (index == 1 && count != previous) {
+      // Publish one coherent error context. Only this small copy is inside
+      // the critical section; formatting and console I/O stay outside RX.
+      portENTER_CRITICAL(&parser_diag_mux_);
+      fpga_diagnostics_ = fpga_parser.GetDiagnostics();
+      portEXIT_CRITICAL(&parser_diag_mux_);
+    }
   }
 }
 void Runtime::ControlTask() {
@@ -293,7 +313,7 @@ void Runtime::ControlTask() {
   uint16_t previous_fault = 0xffff;
   for (;;) {
     ulTaskNotifyTake(pdTRUE, pdMS_TO_TICKS(1));
-    const uint64_t now = Now();
+    uint64_t now = Now();
     core_.InputsNow({bool(gpio_get_level(board::ack)),
                      bool(gpio_get_level(board::fpga_permit)),
                      bool(gpio_get_level(board::safety)),
@@ -314,6 +334,9 @@ void Runtime::ControlTask() {
     Event event;
     for (int count = 0; count < 16 && xQueueReceive(events_, &event, 0);
          ++count) {
+      // RX can enqueue after this iteration's first timestamp. Sample after
+      // dequeue so a newly arrived event is not mistaken for future data.
+      now = Now();
       if (event.epoch != epoch_.load()) continue;
       if (now < event.at || now - event.at >= 10000) {
         ++queue_drops_;
@@ -350,6 +373,7 @@ void Runtime::ControlTask() {
       Publish(now);
       xQueueOverwrite(config_replies_, &reply);
     }
+    now = Now();
     core_.Tick(now);
     if (!gpio_get_level(board::boot) &&
         (core_.GetView(now).state == State::Arming ||
@@ -522,6 +546,20 @@ void Runtime::PrintUartDiagnostics() {
         (unsigned long)uart_tx_frames_[i].load(),
         gpio_get_level(gpio_num_t(i == 0 ? board::brain_rx : board::fpga_rx)));
   }
+  fpga::Parser::Diagnostics d;
+  portENTER_CRITICAL(&parser_diag_mux_);
+  d = fpga_diagnostics_;
+  portEXIT_CRITICAL(&parser_diag_mux_);
+  std::printf(
+      "UART_PARSE_DIAG peer=FPGA timeouts=%lu header_errors=%lu crc_errors=%lu "
+      "last_reason=%lu last_gap_us=%lu last_frame_us=%lu last_size=%lu\n",
+      (unsigned long)d.timeout_errors,
+      (unsigned long)d.header_errors,
+      (unsigned long)d.crc_errors,
+      (unsigned long)d.last_reason,
+      (unsigned long)d.last_gap_us,
+      (unsigned long)d.last_frame_us,
+      (unsigned long)d.last_size);
 }
 void Runtime::StatsTask() {
   StatusLed led;

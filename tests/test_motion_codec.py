@@ -22,6 +22,53 @@ class CodecTests(unittest.TestCase):
         cls.lib.motion_codec_command.argtypes = [ctypes.c_uint32, ctypes.c_uint16, ctypes.c_uint8,
                                                 ctypes.c_uint16, ctypes.c_uint16, ctypes.c_void_p]
         cls.lib.motion_codec_command.restype = ctypes.c_size_t
+        cls.lib.motion_fpga_parse_timed.argtypes = [ctypes.c_void_p,
+            ctypes.POINTER(ctypes.c_uint64), ctypes.c_size_t,
+            ctypes.POINTER(ctypes.c_uint32)]
+        cls.lib.motion_fpga_parse_timed.restype = ctypes.c_uint
+
+    def parse_timed(self, data, times):
+        clock = (ctypes.c_uint64 * len(times))(*times)
+        diagnostics = (ctypes.c_uint32 * 8)()
+        count = self.lib.motion_fpga_parse_timed(data, clock, len(data), diagnostics)
+        return count, list(diagnostics)
+
+    def test_parser_distinguishes_timeout_header_and_crc_without_weakening_limits(self):
+        data = vectors(2)[-1][1]
+        times = [10000 + i * 87 for i in range(len(data))]
+        self.assertEqual(self.parse_timed(data, times), (1, [0] * 8))
+        delayed = [10000 if i < 8 else 12000 + (i-8)*87 for i in range(len(data))]
+        accepted, d = self.parse_timed(data, delayed)
+        self.assertEqual(accepted, 0)
+        self.assertEqual(d[:5], [1, 1, 0, 0, 1])
+        self.assertEqual(d[5:], [2000, 2000, 8])
+        bad = bytearray(data)
+        bad[-1] ^= 1
+        accepted, d = self.parse_timed(bytes(bad), times)
+        self.assertEqual(accepted, 0)
+        self.assertEqual(d[:5], [1, 0, 0, 1, 3])
+        bad[2] = 1
+        accepted, d = self.parse_timed(bytes(bad[:3]), times[:3])
+        self.assertEqual(accepted, 0)
+        self.assertEqual(d[:5], [1, 0, 1, 0, 2])
+
+    def test_valid_frame_recovers_after_timed_out_partial_and_errors_remain_visible(self):
+        data = vectors(2)[-1][1]
+        joined = data[:8] + data
+        times = [10000+i*87 for i in range(8)] + [20000+i*87 for i in range(len(data))]
+        accepted, d = self.parse_timed(joined, times)
+        self.assertEqual(accepted, 1)
+        self.assertEqual(d[:5], [1, 1, 0, 0, 1])
+
+    def test_full_frame_deadline_stays_six_ms_even_when_each_gap_is_short(self):
+        data = vectors(2)[-1][1]
+        # Each inter-batch gap is <2ms, but the last batch reaches 6ms.
+        at_deadline = [10000 + min(i//8, 4)*1500 for i in range(len(data))]
+        accepted, d = self.parse_timed(data, at_deadline)
+        self.assertEqual(accepted, 0)
+        self.assertGreaterEqual(d[1], 1)
+        before_deadline = [10000 + min(i//8, 4)*1499 for i in range(len(data))]
+        self.assertEqual(self.parse_timed(data, before_deadline), (1, [0]*8))
 
     def echo(self, version, data):
         buf = ctypes.create_string_buffer(64)

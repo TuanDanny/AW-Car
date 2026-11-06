@@ -2,6 +2,9 @@
 
 Lưu yêu cầu, quyết định kỹ thuật và kết quả thử nghiệm.
 
+- [Sửa UART/queue và phục hồi FPGA06/11](motion-uart-receive-fix.md):
+  nguyên nhân, test production core, nạp Motion LOCKED và số đo ba board.
+
 - [Milestone0.1 Brain+Motion LOCKED](release-v0.1-brain-motion-locked.md):
   phê duyệt, nguồn/CI, hai squash PR, tag và giới hạn chưa nghiệm thu hardware.
 

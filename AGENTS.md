@@ -35,6 +35,11 @@
   nguyên worktree nguồn/FPGA/CAD. Không flash/reset hoặc mở driver trong release.
 - Dùng lại nhánh đúng phần việc; không tạo thêm nhánh cho từng module, bản sửa
   lỗi, ghi chú hoặc lần tối ưu. Theo dõi các bước nhỏ bằng task và commit.
+- Ngày06/11 người dùng giao xử lý lỗi UART FPGA→Motion đã bắt trên board.
+  Dùng lại `codex/esp32-s3-motion`, cho phép thêm chẩn đoán/sửa và nạp Motion
+  COM7 khi vẫn ENABLE_DRIVER=n/validated0; sao lưu và so byte NVS/motioncfg.
+  Brain/image FPGA giữ nguyên; tài liệu tích hợp ở nhánh target Nano9K riêng.
+  Không tăng hạn parser, bỏ CRC hoặc nối giả health để làm lỗi biến mất.
 - Giữ thay đổi chưa commit của checkout khác tại chỗ; không đưa công việc
   phần cứng/CAD đang dở vào một commit chỉ để dọn tên nhánh.
 - Nhánh FPGA giữ nền `origin/main` mới nhất đã chứa các PR RTL; giữ nguyên
