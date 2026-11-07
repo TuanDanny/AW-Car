@@ -2,7 +2,9 @@
 
 `test_awcar_schematic.py` chạy KiCad CLI thật để round-trip schematic,
 kiểm contract và negative cases: sai UART, nối GND loa BTL, chập hai cầu H,
-bỏ chuyển mức encoder, nối rail3V3, STBY nối VM và đảo chân transistor.
+bỏ chuyển mức encoder, nối rail3V3, STBY nối VM, đảo chân transistor, chập
+I2C cảm biến và nối tắt cầu chì. Bài xóa nhãn rồi xuất lại bằng KiCad xác nhận
+dây tín hiệu thật sự nối pin với pin, không chỉ dùng nhãn ở các khối tách.
 Nếu thiếu KiCad CLI thì ghi SKIP; không gọi ERC hoặc mô phỏng phần cứng là
 đạt từ các unit test này. Schematic vẫn là bản review chưa có quyền đi PCB.
 
@@ -37,5 +39,7 @@ FPGA chung; reference dùng thư viện Python thay vì gọi lại hàm CRC c�
 
 `test_fpga_protocol.py` có cả v1/v2, kiểm tra field offset/CRC/độ dài và
 từ chối phối nhầm STATUS18/34 byte. `test_aw_car_cad.py` và
-`test_aw_car_pcb_concept.py` kiểm tra dữ liệu hình học/connector concept,
-không chứng minh lắp vừa hoặc sơ đồ điện an toàn trên xe thực.
+`test_awcar_pcb_sources.py` kiểm project một trang, thư viện cục bộ và bảo vệ
+source chỉnh tay khi chạy generator. Test concept PCB cũ đã bỏ cùng concept;
+CAD cơ khí không thay đổi. Các kiểm tra này không chứng minh lắp vừa hoặc
+sơ đồ điện an toàn trên xe thực.

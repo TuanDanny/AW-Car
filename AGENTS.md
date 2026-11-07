@@ -52,8 +52,11 @@
 ## Cấu trúc và phạm vi
 
 - Yêu cầu07/11/2026: schematic KiCad trước, PCB sau khi chốt thành phần;
-  module phải cắm rút, không hàn chết. Bản review ở `hardware/pcb/kicad` trên
-  nhánh target hiện có, không ghi đè CAD/PCB concept hay sửa firmware đang chạy.
+  module phải cắm rút, không hàn chết. Theo yêu cầu tiếp07/11, gộp thành một
+  trang đấu nối chung ở `hardware/pcb/aw_car.kicad_sch`, project và thư viện
+  cùng thư mục; bỏ concept PCB cũ và các sheet tách sau khi giữ bản phục hồi
+  ngoài `hardware/pcb`. Layout KiCad sẽ cùng thư mục khi được giao triển khai.
+  Dùng nhánh target hiện có, không sửa `hardware/cad` hoặc firmware đang chạy.
   Symbol GPIO/package chưa phải footprint module; không tự gán số pad/lỗ gá.
   Mô hình STBY generic chưa thay gate/E-stop/watchdog đầy đủ. Không suppress
   ERC hoặc coi bench PASS là quyền phát hành PCB/mở driver. Giữ chỉnh tay;

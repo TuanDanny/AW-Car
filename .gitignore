@@ -21,8 +21,9 @@ __pycache__/
 Thumbs.db
 
 # KiCad local UI state, locks and automatic backups (native source stays tracked)
-hardware/pcb/kicad/*.kicad_prl
-hardware/pcb/kicad/*.lck
-hardware/pcb/kicad/~*.lck
-hardware/pcb/kicad/*-backups/
-hardware/pcb/kicad/fp-info-cache
+hardware/pcb/*.kicad_prl
+hardware/pcb/*.lck
+hardware/pcb/~*.lck
+hardware/pcb/*-backups/
+hardware/pcb/.history/
+hardware/pcb/fp-info-cache

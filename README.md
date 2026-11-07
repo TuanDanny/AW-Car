@@ -7,8 +7,8 @@ Tác giả: **TuanDanny**. Cộng tác viên: **Minh Nho** và **Nhan Duc**.
 
 ## Trạng thái
 
-Ngày07/11/2026 bắt đầu [bản nháp schematic KiCad module cắm rút](hardware/pcb/kicad/README.md),
-có kiểm netlist và bench ngspice cho tầng STBY ứng viên. Nguồn USB, gate đầy
+Ngày07/11/2026 có [schematic đấu nối chung một trang KiCad](hardware/pcb/README.md),
+gồm44 linh kiện/module cắm rút; kiểm đủ69 net và bench ngspice cho tầng STBY ứng viên. Nguồn USB, gate đầy
 đủ và footprint còn mở; chưa chuyển sang PCB hoặc cho phép cấp nguồn motor.
 
 Top FPGA triển khai là **[`aw_car_top`](fpga/rtl/aw_car_top.sv)**, bọc lõi

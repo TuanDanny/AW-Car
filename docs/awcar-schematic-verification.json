@@ -1,0 +1,160 @@
+{
+  "date": "2026-11-07",
+  "branch": "feat/f01-tang-nano9k-target",
+  "base_commit": "7f0d8653227f5579a614ab18afb6865dd82b87fa",
+  "status": "SINGLE_SHEET_CONNECTION_DRAFT_NOT_FOR_PCB",
+  "native_main_sheets": 1,
+  "paper": "A1",
+  "kicad_version": "10.0.6",
+  "sources_sha256": {
+    "aw_car.kicad_pro": "658374c275ab2285e29b059cfcfd97e63b2798cb109410dd2cc7a42d37eb4c68",
+    "aw_car.kicad_sch": "e9e0a39a5b4e84385760ddcb71b12cf1bb1e19d35575aed5240de07cdc202def",
+    "aw_car.kicad_sym": "356036d86a515aba909fe1714357cc140b29738f91674c2e3cb0e81003ffddde",
+    "generic-clamp.lib": "f00991eee192afb8c89f4e60f469f836006d4337b972f235d1bbc9c3e8fc2049",
+    "sym-lib-table": "b6db454b24479108521d9febe1b91ac84cf8a92cac3272b4a9e8a6297002f994"
+  },
+  "manifest_sha256": "be21912b4b58c4f5df9e9896930ca0f08145dd72896b92113d721a9720ea4685",
+  "native_wire_segments": 229,
+  "pin_contract": {
+    "pin_contract_passed": true,
+    "manifest_equivalence_passed": true,
+    "checks": [
+      "firmware_uart_and_recovery_permit_contract",
+      "damaged_motion_pins_unused",
+      "audio_oled_gpio_and_floating_speaker",
+      "four_independent_h_bridges_and_correct_direction_inputs",
+      "local_3v3_rails_and_pending_usb_sources_separate",
+      "both_candidate_stby_clamps_no_vm_to_gpio",
+      "single_out_encoder_raw_and_3v3_conditioned_nets_separate",
+      "all_nets_and_components_match_reviewed_manifest"
+    ],
+    "components": 44,
+    "nets": 69,
+    "exported_netlist_sha256": "3e609f91d48615c0992197554c1021107467f0429198518ea67f42c938ac312c",
+    "schematic_release_ready": false,
+    "limits": "Logical module IDs only; power/gate/USB/footprints unresolved. Not ERC/electrical/hardware sign-off."
+  },
+  "erc": {
+    "native_returncode": 5,
+    "error_count": 0,
+    "warning_count": 4,
+    "warnings": [
+      {
+        "type": "isolated_pin_label",
+        "description": "Label connected to only one pin",
+        "items": [
+          "Label '5V_AMP_SOURCE_TBD'"
+        ]
+      },
+      {
+        "type": "isolated_pin_label",
+        "description": "Label connected to only one pin",
+        "items": [
+          "Label '5V_BRAIN_SOURCE_TBD'"
+        ]
+      },
+      {
+        "type": "isolated_pin_label",
+        "description": "Label connected to only one pin",
+        "items": [
+          "Label '5V_MOTION_SOURCE_TBD'"
+        ]
+      },
+      {
+        "type": "isolated_pin_label",
+        "description": "Label connected to only one pin",
+        "items": [
+          "Label '5V_TANG_SOURCE_TBD'"
+        ]
+      }
+    ],
+    "signoff": false,
+    "scope": "Four unconnected board/amp 5V source labels intentionally remain pending source selection; no waivers/suppression."
+  },
+  "simulation": {
+    "scope": "CANDIDATE_STBY_CLAMPS_ONLY_NOT_COMPLETE_SAFETY_GATE",
+    "model": "GENERIC_NPN_AND_APPROXIMATE_SLEEP_LOAD_NOT_VENDOR_VALIDATED",
+    "netlist_sha256": "3e609f91d48615c0992197554c1021107467f0429198518ea67f42c938ac312c",
+    "ngspice_dll_sha256": "3238d82f02b6d08d8703a28ea894bcfdf59906dd4a59ad2e93eeec532a0454a3",
+    "dc_cases": 180,
+    "dc_passed": 180,
+    "transients": [
+      {
+        "input_capacitance_f": 1e-11,
+        "settled_intervals_passed": true,
+        "allow_rise_to_vih_s": 4.64753643224583e-07,
+        "allow_fall_to_vil_s": 1.0547953506172963e-06,
+        "limitation": "Settled intervals only; no vendor startup/glitch/driver wake certification."
+      },
+      {
+        "input_capacitance_f": 1e-10,
+        "settled_intervals_passed": true,
+        "allow_rise_to_vih_s": 1.2954793902212117e-06,
+        "allow_fall_to_vil_s": 1.1545490103889722e-06,
+        "limitation": "Settled intervals only; no vendor startup/glitch/driver wake certification."
+      },
+      {
+        "input_capacitance_f": 1e-09,
+        "settled_intervals_passed": true,
+        "allow_rise_to_vih_s": 9.13760876046412e-06,
+        "allow_fall_to_vil_s": 2.068494636396981e-06,
+        "limitation": "Settled intervals only; no vendor startup/glitch/driver wake certification."
+      }
+    ],
+    "full_safety_gate_simulated": false,
+    "converter_motor_thermal_simulated": false
+  },
+  "tests": {
+    "unittest_command": "python -m unittest discover -s tests",
+    "returncode": 0,
+    "total": 90,
+    "skipped": 0,
+    "native_schematic_tests": 12,
+    "pcb_source_preservation_tests": 3,
+    "signal_wire_check": "All 54 non-power signal/pack/test nets remain connected after deleting ALL labels and re-exporting with KiCad CLI.",
+    "harmful_mutations_rejected": [
+      "UART swap",
+      "BTL ground",
+      "H-bridge outputs short",
+      "raw encoder bypass",
+      "3V3 join",
+      "STBY to VM",
+      "transistor E/C swap",
+      "duplicate pin",
+      "sensor I2C short",
+      "fuse bypass"
+    ]
+  },
+  "visual_review": {
+    "format": "KiCad CLI SVG rendered to PNG",
+    "one_sheet": true,
+    "inspected": [
+      "overview",
+      "power",
+      "audio/OLED",
+      "Brain-Motion-FPGA",
+      "sensors",
+      "drivers/motors",
+      "candidate clamps"
+    ],
+    "exports": "build/awcar-flat-20261107/final-svg/aw_car.svg"
+  },
+  "cleanup": {
+    "old_pcb_concept_and_hierarchical_project_removed": true,
+    "backup_relative_path": "build/hardware-pcb-before-single-sheet-20261107/pcb",
+    "all_25_tracked_previous_files_preserved_byte_for_byte": true,
+    "untracked_history_preserved": true
+  },
+  "pcb_layout_created": false,
+  "schematic_release_ready": false,
+  "release_blockers": [
+    "module connector/header physical numbering and spacing unverified",
+    "USB VBUS/backfeed topology unverified on actual boards",
+    "converter output setting and continuous thermal load unmeasured",
+    "battery cell specifications, BMS and charger not selected",
+    "motor start/stall and turning load not measured; fuse/wire sizing pending",
+    "safety hardware design and independent clock-loss path pending review",
+    "new sensor GPIO assignments and module IO voltage not finalized",
+    "PCB outline, standoffs, antenna/USB clearances deferred by user"
+  ]
+}

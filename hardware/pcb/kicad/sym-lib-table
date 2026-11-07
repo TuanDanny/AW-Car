@@ -1,1 +1,0 @@
-(sym_lib_table (version 7) (lib (name "AWCAR") (type "KiCad") (uri "${KIPRJMOD}/aw_car.kicad_sym") (options "") (descr "AW-Car review symbols; module pin IDs logical only")))

@@ -2,8 +2,8 @@
 
 Nơi lưu BOM có mã linh kiện, bảng chân, sơ đồ nguồn, cơ khí và thiết kế PCB.
 
-[KiCad schematic review07/11](pcb/kicad/README.md): project native, bảng chân
-đã đối chiếu firmware, tầng STBY ứng viên và testbench ngspice. Module cắm
+[KiCad schematic đấu nối chung07/11](pcb/README.md): một trang A1,44 phần tử,
+69 net đã đối chiếu bản trước và firmware, tầng STBY ứng viên và batch ngspice. Module cắm
 rút; chưa chốt nguồn USB, gate hoàn chỉnh, footprint hoặc PCB để sản xuất.
 
 [Giao tiếp DRV8833](drv8833-interface.md): bảng nối bốn chân IN từ FPGA tới
@@ -36,6 +36,7 @@ trực tiếp cho motor. Loa vẫn cần nguồn/khối công suất tương ứ
 Chỉ tách thư mục BOM/schematic/PCB khi có tài liệu thực tế để lưu.
 
 [Kiểm kê linh kiện](components.md), [nguồn](power-plan.md),
-[CAD](cad/README.md) và [PCB concept](pcb/README.md) đã được gom từ checkout
-thiết kế ngày02/11/2026. CAD/PCB còn dùng kích thước giả định, chưa phải bản
-gia công hoặc schematic được nghiệm thu.
+[CAD cơ khí tham chiếu](cad/README.md) giữ nguyên từ checkout thiết kế02/11.
+Theo yêu cầu07/11, [hardware/pcb](pcb/README.md) chỉ giữ project schematic
+chung và thư viện; concept PCB cũ đã bỏ khỏi thư mục. Layout sẽ đặt tại đây
+sau khi chốt thành phần, footprint và nguồn/gate.

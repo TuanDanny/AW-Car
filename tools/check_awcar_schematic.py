@@ -18,7 +18,11 @@ class Netlist:
         self.nets = {}
         self.components = {c.attrib["ref"]: c for c in self.root.findall("./components/comp")}
         for net in self.root.findall("./nets/net"):
-            name = net.attrib["name"]
+            # A root-sheet local label has a leading '/' in KiCad XML.
+            # Do not flatten child-sheet paths: those would hide hierarchy mistakes.
+            name = net.attrib["name"].removeprefix("/")
+            if name in self.nets:
+                raise ValueError(f"Duplicate net name: {name}")
             nodes = {(n.attrib["ref"], n.attrib["pin"]) for n in net.findall("node")}
             self.nets[name] = nodes
             for node in nodes:
@@ -42,7 +46,7 @@ class Netlist:
 def check(source):
     n = Netlist(source)
     checks = []
-    inputs = json.loads((ROOT / "hardware/pcb/kicad/design-inputs.json").read_text(encoding="utf-8"))
+    inputs = json.loads((ROOT / "docs/awcar-schematic-design-inputs.json").read_text(encoding="utf-8"))
     refs = {"BRAIN": "U1", "MOTION": "U2", "FPGA": "U3"}
     for row in inputs["net_contract"]:
         pins = [(refs[p["module"]], ("P" if p["module"] == "FPGA" else "") + p["logical_pin"])
@@ -95,7 +99,15 @@ def check(source):
     n.require("ENC_R_CONDITIONED", ("U9", "4"), ("U3", "P28"))
     n.require("3V3_MOTION", ("U9", "5"), ("U10", "5"))
     checks.append("single_out_encoder_raw_and_3v3_conditioned_nets_separate")
-    return {"pin_contract_passed": True, "checks": checks, "components": len(n.components),
+    baseline = json.loads((ROOT / "docs/awcar-schematic-parts.json").read_text(encoding="utf-8"))
+    expected = {name: {tuple(pin) for pin in pins} for name, pins in baseline["expected_nets"].items()}
+    if n.nets != expected:
+        different = [name for name in sorted(set(n.nets) | set(expected)) if n.nets.get(name) != expected.get(name)]
+        raise ValueError(f"Connection differs from reviewed manifest: {different}")
+    if set(n.components) != {p["ref"] for p in baseline["parts"]}:
+        raise ValueError("Component inventory differs from reviewed manifest")
+    checks.append("all_nets_and_components_match_reviewed_manifest")
+    return {"pin_contract_passed": True, "manifest_equivalence_passed": True, "checks": checks, "components": len(n.components),
             "nets": len(n.nets), "exported_netlist_sha256": hashlib.sha256(Path(source).read_bytes()).hexdigest(),
             "schematic_release_ready": False,
             "limits": "Logical module IDs only; power/gate/USB/footprints unresolved. Not ERC/electrical/hardware sign-off."}

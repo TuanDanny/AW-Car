@@ -1,0 +1,3232 @@
+{
+  "schema": 1,
+  "status": "CONNECTION_DRAFT_PHYSICAL_HEADER_PADS_NOT_ASSIGNED",
+  "provenance": {
+    "source_commit": "7f0d8653227f5579a614ab18afb6865dd82b87fa",
+    "baseline_export_sha256": "b4e0e8ff05c26f6024301a342650979c982440a27c454a07c8fd2217e0fcdff4"
+  },
+  "parts": [
+    {
+      "ref": "C10",
+      "symbol": "C",
+      "value": "100n",
+      "properties": {},
+      "pins": [
+        {
+          "number": "1",
+          "name": "",
+          "kind": "passive",
+          "shape": "line",
+          "x": 0.0,
+          "y": 3.81,
+          "angle": 270.0
+        },
+        {
+          "number": "2",
+          "name": "",
+          "kind": "passive",
+          "shape": "line",
+          "x": 0.0,
+          "y": -3.81,
+          "angle": 90.0
+        }
+      ],
+      "nets": {
+        "1": "3V3_MOTION",
+        "2": "GND"
+      }
+    },
+    {
+      "ref": "C9",
+      "symbol": "C",
+      "value": "100n",
+      "properties": {},
+      "pins": [
+        {
+          "number": "1",
+          "name": "",
+          "kind": "passive",
+          "shape": "line",
+          "x": 0.0,
+          "y": 3.81,
+          "angle": 270.0
+        },
+        {
+          "number": "2",
+          "name": "",
+          "kind": "passive",
+          "shape": "line",
+          "x": 0.0,
+          "y": -3.81,
+          "angle": 90.0
+        }
+      ],
+      "nets": {
+        "1": "3V3_MOTION",
+        "2": "GND"
+      }
+    },
+    {
+      "ref": "F1",
+      "symbol": "Fuse",
+      "value": "RATING_TBD",
+      "properties": {},
+      "pins": [
+        {
+          "number": "1",
+          "name": "",
+          "kind": "passive",
+          "shape": "line",
+          "x": 0.0,
+          "y": 3.81,
+          "angle": 270.0
+        },
+        {
+          "number": "2",
+          "name": "",
+          "kind": "passive",
+          "shape": "line",
+          "x": 0.0,
+          "y": -3.81,
+          "angle": 90.0
+        }
+      ],
+      "nets": {
+        "2": "PACK_FUSED",
+        "1": "PACK_PROTECTED_PLUS"
+      }
+    },
+    {
+      "ref": "J1",
+      "symbol": "OLED",
+      "value": "OLED 0.96 I2C",
+      "properties": {},
+      "pins": [
+        {
+          "number": "1",
+          "name": "GND",
+          "kind": "passive",
+          "shape": "line",
+          "x": -15.24,
+          "y": 7.62,
+          "angle": 0.0
+        },
+        {
+          "number": "2",
+          "name": "VCC 3V3",
+          "kind": "passive",
+          "shape": "line",
+          "x": -15.24,
+          "y": 2.54,
+          "angle": 0.0
+        },
+        {
+          "number": "3",
+          "name": "SCL",
+          "kind": "passive",
+          "shape": "line",
+          "x": -15.24,
+          "y": -2.54,
+          "angle": 0.0
+        },
+        {
+          "number": "4",
+          "name": "SDA",
+          "kind": "passive",
+          "shape": "line",
+          "x": -15.24,
+          "y": -7.62,
+          "angle": 0.0
+        }
+      ],
+      "nets": {
+        "2": "3V3_BRAIN",
+        "1": "GND",
+        "3": "OLED_SCL",
+        "4": "OLED_SDA"
+      }
+    },
+    {
+      "ref": "J2",
+      "symbol": "MIC",
+      "value": "INMP441",
+      "properties": {},
+      "pins": [
+        {
+          "number": "1",
+          "name": "VDD 3V3",
+          "kind": "passive",
+          "shape": "line",
+          "x": -15.24,
+          "y": 12.7,
+          "angle": 0.0
+        },
+        {
+          "number": "2",
+          "name": "GND",
+          "kind": "passive",
+          "shape": "line",
+          "x": -15.24,
+          "y": 7.62,
+          "angle": 0.0
+        },
+        {
+          "number": "3",
+          "name": "BCLK",
+          "kind": "passive",
+          "shape": "line",
+          "x": -15.24,
+          "y": 2.54,
+          "angle": 0.0
+        },
+        {
+          "number": "4",
+          "name": "WS",
+          "kind": "passive",
+          "shape": "line",
+          "x": -15.24,
+          "y": -2.54,
+          "angle": 0.0
+        },
+        {
+          "number": "5",
+          "name": "SD",
+          "kind": "passive",
+          "shape": "line",
+          "x": -15.24,
+          "y": -7.62,
+          "angle": 0.0
+        },
+        {
+          "number": "6",
+          "name": "L/R=GND",
+          "kind": "passive",
+          "shape": "line",
+          "x": -15.24,
+          "y": -12.7,
+          "angle": 0.0
+        }
+      ],
+      "nets": {
+        "1": "3V3_BRAIN",
+        "2": "GND",
+        "6": "GND",
+        "3": "MIC_BCLK",
+        "5": "MIC_SD",
+        "4": "MIC_WS"
+      }
+    },
+    {
+      "ref": "J20",
+      "symbol": "Sensor",
+      "value": "MPU6050 harness - order proposed",
+      "properties": {},
+      "pins": [
+        {
+          "number": "1",
+          "name": "VCC TBD",
+          "kind": "passive",
+          "shape": "line",
+          "x": -15.24,
+          "y": 7.62,
+          "angle": 0.0
+        },
+        {
+          "number": "2",
+          "name": "GND",
+          "kind": "passive",
+          "shape": "line",
+          "x": -15.24,
+          "y": 2.54,
+          "angle": 0.0
+        },
+        {
+          "number": "3",
+          "name": "signal A TBD",
+          "kind": "passive",
+          "shape": "line",
+          "x": -15.24,
+          "y": -2.54,
+          "angle": 0.0
+        },
+        {
+          "number": "4",
+          "name": "signal B TBD",
+          "kind": "passive",
+          "shape": "line",
+          "x": -15.24,
+          "y": -7.62,
+          "angle": 0.0
+        }
+      ],
+      "nets": {
+        "1": "3V3_SENSORS_TBD",
+        "2": "GND",
+        "4": "SENSOR_SCL_TBD",
+        "3": "SENSOR_SDA_TBD"
+      }
+    },
+    {
+      "ref": "J21",
+      "symbol": "Sensor",
+      "value": "VL53L0X blue - verify pull-ups",
+      "properties": {},
+      "pins": [
+        {
+          "number": "1",
+          "name": "VCC TBD",
+          "kind": "passive",
+          "shape": "line",
+          "x": -15.24,
+          "y": 7.62,
+          "angle": 0.0
+        },
+        {
+          "number": "2",
+          "name": "GND",
+          "kind": "passive",
+          "shape": "line",
+          "x": -15.24,
+          "y": 2.54,
+          "angle": 0.0
+        },
+        {
+          "number": "3",
+          "name": "signal A TBD",
+          "kind": "passive",
+          "shape": "line",
+          "x": -15.24,
+          "y": -2.54,
+          "angle": 0.0
+        },
+        {
+          "number": "4",
+          "name": "signal B TBD",
+          "kind": "passive",
+          "shape": "line",
+          "x": -15.24,
+          "y": -7.62,
+          "angle": 0.0
+        }
+      ],
+      "nets": {
+        "1": "3V3_SENSORS_TBD",
+        "2": "GND",
+        "4": "SENSOR_SCL_TBD",
+        "3": "SENSOR_SDA_TBD"
+      }
+    },
+    {
+      "ref": "J22",
+      "symbol": "Sensor",
+      "value": "TCRT5000 left DO",
+      "properties": {},
+      "pins": [
+        {
+          "number": "1",
+          "name": "VCC TBD",
+          "kind": "passive",
+          "shape": "line",
+          "x": -15.24,
+          "y": 7.62,
+          "angle": 0.0
+        },
+        {
+          "number": "2",
+          "name": "GND",
+          "kind": "passive",
+          "shape": "line",
+          "x": -15.24,
+          "y": 2.54,
+          "angle": 0.0
+        },
+        {
+          "number": "3",
+          "name": "signal A TBD",
+          "kind": "passive",
+          "shape": "line",
+          "x": -15.24,
+          "y": -2.54,
+          "angle": 0.0
+        },
+        {
+          "number": "4",
+          "name": "signal B TBD",
+          "kind": "passive",
+          "shape": "line",
+          "x": -15.24,
+          "y": -7.62,
+          "angle": 0.0
+        }
+      ],
+      "nets": {
+        "1": "5V_SENSOR_SOURCE_TBD",
+        "2": "GND",
+        "3": "TCRT_L_RAW",
+        "4": "unconnected-(J22-signal_B_TBD-Pad4)"
+      }
+    },
+    {
+      "ref": "J23",
+      "symbol": "Sensor",
+      "value": "TCRT5000 right DO",
+      "properties": {},
+      "pins": [
+        {
+          "number": "1",
+          "name": "VCC TBD",
+          "kind": "passive",
+          "shape": "line",
+          "x": -15.24,
+          "y": 7.62,
+          "angle": 0.0
+        },
+        {
+          "number": "2",
+          "name": "GND",
+          "kind": "passive",
+          "shape": "line",
+          "x": -15.24,
+          "y": 2.54,
+          "angle": 0.0
+        },
+        {
+          "number": "3",
+          "name": "signal A TBD",
+          "kind": "passive",
+          "shape": "line",
+          "x": -15.24,
+          "y": -2.54,
+          "angle": 0.0
+        },
+        {
+          "number": "4",
+          "name": "signal B TBD",
+          "kind": "passive",
+          "shape": "line",
+          "x": -15.24,
+          "y": -7.62,
+          "angle": 0.0
+        }
+      ],
+      "nets": {
+        "1": "5V_SENSOR_SOURCE_TBD",
+        "2": "GND",
+        "3": "TCRT_R_RAW",
+        "4": "unconnected-(J23-signal_B_TBD-Pad4)"
+      }
+    },
+    {
+      "ref": "J24",
+      "symbol": "Expansion",
+      "value": "Motion future GPIO - NOT assigned",
+      "properties": {},
+      "pins": [
+        {
+          "number": "1",
+          "name": "I2C SDA - GPIO TBD",
+          "kind": "passive",
+          "shape": "line",
+          "x": -15.24,
+          "y": 10.16,
+          "angle": 0.0
+        },
+        {
+          "number": "2",
+          "name": "I2C SCL - GPIO TBD",
+          "kind": "passive",
+          "shape": "line",
+          "x": -15.24,
+          "y": 5.08,
+          "angle": 0.0
+        },
+        {
+          "number": "3",
+          "name": "TCRT left - GPIO TBD",
+          "kind": "passive",
+          "shape": "line",
+          "x": -15.24,
+          "y": 0.0,
+          "angle": 0.0
+        },
+        {
+          "number": "4",
+          "name": "TCRT right - GPIO TBD",
+          "kind": "passive",
+          "shape": "line",
+          "x": -15.24,
+          "y": -5.08,
+          "angle": 0.0
+        },
+        {
+          "number": "5",
+          "name": "GND",
+          "kind": "passive",
+          "shape": "line",
+          "x": -15.24,
+          "y": -10.16,
+          "angle": 0.0
+        }
+      ],
+      "nets": {
+        "5": "GND",
+        "2": "SENSOR_SCL_TBD",
+        "1": "SENSOR_SDA_TBD",
+        "3": "TCRT_L_GPIO_TBD",
+        "4": "TCRT_R_GPIO_TBD"
+      }
+    },
+    {
+      "ref": "J30",
+      "symbol": "Pack",
+      "value": "2S protected pack output ONLY",
+      "properties": {},
+      "pins": [
+        {
+          "number": "1",
+          "name": "PROTECTED pack +",
+          "kind": "passive",
+          "shape": "line",
+          "x": -15.24,
+          "y": 2.54,
+          "angle": 0.0
+        },
+        {
+          "number": "2",
+          "name": "pack return",
+          "kind": "passive",
+          "shape": "line",
+          "x": -15.24,
+          "y": -2.54,
+          "angle": 0.0
+        }
+      ],
+      "nets": {
+        "2": "GND",
+        "1": "PACK_PROTECTED_PLUS"
+      }
+    },
+    {
+      "ref": "J4",
+      "symbol": "Speaker",
+      "value": "4ohm 3W speaker",
+      "properties": {},
+      "pins": [
+        {
+          "number": "1",
+          "name": "SPK+ (floating)",
+          "kind": "passive",
+          "shape": "line",
+          "x": -15.24,
+          "y": 2.54,
+          "angle": 0.0
+        },
+        {
+          "number": "2",
+          "name": "SPK- (floating)",
+          "kind": "passive",
+          "shape": "line",
+          "x": -15.24,
+          "y": -2.54,
+          "angle": 0.0
+        }
+      ],
+      "nets": {
+        "2": "SPK_MINUS",
+        "1": "SPK_PLUS"
+      }
+    },
+    {
+      "ref": "J5",
+      "symbol": "Motor",
+      "value": "L motor 1",
+      "properties": {},
+      "pins": [
+        {
+          "number": "1",
+          "name": "motor terminal 1",
+          "kind": "passive",
+          "shape": "line",
+          "x": -15.24,
+          "y": 2.54,
+          "angle": 0.0
+        },
+        {
+          "number": "2",
+          "name": "motor terminal 2",
+          "kind": "passive",
+          "shape": "line",
+          "x": -15.24,
+          "y": -2.54,
+          "angle": 0.0
+        }
+      ],
+      "nets": {
+        "1": "L_AOUT1",
+        "2": "L_AOUT2"
+      }
+    },
+    {
+      "ref": "J6",
+      "symbol": "Motor",
+      "value": "L motor 2",
+      "properties": {},
+      "pins": [
+        {
+          "number": "1",
+          "name": "motor terminal 1",
+          "kind": "passive",
+          "shape": "line",
+          "x": -15.24,
+          "y": 2.54,
+          "angle": 0.0
+        },
+        {
+          "number": "2",
+          "name": "motor terminal 2",
+          "kind": "passive",
+          "shape": "line",
+          "x": -15.24,
+          "y": -2.54,
+          "angle": 0.0
+        }
+      ],
+      "nets": {
+        "1": "L_BOUT1",
+        "2": "L_BOUT2"
+      }
+    },
+    {
+      "ref": "J7",
+      "symbol": "Motor",
+      "value": "R motor 1",
+      "properties": {},
+      "pins": [
+        {
+          "number": "1",
+          "name": "motor terminal 1",
+          "kind": "passive",
+          "shape": "line",
+          "x": -15.24,
+          "y": 2.54,
+          "angle": 0.0
+        },
+        {
+          "number": "2",
+          "name": "motor terminal 2",
+          "kind": "passive",
+          "shape": "line",
+          "x": -15.24,
+          "y": -2.54,
+          "angle": 0.0
+        }
+      ],
+      "nets": {
+        "1": "R_AOUT1",
+        "2": "R_AOUT2"
+      }
+    },
+    {
+      "ref": "J8",
+      "symbol": "Motor",
+      "value": "R motor 2",
+      "properties": {},
+      "pins": [
+        {
+          "number": "1",
+          "name": "motor terminal 1",
+          "kind": "passive",
+          "shape": "line",
+          "x": -15.24,
+          "y": 2.54,
+          "angle": 0.0
+        },
+        {
+          "number": "2",
+          "name": "motor terminal 2",
+          "kind": "passive",
+          "shape": "line",
+          "x": -15.24,
+          "y": -2.54,
+          "angle": 0.0
+        }
+      ],
+      "nets": {
+        "1": "R_BOUT1",
+        "2": "R_BOUT2"
+      }
+    },
+    {
+      "ref": "J9",
+      "symbol": "Gate_Interface",
+      "value": "Gate/latch/watchdog required interface",
+      "properties": {},
+      "pins": [
+        {
+          "number": "1",
+          "name": "driver_permit",
+          "kind": "passive",
+          "shape": "line",
+          "x": -15.24,
+          "y": 15.24,
+          "angle": 0.0
+        },
+        {
+          "number": "2",
+          "name": "fpga_permit",
+          "kind": "passive",
+          "shape": "line",
+          "x": -15.24,
+          "y": 10.16,
+          "angle": 0.0
+        },
+        {
+          "number": "3",
+          "name": "gate_clear",
+          "kind": "passive",
+          "shape": "line",
+          "x": -15.24,
+          "y": 5.08,
+          "angle": 0.0
+        },
+        {
+          "number": "4",
+          "name": "safety_ok",
+          "kind": "passive",
+          "shape": "line",
+          "x": -15.24,
+          "y": 0.0,
+          "angle": 0.0
+        },
+        {
+          "number": "5",
+          "name": "gate_fault_n",
+          "kind": "passive",
+          "shape": "line",
+          "x": -15.24,
+          "y": -5.08,
+          "angle": 0.0
+        },
+        {
+          "number": "6",
+          "name": "ALLOW to clamps",
+          "kind": "passive",
+          "shape": "line",
+          "x": -15.24,
+          "y": -10.16,
+          "angle": 0.0
+        },
+        {
+          "number": "7",
+          "name": "GND",
+          "kind": "passive",
+          "shape": "line",
+          "x": -15.24,
+          "y": -15.24,
+          "angle": 0.0
+        }
+      ],
+      "nets": {
+        "1": "DRIVER_PERMIT",
+        "2": "FPGA_PERMIT",
+        "6": "GATE_ALLOW",
+        "3": "GATE_CLEAR",
+        "5": "GATE_FAULT_N",
+        "7": "GND",
+        "4": "SAFETY_OK"
+      }
+    },
+    {
+      "ref": "Q101",
+      "symbol": "NPN",
+      "value": "2N3904 candidate",
+      "properties": {
+        "Circuit_Block": "STBY_CLAMP",
+        "Simulation_Model": "GENERIC_NPN_NOT_VENDOR_CHARACTERIZATION",
+        "Sim.Library": "generic-clamp.lib",
+        "Sim.Name": "QGEN",
+        "Sim.Pins": "3=1 2=2 1=3"
+      },
+      "pins": [
+        {
+          "number": "1",
+          "name": "E",
+          "kind": "passive",
+          "shape": "line",
+          "x": 2.54,
+          "y": -5.08,
+          "angle": 90.0
+        },
+        {
+          "number": "2",
+          "name": "B",
+          "kind": "input",
+          "shape": "line",
+          "x": -5.08,
+          "y": 0.0,
+          "angle": 0.0
+        },
+        {
+          "number": "3",
+          "name": "C",
+          "kind": "passive",
+          "shape": "line",
+          "x": 2.54,
+          "y": 5.08,
+          "angle": 270.0
+        }
+      ],
+      "nets": {
+        "1": "GND",
+        "2": "Net-(Q101-B)",
+        "3": "STBY_L"
+      }
+    },
+    {
+      "ref": "Q102",
+      "symbol": "NPN",
+      "value": "2N3904 candidate",
+      "properties": {
+        "Circuit_Block": "STBY_CLAMP",
+        "Simulation_Model": "GENERIC_NPN_NOT_VENDOR_CHARACTERIZATION",
+        "Sim.Library": "generic-clamp.lib",
+        "Sim.Name": "QGEN",
+        "Sim.Pins": "3=1 2=2 1=3"
+      },
+      "pins": [
+        {
+          "number": "1",
+          "name": "E",
+          "kind": "passive",
+          "shape": "line",
+          "x": 2.54,
+          "y": -5.08,
+          "angle": 90.0
+        },
+        {
+          "number": "2",
+          "name": "B",
+          "kind": "input",
+          "shape": "line",
+          "x": -5.08,
+          "y": 0.0,
+          "angle": 0.0
+        },
+        {
+          "number": "3",
+          "name": "C",
+          "kind": "passive",
+          "shape": "line",
+          "x": 2.54,
+          "y": 5.08,
+          "angle": 270.0
+        }
+      ],
+      "nets": {
+        "1": "GND",
+        "3": "Net-(Q101-B)",
+        "2": "Net-(Q102-B)"
+      }
+    },
+    {
+      "ref": "Q111",
+      "symbol": "NPN",
+      "value": "2N3904 candidate",
+      "properties": {
+        "Circuit_Block": "STBY_CLAMP",
+        "Simulation_Model": "GENERIC_NPN_NOT_VENDOR_CHARACTERIZATION",
+        "Sim.Library": "generic-clamp.lib",
+        "Sim.Name": "QGEN",
+        "Sim.Pins": "3=1 2=2 1=3"
+      },
+      "pins": [
+        {
+          "number": "1",
+          "name": "E",
+          "kind": "passive",
+          "shape": "line",
+          "x": 2.54,
+          "y": -5.08,
+          "angle": 90.0
+        },
+        {
+          "number": "2",
+          "name": "B",
+          "kind": "input",
+          "shape": "line",
+          "x": -5.08,
+          "y": 0.0,
+          "angle": 0.0
+        },
+        {
+          "number": "3",
+          "name": "C",
+          "kind": "passive",
+          "shape": "line",
+          "x": 2.54,
+          "y": 5.08,
+          "angle": 270.0
+        }
+      ],
+      "nets": {
+        "1": "GND",
+        "2": "Net-(Q111-B)",
+        "3": "STBY_R"
+      }
+    },
+    {
+      "ref": "Q112",
+      "symbol": "NPN",
+      "value": "2N3904 candidate",
+      "properties": {
+        "Circuit_Block": "STBY_CLAMP",
+        "Simulation_Model": "GENERIC_NPN_NOT_VENDOR_CHARACTERIZATION",
+        "Sim.Library": "generic-clamp.lib",
+        "Sim.Name": "QGEN",
+        "Sim.Pins": "3=1 2=2 1=3"
+      },
+      "pins": [
+        {
+          "number": "1",
+          "name": "E",
+          "kind": "passive",
+          "shape": "line",
+          "x": 2.54,
+          "y": -5.08,
+          "angle": 90.0
+        },
+        {
+          "number": "2",
+          "name": "B",
+          "kind": "input",
+          "shape": "line",
+          "x": -5.08,
+          "y": 0.0,
+          "angle": 0.0
+        },
+        {
+          "number": "3",
+          "name": "C",
+          "kind": "passive",
+          "shape": "line",
+          "x": 2.54,
+          "y": 5.08,
+          "angle": 270.0
+        }
+      ],
+      "nets": {
+        "1": "GND",
+        "3": "Net-(Q111-B)",
+        "2": "Net-(Q112-B)"
+      }
+    },
+    {
+      "ref": "R101",
+      "symbol": "R",
+      "value": "47k",
+      "properties": {},
+      "pins": [
+        {
+          "number": "1",
+          "name": "",
+          "kind": "passive",
+          "shape": "line",
+          "x": 0.0,
+          "y": 3.81,
+          "angle": 270.0
+        },
+        {
+          "number": "2",
+          "name": "",
+          "kind": "passive",
+          "shape": "line",
+          "x": 0.0,
+          "y": -3.81,
+          "angle": 90.0
+        }
+      ],
+      "nets": {
+        "2": "Net-(Q101-B)",
+        "1": "VM_MOTOR"
+      }
+    },
+    {
+      "ref": "R102",
+      "symbol": "R",
+      "value": "47k",
+      "properties": {},
+      "pins": [
+        {
+          "number": "1",
+          "name": "",
+          "kind": "passive",
+          "shape": "line",
+          "x": 0.0,
+          "y": 3.81,
+          "angle": 270.0
+        },
+        {
+          "number": "2",
+          "name": "",
+          "kind": "passive",
+          "shape": "line",
+          "x": 0.0,
+          "y": -3.81,
+          "angle": 90.0
+        }
+      ],
+      "nets": {
+        "2": "STBY_L",
+        "1": "VM_MOTOR"
+      }
+    },
+    {
+      "ref": "R103",
+      "symbol": "R",
+      "value": "10k",
+      "properties": {},
+      "pins": [
+        {
+          "number": "1",
+          "name": "",
+          "kind": "passive",
+          "shape": "line",
+          "x": 0.0,
+          "y": 3.81,
+          "angle": 270.0
+        },
+        {
+          "number": "2",
+          "name": "",
+          "kind": "passive",
+          "shape": "line",
+          "x": 0.0,
+          "y": -3.81,
+          "angle": 90.0
+        }
+      ],
+      "nets": {
+        "1": "GATE_ALLOW",
+        "2": "Net-(Q102-B)"
+      }
+    },
+    {
+      "ref": "R104",
+      "symbol": "R",
+      "value": "100k",
+      "properties": {},
+      "pins": [
+        {
+          "number": "1",
+          "name": "",
+          "kind": "passive",
+          "shape": "line",
+          "x": 0.0,
+          "y": 3.81,
+          "angle": 270.0
+        },
+        {
+          "number": "2",
+          "name": "",
+          "kind": "passive",
+          "shape": "line",
+          "x": 0.0,
+          "y": -3.81,
+          "angle": 90.0
+        }
+      ],
+      "nets": {
+        "2": "GND",
+        "1": "Net-(Q102-B)"
+      }
+    },
+    {
+      "ref": "R111",
+      "symbol": "R",
+      "value": "47k",
+      "properties": {},
+      "pins": [
+        {
+          "number": "1",
+          "name": "",
+          "kind": "passive",
+          "shape": "line",
+          "x": 0.0,
+          "y": 3.81,
+          "angle": 270.0
+        },
+        {
+          "number": "2",
+          "name": "",
+          "kind": "passive",
+          "shape": "line",
+          "x": 0.0,
+          "y": -3.81,
+          "angle": 90.0
+        }
+      ],
+      "nets": {
+        "2": "Net-(Q111-B)",
+        "1": "VM_MOTOR"
+      }
+    },
+    {
+      "ref": "R112",
+      "symbol": "R",
+      "value": "47k",
+      "properties": {},
+      "pins": [
+        {
+          "number": "1",
+          "name": "",
+          "kind": "passive",
+          "shape": "line",
+          "x": 0.0,
+          "y": 3.81,
+          "angle": 270.0
+        },
+        {
+          "number": "2",
+          "name": "",
+          "kind": "passive",
+          "shape": "line",
+          "x": 0.0,
+          "y": -3.81,
+          "angle": 90.0
+        }
+      ],
+      "nets": {
+        "2": "STBY_R",
+        "1": "VM_MOTOR"
+      }
+    },
+    {
+      "ref": "R113",
+      "symbol": "R",
+      "value": "10k",
+      "properties": {},
+      "pins": [
+        {
+          "number": "1",
+          "name": "",
+          "kind": "passive",
+          "shape": "line",
+          "x": 0.0,
+          "y": 3.81,
+          "angle": 270.0
+        },
+        {
+          "number": "2",
+          "name": "",
+          "kind": "passive",
+          "shape": "line",
+          "x": 0.0,
+          "y": -3.81,
+          "angle": 90.0
+        }
+      ],
+      "nets": {
+        "1": "GATE_ALLOW",
+        "2": "Net-(Q112-B)"
+      }
+    },
+    {
+      "ref": "R114",
+      "symbol": "R",
+      "value": "100k",
+      "properties": {},
+      "pins": [
+        {
+          "number": "1",
+          "name": "",
+          "kind": "passive",
+          "shape": "line",
+          "x": 0.0,
+          "y": 3.81,
+          "angle": 270.0
+        },
+        {
+          "number": "2",
+          "name": "",
+          "kind": "passive",
+          "shape": "line",
+          "x": 0.0,
+          "y": -3.81,
+          "angle": 90.0
+        }
+      ],
+      "nets": {
+        "2": "GND",
+        "1": "Net-(Q112-B)"
+      }
+    },
+    {
+      "ref": "SW1",
+      "symbol": "Switch",
+      "value": "MAIN_SWITCH_DC_RATING_TBD",
+      "properties": {},
+      "pins": [
+        {
+          "number": "1",
+          "name": "A",
+          "kind": "passive",
+          "shape": "line",
+          "x": -5.08,
+          "y": 0.0,
+          "angle": 0.0
+        },
+        {
+          "number": "2",
+          "name": "B",
+          "kind": "passive",
+          "shape": "line",
+          "x": 5.08,
+          "y": 0.0,
+          "angle": 180.0
+        }
+      ],
+      "nets": {
+        "1": "PACK_FUSED",
+        "2": "VM_MOTOR"
+      }
+    },
+    {
+      "ref": "TP1",
+      "symbol": "Testpoint",
+      "value": "Motion local 3V3",
+      "properties": {},
+      "pins": [
+        {
+          "number": "1",
+          "name": "test point",
+          "kind": "passive",
+          "shape": "line",
+          "x": -15.24,
+          "y": 0.0,
+          "angle": 0.0
+        }
+      ],
+      "nets": {
+        "1": "3V3_MOTION"
+      }
+    },
+    {
+      "ref": "TP2",
+      "symbol": "Testpoint",
+      "value": "Tang local 3V3",
+      "properties": {},
+      "pins": [
+        {
+          "number": "1",
+          "name": "test point",
+          "kind": "passive",
+          "shape": "line",
+          "x": -15.24,
+          "y": 0.0,
+          "angle": 0.0
+        }
+      ],
+      "nets": {
+        "1": "3V3_TANG"
+      }
+    },
+    {
+      "ref": "TP3",
+      "symbol": "Testpoint",
+      "value": "Adjust/test 5V BEFORE boards",
+      "properties": {},
+      "pins": [
+        {
+          "number": "1",
+          "name": "test point",
+          "kind": "passive",
+          "shape": "line",
+          "x": -15.24,
+          "y": 0.0,
+          "angle": 0.0
+        }
+      ],
+      "nets": {
+        "1": "5V_DSN_UNVERIFIED"
+      }
+    },
+    {
+      "ref": "U1",
+      "symbol": "Brain_Logical",
+      "value": "ESP32-S3 Brain module",
+      "properties": {},
+      "pins": [
+        {
+          "number": "5V",
+          "name": "5V input - source TBD",
+          "kind": "passive",
+          "shape": "line",
+          "x": -22.86,
+          "y": 20.32,
+          "angle": 0.0
+        },
+        {
+          "number": "GND",
+          "name": "GND",
+          "kind": "passive",
+          "shape": "line",
+          "x": -22.86,
+          "y": 15.24,
+          "angle": 0.0
+        },
+        {
+          "number": "GPIO6",
+          "name": "MIC SD",
+          "kind": "input",
+          "shape": "line",
+          "x": -22.86,
+          "y": 10.16,
+          "angle": 0.0
+        },
+        {
+          "number": "GPIO18",
+          "name": "UART RX",
+          "kind": "input",
+          "shape": "line",
+          "x": -22.86,
+          "y": 5.08,
+          "angle": 0.0
+        },
+        {
+          "number": "3V3",
+          "name": "local 3V3",
+          "kind": "power_out",
+          "shape": "line",
+          "x": 22.86,
+          "y": 20.32,
+          "angle": 180.0
+        },
+        {
+          "number": "GPIO4",
+          "name": "MIC WS",
+          "kind": "output",
+          "shape": "line",
+          "x": 22.86,
+          "y": 15.24,
+          "angle": 180.0
+        },
+        {
+          "number": "GPIO5",
+          "name": "MIC BCLK",
+          "kind": "output",
+          "shape": "line",
+          "x": 22.86,
+          "y": 10.16,
+          "angle": 180.0
+        },
+        {
+          "number": "GPIO7",
+          "name": "AMP DIN",
+          "kind": "output",
+          "shape": "line",
+          "x": 22.86,
+          "y": 5.08,
+          "angle": 180.0
+        },
+        {
+          "number": "GPIO15",
+          "name": "AMP BCLK",
+          "kind": "output",
+          "shape": "line",
+          "x": 22.86,
+          "y": 0.0,
+          "angle": 180.0
+        },
+        {
+          "number": "GPIO16",
+          "name": "AMP LRCLK",
+          "kind": "output",
+          "shape": "line",
+          "x": 22.86,
+          "y": -5.08,
+          "angle": 180.0
+        },
+        {
+          "number": "GPIO17",
+          "name": "UART TX",
+          "kind": "output",
+          "shape": "line",
+          "x": 22.86,
+          "y": -10.16,
+          "angle": 180.0
+        },
+        {
+          "number": "GPIO41",
+          "name": "OLED SDA",
+          "kind": "bidirectional",
+          "shape": "line",
+          "x": 22.86,
+          "y": -15.24,
+          "angle": 180.0
+        },
+        {
+          "number": "GPIO42",
+          "name": "OLED SCL",
+          "kind": "bidirectional",
+          "shape": "line",
+          "x": 22.86,
+          "y": -20.32,
+          "angle": 180.0
+        }
+      ],
+      "nets": {
+        "3V3": "3V3_BRAIN",
+        "5V": "5V_BRAIN_SOURCE_TBD",
+        "GPIO15": "AMP_BCLK",
+        "GPIO7": "AMP_DIN",
+        "GPIO16": "AMP_LRCLK",
+        "GPIO17": "BRN_TX_MTN_RX",
+        "GND": "GND",
+        "GPIO5": "MIC_BCLK",
+        "GPIO6": "MIC_SD",
+        "GPIO4": "MIC_WS",
+        "GPIO18": "MTN_TX_BRN_RX",
+        "GPIO42": "OLED_SCL",
+        "GPIO41": "OLED_SDA"
+      }
+    },
+    {
+      "ref": "U10",
+      "symbol": "LVC2G17",
+      "value": "SN74LVC2G17 candidate",
+      "properties": {},
+      "pins": [
+        {
+          "number": "1",
+          "name": "1A",
+          "kind": "input",
+          "shape": "line",
+          "x": -17.78,
+          "y": 7.62,
+          "angle": 0.0
+        },
+        {
+          "number": "3",
+          "name": "2A",
+          "kind": "input",
+          "shape": "line",
+          "x": -17.78,
+          "y": 2.54,
+          "angle": 0.0
+        },
+        {
+          "number": "2",
+          "name": "GND",
+          "kind": "passive",
+          "shape": "line",
+          "x": -17.78,
+          "y": -2.54,
+          "angle": 0.0
+        },
+        {
+          "number": "5",
+          "name": "VCC 3V3",
+          "kind": "power_in",
+          "shape": "line",
+          "x": -17.78,
+          "y": -7.62,
+          "angle": 0.0
+        },
+        {
+          "number": "6",
+          "name": "1Y",
+          "kind": "output",
+          "shape": "line",
+          "x": 17.78,
+          "y": 7.62,
+          "angle": 180.0
+        },
+        {
+          "number": "4",
+          "name": "2Y",
+          "kind": "output",
+          "shape": "line",
+          "x": 17.78,
+          "y": 2.54,
+          "angle": 180.0
+        }
+      ],
+      "nets": {
+        "5": "3V3_MOTION",
+        "2": "GND",
+        "6": "TCRT_L_GPIO_TBD",
+        "1": "TCRT_L_RAW",
+        "4": "TCRT_R_GPIO_TBD",
+        "3": "TCRT_R_RAW"
+      }
+    },
+    {
+      "ref": "U11",
+      "symbol": "DSN6000AUD",
+      "value": "DSN6000AUD removable module",
+      "properties": {},
+      "pins": [
+        {
+          "number": "IN+",
+          "name": "IN+",
+          "kind": "passive",
+          "shape": "line",
+          "x": -21.59,
+          "y": 2.54,
+          "angle": 0.0
+        },
+        {
+          "number": "IN-",
+          "name": "IN-",
+          "kind": "passive",
+          "shape": "line",
+          "x": -21.59,
+          "y": -2.54,
+          "angle": 0.0
+        },
+        {
+          "number": "OUT+",
+          "name": "OUT+ adjust 5V",
+          "kind": "passive",
+          "shape": "line",
+          "x": 21.59,
+          "y": 2.54,
+          "angle": 180.0
+        },
+        {
+          "number": "OUT-",
+          "name": "OUT-",
+          "kind": "passive",
+          "shape": "line",
+          "x": 21.59,
+          "y": -2.54,
+          "angle": 180.0
+        }
+      ],
+      "nets": {
+        "OUT+": "5V_DSN_UNVERIFIED",
+        "IN-": "GND",
+        "OUT-": "GND",
+        "IN+": "VM_MOTOR"
+      }
+    },
+    {
+      "ref": "U2",
+      "symbol": "Motion_Logical",
+      "value": "ESP32-S3 Motion module",
+      "properties": {},
+      "pins": [
+        {
+          "number": "5V",
+          "name": "5V input - source TBD",
+          "kind": "passive",
+          "shape": "line",
+          "x": -22.86,
+          "y": 17.78,
+          "angle": 0.0
+        },
+        {
+          "number": "GND",
+          "name": "GND",
+          "kind": "passive",
+          "shape": "line",
+          "x": -22.86,
+          "y": 12.7,
+          "angle": 0.0
+        },
+        {
+          "number": "GPIO14",
+          "name": "Brain RX",
+          "kind": "input",
+          "shape": "line",
+          "x": -22.86,
+          "y": 7.62,
+          "angle": 0.0
+        },
+        {
+          "number": "GPIO16",
+          "name": "FPGA RX",
+          "kind": "input",
+          "shape": "line",
+          "x": -22.86,
+          "y": 2.54,
+          "angle": 0.0
+        },
+        {
+          "number": "GPIO6",
+          "name": "recovery ACK",
+          "kind": "input",
+          "shape": "line",
+          "x": -22.86,
+          "y": -2.54,
+          "angle": 0.0
+        },
+        {
+          "number": "GPIO7",
+          "name": "FPGA permit",
+          "kind": "input",
+          "shape": "line",
+          "x": -22.86,
+          "y": -7.62,
+          "angle": 0.0
+        },
+        {
+          "number": "GPIO8",
+          "name": "safety OK",
+          "kind": "input",
+          "shape": "line",
+          "x": -22.86,
+          "y": -12.7,
+          "angle": 0.0
+        },
+        {
+          "number": "GPIO9",
+          "name": "gate fault_n",
+          "kind": "input",
+          "shape": "line",
+          "x": -22.86,
+          "y": -17.78,
+          "angle": 0.0
+        },
+        {
+          "number": "GPIO13",
+          "name": "Brain TX",
+          "kind": "output",
+          "shape": "line",
+          "x": 22.86,
+          "y": 17.78,
+          "angle": 180.0
+        },
+        {
+          "number": "GPIO15",
+          "name": "FPGA TX",
+          "kind": "output",
+          "shape": "line",
+          "x": 22.86,
+          "y": 12.7,
+          "angle": 180.0
+        },
+        {
+          "number": "GPIO4",
+          "name": "motion permit",
+          "kind": "output",
+          "shape": "line",
+          "x": 22.86,
+          "y": 7.62,
+          "angle": 180.0
+        },
+        {
+          "number": "GPIO5",
+          "name": "recovery REQ",
+          "kind": "output",
+          "shape": "line",
+          "x": 22.86,
+          "y": 2.54,
+          "angle": 180.0
+        },
+        {
+          "number": "GPIO10",
+          "name": "driver permit",
+          "kind": "output",
+          "shape": "line",
+          "x": 22.86,
+          "y": -2.54,
+          "angle": 180.0
+        },
+        {
+          "number": "3V3",
+          "name": "local 3V3",
+          "kind": "power_out",
+          "shape": "line",
+          "x": 22.86,
+          "y": -7.62,
+          "angle": 180.0
+        }
+      ],
+      "nets": {
+        "3V3": "3V3_MOTION",
+        "5V": "5V_MOTION_SOURCE_TBD",
+        "GPIO14": "BRN_TX_MTN_RX",
+        "GPIO10": "DRIVER_PERMIT",
+        "GPIO7": "FPGA_PERMIT",
+        "GPIO16": "FPGA_TX_MTN_RX",
+        "GPIO9": "GATE_FAULT_N",
+        "GND": "GND",
+        "GPIO4": "MOTION_PERMIT",
+        "GPIO13": "MTN_TX_BRN_RX",
+        "GPIO15": "MTN_TX_FPGA_RX",
+        "GPIO6": "RECOVERY_ACK",
+        "GPIO5": "RECOVERY_REQ",
+        "GPIO8": "SAFETY_OK"
+      }
+    },
+    {
+      "ref": "U3",
+      "symbol": "Tang_Logical",
+      "value": "Tang Nano9K - package IDs",
+      "properties": {},
+      "pins": [
+        {
+          "number": "5V",
+          "name": "5V input - source TBD",
+          "kind": "passive",
+          "shape": "line",
+          "x": -25.4,
+          "y": 20.32,
+          "angle": 0.0
+        },
+        {
+          "number": "GND",
+          "name": "GND",
+          "kind": "passive",
+          "shape": "line",
+          "x": -25.4,
+          "y": 15.24,
+          "angle": 0.0
+        },
+        {
+          "number": "P25",
+          "name": "rx",
+          "kind": "input",
+          "shape": "line",
+          "x": -25.4,
+          "y": 10.16,
+          "angle": 0.0
+        },
+        {
+          "number": "P26",
+          "name": "tx",
+          "kind": "output",
+          "shape": "line",
+          "x": 25.4,
+          "y": 20.32,
+          "angle": 180.0
+        },
+        {
+          "number": "P27",
+          "name": "left_out",
+          "kind": "input",
+          "shape": "line",
+          "x": -25.4,
+          "y": 5.08,
+          "angle": 0.0
+        },
+        {
+          "number": "P28",
+          "name": "right_out",
+          "kind": "input",
+          "shape": "line",
+          "x": -25.4,
+          "y": 0.0,
+          "angle": 0.0
+        },
+        {
+          "number": "P29",
+          "name": "motion_permit_async",
+          "kind": "input",
+          "shape": "line",
+          "x": -25.4,
+          "y": -5.08,
+          "angle": 0.0
+        },
+        {
+          "number": "P30",
+          "name": "recovery_req_async",
+          "kind": "input",
+          "shape": "line",
+          "x": -25.4,
+          "y": -10.16,
+          "angle": 0.0
+        },
+        {
+          "number": "P33",
+          "name": "safety_ok_async",
+          "kind": "input",
+          "shape": "line",
+          "x": -25.4,
+          "y": -15.24,
+          "angle": 0.0
+        },
+        {
+          "number": "P34",
+          "name": "gate_fault_n_async",
+          "kind": "input",
+          "shape": "line",
+          "x": -25.4,
+          "y": -20.32,
+          "angle": 0.0
+        },
+        {
+          "number": "P35",
+          "name": "drv_left_in1",
+          "kind": "output",
+          "shape": "line",
+          "x": 25.4,
+          "y": 15.24,
+          "angle": 180.0
+        },
+        {
+          "number": "P40",
+          "name": "drv_left_in2",
+          "kind": "output",
+          "shape": "line",
+          "x": 25.4,
+          "y": 10.16,
+          "angle": 180.0
+        },
+        {
+          "number": "P41",
+          "name": "drv_right_in1",
+          "kind": "output",
+          "shape": "line",
+          "x": 25.4,
+          "y": 5.08,
+          "angle": 180.0
+        },
+        {
+          "number": "P42",
+          "name": "drv_right_in2",
+          "kind": "output",
+          "shape": "line",
+          "x": 25.4,
+          "y": 0.0,
+          "angle": 180.0
+        },
+        {
+          "number": "P51",
+          "name": "fpga_permit",
+          "kind": "output",
+          "shape": "line",
+          "x": 25.4,
+          "y": -5.08,
+          "angle": 180.0
+        },
+        {
+          "number": "P48",
+          "name": "recovery_ack",
+          "kind": "output",
+          "shape": "line",
+          "x": 25.4,
+          "y": -10.16,
+          "angle": 180.0
+        },
+        {
+          "number": "P49",
+          "name": "gate_clear",
+          "kind": "output",
+          "shape": "line",
+          "x": 25.4,
+          "y": -15.24,
+          "angle": 180.0
+        },
+        {
+          "number": "3V3",
+          "name": "local 3V3",
+          "kind": "power_out",
+          "shape": "line",
+          "x": 25.4,
+          "y": -20.32,
+          "angle": 180.0
+        }
+      ],
+      "nets": {
+        "3V3": "3V3_TANG",
+        "5V": "5V_TANG_SOURCE_TBD",
+        "P35": "DRV_L_IN1",
+        "P40": "DRV_L_IN2",
+        "P41": "DRV_R_IN1",
+        "P42": "DRV_R_IN2",
+        "P27": "ENC_L_CONDITIONED",
+        "P28": "ENC_R_CONDITIONED",
+        "P51": "FPGA_PERMIT",
+        "P26": "FPGA_TX_MTN_RX",
+        "P49": "GATE_CLEAR",
+        "P34": "GATE_FAULT_N",
+        "GND": "GND",
+        "P29": "MOTION_PERMIT",
+        "P25": "MTN_TX_FPGA_RX",
+        "P48": "RECOVERY_ACK",
+        "P30": "RECOVERY_REQ",
+        "P33": "SAFETY_OK"
+      }
+    },
+    {
+      "ref": "U4",
+      "symbol": "DRV_Module_Logical",
+      "value": "DRV8833 module L",
+      "properties": {},
+      "pins": [
+        {
+          "number": "AIN1",
+          "name": "AIN1",
+          "kind": "input",
+          "shape": "line",
+          "x": -19.05,
+          "y": 12.7,
+          "angle": 0.0
+        },
+        {
+          "number": "AIN2",
+          "name": "AIN2",
+          "kind": "input",
+          "shape": "line",
+          "x": -19.05,
+          "y": 7.62,
+          "angle": 0.0
+        },
+        {
+          "number": "BIN1",
+          "name": "BIN1",
+          "kind": "input",
+          "shape": "line",
+          "x": -19.05,
+          "y": 2.54,
+          "angle": 0.0
+        },
+        {
+          "number": "BIN2",
+          "name": "BIN2",
+          "kind": "input",
+          "shape": "line",
+          "x": -19.05,
+          "y": -2.54,
+          "angle": 0.0
+        },
+        {
+          "number": "STBY",
+          "name": "STBY",
+          "kind": "input",
+          "shape": "line",
+          "x": -19.05,
+          "y": -7.62,
+          "angle": 0.0
+        },
+        {
+          "number": "VM",
+          "name": "VM",
+          "kind": "passive",
+          "shape": "line",
+          "x": 19.05,
+          "y": 12.7,
+          "angle": 180.0
+        },
+        {
+          "number": "GND",
+          "name": "GND",
+          "kind": "passive",
+          "shape": "line",
+          "x": 19.05,
+          "y": 7.62,
+          "angle": 180.0
+        },
+        {
+          "number": "AOUT1",
+          "name": "AOUT1",
+          "kind": "output",
+          "shape": "line",
+          "x": 19.05,
+          "y": 2.54,
+          "angle": 180.0
+        },
+        {
+          "number": "AOUT2",
+          "name": "AOUT2",
+          "kind": "output",
+          "shape": "line",
+          "x": 19.05,
+          "y": -2.54,
+          "angle": 180.0
+        },
+        {
+          "number": "BOUT1",
+          "name": "BOUT1",
+          "kind": "output",
+          "shape": "line",
+          "x": 19.05,
+          "y": -7.62,
+          "angle": 180.0
+        },
+        {
+          "number": "BOUT2",
+          "name": "BOUT2",
+          "kind": "output",
+          "shape": "line",
+          "x": 19.05,
+          "y": -12.7,
+          "angle": 180.0
+        }
+      ],
+      "nets": {
+        "AIN1": "DRV_L_IN1",
+        "BIN1": "DRV_L_IN1",
+        "AIN2": "DRV_L_IN2",
+        "BIN2": "DRV_L_IN2",
+        "GND": "GND",
+        "AOUT1": "L_AOUT1",
+        "AOUT2": "L_AOUT2",
+        "BOUT1": "L_BOUT1",
+        "BOUT2": "L_BOUT2",
+        "STBY": "STBY_L",
+        "VM": "VM_MOTOR"
+      }
+    },
+    {
+      "ref": "U5",
+      "symbol": "DRV_Module_Logical",
+      "value": "DRV8833 module R",
+      "properties": {},
+      "pins": [
+        {
+          "number": "AIN1",
+          "name": "AIN1",
+          "kind": "input",
+          "shape": "line",
+          "x": -19.05,
+          "y": 12.7,
+          "angle": 0.0
+        },
+        {
+          "number": "AIN2",
+          "name": "AIN2",
+          "kind": "input",
+          "shape": "line",
+          "x": -19.05,
+          "y": 7.62,
+          "angle": 0.0
+        },
+        {
+          "number": "BIN1",
+          "name": "BIN1",
+          "kind": "input",
+          "shape": "line",
+          "x": -19.05,
+          "y": 2.54,
+          "angle": 0.0
+        },
+        {
+          "number": "BIN2",
+          "name": "BIN2",
+          "kind": "input",
+          "shape": "line",
+          "x": -19.05,
+          "y": -2.54,
+          "angle": 0.0
+        },
+        {
+          "number": "STBY",
+          "name": "STBY",
+          "kind": "input",
+          "shape": "line",
+          "x": -19.05,
+          "y": -7.62,
+          "angle": 0.0
+        },
+        {
+          "number": "VM",
+          "name": "VM",
+          "kind": "passive",
+          "shape": "line",
+          "x": 19.05,
+          "y": 12.7,
+          "angle": 180.0
+        },
+        {
+          "number": "GND",
+          "name": "GND",
+          "kind": "passive",
+          "shape": "line",
+          "x": 19.05,
+          "y": 7.62,
+          "angle": 180.0
+        },
+        {
+          "number": "AOUT1",
+          "name": "AOUT1",
+          "kind": "output",
+          "shape": "line",
+          "x": 19.05,
+          "y": 2.54,
+          "angle": 180.0
+        },
+        {
+          "number": "AOUT2",
+          "name": "AOUT2",
+          "kind": "output",
+          "shape": "line",
+          "x": 19.05,
+          "y": -2.54,
+          "angle": 180.0
+        },
+        {
+          "number": "BOUT1",
+          "name": "BOUT1",
+          "kind": "output",
+          "shape": "line",
+          "x": 19.05,
+          "y": -7.62,
+          "angle": 180.0
+        },
+        {
+          "number": "BOUT2",
+          "name": "BOUT2",
+          "kind": "output",
+          "shape": "line",
+          "x": 19.05,
+          "y": -12.7,
+          "angle": 180.0
+        }
+      ],
+      "nets": {
+        "AIN1": "DRV_R_IN1",
+        "BIN1": "DRV_R_IN1",
+        "AIN2": "DRV_R_IN2",
+        "BIN2": "DRV_R_IN2",
+        "GND": "GND",
+        "AOUT1": "R_AOUT1",
+        "AOUT2": "R_AOUT2",
+        "BOUT1": "R_BOUT1",
+        "BOUT2": "R_BOUT2",
+        "STBY": "STBY_R",
+        "VM": "VM_MOTOR"
+      }
+    },
+    {
+      "ref": "U6",
+      "symbol": "AMP",
+      "value": "MAX98357A module (logical pins)",
+      "properties": {},
+      "pins": [
+        {
+          "number": "VCC",
+          "name": "VCC 5V",
+          "kind": "passive",
+          "shape": "line",
+          "x": -19.05,
+          "y": 15.24,
+          "angle": 0.0
+        },
+        {
+          "number": "GND",
+          "name": "GND",
+          "kind": "passive",
+          "shape": "line",
+          "x": -19.05,
+          "y": 10.16,
+          "angle": 0.0
+        },
+        {
+          "number": "DIN",
+          "name": "DIN",
+          "kind": "input",
+          "shape": "line",
+          "x": -19.05,
+          "y": 5.08,
+          "angle": 0.0
+        },
+        {
+          "number": "BCLK",
+          "name": "BCLK",
+          "kind": "input",
+          "shape": "line",
+          "x": -19.05,
+          "y": 0.0,
+          "angle": 0.0
+        },
+        {
+          "number": "LRC",
+          "name": "LRC",
+          "kind": "input",
+          "shape": "line",
+          "x": -19.05,
+          "y": -5.08,
+          "angle": 0.0
+        },
+        {
+          "number": "GAIN",
+          "name": "GAIN",
+          "kind": "passive",
+          "shape": "line",
+          "x": -19.05,
+          "y": -10.16,
+          "angle": 0.0
+        },
+        {
+          "number": "SD",
+          "name": "SD",
+          "kind": "passive",
+          "shape": "line",
+          "x": -19.05,
+          "y": -15.24,
+          "angle": 0.0
+        },
+        {
+          "number": "SPK+",
+          "name": "SPK+",
+          "kind": "output",
+          "shape": "line",
+          "x": 19.05,
+          "y": 15.24,
+          "angle": 180.0
+        },
+        {
+          "number": "SPK-",
+          "name": "SPK-",
+          "kind": "output",
+          "shape": "line",
+          "x": 19.05,
+          "y": 10.16,
+          "angle": 180.0
+        }
+      ],
+      "nets": {
+        "VCC": "5V_AMP_SOURCE_TBD",
+        "BCLK": "AMP_BCLK",
+        "DIN": "AMP_DIN",
+        "LRC": "AMP_LRCLK",
+        "GND": "GND",
+        "SPK-": "SPK_MINUS",
+        "SPK+": "SPK_PLUS",
+        "GAIN": "unconnected-(U6-PadGAIN)",
+        "SD": "unconnected-(U6-PadSD)"
+      }
+    },
+    {
+      "ref": "U7",
+      "symbol": "Encoder",
+      "value": "left encoder module",
+      "properties": {},
+      "pins": [
+        {
+          "number": "VCC",
+          "name": "5V",
+          "kind": "passive",
+          "shape": "line",
+          "x": -16.51,
+          "y": 2.54,
+          "angle": 0.0
+        },
+        {
+          "number": "GND",
+          "name": "GND",
+          "kind": "passive",
+          "shape": "line",
+          "x": -16.51,
+          "y": -2.54,
+          "angle": 0.0
+        },
+        {
+          "number": "OUT",
+          "name": "single OUT",
+          "kind": "output",
+          "shape": "line",
+          "x": 16.51,
+          "y": 2.54,
+          "angle": 180.0
+        }
+      ],
+      "nets": {
+        "VCC": "5V_SENSOR_SOURCE_TBD",
+        "OUT": "ENC_L_RAW",
+        "GND": "GND"
+      }
+    },
+    {
+      "ref": "U8",
+      "symbol": "Encoder",
+      "value": "right encoder module",
+      "properties": {},
+      "pins": [
+        {
+          "number": "VCC",
+          "name": "5V",
+          "kind": "passive",
+          "shape": "line",
+          "x": -16.51,
+          "y": 2.54,
+          "angle": 0.0
+        },
+        {
+          "number": "GND",
+          "name": "GND",
+          "kind": "passive",
+          "shape": "line",
+          "x": -16.51,
+          "y": -2.54,
+          "angle": 0.0
+        },
+        {
+          "number": "OUT",
+          "name": "single OUT",
+          "kind": "output",
+          "shape": "line",
+          "x": 16.51,
+          "y": 2.54,
+          "angle": 180.0
+        }
+      ],
+      "nets": {
+        "VCC": "5V_SENSOR_SOURCE_TBD",
+        "OUT": "ENC_R_RAW",
+        "GND": "GND"
+      }
+    },
+    {
+      "ref": "U9",
+      "symbol": "LVC2G17",
+      "value": "SN74LVC2G17 candidate",
+      "properties": {},
+      "pins": [
+        {
+          "number": "1",
+          "name": "1A",
+          "kind": "input",
+          "shape": "line",
+          "x": -17.78,
+          "y": 7.62,
+          "angle": 0.0
+        },
+        {
+          "number": "3",
+          "name": "2A",
+          "kind": "input",
+          "shape": "line",
+          "x": -17.78,
+          "y": 2.54,
+          "angle": 0.0
+        },
+        {
+          "number": "2",
+          "name": "GND",
+          "kind": "passive",
+          "shape": "line",
+          "x": -17.78,
+          "y": -2.54,
+          "angle": 0.0
+        },
+        {
+          "number": "5",
+          "name": "VCC 3V3",
+          "kind": "power_in",
+          "shape": "line",
+          "x": -17.78,
+          "y": -7.62,
+          "angle": 0.0
+        },
+        {
+          "number": "6",
+          "name": "1Y",
+          "kind": "output",
+          "shape": "line",
+          "x": 17.78,
+          "y": 7.62,
+          "angle": 180.0
+        },
+        {
+          "number": "4",
+          "name": "2Y",
+          "kind": "output",
+          "shape": "line",
+          "x": 17.78,
+          "y": 2.54,
+          "angle": 180.0
+        }
+      ],
+      "nets": {
+        "5": "3V3_MOTION",
+        "6": "ENC_L_CONDITIONED",
+        "1": "ENC_L_RAW",
+        "4": "ENC_R_CONDITIONED",
+        "3": "ENC_R_RAW",
+        "2": "GND"
+      }
+    }
+  ],
+  "expected_nets": {
+    "3V3_BRAIN": [
+      [
+        "J1",
+        "2"
+      ],
+      [
+        "J2",
+        "1"
+      ],
+      [
+        "U1",
+        "3V3"
+      ]
+    ],
+    "3V3_MOTION": [
+      [
+        "C10",
+        "1"
+      ],
+      [
+        "C9",
+        "1"
+      ],
+      [
+        "TP1",
+        "1"
+      ],
+      [
+        "U10",
+        "5"
+      ],
+      [
+        "U2",
+        "3V3"
+      ],
+      [
+        "U9",
+        "5"
+      ]
+    ],
+    "3V3_SENSORS_TBD": [
+      [
+        "J20",
+        "1"
+      ],
+      [
+        "J21",
+        "1"
+      ]
+    ],
+    "3V3_TANG": [
+      [
+        "TP2",
+        "1"
+      ],
+      [
+        "U3",
+        "3V3"
+      ]
+    ],
+    "5V_AMP_SOURCE_TBD": [
+      [
+        "U6",
+        "VCC"
+      ]
+    ],
+    "5V_BRAIN_SOURCE_TBD": [
+      [
+        "U1",
+        "5V"
+      ]
+    ],
+    "5V_DSN_UNVERIFIED": [
+      [
+        "TP3",
+        "1"
+      ],
+      [
+        "U11",
+        "OUT+"
+      ]
+    ],
+    "5V_MOTION_SOURCE_TBD": [
+      [
+        "U2",
+        "5V"
+      ]
+    ],
+    "5V_SENSOR_SOURCE_TBD": [
+      [
+        "J22",
+        "1"
+      ],
+      [
+        "J23",
+        "1"
+      ],
+      [
+        "U7",
+        "VCC"
+      ],
+      [
+        "U8",
+        "VCC"
+      ]
+    ],
+    "5V_TANG_SOURCE_TBD": [
+      [
+        "U3",
+        "5V"
+      ]
+    ],
+    "AMP_BCLK": [
+      [
+        "U1",
+        "GPIO15"
+      ],
+      [
+        "U6",
+        "BCLK"
+      ]
+    ],
+    "AMP_DIN": [
+      [
+        "U1",
+        "GPIO7"
+      ],
+      [
+        "U6",
+        "DIN"
+      ]
+    ],
+    "AMP_LRCLK": [
+      [
+        "U1",
+        "GPIO16"
+      ],
+      [
+        "U6",
+        "LRC"
+      ]
+    ],
+    "BRN_TX_MTN_RX": [
+      [
+        "U1",
+        "GPIO17"
+      ],
+      [
+        "U2",
+        "GPIO14"
+      ]
+    ],
+    "DRIVER_PERMIT": [
+      [
+        "J9",
+        "1"
+      ],
+      [
+        "U2",
+        "GPIO10"
+      ]
+    ],
+    "DRV_L_IN1": [
+      [
+        "U3",
+        "P35"
+      ],
+      [
+        "U4",
+        "AIN1"
+      ],
+      [
+        "U4",
+        "BIN1"
+      ]
+    ],
+    "DRV_L_IN2": [
+      [
+        "U3",
+        "P40"
+      ],
+      [
+        "U4",
+        "AIN2"
+      ],
+      [
+        "U4",
+        "BIN2"
+      ]
+    ],
+    "DRV_R_IN1": [
+      [
+        "U3",
+        "P41"
+      ],
+      [
+        "U5",
+        "AIN1"
+      ],
+      [
+        "U5",
+        "BIN1"
+      ]
+    ],
+    "DRV_R_IN2": [
+      [
+        "U3",
+        "P42"
+      ],
+      [
+        "U5",
+        "AIN2"
+      ],
+      [
+        "U5",
+        "BIN2"
+      ]
+    ],
+    "ENC_L_CONDITIONED": [
+      [
+        "U3",
+        "P27"
+      ],
+      [
+        "U9",
+        "6"
+      ]
+    ],
+    "ENC_L_RAW": [
+      [
+        "U7",
+        "OUT"
+      ],
+      [
+        "U9",
+        "1"
+      ]
+    ],
+    "ENC_R_CONDITIONED": [
+      [
+        "U3",
+        "P28"
+      ],
+      [
+        "U9",
+        "4"
+      ]
+    ],
+    "ENC_R_RAW": [
+      [
+        "U8",
+        "OUT"
+      ],
+      [
+        "U9",
+        "3"
+      ]
+    ],
+    "FPGA_PERMIT": [
+      [
+        "J9",
+        "2"
+      ],
+      [
+        "U2",
+        "GPIO7"
+      ],
+      [
+        "U3",
+        "P51"
+      ]
+    ],
+    "FPGA_TX_MTN_RX": [
+      [
+        "U2",
+        "GPIO16"
+      ],
+      [
+        "U3",
+        "P26"
+      ]
+    ],
+    "GATE_ALLOW": [
+      [
+        "J9",
+        "6"
+      ],
+      [
+        "R103",
+        "1"
+      ],
+      [
+        "R113",
+        "1"
+      ]
+    ],
+    "GATE_CLEAR": [
+      [
+        "J9",
+        "3"
+      ],
+      [
+        "U3",
+        "P49"
+      ]
+    ],
+    "GATE_FAULT_N": [
+      [
+        "J9",
+        "5"
+      ],
+      [
+        "U2",
+        "GPIO9"
+      ],
+      [
+        "U3",
+        "P34"
+      ]
+    ],
+    "GND": [
+      [
+        "C10",
+        "2"
+      ],
+      [
+        "C9",
+        "2"
+      ],
+      [
+        "J1",
+        "1"
+      ],
+      [
+        "J2",
+        "2"
+      ],
+      [
+        "J2",
+        "6"
+      ],
+      [
+        "J20",
+        "2"
+      ],
+      [
+        "J21",
+        "2"
+      ],
+      [
+        "J22",
+        "2"
+      ],
+      [
+        "J23",
+        "2"
+      ],
+      [
+        "J24",
+        "5"
+      ],
+      [
+        "J30",
+        "2"
+      ],
+      [
+        "J9",
+        "7"
+      ],
+      [
+        "Q101",
+        "1"
+      ],
+      [
+        "Q102",
+        "1"
+      ],
+      [
+        "Q111",
+        "1"
+      ],
+      [
+        "Q112",
+        "1"
+      ],
+      [
+        "R104",
+        "2"
+      ],
+      [
+        "R114",
+        "2"
+      ],
+      [
+        "U1",
+        "GND"
+      ],
+      [
+        "U10",
+        "2"
+      ],
+      [
+        "U11",
+        "IN-"
+      ],
+      [
+        "U11",
+        "OUT-"
+      ],
+      [
+        "U2",
+        "GND"
+      ],
+      [
+        "U3",
+        "GND"
+      ],
+      [
+        "U4",
+        "GND"
+      ],
+      [
+        "U5",
+        "GND"
+      ],
+      [
+        "U6",
+        "GND"
+      ],
+      [
+        "U7",
+        "GND"
+      ],
+      [
+        "U8",
+        "GND"
+      ],
+      [
+        "U9",
+        "2"
+      ]
+    ],
+    "L_AOUT1": [
+      [
+        "J5",
+        "1"
+      ],
+      [
+        "U4",
+        "AOUT1"
+      ]
+    ],
+    "L_AOUT2": [
+      [
+        "J5",
+        "2"
+      ],
+      [
+        "U4",
+        "AOUT2"
+      ]
+    ],
+    "L_BOUT1": [
+      [
+        "J6",
+        "1"
+      ],
+      [
+        "U4",
+        "BOUT1"
+      ]
+    ],
+    "L_BOUT2": [
+      [
+        "J6",
+        "2"
+      ],
+      [
+        "U4",
+        "BOUT2"
+      ]
+    ],
+    "MIC_BCLK": [
+      [
+        "J2",
+        "3"
+      ],
+      [
+        "U1",
+        "GPIO5"
+      ]
+    ],
+    "MIC_SD": [
+      [
+        "J2",
+        "5"
+      ],
+      [
+        "U1",
+        "GPIO6"
+      ]
+    ],
+    "MIC_WS": [
+      [
+        "J2",
+        "4"
+      ],
+      [
+        "U1",
+        "GPIO4"
+      ]
+    ],
+    "MOTION_PERMIT": [
+      [
+        "U2",
+        "GPIO4"
+      ],
+      [
+        "U3",
+        "P29"
+      ]
+    ],
+    "MTN_TX_BRN_RX": [
+      [
+        "U1",
+        "GPIO18"
+      ],
+      [
+        "U2",
+        "GPIO13"
+      ]
+    ],
+    "MTN_TX_FPGA_RX": [
+      [
+        "U2",
+        "GPIO15"
+      ],
+      [
+        "U3",
+        "P25"
+      ]
+    ],
+    "Net-(Q101-B)": [
+      [
+        "Q101",
+        "2"
+      ],
+      [
+        "Q102",
+        "3"
+      ],
+      [
+        "R101",
+        "2"
+      ]
+    ],
+    "Net-(Q102-B)": [
+      [
+        "Q102",
+        "2"
+      ],
+      [
+        "R103",
+        "2"
+      ],
+      [
+        "R104",
+        "1"
+      ]
+    ],
+    "Net-(Q111-B)": [
+      [
+        "Q111",
+        "2"
+      ],
+      [
+        "Q112",
+        "3"
+      ],
+      [
+        "R111",
+        "2"
+      ]
+    ],
+    "Net-(Q112-B)": [
+      [
+        "Q112",
+        "2"
+      ],
+      [
+        "R113",
+        "2"
+      ],
+      [
+        "R114",
+        "1"
+      ]
+    ],
+    "OLED_SCL": [
+      [
+        "J1",
+        "3"
+      ],
+      [
+        "U1",
+        "GPIO42"
+      ]
+    ],
+    "OLED_SDA": [
+      [
+        "J1",
+        "4"
+      ],
+      [
+        "U1",
+        "GPIO41"
+      ]
+    ],
+    "PACK_FUSED": [
+      [
+        "F1",
+        "2"
+      ],
+      [
+        "SW1",
+        "1"
+      ]
+    ],
+    "PACK_PROTECTED_PLUS": [
+      [
+        "F1",
+        "1"
+      ],
+      [
+        "J30",
+        "1"
+      ]
+    ],
+    "RECOVERY_ACK": [
+      [
+        "U2",
+        "GPIO6"
+      ],
+      [
+        "U3",
+        "P48"
+      ]
+    ],
+    "RECOVERY_REQ": [
+      [
+        "U2",
+        "GPIO5"
+      ],
+      [
+        "U3",
+        "P30"
+      ]
+    ],
+    "R_AOUT1": [
+      [
+        "J7",
+        "1"
+      ],
+      [
+        "U5",
+        "AOUT1"
+      ]
+    ],
+    "R_AOUT2": [
+      [
+        "J7",
+        "2"
+      ],
+      [
+        "U5",
+        "AOUT2"
+      ]
+    ],
+    "R_BOUT1": [
+      [
+        "J8",
+        "1"
+      ],
+      [
+        "U5",
+        "BOUT1"
+      ]
+    ],
+    "R_BOUT2": [
+      [
+        "J8",
+        "2"
+      ],
+      [
+        "U5",
+        "BOUT2"
+      ]
+    ],
+    "SAFETY_OK": [
+      [
+        "J9",
+        "4"
+      ],
+      [
+        "U2",
+        "GPIO8"
+      ],
+      [
+        "U3",
+        "P33"
+      ]
+    ],
+    "SENSOR_SCL_TBD": [
+      [
+        "J20",
+        "4"
+      ],
+      [
+        "J21",
+        "4"
+      ],
+      [
+        "J24",
+        "2"
+      ]
+    ],
+    "SENSOR_SDA_TBD": [
+      [
+        "J20",
+        "3"
+      ],
+      [
+        "J21",
+        "3"
+      ],
+      [
+        "J24",
+        "1"
+      ]
+    ],
+    "SPK_MINUS": [
+      [
+        "J4",
+        "2"
+      ],
+      [
+        "U6",
+        "SPK-"
+      ]
+    ],
+    "SPK_PLUS": [
+      [
+        "J4",
+        "1"
+      ],
+      [
+        "U6",
+        "SPK+"
+      ]
+    ],
+    "STBY_L": [
+      [
+        "Q101",
+        "3"
+      ],
+      [
+        "R102",
+        "2"
+      ],
+      [
+        "U4",
+        "STBY"
+      ]
+    ],
+    "STBY_R": [
+      [
+        "Q111",
+        "3"
+      ],
+      [
+        "R112",
+        "2"
+      ],
+      [
+        "U5",
+        "STBY"
+      ]
+    ],
+    "TCRT_L_GPIO_TBD": [
+      [
+        "J24",
+        "3"
+      ],
+      [
+        "U10",
+        "6"
+      ]
+    ],
+    "TCRT_L_RAW": [
+      [
+        "J22",
+        "3"
+      ],
+      [
+        "U10",
+        "1"
+      ]
+    ],
+    "TCRT_R_GPIO_TBD": [
+      [
+        "J24",
+        "4"
+      ],
+      [
+        "U10",
+        "4"
+      ]
+    ],
+    "TCRT_R_RAW": [
+      [
+        "J23",
+        "3"
+      ],
+      [
+        "U10",
+        "3"
+      ]
+    ],
+    "VM_MOTOR": [
+      [
+        "R101",
+        "1"
+      ],
+      [
+        "R102",
+        "1"
+      ],
+      [
+        "R111",
+        "1"
+      ],
+      [
+        "R112",
+        "1"
+      ],
+      [
+        "SW1",
+        "2"
+      ],
+      [
+        "U11",
+        "IN+"
+      ],
+      [
+        "U4",
+        "VM"
+      ],
+      [
+        "U5",
+        "VM"
+      ]
+    ],
+    "unconnected-(J22-signal_B_TBD-Pad4)": [
+      [
+        "J22",
+        "4"
+      ]
+    ],
+    "unconnected-(J23-signal_B_TBD-Pad4)": [
+      [
+        "J23",
+        "4"
+      ]
+    ],
+    "unconnected-(U6-PadGAIN)": [
+      [
+        "U6",
+        "GAIN"
+      ]
+    ],
+    "unconnected-(U6-PadSD)": [
+      [
+        "U6",
+        "SD"
+      ]
+    ]
+  }
+}
