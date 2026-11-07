@@ -1,6 +1,6 @@
 {
   "date": "2026-11-07",
-  "branch": "feat/f01-tang-nano9k-target",
+  "branch": "feat/f04-pcb-schematic",
   "base_commit": "382fbbe",
   "status": "A3_INPUT_LEFT_OUTPUT_RIGHT_FILTER_AND_MANUAL_JUMPER_DRAFT",
   "native_main_sheets": 1,
@@ -126,7 +126,8 @@
     "old_pcb_concept_and_hierarchical_project_removed": true,
     "backup_relative_path": "build/hardware-pcb-before-single-sheet-20261107/pcb",
     "all_25_tracked_previous_files_preserved_byte_for_byte": true,
-    "untracked_history_preserved": true
+    "untracked_history_preserved": true,
+    "backup_worktree": "C:/Users/tuand/.codex/worktrees/tang-nano9k-target/AW-Car"
   },
   "pcb_layout_created": false,
   "schematic_release_ready": false,
@@ -147,5 +148,28 @@
     "speaker_motor_wire_limit_cm": 20,
     "placement": "9 carrier supply caps; 4 off-carrier motor caps",
     "extra_inductors_or_resistors": false
+  },
+  "branch_split": {
+    "date": "2026-11-07",
+    "shared_git_base": "af584d3c5c7817285b80d633bd00848e965c16fa",
+    "previous_mixed_tip": "25431f39fdcff2882fdc92d8330255334896097d",
+    "preserved_pcb_commits": [
+      "7f0d8653227f5579a614ab18afb6865dd82b87fa",
+      "382fbbee4d52560d4d6b4e453cfe662a95645320",
+      "0a5ebeac506305c1ef30def991200342aa3644df",
+      "25431f39fdcff2882fdc92d8330255334896097d"
+    ],
+    "pcb_branch": "feat/f04-pcb-schematic",
+    "tang_branch": "feat/f01-tang-nano9k-target",
+    "native_source_and_previews_changed": false,
+    "scope": "Commit ownership split; no firmware/RTL, pin mapping, schematic, preview or component changes.",
+    "validation": {
+      "python_tests_passed": 97,
+      "erc_errors": 0,
+      "erc_warnings": 0,
+      "native_source_hashes_unchanged": true,
+      "new_worktree_contract_sha256": "a52f29e066b7250669b249b111ea1b0beac83bed567ef0063ce1f9366145d7ce",
+      "fpga_firmware_cad_diff_from_shared_base": []
+    }
   }
 }

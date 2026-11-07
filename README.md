@@ -7,6 +7,10 @@ Tác giả: **TuanDanny**. Cộng tác viên: **Minh Nho** và **Nhan Duc**.
 
 ## Trạng thái
 
+Schematic/PCB phát triển riêng trên **`feat/f04-pcb-schematic`**.
+Target Tang Nano9K/Gowin tiếp tục trên
+[`feat/f01-tang-nano9k-target`](https://github.com/TuanDanny/AW-Car/tree/feat/f01-tang-nano9k-target).
+
 Ngày07/11/2026 có [schematic đấu nối chung một trang KiCad](hardware/pcb/README.md),
 khổ A3,60 phần tử/68 net, module cắm rút. Có tụ nguồn, tụ sát motor và
 jumper nguồn RUN/DEBUG. Bench ngspice chỉ kiểm tầng STBY ứng viên; nguồn

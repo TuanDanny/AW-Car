@@ -1,5 +1,9 @@
 # Schematic và PCB AW-Car
 
+Nhánh riêng **`feat/f04-pcb-schematic`** chứa source, ảnh xem, công cụ và
+test KiCad. Bốn commit schematic trước đây được giữ nguyên; nhánh Tang
+Nano9K đã tách về nền trước PCB, không phát triển schematic tại đó.
+
 Mở **[aw_car.kicad_pro](aw_car.kicad_pro)** trong KiCad, rồi mở
 **[aw_car.kicad_sch](aw_car.kicad_sch)**: sơ đồ đấu nối chung **một trang A3**,
 60 phần tử,68 net. Brain, Motion, Tang, audio/OLED, hai driver/bốn
@@ -17,8 +21,10 @@ nhóm giao tiếp. Module dự kiến cắm rút, không hàn cố định lên 
 Thư mục này giữ source KiCad: project, schematic, thư viện symbol cục bộ
 `aw_car.kicad_sym`, `sym-lib-table` và model `generic-clamp.lib`. Đã bỏ các
 sheet/project tách và hình/script PCB concept cũ khỏi thư mục theo yêu cầu
-07/11/2026. Bản phục hồi gồm cả lịch sử chỉnh sửa cũ giữ cục bộ trong
-`build/hardware-pcb-before-single-sheet-20261107/pcb` (Git ignore).
+07/11/2026. Bản phục hồi gồm cả lịch sử chỉnh sửa cũ giữ cục bộ tại worktree
+trước `tang-nano9k-target/AW-Car`, trong
+`build/hardware-pcb-before-single-sheet-20261107/pcb` (Git ignore); không
+đưa cache/lịch sử cục bộ đó vào nhánh PCB trên GitHub.
 
 **Chưa tạo layout.** Khi schematic và thành phần được chốt, layout native
 sẽ đặt ngay đây với tên `aw_car.kicad_pcb`; chưa có footprint/pad/outline
