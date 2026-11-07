@@ -62,6 +62,8 @@ ghi rõ từng ref/net còn mở, thông số cần lấy từ module thực và
 bản project trong worktree Tang cũ được giữ để đối chiếu chỉnh sửa trước đó.
 
 Chủ dự án ưu tiên **giắc cắm/dây bấm sẵn** giống ảnh đã gửi.
+Đế có vỏ nhựa **hàn trực tiếp lên carrier**, đầu giắc trên dây cắm/rút
+vào đế này; cổng dây–bo đã được xác nhận, chưa chốt series/bước chân.
 [Đề xuất mua giắc](../../docs/awcar-connector-selection.md) có số chân/số bộ
 cho từng ngoại vi, ứng viên XH/VH/XT30 và yêu cầu đo bước chân trước gán pad.
 Chưa chọn mã hàng cụ thể hoặc gán footprint đầu nối mới từ ảnh.

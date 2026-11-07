@@ -6,6 +6,13 @@ Ngày07/11/2026, chủ dự án ưu tiên giắc cắm kiểu dây bấm sẵn t
 series, bước chân, cỡ dây hoặc định mức. Các họ dưới đây là **đề xuất mua**,
 chưa phải nhận dạng chắc chắn món trong ảnh hoặc footprint được duyệt.
 
+Chốt tiếp theo ảnh `codex-clipboard-f0c4d23a-b784-4f31-9eb9-f7949a8487c9.png`:
+**đế có vỏ nhựa hàn trực tiếp lên carrier**, đầu dây ghép đôi cắm/rút khỏi
+đế này. Đây là yêu cầu nối dây–bo. Khi mua gọi rõ "đế giắc hàn PCB + dây
+bấm sẵn tương ứng"; không xác định mã hàng chỉ từ chữ đực/cái của shop.
+Ảnh cận cảnh chưa đủ xác nhận series, bước chân hoặc định mức. Hướng đứng/
+ngang và phần nhô ra khỏi bo còn chốt theo bố trí thực tế.
+
 ## Danh sách để hỏi shop
 
 Một **bộ nối dây–PCB** gồm một đầu dây đã bấm/vỏ giắc, đầu còn lại để đấu

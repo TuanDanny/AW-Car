@@ -37,7 +37,8 @@
     "run_debug_jumper_side": "Rear side; physical access/clearance pending layout",
     "passive_stock": "docs/awcar-passive-stock.json; loose parts owned, capacitor ratings unknown",
     "estop_owned": false,
-    "external_connector_preference": "Plug-in connectors and pre-crimped cable assemblies similar to user image; exact series/pitch/rating not approved"
+    "external_connector_preference": "Plug-in connectors and pre-crimped cable assemblies similar to user image; exact series/pitch/rating not approved",
+    "external_connector_mounting": "Shrouded header soldered directly to carrier PCB; mating pre-crimped cable housing removable; user confirmed by close-up image"
   },
   "net_contract": [
     {
