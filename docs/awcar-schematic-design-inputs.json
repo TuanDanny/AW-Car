@@ -36,7 +36,8 @@
     "run_debug_jumper_style": "Removable pin header and shunt, not solder bridge",
     "run_debug_jumper_side": "Rear side; physical access/clearance pending layout",
     "passive_stock": "docs/awcar-passive-stock.json; loose parts owned, capacitor ratings unknown",
-    "estop_owned": false
+    "estop_owned": false,
+    "external_connector_preference": "Plug-in connectors and pre-crimped cable assemblies similar to user image; exact series/pitch/rating not approved"
   },
   "net_contract": [
     {
@@ -499,7 +500,7 @@
   "limits": "Logical GPIO numbers are not physical header or footprint pad numbers. No guessed footprints or Gerber release.",
   "updated_date": "2026-11-07",
   "pending_user_choices": [
-    "external power/motor/signal connector families and cable termination preference",
+    "exact plug-in connector series, pitch, wire gauge and supplier; candidates in docs/awcar-connector-selection.md",
     "actual module/header dimensions and revisions",
     "assembly/component budget if needed for final part selection"
   ]

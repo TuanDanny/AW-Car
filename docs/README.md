@@ -14,6 +14,9 @@ còn mở, thông số module thực cần xác nhận và thứ tự chốt ngu
 [dữ liệu kiểm kê](awcar-passive-stock.json): footprint ứng viên0805/1206,
 định mức tụ còn thiếu; ưu tiên SMD, gate trên carrier, jumper rút được mặt sau.
 
+[Đề xuất giắc cắm và dây bấm sẵn](awcar-connector-selection.md): tên tìm mua,
+số bộ theo schematic, phân biệt dây–dây/đế PCB và bước chân cần xác nhận.
+
 [Ảnh schematic A3](awcar-schematic-a3.png) và
 [SVG phóng to](awcar-schematic-a3.svg) xuất từ bản KiCad đã kiểm thử;
 giữ đồng bộ khi sửa source trong `hardware/pcb`.

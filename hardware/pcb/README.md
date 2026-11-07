@@ -61,6 +61,11 @@ ghi rõ từng ref/net còn mở, thông số cần lấy từ module thực và
 đã chốt về gate/cách hàn/jumper; họ đầu nối dây còn mở. Tiếp tục tại worktree `aw-car-pcb`;
 bản project trong worktree Tang cũ được giữ để đối chiếu chỉnh sửa trước đó.
 
+Chủ dự án ưu tiên **giắc cắm/dây bấm sẵn** giống ảnh đã gửi.
+[Đề xuất mua giắc](../../docs/awcar-connector-selection.md) có số chân/số bộ
+cho từng ngoại vi, ứng viên XH/VH/XT30 và yêu cầu đo bước chân trước gán pad.
+Chưa chọn mã hàng cụ thể hoặc gán footprint đầu nối mới từ ảnh.
+
 ## Kiểm tra và mô phỏng
 
 Chạy từ root, cần KiCad CLI trong PATH (máy hiện tại: `D:/APP/KiCad/bin`):
