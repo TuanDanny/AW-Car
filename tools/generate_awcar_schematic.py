@@ -82,81 +82,81 @@ def effects(size=1.0, extra=""):
 
 # All coordinates below describe graphics only. Pin IDs/names/types/nets come
 # from the versioned manifest exported from the previous KiCad drawing.
-# The axes are symbol-local: positive Y is up; L/R face the connected module.
+# The axes are symbol-local: positive Y is up. Inputs L, outputs R, supply T, ground B.
 PORTS = {
-    "Brain_Logical": (46, {
-        "5V": ("L", 50.8), "3V3": ("L", 45.72), "GND": ("L", 40.64),
-        "GPIO4": ("L", 25.4), "GPIO5": ("L", 20.32), "GPIO6": ("L", 15.24),
-        "GPIO41": ("L", 0), "GPIO42": ("L", -5.08),
-        "GPIO7": ("L", -20.32), "GPIO15": ("L", -25.4), "GPIO16": ("L", -30.48),
-        "GPIO17": ("R", 5.08), "GPIO18": ("R", 0)}),
-    "Motion_Logical": (50, {
-        "5V": ("L", 50.8), "3V3": ("L", 45.72), "GND": ("L", 40.64),
-        "GPIO14": ("L", 5.08), "GPIO13": ("L", 0),
-        "GPIO15": ("R", 35.56), "GPIO16": ("R", 30.48),
-        "GPIO4": ("R", 25.4), "GPIO5": ("R", 20.32), "GPIO6": ("R", 15.24),
-        "GPIO7": ("R", 10.16), "GPIO8": ("R", 5.08), "GPIO9": ("R", 0),
-        "GPIO10": ("R", -12.7)}),
-    "Tang_Logical": (62, {
-        "5V": ("L", 60.96), "3V3": ("L", 55.88), "GND": ("L", 50.8),
-        "P25": ("L", 35.56), "P26": ("L", 30.48), "P29": ("L", 25.4),
-        "P30": ("L", 20.32), "P48": ("L", 15.24), "P51": ("L", 10.16),
-        "P33": ("L", 5.08), "P34": ("L", 0),
-        "P27": ("L", -50.8), "P28": ("L", -55.88),
-        "P35": ("R", 25.4), "P40": ("R", 20.32),
-        "P41": ("R", -15.24), "P42": ("R", -20.32), "P49": ("R", -35.56)}),
-    "MIC": (32, {"1": ("L", 20.32), "2": ("L", 15.24), "6": ("L", -12.7),
-        "4": ("R", 5.08), "3": ("R", 0), "5": ("R", -5.08)}),
-    "OLED": (30, {"2": ("L", 12.7), "1": ("L", 7.62),
-        "4": ("R", 2.54), "3": ("R", -2.54)}),
-    "AMP": (38, {"VCC": ("L", 25.4), "GND": ("L", 20.32),
-        "DIN": ("R", 15.24), "BCLK": ("R", 10.16), "LRC": ("R", 5.08),
-        "SPK+": ("L", -5.08), "SPK-": ("L", -10.16),
-        "GAIN": ("R", -10.16), "SD": ("R", -15.24)}),
-    "DRV_Module_Logical": (36, {"VM": ("L", 25.4), "GND": ("L", 20.32),
-        "AIN1": ("L", 12.7), "BIN1": ("L", 7.62),
-        "AIN2": ("L", 2.54), "BIN2": ("L", -2.54), "STBY": ("L", -15.24),
-        "AOUT1": ("R", 12.7), "AOUT2": ("R", 7.62),
-        "BOUT1": ("R", -7.62), "BOUT2": ("R", -12.7)}),
-    "Motor": (26, {"1": ("L", 2.54), "2": ("L", -2.54)}),
-    "Speaker": (28, {"1": ("R", 2.54), "2": ("R", -2.54)}),
-    "Gate_Interface": (54, {"1": ("L", 12.7), "2": ("L", 7.62), "3": ("L", 2.54),
-        "4": ("R", 12.7), "5": ("R", 7.62), "6": ("R", -2.54), "7": ("L", -10.16)}),
-    "Encoder": (30, {"VCC": ("L", 10.16), "GND": ("L", 5.08), "OUT": ("R", 0)}),
-    "LVC2G17": (32, {"5": ("L", 15.24), "2": ("L", 10.16),
-        "1": ("L", 0), "3": ("L", -5.08), "6": ("R", 0), "4": ("R", -5.08)}),
-    "Sensor": (28, {"1": ("L", 12.7), "2": ("L", 7.62),
-        "3": ("R", 2.54), "4": ("R", -2.54)}),
-    "Expansion": (52, {"1": ("L", 10.16), "2": ("L", 5.08),
-        "3": ("R", 10.16), "4": ("R", 5.08), "5": ("L", -7.62)}),
-    "Pack": (36, {"1": ("R", 5.08), "2": ("R", -5.08)}),
-    "DSN6000AUD": (42, {"IN+": ("L", 5.08), "IN-": ("L", -5.08),
-        "OUT+": ("R", 5.08), "OUT-": ("R", -5.08)}),
-    "Testpoint": (12, {"1": ("L", 0)}),
+    "Brain_Logical": (33.02, {
+        "5V": ("T", -7.62), "3V3": ("T", 7.62), "GND": ("B", 0),
+        "GPIO6": ("L", 7.62), "GPIO18": ("L", 0),
+        "GPIO17": ("R", 12.7), "GPIO4": ("R", 7.62), "GPIO5": ("R", 5.08),
+        "GPIO7": ("R", 0), "GPIO15": ("R", -2.54), "GPIO16": ("R", -5.08),
+        "GPIO41": ("R", -10.16), "GPIO42": ("R", -12.7)}),
+    "Motion_Logical": (38.1, {
+        "5V": ("T", -7.62), "3V3": ("T", 7.62), "GND": ("B", 0),
+        "GPIO14": ("L", 12.7), "GPIO16": ("L", 7.62), "GPIO6": ("L", 2.54),
+        "GPIO7": ("L", -2.54), "GPIO8": ("L", -7.62), "GPIO9": ("L", -12.7),
+        "GPIO13": ("R", 12.7), "GPIO15": ("R", 7.62), "GPIO4": ("R", 2.54),
+        "GPIO5": ("R", -2.54), "GPIO10": ("R", -7.62)}),
+    "Tang_Logical": (43.18, {
+        "5V": ("T", -10.16), "3V3": ("T", 10.16), "GND": ("B", 0),
+        "P25": ("L", 15.24), "P27": ("L", 10.16), "P28": ("L", 7.62),
+        "P29": ("L", 2.54), "P30": ("L", -2.54), "P33": ("L", -7.62), "P34": ("L", -12.7),
+        "P26": ("R", 15.24), "P48": ("R", 10.16), "P51": ("R", 7.62),
+        "P35": ("R", 2.54), "P40": ("R", 0), "P41": ("R", -5.08), "P42": ("R", -7.62),
+        "P49": ("R", -15.24)}),
+    "MIC": (22.86, {"1": ("T", 0), "2": ("B", -5.08), "6": ("L", -5.08),
+        "4": ("L", 2.54), "3": ("L", 0), "5": ("R", 2.54)}),
+    "OLED": (20.32, {"2": ("T", 0), "1": ("B", 0), "4": ("L", 1.27), "3": ("L", -1.27)}),
+    "AMP": (25.4, {"VCC": ("T", 0), "GND": ("B", 0),
+        "DIN": ("L", 7.62), "BCLK": ("L", 5.08), "LRC": ("L", 2.54),
+        "SPK+": ("R", 1.27), "SPK-": ("R", -1.27), "GAIN": ("L", -2.54), "SD": ("L", -5.08)}),
+    "DRV_Module_Logical": (27.94, {"VM": ("T", 0), "GND": ("B", 0),
+        "AIN1": ("L", 10.16), "BIN1": ("L", 7.62), "AIN2": ("L", 2.54),
+        "BIN2": ("L", 0), "STBY": ("L", -7.62),
+        "AOUT1": ("R", 10.16), "AOUT2": ("R", 7.62), "BOUT1": ("R", 2.54), "BOUT2": ("R", 0)}),
+    "Motor": (10.16, {"1": ("L", 1.27), "2": ("L", -1.27)}),
+    "Speaker": (17.78, {"1": ("L", 1.27), "2": ("L", -1.27)}),
+    "Gate_Interface": (33.02, {"1": ("L", 5.08), "2": ("L", 1.27), "3": ("L", -2.54),
+        "4": ("R", 5.08), "5": ("R", 1.27), "6": ("R", -5.08), "7": ("B", 0)}),
+    "Encoder": (20.32, {"VCC": ("T", 0), "GND": ("B", 0), "OUT": ("R", 0)}),
+    "LVC2G17": (20.32, {"5": ("T", 0), "2": ("B", 0),
+        "1": ("L", 1.27), "3": ("L", -1.27), "6": ("R", 1.27), "4": ("R", -1.27)}),
+    "Sensor": (20.32, {"1": ("T", 0), "2": ("B", 0), "3": ("R", 1.27), "4": ("R", -1.27)}),
+    "Expansion": (30.48, {"1": ("L", 5.08), "2": ("L", 2.54),
+        "3": ("L", -2.54), "4": ("L", -5.08), "5": ("B", 0)}),
+    "Pack": (25.4, {"1": ("R", 0), "2": ("B", 0)}),
+    "DSN6000AUD": (27.94, {"IN+": ("L", 0), "IN-": ("B", -5.08),
+        "OUT+": ("R", 0), "OUT-": ("B", 5.08)}),
+    "Testpoint": (5.08, {"1": ("L", 0)}),
 }
 
 POSITIONS = {
-    "J30": (70, 65), "F1": (130, 60), "SW1": (190, 60), "U11": (290, 65), "TP3": (380, 60),
-    "U1": (250, 235), "U2": (400, 235), "U3": (580, 235),
-    "J2": (95, 215), "J1": (180, 252.78), "U6": (135, 295), "J4": (50, 302.62),
-    "U4": (710, 185), "U5": (710, 300),
-    "J5": (790, 174.84), "J6": (790, 205.32), "J7": (790, 289.84), "J8": (790, 320.32),
-    "U7": (410, 330), "U8": (410, 370.84), "U9": (490, 335), "C9": (535, 380),
-    "J20": (135, 385), "J21": (135, 435), "J22": (270, 380), "J23": (270, 430.16),
-    "U10": (360, 405), "C10": (410, 405), "J24": (240, 490), "J9": (495, 435),
-    "TP1": (350, 300), "TP2": (570, 315),
+    "J30": (30.48, 35.56), "F1": (67.31, 35.56), "SW1": (96.52, 35.56),
+    "U11": (149.86, 35.56), "TP3": (204.47, 35.56),
+    "JP1": (246.38, 35.56), "JP2": (307.34, 35.56), "JP3": (368.3, 35.56),
+    "U1": (105.41, 95.25), "U2": (191.77, 99.06), "U3": (270.51, 100.33),
+    "J2": (40.64, 80.01), "J1": (146.05, 137.16), "U6": (105.41, 162.56), "J4": (153.67, 162.56),
+    "U4": (336.55, 93.98), "U5": (336.55, 143.51),
+    "J5": (388.62, 85.09), "J6": (388.62, 107.95), "J7": (388.62, 134.62), "J8": (388.62, 157.48),
+    "U7": (205.74, 161.29), "U8": (205.74, 191.77), "U9": (254, 171.45), "C9": (278.13, 177.8),
+    "J20": (30.48, 186.69), "J21": (30.48, 220.98), "J22": (90.17, 213.36), "J23": (90.17, 243.84),
+    "U10": (140.97, 224.79), "C10": (165.1, 204.47), "J24": (187.96, 240.03), "J9": (238.76, 230.0),
+    "TP1": (179.07, 135.89), "TP2": (290.83, 156.21),
+    "C201": (65.0, 143.51), "C202": (77.7, 143.51), "C203": (65.0, 165.1),
+    "C211": (238.76, 60.96), "C212": (254, 60.96), "C213": (269.24, 60.96),
+    "C221": (332.74, 60.96), "C222": (347.98, 60.96), "C223": (363.22, 60.96),
+    "C301": (364.49, 85.09), "C302": (364.49, 107.95), "C303": (364.49, 134.62), "C304": (364.49, 157.48),
 }
-for start, x in ((100, 640), (110, 770)):
-    POSITIONS.update({f"Q{start+1}": (x, 470), f"Q{start+2}": (x-45.72, 485.24),
-        f"R{start+1}": (x-15.24, 449.68), f"R{start+2}": (x+2.54, 449.68),
-        f"R{start+3}": (x-60.96, 470), f"R{start+4}": (x-53.34, 502.26)})
+for start, x in ((100, 308.61), (110, 378.46)):
+    POSITIONS.update({f"Q{start+1}": (x, 220.98), f"Q{start+2}": (x-22.86, 232.41),
+        f"R{start+1}": (x-8.89, 200.66), f"R{start+2}": (x+2.54, 200.66),
+        f"R{start+3}": (x-35.56, 218.44), f"R{start+4}": (x-30.48, 243.84)})
 
 
 def module(part):
     name = part["symbol"]
     width, ports = PORTS[name]
     width = snap(width / 2) * 2
-    height = 2 * (max(abs(v[1]) for v in ports.values()) + 5.08)
+    height = 2 * (max([abs(v[1]) for v in ports.values() if v[0] in "LR"] or [0]) + 5.08)
     raw = [f'(symbol "AWCAR:{name}" (pin_names (offset 1)) (in_bom yes) (on_board yes)',
         f'(property "Reference" "U" (at 0 {snap(height/2+5.08)} 0) {effects()})',
         f'(property "Value" {q(name)} (at 0 {snap(height/2+2.54)} 0) {effects()})',
@@ -166,11 +166,17 @@ def module(part):
     geometry = {}
     for pin in part["pins"]:
         number = pin["number"]
-        side, y = ports[number]
-        x, angle = (-width/2-2.54, 0) if side == "L" else (width/2+2.54, 180)
+        side, offset = ports[number]
+        x, y, angle = {"L": (-width/2-2.54, offset, 0), "R": (width/2+2.54, offset, 180),
+            "T": (offset, height/2+2.54, 270), "B": (offset, -height/2-2.54, 90)}[side]
         geometry[number] = x, snap(y), angle
+        label = number if name == "Motor" else pin["name"]
+        if side == "T":
+            label = "5V" if number == "5V" else "3V3" if number == "3V3" else "VM" if number == "VM" else "VDD" if name == "MIC" else "VCC"
+        elif side == "B":
+            label = "GND"
         raw.append(f'(pin {pin["kind"]} {pin["shape"]} (at {x:g} {snap(y):g} {angle}) (length 2.54) '
-            f'(name {q(pin["name"])} {effects(.9)}) (number {q(number)} {effects(.75)}))')
+            f'(name {q(label)} {effects(1)}) (number {q(number)} {effects(.85)}))')
     raw.append('))')
     return "\n".join(raw), geometry, width, height
 
@@ -231,7 +237,7 @@ class Router:
                 if self.at[p]-{net} and direction != previous:
                     continue
                 nxt = p[0]+dx, p[1]+dy
-                if not (16 <= nxt[0] <= 642 and 28 <= nxt[1] <= 416):
+                if not (12 <= nxt[0] <= 316 and 18 <= nxt[1] <= 215):
                     continue
                 if nxt in self.blocked or self.reserved.get(nxt, net) != net:
                     continue
@@ -292,6 +298,7 @@ class Sheet:
     def __init__(self):
         self.items, self.symbols, self.nodes, self.stubs = [], {}, {}, {}
         self.router = Router()
+        self.router.rectangle(281.94, 254, 410.21, 288.29)  # Keep the A3 title block clear.
         self.counter = itertools.count()
 
     def add(self, kind, text):
@@ -308,27 +315,28 @@ class Sheet:
             raise ValueError(f"Label on unrelated crossing: {net}")
         self.router.reserved[point] = net
         self.router.terminals.add(point)
-        self.add("label", f'(label {q(net)} (at {x:g} {y:g} {angle}) {effects(.85, justify)}')
+        self.add("label", f'(label {q(net)} (at {x:g} {y:g} {angle}) {effects(.9, justify)}')
 
     def part(self, part, raw, geometry, size):
         ref, name = part["ref"], part["symbol"]
         self.symbols[name] = raw
         x, y = map(snap, POSITIONS[ref])
         width, height = size
-        if name in ("R", "C", "NPN", "Fuse", "Switch"):
+        if name in ("R", "C", "CP", "NPN", "Fuse", "Switch", "Jumper"):
             self.router.rectangle(x-width/2, y-height/2, x+width/2, y+height/2)
-            if name == "Switch":
-                self.router.rectangle(x-22.86, y-12.7, x+22.86, y-6.35)
+            if name in ("Switch", "Jumper"):
+                self.router.rectangle(x-12.7, y-10.16, x+12.7, y-5.08)
             else:
-                self.router.rectangle(x+6.35, y-2.54, x+17.78, y+2.54)
+                self.router.rectangle(x+3.81, y-2.54, x+10.16, y+2.54)
         else:
-            self.router.rectangle(x-width/2-1.27, y-height/2-8.89, x+width/2+1.27, y+height/2+1.27)
-        def prop(key, val, yy):
-            return f'(property {q(key)} {q(val)} (at {x:g} {yy:g} 0) {effects(1)})'
+            self.router.rectangle(x-width/2-1.27, y-height/2-5.08, x+width/2+1.27, y+height/2+1.27)
+        def prop(key, val, yy, xx=None):
+            px = x if xx is None else xx
+            return f'(property {q(key)} {q(val)} (at {px:g} {yy:g} 0) {effects(.9, "(justify left)" if xx is not None else "")})'
         # Long values remain searchable metadata; concise visible labels fit each block.
-        values = {"J9": "Safety gate interface - REQUIRED", "J24": "Future Motion GPIO - TBD",
-            "U1": "ESP32-S3 Brain", "U2": "ESP32-S3 Motion", "U3": "Tang Nano 9K (package IDs)",
-            "J30": "2S PROTECTED pack", "SW1": "MAIN switch - rating TBD", "TP3": "5V TEST before boards"}
+        values = {"J9": "Gate REQUIRED", "J24": "Future GPIO - TBD",
+            "U1": "ESP32-S3 Brain", "U2": "ESP32-S3 Motion", "U3": "Tang Nano 9K",
+            "J30": "2S PROTECTED pack", "SW1": "MAIN switch - rating TBD", "TP3": "5V SET / TEST"}
         visible = values.get(ref, part["value"])
         if ref.startswith("Q"):
             visible = "2N3904*"
@@ -341,21 +349,29 @@ class Sheet:
         if ref == "TP1": visible = "Motion 3V3"
         if ref == "TP2": visible = "Tang 3V3"
         # Standard discrete graphics use labels to the right, leaving their pins clear.
-        if name in ("R", "C", "NPN", "Fuse", "Switch"):
-            prop_ref = f'(property "Reference" {q(ref)} (at {x+6.35:g} {y-1.27:g} 0) {effects(.9, "(justify left)")})'
-            prop_val = f'(property "Value" {q(visible)} (at {x+6.35:g} {y+1.27:g} 0) {effects(.9, "(justify left)")})'
-            if name == "Switch":
-                prop_ref, prop_val = prop("Reference", ref, y-10.16), prop("Value", visible, y-7.62)
+        if name in ("R", "C", "CP", "NPN", "Fuse", "Switch", "Jumper"):
+            prop_ref = f'(property "Reference" {q(ref)} (at {x+3.81:g} {y-1.27:g} 0) {effects(.9, "(justify left)")})'
+            prop_val = f'(property "Value" {q(visible)} (at {x+3.81:g} {y+1.27:g} 0) {effects(.9, "(justify left)")})'
+            if name == "NPN":
+                prop_ref = prop_ref.replace(f'(at {x+3.81:g} ', f'(at {x+7.62:g} ')
+                prop_val = prop_val.replace(f'(at {x+3.81:g} ', f'(at {x+7.62:g} ')
+            if name in ("Switch", "Jumper"):
+                prop_ref, prop_val = prop("Reference", ref, y-7.62), prop("Value", visible, y-5.08)
         else:
-            prop_ref = prop("Reference", ref, y-height/2-5.08)
-            prop_val = prop("Value", visible, y-height/2-2.54)
+            # Keep centered top supply pins out of the reference/value text.
+            offset = x+3.81 if any(side == "T" and pos == 0 for side, pos in PORTS[name][1].values()) else None
+            prop_ref = prop("Reference", ref, y-height/2-3.81, offset)
+            prop_val = prop("Value", visible, y-height/2-1.27, offset)
         inst = [f'(symbol (lib_id "AWCAR:{name}") (at {x:g} {y:g} 0) (unit 1)',
-            '(in_bom yes) (on_board yes) (dnp no)', f'(uuid {q(uid(ref))})', prop_ref, prop_val,
+            f'(in_bom yes) (on_board {"yes" if part.get("on_board", True) else "no"}) (dnp no)', f'(uuid {q(uid(ref))})', prop_ref, prop_val,
             f'(property "Footprint" "" (at {x:g} {y:g} 0) {effects(.9, "(hide yes)")})',
             f'(property "Review_Status" "DRAFT_NOT_FOR_PCB" (at {x:g} {y:g} 0) {effects(.9, "(hide yes)")})',
             f'(property "Description" {q(part["value"])} (at {x:g} {y:g} 0) {effects(.9, "(hide yes)")})']
         for key, val in part["properties"].items():
-            inst.append(f'(property {q(key)} {q(val)} (at {x:g} {y:g} 0) {effects(.9, "(hide yes)")})')
+            if key == "Voltage_Rating":
+                inst.append(f'(property {q(key)} {q(val)} (at {x+3.81:g} {y+3.81:g} 0) {effects(.8, "(justify left)")})')
+            else:
+                inst.append(f'(property {q(key)} {q(val)} (at {x:g} {y:g} 0) {effects(.9, "(hide yes)")})')
         for number, (px, py, angle) in geometry.items():
             point = cell((x+px, y-py))
             self.nodes[ref, number] = point
@@ -380,8 +396,7 @@ class Sheet:
 
     def connect(self, manifest):
         power = {"GND", "3V3_BRAIN", "3V3_MOTION", "3V3_TANG", "3V3_SENSORS_TBD", "VM_MOTOR",
-            "5V_SENSOR_SOURCE_TBD", "5V_BRAIN_SOURCE_TBD", "5V_MOTION_SOURCE_TBD",
-            "5V_TANG_SOURCE_TBD", "5V_AMP_SOURCE_TBD"}
+            "5V_SENSOR_SOURCE_TBD", "5V_DSN_TARGET", "5V_BRAIN_RUN", "5V_MOTION_RUN", "5V_TANG_RUN"}
         preferred = ["BRN_TX_MTN_RX", "MTN_TX_BRN_RX", "MTN_TX_FPGA_RX", "FPGA_TX_MTN_RX",
             "MOTION_PERMIT", "RECOVERY_REQ", "RECOVERY_ACK", "FPGA_PERMIT", "SAFETY_OK", "GATE_FAULT_N",
             "DRV_L_IN1", "DRV_L_IN2", "DRV_R_IN1", "DRV_R_IN2"]
@@ -395,6 +410,8 @@ class Sheet:
             if net in power:
                 if net == "VM_MOTOR":
                     self.router.route(net, self.stubs["U11", "IN+"], [self.stubs["SW1", "2"]])
+                if net == "5V_DSN_TARGET":
+                    self.router.route(net, self.stubs["TP3", "1"], [self.stubs["U11", "OUT+"]])
                 for p, end in zip(pins, ends):
                     pin = self.nodes[p]
                     # Labels on the far end of short power stubs, pointing away from body.
@@ -442,9 +459,9 @@ class Sheet:
                     x, y = mm(p)
                     self.add("junction", f'(junction (at {x:g} {y:g}) (diameter 0) (color 0 0 0 0)')
         raw = ['(kicad_sch (version 20250114) (generator "eeschema") (generator_version "10.0")',
-            f'(uuid {q(uid("aw_car"))}) (paper "A1")',
+            f'(uuid {q(uid("aw_car"))}) (paper "A3")',
             '(title_block (title "AW-CAR - OVERALL WIRING / SO DO DAU NOI CHUNG") '
-            '(date "2026-11-07") (rev "0.2 CONNECTION DRAFT") (company "AW-Car") '
+            '(date "2026-11-07") (rev "0.3 A3 / FILTER DRAFT") (company "AW-Car") '
             '(comment 1 "ONE SHEET - REMOVABLE MODULES - PCB DEFERRED") '
             '(comment 2 "Logical GPIO/package IDs; header pad assignment pending"))',
             '(lib_symbols', *[self.symbols[n] for n in sorted(self.symbols)], ')',
@@ -476,31 +493,32 @@ def generate(kicad_root, output, overwrite=False):
             raw, geometry, width, height = module(p)
         else:
             source, original = {"R": ("Device", "R"), "C": ("Device", "C"), "Fuse": ("Device", "Fuse"),
-                "Switch": ("Switch", "SW_SPST"), "NPN": ("Transistor_BJT", "Q_NPN_EBC")}[name]
+                "Switch": ("Switch", "SW_SPST"), "NPN": ("Transistor_BJT", "Q_NPN_EBC"),
+                "CP": ("Device", "C_Polarized"), "Jumper": ("Jumper", "Jumper_2_Open")}[name]
             raw = standard(kicad_root/f"share/kicad/symbols/{source}.kicad_sym", original, name)
             geometry = {pin["number"]: (pin["x"], pin["y"], pin["angle"]) for pin in p["pins"]}
             width, height = (5.08, 5.08) if name != "NPN" else (7.62, 7.62)
         sheet.part(p, raw, geometry, (width, height))
     for text, x, y, size in [
-        ("AW-CAR | SO DO DAU NOI CHUNG | 1 TRANG", 25, 20, 2.8),
-        ("Connection review: visible signal wires; power labels share named rails. Module sockets / harness order still to be verified.", 25, 28, 1.3),
-        ("01  NGUON 2S + DSN6000AUD", 25, 40, 1.7),
-        ("BMS 2S + charger 8.4V: NOT SELECTED. J30 is protected pack output only; not raw cells / not charger input.", 25, 97, 1.15),
-        ("5V_DSN_UNVERIFIED is TEST ONLY. Do not join it to board 5V/USB until source isolation is reviewed.", 25, 103, 1.15),
-        ("02  AUDIO / OLED", 25, 145, 1.7),
-        ("03  BRAIN <-> MOTION <-> FPGA | 3.3V LOGIC", 250, 125, 1.7),
-        ("Motion GPIO17/18 DAMAGED - NEVER USE. UART uses GPIO13/14 to Brain and GPIO15/16 to Tang.", 250, 133, 1.1),
-        ("04  DRV8833 x2 / 4 MOTOR TT 9V", 640, 130, 1.6),
-        ("Each motor has its own bridge. AIN/BIN share logic only.", 640, 138, 1.05),
-        ("No parallel H-bridge outputs. STBY = nSLEEP: verify module.", 640, 143, 1.05),
-        ("05  CAM BIEN / ENCODER 1 OUT", 25, 350, 1.7),
-        ("Sensor supply / GPIO / physical connector order pending.", 25, 358, 1.1),
-        ("06  SAFETY GATE INTERFACE + STBY CANDIDATE", 445, 388, 1.6),
-        ("J9 is a REQUIRED UNBUILT gate/latch/watchdog/E-stop interface, NOT an implemented gate.", 445, 395, 1.05),
-        ("* NPN + input-buffer candidates: generic models only; packages, ratings and real STBY circuit unverified.", 445, 528, 1.05),
-        ("CHUA CHOT PCB: connectors/pads, BMS/charger/fuse, USB isolation and full independent safety gate.", 25, 548, 1.35),
-        ("E-stop must disable motor drive and latch until controlled reset; Brain/OLED/Dashboard remain powered. No motor-power test authorization.", 25, 555, 1.15),
-        ("Logic labels are NOT physical header pad numbers. Motor VM and USB/5V must never reach GPIO. Ground common; BTL speaker floats.", 25, 562, 1.15),
+        ("AW-CAR | OVERALL WIRING | A3", 12.7, 15.24, 1.8),
+        ("POWER: 2S -> VM / DSN -> 5V", 12.7, 20.32, 1.15),
+        ("RUN: jumper ON, USB removed | DEBUG: jumper OFF BEFORE USB", 223.52, 20.32, .95),
+        ("JP1 Brain / JP2 Motion / JP3 Tang - manual source selection", 223.52, 48.26, .85),
+        ("Set / measure DSN at 5.0V BEFORE connecting boards. BMS / charger / fuse rating TBD.", 12.7, 52.07, .85),
+        ("INPUT LEFT / OUTPUT RIGHT - SUPPLY TOP / GND BOTTOM", 12.7, 60.96, 1.05),
+        ("CONTROL / UART 3.3V", 166.37, 60.96, 1.15),
+        ("2 x DRV8833 / 4 x TT 9V", 325.12, 48.26, 1.05),
+        ("AUDIO / OLED", 12.7, 123.19, 1.15),
+        ("MAX output direct to speaker, <=20cm wires", 78.74, 189.23, .85),
+        ("SENSORS / ENCODER", 12.7, 175.26, 1.15),
+        ("Single OUT: no measured rotation sign", 179.07, 208.28, .85),
+        ("STBY OUTPUT CLAMPS", 330.2, 186.69, 1.05),
+        ("C301..304 off carrier, AT MOTOR", 337.82, 175.26, .85),
+        ("Gate / E-stop / watchdog interface ONLY: not implemented.", 12.7, 261.62, .95),
+        ("Carrier: C201..203 MAX supply / C211..223 driver VM.", 12.7, 266.7, .95),
+        ("Motor caps off carrier: 100n/50V non-polar, verify existing caps.", 12.7, 271.78, .95),
+        ("Initial filter values: measure VM / 5V under load. No PCB release.", 12.7, 276.86, .9),
+        ("Logical GPIO/package IDs; header pads/footprints not assigned. Motion GPIO17/18 damaged.", 12.7, 281.94, .85),
     ]:
         sheet.text(text, x, y, size)
     sheet.connect(manifest)
@@ -512,7 +530,7 @@ def generate(kicad_root, output, overwrite=False):
     (output/"generic-clamp.lib").write_text('* Generic approximations only; NOT manufacturer-validated 2N3904/DRV8833 models.\n'
         '.model QGEN NPN(IS=6.7f BF=40 VAF=80 IKF=.1 CJE=8p CJC=4p TF=.3n)\n'
         '.model DZGEN D(BV=6.5 IBV=1u IS=1f)\n', encoding="ascii", newline="\n")
-    print(f"Generated one A1 native KiCad wiring sheet, {len(manifest['parts'])} parts, at {output}")
+    print(f"Generated one A3 native KiCad wiring sheet, {len(manifest['parts'])} parts, at {output}")
 
 
 if __name__ == "__main__":

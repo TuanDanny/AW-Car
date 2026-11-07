@@ -27,3 +27,4 @@ hardware/pcb/~*.lck
 hardware/pcb/*-backups/
 hardware/pcb/.history/
 hardware/pcb/fp-info-cache
+hardware/pcb/KiCad/[0-9]*/

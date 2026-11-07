@@ -80,7 +80,34 @@ def check(source):
     rails = [n.pins[(ref, pin)] for ref in ("U1", "U2", "U3") for pin in ("5V", "3V3")]
     if len(set(rails)) != 6:
         raise ValueError("Unreviewed shared module power source/3V3 rail")
-    checks.append("local_3v3_rails_and_pending_usb_sources_separate")
+    checks.append("local_3v3_rails_and_individual_run_sources_separate")
+    n.require("5V_DSN_TARGET", ("U11", "OUT+"), ("U6", "VCC"), ("TP3", "1"),
+              ("JP1", "1"), ("JP2", "1"), ("JP3", "1"))
+    for number, board, ref in ((1, "BRAIN", "U1"), (2, "MOTION", "U2"), (3, "TANG", "U3")):
+        n.require(f"5V_{board}_RUN", (f"JP{number}", "2"), (ref, "5V"))
+    checks.append("dsn_5v_amp_and_three_manual_run_debug_jumpers")
+    for ref, value, rail, voltage, kind in [
+        ("C201", "100n", "5V_DSN_TARGET", "50V", "C"), ("C202", "10u", "5V_DSN_TARGET", "10V", "C"),
+        ("C203", "220u", "5V_DSN_TARGET", "10V", "CP"),
+        ("C211", "100n", "VM_MOTOR", "50V", "C"), ("C212", "10u", "VM_MOTOR", "25V", "C"),
+        ("C213", "470u", "VM_MOTOR", "25V", "CP"),
+        ("C221", "100n", "VM_MOTOR", "50V", "C"), ("C222", "10u", "VM_MOTOR", "25V", "C"),
+        ("C223", "470u", "VM_MOTOR", "25V", "CP")]:
+        n.require(rail, (ref, "1"))
+        n.require("GND", (ref, "2"))
+        comp = n.components[ref]
+        if comp.findtext("value") != value or comp.findtext("./fields/field[@name='Voltage_Rating']") != voltage or comp.find("libsource").attrib["part"] != kind:
+            raise ValueError(f"Incorrect candidate decoupling value/rating/polarity type: {ref}")
+    for index, prefix in enumerate(("L_AOUT", "L_BOUT", "R_AOUT", "R_BOUT"), 301):
+        ref = f"C{index}"
+        n.require(prefix+"1", (ref, "1"))
+        n.require(prefix+"2", (ref, "2"))
+        comp = n.components[ref]
+        if comp.find("libsource").attrib["part"] != "C" or comp.findtext("value") != "100n" or comp.findtext("./fields/field[@name='Voltage_Rating']") != "50V":
+            raise ValueError(f"Motor suppression capacitor must be nonpolar 100n/50V: {ref}")
+        if comp.find("./property[@name='exclude_from_board']") is None:
+            raise ValueError(f"Motor capacitor must be off carrier: {ref}")
+    checks.append("carrier_decoupling_and_four_off_board_nonpolar_motor_caps")
     for side, start, driver in [("L", 100, "U4"), ("R", 110, "U5")]:
         qc, qr = f"Q{start+1}", f"Q{start+2}"
         rb, rp, ri, rd = (f"R{start+i}" for i in range(1, 5))

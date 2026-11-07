@@ -5,6 +5,9 @@ kiểm contract và negative cases: sai UART, nối GND loa BTL, chập hai cầ
 bỏ chuyển mức encoder, nối rail3V3, STBY nối VM, đảo chân transistor, chập
 I2C cảm biến và nối tắt cầu chì. Bài xóa nhãn rồi xuất lại bằng KiCad xác nhận
 dây tín hiệu thật sự nối pin với pin, không chỉ dùng nhãn ở các khối tách.
+Các ca mới chặn bypass jumper, đảo tụ điện phân, tụ phân cực qua motor,
+đưa tụ motor lên carrier và sai định mức tụ bulk. Khổ giấy A3 và hướng
+input/output/nguồn/GND được kiểm trên source native.
 Nếu thiếu KiCad CLI thì ghi SKIP; không gọi ERC hoặc mô phỏng phần cứng là
 đạt từ các unit test này. Schematic vẫn là bản review chưa có quyền đi PCB.
 

@@ -1,9 +1,10 @@
 # Tài liệu
 
-[Schematic KiCad đấu nối chung](../hardware/pcb/README.md): một trang A1,
+[Schematic KiCad đấu nối chung](../hardware/pcb/README.md): một trang A3,
 source trực tiếp trong `hardware/pcb`; layout chờ chốt thành phần. Dữ liệu
 tham chiếu ở [design inputs](awcar-schematic-design-inputs.json),
-[manifest44 phần tử/69 net](awcar-schematic-parts.json) và
+[manifest60 phần tử/68 net](awcar-schematic-parts.json),
+[thiết kế lọc nguồn/jumper](awcar-a3-filter-design.md) và
 [báo cáo kiểm chứng](awcar-schematic-verification.json).
 
 - [Flash và kiểm tra reset/liên kết ba board06/11](../fpga/targets/tang_nano9k/flash-link-report.md),

@@ -56,6 +56,10 @@
   trang đấu nối chung ở `hardware/pcb/aw_car.kicad_sch`, project và thư viện
   cùng thư mục; bỏ concept PCB cũ và các sheet tách sau khi giữ bản phục hồi
   ngoài `hardware/pcb`. Layout KiCad sẽ cùng thư mục khi được giao triển khai.
+  Yêu cầu tiếp: một trang A3 ngang, input trái/output phải, nguồn trên/GND dưới;
+  tụ nguồn trên carrier, tụ không phân cực sát cực motor và exclude_from_board.
+  Đã chọn DSN5V cho amp/controller và jumper RUN/DEBUG riêng từng board:
+  mở jumper trước USB, đóng chỉ khi USB đã tháo; chưa có cách ly tự động.
   Dùng nhánh target hiện có, không sửa `hardware/cad` hoặc firmware đang chạy.
   Symbol GPIO/package chưa phải footprint module; không tự gán số pad/lỗ gá.
   Mô hình STBY generic chưa thay gate/E-stop/watchdog đầy đủ. Không suppress

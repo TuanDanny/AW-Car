@@ -1,11 +1,12 @@
 # Schematic và PCB AW-Car
 
 Mở **[aw_car.kicad_pro](aw_car.kicad_pro)** trong KiCad, rồi mở
-**[aw_car.kicad_sch](aw_car.kicad_sch)**: sơ đồ đấu nối chung **một trang A1**,
-44 linh kiện/module,69 net. Brain, Motion, Tang, audio/OLED, hai driver/bốn
+**[aw_car.kicad_sch](aw_car.kicad_sch)**: sơ đồ đấu nối chung **một trang A3**,
+60 phần tử,68 net. Brain, Motion, Tang, audio/OLED, hai driver/bốn
 motor, encoder, cảm biến, nguồn và interface gate cùng nằm trên trang này.
 Dây tín hiệu nối trực tiếp giữa các chân; các nhãn nguồn cùng tên nối chung.
-Module dự kiến cắm rút, không hàn cố định lên carrier.
+Input bên trái, output bên phải, nguồn trên và GND dưới; chân hai chiều giữ
+nhóm giao tiếp. Module dự kiến cắm rút, không hàn cố định lên carrier.
 
 Thư mục này giữ source KiCad: project, schematic, thư viện symbol cục bộ
 `aw_car.kicad_sym`, `sym-lib-table` và model `generic-clamp.lib`. Đã bỏ các
@@ -18,12 +19,22 @@ sẽ đặt ngay đây với tên `aw_car.kicad_pcb`; chưa có footprint/pad/ou
 hoặc Gerber được duyệt. GPIO ESP32 và mã package Tang trên symbol là ID
 logic để đối chiếu đấu dây, chưa phải số pad header của devboard/module.
 
-Các phần còn mở được ghi trên schematic và trong
-[dữ liệu thiết kế](../../docs/awcar-schematic-design-inputs.json): nguồn 5V
-khi cắm USB cùng pin, BMS/sạc/cầu chì, GPIO cảm biến, header/footprint, tải
-DSN6000AUD và gate/E-stop/watchdog độc lập đầy đủ. J9 là **interface gate
-cần triển khai**, chưa phải mạch gate hoàn chỉnh. Nguồn 5V test của DSN chưa
-nối vào bốn đầu nguồn board/amp; không nối thêm để làm hết cảnh báo ERC.
+Nguồn trên xe:2S cấp VM driver trực tiếp; DSN6000AUD mục tiêu5,0V cấp amp
+và ba board qua jumper riêng: JP1 Brain, JP2 Motion, JP3 Tang. **Đổi jumper
+khi tắt nguồn. RUN: jumper lắp, USB tháo. DEBUG: mở jumper board tương ứng
+trước khi cắm USB.** Chưa có cách ly tự động; không đóng jumper khi USB đang cắm.
+
+Đã thêm9 tụ nguồn trên carrier và4 tụ100nF/50V không phân cực ngay hai cực
+motor. C301–C304 được đánh dấu `exclude_from_board`, thuộc lắp ráp ngoài
+carrier. Tụ bulk ứng viên:220µF/10V cho amp,470µF/25V cho mỗi driver; kèm
+bypass100nF và decoupling10µF. Điện trở giữ ở tầng STBY; chưa thêm cuộn/ferrite
+với dây loa/motor dự kiến<=20cm. Chi tiết và nguồn tham chiếu ở
+[thiết kế lọc nguồn/jumper](../../docs/awcar-a3-filter-design.md).
+
+Các phần còn mở trong [dữ liệu thiết kế](../../docs/awcar-schematic-design-inputs.json):
+nguồn/USB trên board thực, BMS/sạc/cầu chì, GPIO cảm biến, header/footprint,
+tải DSN và giá trị/ESR/ripple tụ. J9 là **interface gate cần triển khai**,
+chưa phải gate/E-stop/watchdog độc lập đầy đủ. Chưa nghiệm thu nguồn motor.
 
 ## Kiểm tra và mô phỏng
 
@@ -37,17 +48,17 @@ python tools/simulate_awcar_clamps.py build/awcar.xml --output build/awcar-simul
 python -m unittest discover -s tests
 ```
 
-Tạo `build` trước nếu chưa có. ERC hiện còn **4 warning** `isolated_pin_label`
-ở nguồn5V Brain/Motion/Tang/amp, **0 error**; lệnh ERC trả mã khác0 vì cảnh
-báo còn tồn tại, không phải đã được miễn trừ. Checker so toàn bộ kết nối
+Tạo `build` trước nếu chưa có. ERC bản A3: **0 error,0 warning**, không có
+waiver mới. Nguồn đã được mô tả qua DSN và jumper, nhưng ERC không xác minh
+thao tác jumper hoặc đo nguồn vật lý. Checker so toàn bộ kết nối
 với [manifest](../../docs/awcar-schematic-parts.json), thêm contract firmware.
 [Báo cáo kiểm chứng](../../docs/awcar-schematic-verification.json) ghi hash và
 phạm vi thực tế.
 
 Batch ngspice đọc R/Q từ netlist của chính schematic chung; không cần project
 simulation riêng. 180 ca DC và3 quá độ chỉ kiểm **tầng STBY ứng viên**, dùng
-NPN/đầu vào driver generic. Chưa mô phỏng gate hoàn chỉnh, cell/BMS/sạc,
-buck-boost, motor, nhiệt hoặc PCB. Không coi PASS này là nghiệm thu phần cứng.
+NPN/đầu vào driver generic. Chưa mô phỏng các tụ lọc vừa thêm, gate hoàn chỉnh,
+cell/BMS/sạc, buck-boost, motor, nhiệt hoặc PCB. Không coi PASS này là nghiệm thu phần cứng.
 
 Generator mặc định từ chối ghi đè source đã có. Muốn thử bố cục khác:
 

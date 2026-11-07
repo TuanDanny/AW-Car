@@ -1,20 +1,20 @@
 {
   "date": "2026-11-07",
   "branch": "feat/f01-tang-nano9k-target",
-  "base_commit": "7f0d8653227f5579a614ab18afb6865dd82b87fa",
-  "status": "SINGLE_SHEET_CONNECTION_DRAFT_NOT_FOR_PCB",
+  "base_commit": "382fbbe",
+  "status": "A3_INPUT_LEFT_OUTPUT_RIGHT_FILTER_AND_MANUAL_JUMPER_DRAFT",
   "native_main_sheets": 1,
-  "paper": "A1",
+  "paper": "A3",
   "kicad_version": "10.0.6",
   "sources_sha256": {
     "aw_car.kicad_pro": "658374c275ab2285e29b059cfcfd97e63b2798cb109410dd2cc7a42d37eb4c68",
-    "aw_car.kicad_sch": "e9e0a39a5b4e84385760ddcb71b12cf1bb1e19d35575aed5240de07cdc202def",
-    "aw_car.kicad_sym": "356036d86a515aba909fe1714357cc140b29738f91674c2e3cb0e81003ffddde",
+    "aw_car.kicad_sch": "afb0e973a572ad1d184de21589851cc37a3b505046cc1022909fdf423ff5cbff",
+    "aw_car.kicad_sym": "d6e8ca830d0e2f672321890da23eb866acb475d74242f817ad7c76f28ef0e727",
     "generic-clamp.lib": "f00991eee192afb8c89f4e60f469f836006d4337b972f235d1bbc9c3e8fc2049",
     "sym-lib-table": "b6db454b24479108521d9febe1b91ac84cf8a92cac3272b4a9e8a6297002f994"
   },
-  "manifest_sha256": "be21912b4b58c4f5df9e9896930ca0f08145dd72896b92113d721a9720ea4685",
-  "native_wire_segments": 229,
+  "manifest_sha256": "16353df63c8eb3344c79076a2bca8d116f1da6ec340c07b1256d415e24cf9286",
+  "native_wire_segments": 383,
   "pin_contract": {
     "pin_contract_passed": true,
     "manifest_equivalence_passed": true,
@@ -23,58 +23,31 @@
       "damaged_motion_pins_unused",
       "audio_oled_gpio_and_floating_speaker",
       "four_independent_h_bridges_and_correct_direction_inputs",
-      "local_3v3_rails_and_pending_usb_sources_separate",
+      "local_3v3_rails_and_individual_run_sources_separate",
+      "dsn_5v_amp_and_three_manual_run_debug_jumpers",
+      "carrier_decoupling_and_four_off_board_nonpolar_motor_caps",
       "both_candidate_stby_clamps_no_vm_to_gpio",
       "single_out_encoder_raw_and_3v3_conditioned_nets_separate",
       "all_nets_and_components_match_reviewed_manifest"
     ],
-    "components": 44,
-    "nets": 69,
-    "exported_netlist_sha256": "3e609f91d48615c0992197554c1021107467f0429198518ea67f42c938ac312c",
+    "components": 60,
+    "nets": 68,
+    "exported_netlist_sha256": "b3fd9b1931dfb100b0bb0015d132f1fb419e099b98ab6b2ff2605ffc7ac45f84",
     "schematic_release_ready": false,
     "limits": "Logical module IDs only; power/gate/USB/footprints unresolved. Not ERC/electrical/hardware sign-off."
   },
   "erc": {
-    "native_returncode": 5,
+    "native_returncode": 0,
     "error_count": 0,
-    "warning_count": 4,
-    "warnings": [
-      {
-        "type": "isolated_pin_label",
-        "description": "Label connected to only one pin",
-        "items": [
-          "Label '5V_AMP_SOURCE_TBD'"
-        ]
-      },
-      {
-        "type": "isolated_pin_label",
-        "description": "Label connected to only one pin",
-        "items": [
-          "Label '5V_BRAIN_SOURCE_TBD'"
-        ]
-      },
-      {
-        "type": "isolated_pin_label",
-        "description": "Label connected to only one pin",
-        "items": [
-          "Label '5V_MOTION_SOURCE_TBD'"
-        ]
-      },
-      {
-        "type": "isolated_pin_label",
-        "description": "Label connected to only one pin",
-        "items": [
-          "Label '5V_TANG_SOURCE_TBD'"
-        ]
-      }
-    ],
+    "warning_count": 0,
+    "warnings": [],
     "signoff": false,
-    "scope": "Four unconnected board/amp 5V source labels intentionally remain pending source selection; no waivers/suppression."
+    "scope": "Connectivity/ERC only. Manual jumpers and 13 added capacitors are drawn; actual source isolation procedure, DSN regulation, ripple/EMI, components and load not measured."
   },
   "simulation": {
     "scope": "CANDIDATE_STBY_CLAMPS_ONLY_NOT_COMPLETE_SAFETY_GATE",
     "model": "GENERIC_NPN_AND_APPROXIMATE_SLEEP_LOAD_NOT_VENDOR_VALIDATED",
-    "netlist_sha256": "3e609f91d48615c0992197554c1021107467f0429198518ea67f42c938ac312c",
+    "netlist_sha256": "b3fd9b1931dfb100b0bb0015d132f1fb419e099b98ab6b2ff2605ffc7ac45f84",
     "ngspice_dll_sha256": "3238d82f02b6d08d8703a28ea894bcfdf59906dd4a59ad2e93eeec532a0454a3",
     "dc_cases": 180,
     "dc_passed": 180,
@@ -101,17 +74,18 @@
         "limitation": "Settled intervals only; no vendor startup/glitch/driver wake certification."
       }
     ],
+    "added_decoupling_and_motor_caps_simulated": false,
     "full_safety_gate_simulated": false,
     "converter_motor_thermal_simulated": false
   },
   "tests": {
     "unittest_command": "python -m unittest discover -s tests",
     "returncode": 0,
-    "total": 90,
+    "total": 97,
     "skipped": 0,
-    "native_schematic_tests": 12,
-    "pcb_source_preservation_tests": 3,
-    "signal_wire_check": "All 54 non-power signal/pack/test nets remain connected after deleting ALL labels and re-exporting with KiCad CLI.",
+    "native_schematic_tests": 17,
+    "pcb_source_preservation_tests": 5,
+    "signal_wire_check": "All 53 non-power groups connected after stripping ALL labels and exporting with KiCad.",
     "harmful_mutations_rejected": [
       "UART swap",
       "BTL ground",
@@ -122,22 +96,27 @@
       "transistor E/C swap",
       "duplicate pin",
       "sensor I2C short",
-      "fuse bypass"
+      "fuse bypass",
+      "jumper bypass",
+      "reversed electrolytic",
+      "polarized motor capacitor",
+      "motor capacitor on carrier",
+      "underrated VM bulk cap"
     ]
   },
   "visual_review": {
-    "format": "KiCad CLI SVG rendered to PNG",
+    "format": "KiCad SVG rendered at A3 dimensions; PNG crops",
     "one_sheet": true,
     "inspected": [
-      "overview",
-      "power",
-      "audio/OLED",
-      "Brain-Motion-FPGA",
+      "overview A3 within frame",
+      "power and JP1-JP3",
+      "audio supply capacitors",
+      "controller pin direction",
+      "four off-carrier motor caps",
       "sensors",
-      "drivers/motors",
-      "candidate clamps"
+      "STBY references and title-block clearance"
     ],
-    "exports": "build/awcar-flat-20261107/final-svg/aw_car.svg"
+    "exports": "build/awcar-a3-20261107/final-svg/aw_car.svg"
   },
   "cleanup": {
     "old_pcb_concept_and_hierarchical_project_removed": true,
@@ -155,6 +134,14 @@
     "motor start/stall and turning load not measured; fuse/wire sizing pending",
     "safety hardware design and independent clock-loss path pending review",
     "new sensor GPIO assignments and module IO voltage not finalized",
-    "PCB outline, standoffs, antenna/USB clearances deferred by user"
-  ]
+    "PCB outline, standoffs, antenna/USB clearances deferred by user",
+    "Manual jumper procedure must be verified on actual boards; no automatic USB backfeed protection. DSN output/load and capacitor ESR/ripple/voltage transients unmeasured."
+  ],
+  "sources_and_user_decisions": {
+    "power": "2S direct VM; DSN target 5V to amp/controllers",
+    "usb_selection": "Manual JP1/2/3; remove jumper BEFORE USB, remove USB BEFORE RUN jumper; power off for changes",
+    "speaker_motor_wire_limit_cm": 20,
+    "placement": "9 carrier supply caps; 4 off-carrier motor caps",
+    "extra_inductors_or_resistors": false
+  }
 }

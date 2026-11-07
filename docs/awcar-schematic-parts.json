@@ -1,9 +1,15 @@
 {
   "schema": 1,
-  "status": "CONNECTION_DRAFT_PHYSICAL_HEADER_PADS_NOT_ASSIGNED",
+  "status": "A3_CONNECTION_DRAFT_MANUAL_RUN_DEBUG_JUMPERS",
   "provenance": {
     "source_commit": "7f0d8653227f5579a614ab18afb6865dd82b87fa",
-    "baseline_export_sha256": "b4e0e8ff05c26f6024301a342650979c982440a27c454a07c8fd2217e0fcdff4"
+    "baseline_export_sha256": "b4e0e8ff05c26f6024301a342650979c982440a27c454a07c8fd2217e0fcdff4",
+    "layout_base_commit": "382fbbe",
+    "approved_changes": [
+      "A3, inputs left / outputs right / supply top / GND bottom",
+      "13 added capacitors: 9 carrier decoupling/bulk, 4 non-polar motor-terminal capacitors off carrier",
+      "DSN target 5V to amplifier; manual RUN/DEBUG power jumper for each controller"
+    ]
   },
   "parts": [
     {
@@ -1247,7 +1253,7 @@
         }
       ],
       "nets": {
-        "1": "5V_DSN_UNVERIFIED"
+        "1": "5V_DSN_TARGET"
       }
     },
     {
@@ -1258,7 +1264,7 @@
       "pins": [
         {
           "number": "5V",
-          "name": "5V input - source TBD",
+          "name": "5V via RUN jumper",
           "kind": "passive",
           "shape": "line",
           "x": -22.86,
@@ -1376,7 +1382,7 @@
       ],
       "nets": {
         "3V3": "3V3_BRAIN",
-        "5V": "5V_BRAIN_SOURCE_TBD",
+        "5V": "5V_BRAIN_RUN",
         "GPIO15": "AMP_BCLK",
         "GPIO7": "AMP_DIN",
         "GPIO16": "AMP_LRCLK",
@@ -1504,7 +1510,7 @@
         }
       ],
       "nets": {
-        "OUT+": "5V_DSN_UNVERIFIED",
+        "OUT+": "5V_DSN_TARGET",
         "IN-": "GND",
         "OUT-": "GND",
         "IN+": "VM_MOTOR"
@@ -1518,7 +1524,7 @@
       "pins": [
         {
           "number": "5V",
-          "name": "5V input - source TBD",
+          "name": "5V via RUN jumper",
           "kind": "passive",
           "shape": "line",
           "x": -22.86,
@@ -1645,7 +1651,7 @@
       ],
       "nets": {
         "3V3": "3V3_MOTION",
-        "5V": "5V_MOTION_SOURCE_TBD",
+        "5V": "5V_MOTION_RUN",
         "GPIO14": "BRN_TX_MTN_RX",
         "GPIO10": "DRIVER_PERMIT",
         "GPIO7": "FPGA_PERMIT",
@@ -1668,7 +1674,7 @@
       "pins": [
         {
           "number": "5V",
-          "name": "5V input - source TBD",
+          "name": "5V via RUN jumper",
           "kind": "passive",
           "shape": "line",
           "x": -25.4,
@@ -1831,7 +1837,7 @@
       ],
       "nets": {
         "3V3": "3V3_TANG",
-        "5V": "5V_TANG_SOURCE_TBD",
+        "5V": "5V_TANG_RUN",
         "P35": "DRV_L_IN1",
         "P40": "DRV_L_IN2",
         "P41": "DRV_R_IN1",
@@ -2179,7 +2185,7 @@
         }
       ],
       "nets": {
-        "VCC": "5V_AMP_SOURCE_TBD",
+        "VCC": "5V_DSN_TARGET",
         "BCLK": "AMP_BCLK",
         "DIN": "AMP_DIN",
         "LRC": "AMP_LRCLK",
@@ -2339,6 +2345,574 @@
         "3": "ENC_R_RAW",
         "2": "GND"
       }
+    },
+    {
+      "ref": "C201",
+      "symbol": "C",
+      "value": "100n",
+      "properties": {
+        "Voltage_Rating": "50V",
+        "Placement": "Carrier, at MAX98357A power socket",
+        "Technology": "Non-polar ceramic X7R or suitable film",
+        "Design_Status": "INITIAL_VALUE_REQUIRES_SOURCE_AND_LOAD_MEASUREMENT"
+      },
+      "pins": [
+        {
+          "number": "1",
+          "name": "",
+          "kind": "passive",
+          "shape": "line",
+          "x": 0.0,
+          "y": 3.81,
+          "angle": 270.0
+        },
+        {
+          "number": "2",
+          "name": "",
+          "kind": "passive",
+          "shape": "line",
+          "x": 0.0,
+          "y": -3.81,
+          "angle": 90.0
+        }
+      ],
+      "nets": {
+        "1": "5V_DSN_TARGET",
+        "2": "GND"
+      },
+      "on_board": true
+    },
+    {
+      "ref": "C202",
+      "symbol": "C",
+      "value": "10u",
+      "properties": {
+        "Voltage_Rating": "10V",
+        "Placement": "Carrier, at MAX98357A power socket",
+        "Technology": "Non-polar ceramic X7R or suitable film",
+        "Design_Status": "INITIAL_VALUE_REQUIRES_SOURCE_AND_LOAD_MEASUREMENT"
+      },
+      "pins": [
+        {
+          "number": "1",
+          "name": "",
+          "kind": "passive",
+          "shape": "line",
+          "x": 0.0,
+          "y": 3.81,
+          "angle": 270.0
+        },
+        {
+          "number": "2",
+          "name": "",
+          "kind": "passive",
+          "shape": "line",
+          "x": 0.0,
+          "y": -3.81,
+          "angle": 90.0
+        }
+      ],
+      "nets": {
+        "1": "5V_DSN_TARGET",
+        "2": "GND"
+      },
+      "on_board": true
+    },
+    {
+      "ref": "C203",
+      "symbol": "CP",
+      "value": "220u",
+      "properties": {
+        "Voltage_Rating": "10V",
+        "Placement": "Carrier, at MAX98357A power socket",
+        "Technology": "Aluminum electrolytic; ESR/ripple/PN pending",
+        "Design_Status": "INITIAL_VALUE_REQUIRES_SOURCE_AND_LOAD_MEASUREMENT"
+      },
+      "pins": [
+        {
+          "number": "1",
+          "name": "",
+          "kind": "passive",
+          "shape": "line",
+          "x": 0.0,
+          "y": 3.81,
+          "angle": 270.0
+        },
+        {
+          "number": "2",
+          "name": "",
+          "kind": "passive",
+          "shape": "line",
+          "x": 0.0,
+          "y": -3.81,
+          "angle": 90.0
+        }
+      ],
+      "nets": {
+        "1": "5V_DSN_TARGET",
+        "2": "GND"
+      },
+      "on_board": true
+    },
+    {
+      "ref": "C211",
+      "symbol": "C",
+      "value": "100n",
+      "properties": {
+        "Voltage_Rating": "50V",
+        "Placement": "Carrier, at DRV8833 L VM/GND socket",
+        "Technology": "Non-polar ceramic X7R or suitable film",
+        "Design_Status": "INITIAL_VALUE_REQUIRES_SOURCE_AND_LOAD_MEASUREMENT"
+      },
+      "pins": [
+        {
+          "number": "1",
+          "name": "",
+          "kind": "passive",
+          "shape": "line",
+          "x": 0.0,
+          "y": 3.81,
+          "angle": 270.0
+        },
+        {
+          "number": "2",
+          "name": "",
+          "kind": "passive",
+          "shape": "line",
+          "x": 0.0,
+          "y": -3.81,
+          "angle": 90.0
+        }
+      ],
+      "nets": {
+        "1": "VM_MOTOR",
+        "2": "GND"
+      },
+      "on_board": true
+    },
+    {
+      "ref": "C212",
+      "symbol": "C",
+      "value": "10u",
+      "properties": {
+        "Voltage_Rating": "25V",
+        "Placement": "Carrier, at DRV8833 L VM/GND socket",
+        "Technology": "Non-polar ceramic X7R or suitable film",
+        "Design_Status": "INITIAL_VALUE_REQUIRES_SOURCE_AND_LOAD_MEASUREMENT"
+      },
+      "pins": [
+        {
+          "number": "1",
+          "name": "",
+          "kind": "passive",
+          "shape": "line",
+          "x": 0.0,
+          "y": 3.81,
+          "angle": 270.0
+        },
+        {
+          "number": "2",
+          "name": "",
+          "kind": "passive",
+          "shape": "line",
+          "x": 0.0,
+          "y": -3.81,
+          "angle": 90.0
+        }
+      ],
+      "nets": {
+        "1": "VM_MOTOR",
+        "2": "GND"
+      },
+      "on_board": true
+    },
+    {
+      "ref": "C213",
+      "symbol": "CP",
+      "value": "470u",
+      "properties": {
+        "Voltage_Rating": "25V",
+        "Placement": "Carrier, at DRV8833 L VM/GND socket",
+        "Technology": "Aluminum electrolytic; ESR/ripple/PN pending",
+        "Design_Status": "INITIAL_VALUE_REQUIRES_SOURCE_AND_LOAD_MEASUREMENT"
+      },
+      "pins": [
+        {
+          "number": "1",
+          "name": "",
+          "kind": "passive",
+          "shape": "line",
+          "x": 0.0,
+          "y": 3.81,
+          "angle": 270.0
+        },
+        {
+          "number": "2",
+          "name": "",
+          "kind": "passive",
+          "shape": "line",
+          "x": 0.0,
+          "y": -3.81,
+          "angle": 90.0
+        }
+      ],
+      "nets": {
+        "1": "VM_MOTOR",
+        "2": "GND"
+      },
+      "on_board": true
+    },
+    {
+      "ref": "C221",
+      "symbol": "C",
+      "value": "100n",
+      "properties": {
+        "Voltage_Rating": "50V",
+        "Placement": "Carrier, at DRV8833 R VM/GND socket",
+        "Technology": "Non-polar ceramic X7R or suitable film",
+        "Design_Status": "INITIAL_VALUE_REQUIRES_SOURCE_AND_LOAD_MEASUREMENT"
+      },
+      "pins": [
+        {
+          "number": "1",
+          "name": "",
+          "kind": "passive",
+          "shape": "line",
+          "x": 0.0,
+          "y": 3.81,
+          "angle": 270.0
+        },
+        {
+          "number": "2",
+          "name": "",
+          "kind": "passive",
+          "shape": "line",
+          "x": 0.0,
+          "y": -3.81,
+          "angle": 90.0
+        }
+      ],
+      "nets": {
+        "1": "VM_MOTOR",
+        "2": "GND"
+      },
+      "on_board": true
+    },
+    {
+      "ref": "C222",
+      "symbol": "C",
+      "value": "10u",
+      "properties": {
+        "Voltage_Rating": "25V",
+        "Placement": "Carrier, at DRV8833 R VM/GND socket",
+        "Technology": "Non-polar ceramic X7R or suitable film",
+        "Design_Status": "INITIAL_VALUE_REQUIRES_SOURCE_AND_LOAD_MEASUREMENT"
+      },
+      "pins": [
+        {
+          "number": "1",
+          "name": "",
+          "kind": "passive",
+          "shape": "line",
+          "x": 0.0,
+          "y": 3.81,
+          "angle": 270.0
+        },
+        {
+          "number": "2",
+          "name": "",
+          "kind": "passive",
+          "shape": "line",
+          "x": 0.0,
+          "y": -3.81,
+          "angle": 90.0
+        }
+      ],
+      "nets": {
+        "1": "VM_MOTOR",
+        "2": "GND"
+      },
+      "on_board": true
+    },
+    {
+      "ref": "C223",
+      "symbol": "CP",
+      "value": "470u",
+      "properties": {
+        "Voltage_Rating": "25V",
+        "Placement": "Carrier, at DRV8833 R VM/GND socket",
+        "Technology": "Aluminum electrolytic; ESR/ripple/PN pending",
+        "Design_Status": "INITIAL_VALUE_REQUIRES_SOURCE_AND_LOAD_MEASUREMENT"
+      },
+      "pins": [
+        {
+          "number": "1",
+          "name": "",
+          "kind": "passive",
+          "shape": "line",
+          "x": 0.0,
+          "y": 3.81,
+          "angle": 270.0
+        },
+        {
+          "number": "2",
+          "name": "",
+          "kind": "passive",
+          "shape": "line",
+          "x": 0.0,
+          "y": -3.81,
+          "angle": 90.0
+        }
+      ],
+      "nets": {
+        "1": "VM_MOTOR",
+        "2": "GND"
+      },
+      "on_board": true
+    },
+    {
+      "ref": "C301",
+      "symbol": "C",
+      "value": "100n",
+      "properties": {
+        "Voltage_Rating": "50V",
+        "Placement": "OFF CARRIER: solder across the individual motor terminals",
+        "Technology": "Non-polar ceramic X7R or suitable film",
+        "Design_Status": "INITIAL_VALUE_REQUIRES_SOURCE_AND_LOAD_MEASUREMENT",
+        "Assembly_Note": "At motor terminals, not carrier PCB. Verify existing motor capacitor before fitting duplicate."
+      },
+      "pins": [
+        {
+          "number": "1",
+          "name": "",
+          "kind": "passive",
+          "shape": "line",
+          "x": 0.0,
+          "y": 3.81,
+          "angle": 270.0
+        },
+        {
+          "number": "2",
+          "name": "",
+          "kind": "passive",
+          "shape": "line",
+          "x": 0.0,
+          "y": -3.81,
+          "angle": 90.0
+        }
+      ],
+      "nets": {
+        "1": "L_AOUT1",
+        "2": "L_AOUT2"
+      },
+      "on_board": false
+    },
+    {
+      "ref": "C302",
+      "symbol": "C",
+      "value": "100n",
+      "properties": {
+        "Voltage_Rating": "50V",
+        "Placement": "OFF CARRIER: solder across the individual motor terminals",
+        "Technology": "Non-polar ceramic X7R or suitable film",
+        "Design_Status": "INITIAL_VALUE_REQUIRES_SOURCE_AND_LOAD_MEASUREMENT",
+        "Assembly_Note": "At motor terminals, not carrier PCB. Verify existing motor capacitor before fitting duplicate."
+      },
+      "pins": [
+        {
+          "number": "1",
+          "name": "",
+          "kind": "passive",
+          "shape": "line",
+          "x": 0.0,
+          "y": 3.81,
+          "angle": 270.0
+        },
+        {
+          "number": "2",
+          "name": "",
+          "kind": "passive",
+          "shape": "line",
+          "x": 0.0,
+          "y": -3.81,
+          "angle": 90.0
+        }
+      ],
+      "nets": {
+        "1": "L_BOUT1",
+        "2": "L_BOUT2"
+      },
+      "on_board": false
+    },
+    {
+      "ref": "C303",
+      "symbol": "C",
+      "value": "100n",
+      "properties": {
+        "Voltage_Rating": "50V",
+        "Placement": "OFF CARRIER: solder across the individual motor terminals",
+        "Technology": "Non-polar ceramic X7R or suitable film",
+        "Design_Status": "INITIAL_VALUE_REQUIRES_SOURCE_AND_LOAD_MEASUREMENT",
+        "Assembly_Note": "At motor terminals, not carrier PCB. Verify existing motor capacitor before fitting duplicate."
+      },
+      "pins": [
+        {
+          "number": "1",
+          "name": "",
+          "kind": "passive",
+          "shape": "line",
+          "x": 0.0,
+          "y": 3.81,
+          "angle": 270.0
+        },
+        {
+          "number": "2",
+          "name": "",
+          "kind": "passive",
+          "shape": "line",
+          "x": 0.0,
+          "y": -3.81,
+          "angle": 90.0
+        }
+      ],
+      "nets": {
+        "1": "R_AOUT1",
+        "2": "R_AOUT2"
+      },
+      "on_board": false
+    },
+    {
+      "ref": "C304",
+      "symbol": "C",
+      "value": "100n",
+      "properties": {
+        "Voltage_Rating": "50V",
+        "Placement": "OFF CARRIER: solder across the individual motor terminals",
+        "Technology": "Non-polar ceramic X7R or suitable film",
+        "Design_Status": "INITIAL_VALUE_REQUIRES_SOURCE_AND_LOAD_MEASUREMENT",
+        "Assembly_Note": "At motor terminals, not carrier PCB. Verify existing motor capacitor before fitting duplicate."
+      },
+      "pins": [
+        {
+          "number": "1",
+          "name": "",
+          "kind": "passive",
+          "shape": "line",
+          "x": 0.0,
+          "y": 3.81,
+          "angle": 270.0
+        },
+        {
+          "number": "2",
+          "name": "",
+          "kind": "passive",
+          "shape": "line",
+          "x": 0.0,
+          "y": -3.81,
+          "angle": 90.0
+        }
+      ],
+      "nets": {
+        "1": "R_BOUT1",
+        "2": "R_BOUT2"
+      },
+      "on_board": false
+    },
+    {
+      "ref": "JP1",
+      "symbol": "Jumper",
+      "value": "RUN_BRAIN",
+      "properties": {
+        "Operation": "RUN=shunt installed, USB unplugged; DEBUG=remove shunt BEFORE connecting USB. No automatic source selection."
+      },
+      "pins": [
+        {
+          "number": "1",
+          "name": "A",
+          "kind": "passive",
+          "shape": "line",
+          "x": -5.08,
+          "y": 0,
+          "angle": 0
+        },
+        {
+          "number": "2",
+          "name": "B",
+          "kind": "passive",
+          "shape": "line",
+          "x": 5.08,
+          "y": 0,
+          "angle": 180
+        }
+      ],
+      "nets": {
+        "1": "5V_DSN_TARGET",
+        "2": "5V_BRAIN_RUN"
+      }
+    },
+    {
+      "ref": "JP2",
+      "symbol": "Jumper",
+      "value": "RUN_MOTION",
+      "properties": {
+        "Operation": "RUN=shunt installed, USB unplugged; DEBUG=remove shunt BEFORE connecting USB. No automatic source selection."
+      },
+      "pins": [
+        {
+          "number": "1",
+          "name": "A",
+          "kind": "passive",
+          "shape": "line",
+          "x": -5.08,
+          "y": 0,
+          "angle": 0
+        },
+        {
+          "number": "2",
+          "name": "B",
+          "kind": "passive",
+          "shape": "line",
+          "x": 5.08,
+          "y": 0,
+          "angle": 180
+        }
+      ],
+      "nets": {
+        "1": "5V_DSN_TARGET",
+        "2": "5V_MOTION_RUN"
+      }
+    },
+    {
+      "ref": "JP3",
+      "symbol": "Jumper",
+      "value": "RUN_TANG",
+      "properties": {
+        "Operation": "RUN=shunt installed, USB unplugged; DEBUG=remove shunt BEFORE connecting USB. No automatic source selection."
+      },
+      "pins": [
+        {
+          "number": "1",
+          "name": "A",
+          "kind": "passive",
+          "shape": "line",
+          "x": -5.08,
+          "y": 0,
+          "angle": 0
+        },
+        {
+          "number": "2",
+          "name": "B",
+          "kind": "passive",
+          "shape": "line",
+          "x": 5.08,
+          "y": 0,
+          "angle": 180
+        }
+      ],
+      "nets": {
+        "1": "5V_DSN_TARGET",
+        "2": "5V_TANG_RUN"
+      }
     }
   ],
   "expected_nets": {
@@ -2402,19 +2976,41 @@
         "3V3"
       ]
     ],
-    "5V_AMP_SOURCE_TBD": [
+    "5V_BRAIN_RUN": [
       [
-        "U6",
-        "VCC"
-      ]
-    ],
-    "5V_BRAIN_SOURCE_TBD": [
+        "JP1",
+        "2"
+      ],
       [
         "U1",
         "5V"
       ]
     ],
-    "5V_DSN_UNVERIFIED": [
+    "5V_DSN_TARGET": [
+      [
+        "C201",
+        "1"
+      ],
+      [
+        "C202",
+        "1"
+      ],
+      [
+        "C203",
+        "1"
+      ],
+      [
+        "JP1",
+        "1"
+      ],
+      [
+        "JP2",
+        "1"
+      ],
+      [
+        "JP3",
+        "1"
+      ],
       [
         "TP3",
         "1"
@@ -2422,9 +3018,17 @@
       [
         "U11",
         "OUT+"
+      ],
+      [
+        "U6",
+        "VCC"
       ]
     ],
-    "5V_MOTION_SOURCE_TBD": [
+    "5V_MOTION_RUN": [
+      [
+        "JP2",
+        "2"
+      ],
       [
         "U2",
         "5V"
@@ -2448,7 +3052,11 @@
         "VCC"
       ]
     ],
-    "5V_TANG_SOURCE_TBD": [
+    "5V_TANG_RUN": [
+      [
+        "JP3",
+        "2"
+      ],
       [
         "U3",
         "5V"
@@ -2668,6 +3276,42 @@
         "2"
       ],
       [
+        "C201",
+        "2"
+      ],
+      [
+        "C202",
+        "2"
+      ],
+      [
+        "C203",
+        "2"
+      ],
+      [
+        "C211",
+        "2"
+      ],
+      [
+        "C212",
+        "2"
+      ],
+      [
+        "C213",
+        "2"
+      ],
+      [
+        "C221",
+        "2"
+      ],
+      [
+        "C222",
+        "2"
+      ],
+      [
+        "C223",
+        "2"
+      ],
+      [
         "C9",
         "2"
       ],
@@ -2786,6 +3430,10 @@
     ],
     "L_AOUT1": [
       [
+        "C301",
+        "1"
+      ],
+      [
         "J5",
         "1"
       ],
@@ -2795,6 +3443,10 @@
       ]
     ],
     "L_AOUT2": [
+      [
+        "C301",
+        "2"
+      ],
       [
         "J5",
         "2"
@@ -2806,6 +3458,10 @@
     ],
     "L_BOUT1": [
       [
+        "C302",
+        "1"
+      ],
+      [
         "J6",
         "1"
       ],
@@ -2815,6 +3471,10 @@
       ]
     ],
     "L_BOUT2": [
+      [
+        "C302",
+        "2"
+      ],
       [
         "J6",
         "2"
@@ -3002,6 +3662,10 @@
     ],
     "R_AOUT1": [
       [
+        "C303",
+        "1"
+      ],
+      [
         "J7",
         "1"
       ],
@@ -3011,6 +3675,10 @@
       ]
     ],
     "R_AOUT2": [
+      [
+        "C303",
+        "2"
+      ],
       [
         "J7",
         "2"
@@ -3022,6 +3690,10 @@
     ],
     "R_BOUT1": [
       [
+        "C304",
+        "1"
+      ],
+      [
         "J8",
         "1"
       ],
@@ -3031,6 +3703,10 @@
       ]
     ],
     "R_BOUT2": [
+      [
+        "C304",
+        "2"
+      ],
       [
         "J8",
         "2"
@@ -3171,6 +3847,30 @@
       ]
     ],
     "VM_MOTOR": [
+      [
+        "C211",
+        "1"
+      ],
+      [
+        "C212",
+        "1"
+      ],
+      [
+        "C213",
+        "1"
+      ],
+      [
+        "C221",
+        "1"
+      ],
+      [
+        "C222",
+        "1"
+      ],
+      [
+        "C223",
+        "1"
+      ],
       [
         "R101",
         "1"

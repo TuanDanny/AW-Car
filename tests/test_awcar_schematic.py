@@ -57,7 +57,7 @@ class SchematicContractTests(unittest.TestCase):
     def test_native_kicad_netlist_matches_contract_but_not_released(self):
         d=self.run_check()
         self.assertTrue(d["pin_contract_passed"])
-        self.assertEqual(len(d["checks"]),8)
+        self.assertEqual(len(d["checks"]),10)
         self.assertTrue(d["manifest_equivalence_passed"])
         self.assertFalse(d["schematic_release_ready"])
 
@@ -103,6 +103,28 @@ class SchematicContractTests(unittest.TestCase):
         self.move("F1", "1", "PACK_FUSED")
         with self.assertRaises(ValueError): self.run_check()
 
+    def test_bypassed_run_jumper_rejected(self):
+        self.move("U1", "5V", "5V_DSN_TARGET")
+        with self.assertRaises(ValueError): self.run_check()
+
+    def test_reversed_electrolytic_rejected(self):
+        self.move("C203", "1", "GND")
+        self.move("C203", "2", "5V_DSN_TARGET")
+        with self.assertRaises(ValueError): self.run_check()
+
+    def test_polar_cap_across_reversing_motor_rejected(self):
+        self.tree.find('./components/comp[@ref="C301"]/libsource').set("part", "CP")
+        with self.assertRaises(ValueError): self.run_check()
+
+    def test_motor_cap_on_carrier_rejected(self):
+        comp = self.tree.find('./components/comp[@ref="C301"]')
+        comp.remove(comp.find('./property[@name="exclude_from_board"]'))
+        with self.assertRaises(ValueError): self.run_check()
+
+    def test_wrong_bulk_voltage_rating_rejected(self):
+        self.tree.find('./components/comp[@ref="C213"]/fields/field[@name="Voltage_Rating"]').text = "6.3V"
+        with self.assertRaises(ValueError): self.run_check()
+
     def test_signal_pins_connected_by_wires_even_without_net_labels(self):
         # Remove every label, then have KiCad independently resolve physical
         # wires. A label-only collection of disconnected modules fails here.
@@ -122,7 +144,7 @@ class SchematicContractTests(unittest.TestCase):
             for net in ET.parse(exported).findall("./nets/net")}
         expected = json.loads((ROOT/"docs/awcar-schematic-parts.json").read_text(encoding="utf-8"))["expected_nets"]
         power = {"GND", "VM_MOTOR", "3V3_BRAIN", "3V3_MOTION", "3V3_TANG", "3V3_SENSORS_TBD",
-            "5V_SENSOR_SOURCE_TBD", "5V_BRAIN_SOURCE_TBD", "5V_MOTION_SOURCE_TBD", "5V_TANG_SOURCE_TBD", "5V_AMP_SOURCE_TBD"}
+            "5V_SENSOR_SOURCE_TBD", "5V_DSN_TARGET", "5V_BRAIN_RUN", "5V_MOTION_RUN", "5V_TANG_RUN"}
         for name, pins in expected.items():
             if name not in power and not name.startswith("unconnected-"):
                 self.assertIn(frozenset(tuple(pin) for pin in pins), groups, name)

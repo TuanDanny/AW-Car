@@ -2,9 +2,10 @@
 
 Nơi lưu BOM có mã linh kiện, bảng chân, sơ đồ nguồn, cơ khí và thiết kế PCB.
 
-[KiCad schematic đấu nối chung07/11](pcb/README.md): một trang A1,44 phần tử,
-69 net đã đối chiếu bản trước và firmware, tầng STBY ứng viên và batch ngspice. Module cắm
-rút; chưa chốt nguồn USB, gate hoàn chỉnh, footprint hoặc PCB để sản xuất.
+[KiCad schematic đấu nối chung07/11](pcb/README.md): một trang A3,60 phần tử,
+68 net; input trái/output phải, nguồn trên/GND dưới. Có13 tụ và3 jumper nguồn
+RUN/DEBUG theo [thiết kế bổ sung](../docs/awcar-a3-filter-design.md).
+Module cắm rút; chưa nghiệm thu nguồn thực, gate hoặc PCB để sản xuất.
 
 [Giao tiếp DRV8833](drv8833-interface.md): bảng nối bốn chân IN từ FPGA tới
 hai module/bốn motor, chế độ drive/coast và điều kiện STBY/mức logic.

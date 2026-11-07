@@ -21,7 +21,15 @@
       "VL53L0X blue module",
       "2 single-OUT encoders",
       "2 TCRT5000"
-    ]
+    ],
+    "schematic_paper": "A3 landscape, one sheet",
+    "signal_orientation": "Inputs L; outputs R; bidirectional pins grouped; supply top; GND bottom",
+    "speaker_cable_max_cm": 20,
+    "motor_cable_max_cm": 20,
+    "passive_placement": "Supply capacitors on carrier, motor suppression capacitors at motor terminals",
+    "filter_scope": "Basic capacitors first, no output ferrites/inductors until measurements justify them",
+    "source_topology": "2S direct VM, DSN6000AUD target 5V to amplifier and controllers via individual manual RUN/DEBUG jumpers",
+    "usb_debug_selection": "Remove jumper for the board BEFORE connecting USB; USB removed BEFORE reinstalling RUN jumper; amplifier stays on DSN"
   },
   "net_contract": [
     {
@@ -456,7 +464,8 @@
     "motor start/stall and turning load not measured; fuse/wire sizing pending",
     "safety hardware design and independent clock-loss path pending review",
     "new sensor GPIO assignments and module IO voltage not finalized",
-    "PCB outline, standoffs, antenna/USB clearances deferred by user"
+    "PCB outline, standoffs, antenna/USB clearances deferred by user",
+    "Manual jumper procedure must be verified on actual boards; no automatic USB backfeed protection. DSN output/load and capacitor ESR/ripple/voltage transients unmeasured."
   ],
   "sources": {
     "brain_config": {
@@ -484,7 +493,6 @@
   "updated_date": "2026-11-07",
   "pending_user_choices": [
     "carrier with removable modules vs separate power/gate board",
-    "manual RUN/DEBUG isolation vs automatic USB source selection",
     "assembly/package preference and budget"
   ]
 }
