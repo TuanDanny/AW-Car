@@ -48,6 +48,11 @@ nguồn/USB trên board thực, BMS/sạc/cầu chì, GPIO cảm biến, header/
 tải DSN và giá trị/ESR/ripple tụ. J9 là **interface gate cần triển khai**,
 chưa phải gate/E-stop/watchdog độc lập đầy đủ. Chưa nghiệm thu nguồn motor.
 
+[Trình tự hoàn thiện schematic trước layout](../../docs/awcar-pcb-next-stage.md)
+ghi rõ từng ref/net còn mở, thông số cần lấy từ module thực và ba lựa chọn
+đang chốt về gate, cách hàn và đầu nối. Tiếp tục tại worktree `aw-car-pcb`;
+bản project trong worktree Tang cũ được giữ để đối chiếu chỉnh sửa trước đó.
+
 ## Kiểm tra và mô phỏng
 
 Chạy từ root, cần KiCad CLI trong PATH (máy hiện tại: `D:/APP/KiCad/bin`):

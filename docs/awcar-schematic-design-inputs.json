@@ -492,7 +492,8 @@
   "limits": "Logical GPIO numbers are not physical header or footprint pad numbers. No guessed footprints or Gerber release.",
   "updated_date": "2026-11-07",
   "pending_user_choices": [
-    "carrier with removable modules vs separate power/gate board",
-    "assembly/package preference and budget"
+    "safety gate integrated on carrier vs separate removable gate board; controller modules remain removable",
+    "assembly/package preference and budget",
+    "external power/motor/signal connector families and cable termination preference"
   ]
 }

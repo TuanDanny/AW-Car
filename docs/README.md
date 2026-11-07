@@ -7,6 +7,9 @@ tham chiếu ở [design inputs](awcar-schematic-design-inputs.json),
 [thiết kế lọc nguồn/jumper](awcar-a3-filter-design.md) và
 [báo cáo kiểm chứng](awcar-schematic-verification.json).
 
+[Hoàn thiện schematic trước layout](awcar-pcb-next-stage.md): các ref/net
+còn mở, thông số module thực cần xác nhận và thứ tự chốt nguồn/gate/giắc.
+
 [Ảnh schematic A3](awcar-schematic-a3.png) và
 [SVG phóng to](awcar-schematic-a3.svg) xuất từ bản KiCad đã kiểm thử;
 giữ đồng bộ khi sửa source trong `hardware/pcb`.
