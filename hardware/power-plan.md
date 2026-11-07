@@ -11,6 +11,10 @@ chủ dự án muốn vừa sạc vừa bật logic, có đo điện áp/cảnh 
 ưu tiên hơn các ví dụ mua sạc cũ bên dưới. Chưa chọn sạc/power-path hoặc
 đầu vào adapter/USB-C; không mặc định sạc CC/CV thông thường đáp ứng tải
 logic đồng thời. DSN.IN+ hiện vẫn cùng VM_MOTOR trong bản draft, cần tách.
+Chủ dự án đã chọn adapter DC rời và yêu cầu chuyển sang pin không reset
+logic. Mục tiêu adapter ban đầu12V3A/36W; bao tải và các điều kiện phải đo
+ghi tại tài liệu trên, chưa coi khả năng dòng ra của DSN hoặc dòng sạc1A
+là đã xác nhận từ cell/tải thực.
 
 ## Hướng ưu tiên hiện tại — 02/11/2026
 

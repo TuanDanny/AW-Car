@@ -6,6 +6,8 @@ Quyết định chủ dự án ngày07/11/2026, trên `feat/f04-pcb-schematic`:
 | --- | --- |
 | E-stop | Cắt nguồn nhánh motor **và** khóa hai driver; logic/OLED/Dashboard vẫn có nguồn |
 | Sạc | Có thể sạc pack trong khi bật phần logic |
+| Nguồn sạc | Adapter DC rời, người triển khai chọn mẫu phù hợp/dễ mua |
+| Chuyển nguồn | Cắm/rút adapter phải giữ Brain/OLED/Dashboard hoạt động liên tục, không reset |
 | Pin yếu | Đo điện áp pack, hiển thị và cảnh báo; chưa yêu cầu thêm tự khóa motor do cảnh báo pin yếu |
 
 Nhả E-stop, rút sạc, có lại nguồn hoặc khôi phục liên kết không tự ARM hay
@@ -67,12 +69,56 @@ cần cân nhắc với tự hàn/chi phí. DSN đang được dành cho đầu 
 không được tính là khối sạc2S trong kiến trúc này.
 [TI BQ25672](https://www.ti.com/lit/ds/symlink/bq25672.pdf).
 
-Những điểm còn chờ người dùng chọn:
+Chủ dự án đã chọn **adapter DC rời** và **giữ logic liên tục khi cắm/rút**.
+Đây là yêu cầu nghiệm thu; chưa phải kết quả đã đo. Không còn cần hỏi lại
+hai lựa chọn này. Mã adapter/charger và linh kiện chuyển nguồn vẫn phải
+được chọn, kiểm dung sai và thử trên tải thực.
 
-- Đầu vào adapter DC hay USB-C/PD, hay để chọn phương án gọn/tiết kiệm.
-- Cắm/rút sạc có cần giữ logic liên tục không reset, hay được phép reset
-  về trạng thái khóa. Chưa hứa chuyển nguồn không gián đoạn khi chưa chọn
-  mạch, dự toán tải và đo sụt áp.
+### Adapter và phương án ưu tiên để phát triển tiếp
+
+Mục tiêu chọn mua ban đầu: **adapter ổn áp12VDC,3A liên tục,36W**, đầu
+ra5,5×2,1mm, cực dương ở tâm, loại đóng vỏ hoàn chỉnh. Jack đầu vào carrier
+phải khớp đầu cắm và có định mức phù hợp; chưa gán footprint từ tên jack.
+Adapter cấp vào mạch nguồn/sạc, **không nối trực tiếp vào pack hoặc VM**.
+Thông số này là mục tiêu do người triển khai chọn theo yêu cầu; chưa chọn
+SKU, chưa xác nhận chất lượng/ripple hoặc đã mua. Ví dụ nơi xem loại12V3A:
+[nguồn adapter12V3A](https://linhkiendientutphcm.com/nguon-adapter-12v-3a).
+
+Bao công suất dùng để sàng lọc, toàn bộ là **giả định thiết kế**, chưa đo:
+
+| Phần | Giả định tính | Công suất đầu vào dự trù |
+| --- | --- | --- |
+| Logic/âm thanh | 5V×3A, hiệu suất DSN tạm lấy80% | 18,75W |
+| Sạc2S | 8,4V×1A, hiệu suất sạc tạm lấy85% | Khoảng9,88W |
+| Mạch phụ | Bao dự phòng ban đầu | 0,5W |
+| Tổng | Khoảng29,13W | Khoảng2,43A ở12V; dư khoảng6,87W so với36W danh định |
+
+3A không phải tải logic đã đo hoặc khả năng DSN được xác nhận. 1A sạc chỉ
+là trường hợp tính bao; dòng sạc thực phải theo mã cell/BMS/nhiệt. Sụt áp
+dây, dung sai adapter, nhiệt và tải xung còn phải kiểm, có thể cần đổi mức
+nguồn hoặc dòng sạc. Không lấy dòng in trên cuộn/IC của DSN làm dòng ra
+liên tục ở5V. Tận dụng DSN nếu đo tải/nhiệt/quá độ đạt yêu cầu.
+
+Hướng đơn giản ưu tiên để review: adapter chia hai đường, một đường vào
+**charger buck2S** thích hợp với đầu vào12V thực kể cả dung sai, đường kia
+vào hệ thống logic qua diode/MOSFET quản lý chiều dòng; pack được cấp bù
+cho logic khi mất adapter. Đường motor vẫn chỉ lấy từ pack qua mạch ngắt
+riêng. Chuyển nguồn làm bằng phần cứng, không đợi firmware hoặc UART.
+
+Nguyên lý chia tải bằng P-MOS/diode có trong Microchip AN1149. Mạch tham
+khảo của hãng dùng **một cell**; chỉ dùng để tham khảo nguyên lý, không
+sao chép trị số/điện áp hoặc IC sạc1S sang2S/12V. Cần kiểm chiều diode thân
+MOS, VGS ở mọi trạng thái, RDS(on) tại điện áp gate nhỏ nhất dưới tải,
+nhiệt, khả năng cấp ngược qua charger, adapter sụt áp và chuyển tiếp khi
+cắm/rút. Chưa chốt mã MOS/diode hoặc gọi mạch ứng viên là đạt không reset.
+[Microchip AN1149](https://ww1.microchip.com/downloads/en/AppNotes/01149a.pdf).
+
+TP5100 là một **ứng viên module sạc2S để nghiên cứu**, không phải món đã
+chốt mua. Datasheet hãng có chế độ4,2/8,4V; cần kiểm kỹ dải làm việc và
+dung sai nguồn thực, chọn đúng mode2S, điện trở đặt dòng, TS/nhiệt, reverse
+leakage và chất lượng module. Không lấy giới hạn tuyệt đối18V làm dải
+vận hành, hoặc dùng board chỉ mang cùng tên như bằng chứng có power-path.
+[Top Power TP5100](https://www.toppwr.com/uploadfile/file/20240913/66e3a293b3c42.pdf).
 
 Giả định thiết kế ban đầu: **khi cắm sạc thì motor bị khóa**, chỉ phần
 logic hoạt động. Đây là quy tắc đề xuất để đáp ứng nhu cầu đã nêu, cần
@@ -109,9 +155,16 @@ adapter chỉ từ chữ18650.
 | Nhả E-stop, reset một board, FPGA mất clock | Không tự cấp quyền motor; phải clear/ARM đúng contract |
 | Cắm sạc trong các trạng thái | Liên động motor theo contract đã chốt; logic nhận nguồn phù hợp, không nối nhầm adapter vào VM |
 | Rút sạc | Hành vi logic theo lựa chọn chuyển nguồn; motor không tự ARM |
+| Chuyển adapter ↔ pin có tải | Uptime các board liên tục, không có boot/brownout mới; Dashboard không mất kết nối do reset nguồn; đo5V/3,3V tại chân board bằng oscilloscope |
 | Pin đầy/gần ngưỡng yếu, tải logic/loa thay đổi | Dòng pin/kết thúc sạc/nhiệt đúng thiết kế, không chỉ quan sát đèn báo sạc |
 | ADC so với đồng hồ, E-stop và sạc đang cắm | Vẫn đo đúng pack; cắt VM không bị báo nhầm pin0V, không lấy nhầm áp adapter |
 | Motion tắt nguồn trong khi pack/sạc còn điện | Không cấp ngược hoặc vượt giới hạn đầu vào qua đường đo |
 
 Tiếp tục thực hiện trên schematic A3 sau khi chốt khối nguồn/ngắt/sạc;
 layout vẫn chờ schematic, linh kiện, header và kích thước thực được xác nhận.
+
+Điều kiện thử chuyển nguồn: pack đang nối, còn đủ điện và BMS chưa ngắt;
+thử lúc pin đầy/gần ngưỡng vận hành, loa/Wi-Fi tải cao, cắm/rút nhanh và
+adapter tăng/giảm chậm. Datasheet linh kiện và UART log không thay phép đo
+rail thực. Không reset là tiêu chí kết quả trên các board, không chỉ tên
+"seamless" hoặc có tụ lớn trong sơ đồ.

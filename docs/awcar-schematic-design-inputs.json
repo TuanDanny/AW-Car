@@ -41,8 +41,8 @@
     "external_connector_mounting": "Shrouded header soldered directly to carrier PCB; mating pre-crimped cable housing removable; user confirmed by close-up image",
     "charge_while_logic_on": true,
     "battery_voltage_monitoring": "Measure pack voltage and warn low battery; no additional automatic low-battery motor lock requested",
-    "charging_input": "PENDING_USER_ADAPTER_DC_USB_C_OR_DESIGNER_CHOICE",
-    "charge_source_transfer_reset_policy": "PENDING_USER_CONTINUOUS_LOGIC_OR_LOCKED_RESET"
+    "charging_input": "External DC adapter; agent chooses suitable readily available model",
+    "charge_source_transfer_reset_policy": "Brain/OLED/dashboard continue operating during charger plug/unplug; no reset"
   },
   "net_contract": [
     {
@@ -510,9 +510,7 @@
   "pending_user_choices": [
     "exact plug-in connector series, pitch, wire gauge and supplier; candidates in docs/awcar-connector-selection.md",
     "actual module/header dimensions and revisions",
-    "assembly/component budget if needed for final part selection",
-    "charging input: DC adapter vs USB-C/PD vs designer cost/size choice",
-    "logic continuity when connecting/disconnecting charge source"
+    "assembly/component budget if needed for final part selection"
   ],
   "power_architecture_review": {
     "native_source_reviewed_at_commit": "c72a26e",
@@ -532,5 +530,35 @@
     "requirements_document": "docs/awcar-power-safety-requirements.md",
     "charging_motor_inhibit": "INITIAL_DESIGN_PROPOSAL_NOT_IMPLEMENTED_OR_SEPARATELY_CONFIRMED",
     "native_schematic_changed_for_new_power_requirements": false
+  },
+  "power_design_targets": {
+    "status": "ENGINEERING_TARGETS_NOT_PURCHASE_OR_HARDWARE_VALIDATION",
+    "adapter": {
+      "output_v_dc": 12.0,
+      "continuous_current_a": 3.0,
+      "nominal_power_w": 36.0,
+      "connector_target": "5.5x2.1mm, center positive; matched carrier inlet current rating required",
+      "sku": null,
+      "owned": false
+    },
+    "preliminary_budget": {
+      "all_values_are_unmeasured_assumptions": true,
+      "logic_output_v": 5.0,
+      "logic_output_current_envelope_a": 3.0,
+      "dsn_efficiency_assumed": 0.8,
+      "charge_voltage_envelope_v": 8.4,
+      "charge_current_envelope_a": 1.0,
+      "charge_current_approved_from_cell_data": false,
+      "charger_efficiency_assumed": 0.85,
+      "auxiliary_input_allowance_w": 0.5,
+      "estimated_input_power_w": 29.1324,
+      "estimated_input_current_at_12v_a": 2.4277,
+      "nominal_power_headroom_w": 6.8676
+    },
+    "preferred_load_sharing_review": "Adapter-priority semiconductor path; diode/P-MOS candidate inspired by AN1149, requires 2S/12V re-design and actual converter transient validation",
+    "charger_candidate": "Buck 2S module suitable for actual adapter range; TP5100 under review only, no SKU/mode/current approved",
+    "no_reset_achieved_on_hardware": false,
+    "dsn_continuous_5v_current_verified": false,
+    "reference": "docs/awcar-power-safety-requirements.md"
   }
 }

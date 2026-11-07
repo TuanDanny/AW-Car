@@ -76,8 +76,9 @@
   nguồn; vừa sạc vừa bật logic; có đo áp/cảnh báo pin yếu, chưa thêm tự khóa
   bởi cảnh báo này. Native hiện nối DSN.IN+ vào VM_MOTOR nên cần thiết kế
   lại phân nhánh/ngắt/sạc/chia tải/đo pin; không báo đã đáp ứng chỉ vì ERC0.
-  Đầu vào sạc và yêu cầu chuyển nguồn không reset còn hỏi; không tự gán
-  adapter/SYS charger vào VM hoặc coi BMS là mạch sạc/power-path hoàn chỉnh.
+  Đã chọn adapter DC rời và yêu cầu cắm/rút không reset logic; mục tiêu
+  adapter ban đầu12V3A, chưa chốt SKU/tải DSN/dòng sạc từ mã cell. Không tự
+  gán adapter/SYS charger vào VM hoặc coi BMS là mạch sạc/power-path hoàn chỉnh.
   Symbol GPIO/package chưa phải footprint module; không tự gán số pad/lỗ gá.
   Mô hình STBY generic chưa thay gate/E-stop/watchdog đầy đủ. Không suppress
   ERC hoặc coi bench PASS là quyền phát hành PCB/mở driver. Giữ chỉnh tay;

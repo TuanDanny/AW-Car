@@ -202,6 +202,10 @@
     "native_schematic_satisfies_latest_power_requirements": false,
     "native_topology_unchanged": true,
     "motor_power_cut_logic_feed_split_charge_load_sharing_adc_implemented": false,
-    "scope": "98 existing source/connection tests and historical STBY simulations do not cover the newly selected power features."
+    "scope": "98 existing source/connection tests and historical STBY simulations do not cover the newly selected power features.",
+    "adapter_dc_selected": true,
+    "no_reset_on_plug_unplug_required": true,
+    "no_reset_on_plug_unplug_hardware_test_passed": false,
+    "adapter_12v_3a_is_preliminary_design_target_only": true
   }
 }

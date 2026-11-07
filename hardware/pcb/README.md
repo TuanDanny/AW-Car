@@ -6,6 +6,8 @@ Nano9K đã tách về nền trước PCB, không phát triển schematic tại 
 
 **Yêu cầu nguồn mới07/11:** E-stop cắt nhánh motor và khóa driver, giữ
 logic; vừa sạc vừa bật logic; đo điện áp/cảnh báo pin yếu.
+Đã chọn adapter DC rời và yêu cầu cắm/rút không reset logic; mục tiêu
+adapter ban đầu12V3A, chưa chốt SKU hoặc kiểm tải DSN/chuyển nguồn thực.
 [Tác động và phần phải thiết kế lại](../../docs/awcar-power-safety-requirements.md).
 Schematic hiện nối DSN.IN+ vào VM_MOTOR nên chưa đáp ứng cách ngắt mới;
 phải tách đường logic và bổ sung khối ngắt/sạc/chia tải/đo pin trước layout.
