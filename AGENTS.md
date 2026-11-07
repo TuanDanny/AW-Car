@@ -21,9 +21,14 @@
 ## Nhánh và merge
 
 - `main` luôn là bản ổn định; tạo nhánh trước khi sửa, không commit/push trực tiếp.
-- Theo quyết định 30/10/2026, giai đoạn hiện tại chỉ dùng hai nhánh phát triển:
+- Hai nhánh tính năng chính theo quyết định 30/10/2026:
   `feat/f01-fpga-drive` cho FPGA/truyền động và tài liệu liên quan;
   `feat/f03-xiaozhi-ai` cho AI/Xiaozhi, âm thanh, OLED và tài liệu liên quan.
+- Theo yêu cầu07/11/2026, schematic/PCB và công cụ/kiểm thử phần cứng dùng
+  riêng `feat/f04-pcb-schematic`, tách từ nền đã kiểm chứng `af584d3`.
+  Bốn commit KiCad giữ nguyên lịch sử trên nhánh PCB; không đưa chúng vào
+  `feat/f01-tang-nano9k-target`. Nhánh Tang chỉ phát triển target/RTL/Gowin
+  và bằng chứng board; dùng pinout đã chốt làm đầu vào tham chiếu cho PCB.
 - Dùng lại nhánh đúng phần việc; không tạo thêm nhánh cho từng module, bản sửa
   lỗi, ghi chú hoặc lần tối ưu. Theo dõi các bước nhỏ bằng task và commit.
 - Giữ thay đổi chưa commit của checkout khác tại chỗ; không đưa công việc

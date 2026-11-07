@@ -7,6 +7,10 @@ Tác giả: **TuanDanny**. Cộng tác viên: **Minh Nho** và **Nhan Duc**.
 
 ## Trạng thái
 
+Schematic/PCB và các commit KiCad nằm riêng trên
+[`feat/f04-pcb-schematic`](https://github.com/TuanDanny/AW-Car/tree/feat/f04-pcb-schematic/hardware/pcb).
+Nhánh Tang Nano9K này giữ phần target/Gowin và bằng chứng board.
+
 Top FPGA triển khai là **[`aw_car_top`](fpga/rtl/aw_car_top.sv)**, bọc lõi
 `drive_core`; chẩn đoán khi chạy đi qua STATUS v2 (RX/lệnh/mất mẫu/encoder/invariant),
 không xuất bus debug thành chân board. Cấu hình tổng hợp ở [`synth_aw_car.ys`](fpga/synth_aw_car.ys).
