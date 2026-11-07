@@ -4,6 +4,12 @@ Nhánh riêng **`feat/f04-pcb-schematic`** chứa source, ảnh xem, công cụ 
 test KiCad. Bốn commit schematic trước đây được giữ nguyên; nhánh Tang
 Nano9K đã tách về nền trước PCB, không phát triển schematic tại đó.
 
+**Yêu cầu nguồn mới07/11:** E-stop cắt nhánh motor và khóa driver, giữ
+logic; vừa sạc vừa bật logic; đo điện áp/cảnh báo pin yếu.
+[Tác động và phần phải thiết kế lại](../../docs/awcar-power-safety-requirements.md).
+Schematic hiện nối DSN.IN+ vào VM_MOTOR nên chưa đáp ứng cách ngắt mới;
+phải tách đường logic và bổ sung khối ngắt/sạc/chia tải/đo pin trước layout.
+
 Mở **[aw_car.kicad_pro](aw_car.kicad_pro)** trong KiCad, rồi mở
 **[aw_car.kicad_sch](aw_car.kicad_sch)**: sơ đồ đấu nối chung **một trang A3**,
 60 phần tử,68 net. Brain, Motion, Tang, audio/OLED, hai driver/bốn

@@ -72,6 +72,12 @@
   không phải cầu thiếc. Chưa có layout nên mặt sau mới là yêu cầu bố trí.
   Tụ rời trong ảnh có footprint0805/1206 nhưng chưa rõ điện áp/điện môi;
   chỉ phân bổ ứng viên, không ghi thông số yêu cầu thành định mức hàng tồn.
+  Chốt tiếp: E-stop cắt cấp VM motor đồng thời khóa driver, giữ logic có
+  nguồn; vừa sạc vừa bật logic; có đo áp/cảnh báo pin yếu, chưa thêm tự khóa
+  bởi cảnh báo này. Native hiện nối DSN.IN+ vào VM_MOTOR nên cần thiết kế
+  lại phân nhánh/ngắt/sạc/chia tải/đo pin; không báo đã đáp ứng chỉ vì ERC0.
+  Đầu vào sạc và yêu cầu chuyển nguồn không reset còn hỏi; không tự gán
+  adapter/SYS charger vào VM hoặc coi BMS là mạch sạc/power-path hoàn chỉnh.
   Symbol GPIO/package chưa phải footprint module; không tự gán số pad/lỗ gá.
   Mô hình STBY generic chưa thay gate/E-stop/watchdog đầy đủ. Không suppress
   ERC hoặc coi bench PASS là quyền phát hành PCB/mở driver. Giữ chỉnh tay;

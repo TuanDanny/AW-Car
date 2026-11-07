@@ -5,6 +5,13 @@ phải BOM đã chọn hoặc thiết kế nguồn đã kiểm thử. Kiểm kê
 [components.md](components.md); yêu cầu khóa driver ở
 [hợp đồng an toàn](../firmware/shared/fpga-safety.md).
 
+**Bổ sung07/11/2026:** E-stop phải cắt cấp VM và khóa driver nhưng giữ logic;
+chủ dự án muốn vừa sạc vừa bật logic, có đo điện áp/cảnh báo pin yếu.
+[Yêu cầu nguồn mới và tác động lên schematic](../docs/awcar-power-safety-requirements.md)
+ưu tiên hơn các ví dụ mua sạc cũ bên dưới. Chưa chọn sạc/power-path hoặc
+đầu vào adapter/USB-C; không mặc định sạc CC/CV thông thường đáp ứng tải
+logic đồng thời. DSN.IN+ hiện vẫn cùng VM_MOTOR trong bản draft, cần tách.
+
 ## Hướng ưu tiên hiện tại — 02/11/2026
 
 Bốn motor TT là bản **9 V theo thông tin shop do chủ dự án cung cấp**;

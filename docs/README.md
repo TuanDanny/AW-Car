@@ -17,6 +17,10 @@ còn mở, thông số module thực cần xác nhận và thứ tự chốt ngu
 [Đề xuất giắc cắm và dây bấm sẵn](awcar-connector-selection.md): tên tìm mua,
 số bộ theo schematic, phân biệt dây–dây/đế PCB và bước chân cần xác nhận.
 
+[Yêu cầu nguồn/E-stop/sạc/đo pin mới](awcar-power-safety-requirements.md):
+cắt nguồn motor và khóa driver, logic giữ nguồn, sạc khi bật logic, cảnh
+báo pin yếu; native schematic chưa có các khối mới và cần tách đầu vào DSN.
+
 [Ảnh schematic A3](awcar-schematic-a3.png) và
 [SVG phóng to](awcar-schematic-a3.svg) xuất từ bản KiCad đã kiểm thử;
 giữ đồng bộ khi sửa source trong `hardware/pcb`.

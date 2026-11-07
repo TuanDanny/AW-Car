@@ -23,11 +23,18 @@ nguồn thực, dòng tải, cơ khí hay gate hoàn chỉnh. Không suy ra sẵ
 
 ## Những phần cần hoàn thiện trên schematic
 
+Yêu cầu mới về ngắt VM, bật logic khi sạc và đo pin được chốt ở
+[contract nguồn/E-stop/sạc/đo pin](awcar-power-safety-requirements.md).
+Đầu vào DSN hiện cùng VM_MOTOR là một điểm phải sửa, không dùng topology
+hiện tại như bằng chứng logic còn hoạt động khi E-stop.
+
 | Phần | Có trong source | Cần chốt trước footprint/layout |
 | --- | --- | --- |
-| Gate/E-stop | J9 là interface chờ thay bằng mạch trên carrier; Q101/Q102 và Q111/Q112 là tầng STBY ứng viên | Linh kiện chốt lỗi, giám sát nguồn/sự sống độc lập, đường E-stop và trình tự clear |
+| Gate/E-stop | J9 là interface chờ thay bằng mạch trên carrier; Q101/Q102 và Q111/Q112 là tầng STBY ứng viên | Thêm ngắt cấp VM và tách logic, linh kiện chốt lỗi/giám sát độc lập, đường E-stop và trình tự clear |
 | Nguồn pack | J30 nhận đầu ra pack đã bảo vệ, F1 còn `RATING_TBD` | Mã cell, cấu hình pack/BMS, đầu sạc, dòng khởi động/kẹt; sau đó chọn cầu chì/dây/đầu nối |
 | Nguồn logic/loa | U11 DSN mục tiêu 5 V, JP1/2/3 tách từng controller | Đo DSN ở tải thực, đường USB trên đúng board và cấp ngược qua tín hiệu khi một board mất nguồn |
+| Sạc khi bật logic | Chưa có khối sạc/chia tải trong source | Đầu vào sạc, chuyển nguồn logic, BMS và sạc phù hợp cell; dự toán/đo tải và liên động motor |
+| Điện áp pack | Chưa có mạch đo/GPIO ADC trong source | Đo đúng pack qua mạch chia áp/lọc/bảo vệ, calibration và ngưỡng cảnh báo; chưa thêm tự khóa motor bởi cảnh báo này |
 | Nguồn cảm biến | `5V_SENSOR_SOURCE_TBD`, `3V3_SENSORS_TBD` | Nguồn cụ thể và ngân sách dòng; hiện chưa nối các net này tới nguồn thực |
 | I2C Motion | J20/J21 nối tới J24 bằng `SENSOR_SDA_TBD`/`SENSOR_SCL_TBD` | GPIO SDA/SCL trên Motion, nguồn pull-up và mức điện áp của từng module |
 | Hai TCRT5000 | J22/J23, qua U10 tới J24 | GPIO Motion, thứ tự chân module thực, cực tính DO và điều kiện phát hiện; AO chưa sử dụng |

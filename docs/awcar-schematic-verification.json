@@ -195,5 +195,13 @@
     "gate_placement_decision": "INTEGRATED_ON_CARRIER_CIRCUIT_NOT_YET_IMPLEMENTED",
     "simulation_rerun": false,
     "simulation_note": "Historical STBY simulation above retains its original netlist hash. No R/C/Q values or connectivity changed; no new simulation of unqualified stock parts claimed."
+  },
+  "latest_power_requirements_review": {
+    "date": "2026-11-07",
+    "requirements_document": "docs/awcar-power-safety-requirements.md",
+    "native_schematic_satisfies_latest_power_requirements": false,
+    "native_topology_unchanged": true,
+    "motor_power_cut_logic_feed_split_charge_load_sharing_adc_implemented": false,
+    "scope": "98 existing source/connection tests and historical STBY simulations do not cover the newly selected power features."
   }
 }

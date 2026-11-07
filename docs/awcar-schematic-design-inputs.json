@@ -10,7 +10,7 @@
     "converter": "DSN6000AUD Automatic Buck-Boost Module, user owns",
     "bms_owned": false,
     "charger_owned": false,
-    "estop": "motor disabled; Brain/OLED/dashboard stay powered",
+    "estop": "Disconnect motor supply AND disable both drivers; Brain/OLED/dashboard logic stays powered; no automatic re-arm",
     "usb_debug_with_battery": true,
     "peripherals": [
       "OLED I2C",
@@ -38,7 +38,11 @@
     "passive_stock": "docs/awcar-passive-stock.json; loose parts owned, capacitor ratings unknown",
     "estop_owned": false,
     "external_connector_preference": "Plug-in connectors and pre-crimped cable assemblies similar to user image; exact series/pitch/rating not approved",
-    "external_connector_mounting": "Shrouded header soldered directly to carrier PCB; mating pre-crimped cable housing removable; user confirmed by close-up image"
+    "external_connector_mounting": "Shrouded header soldered directly to carrier PCB; mating pre-crimped cable housing removable; user confirmed by close-up image",
+    "charge_while_logic_on": true,
+    "battery_voltage_monitoring": "Measure pack voltage and warn low battery; no additional automatic low-battery motor lock requested",
+    "charging_input": "PENDING_USER_ADAPTER_DC_USB_C_OR_DESIGNER_CHOICE",
+    "charge_source_transfer_reset_policy": "PENDING_USER_CONTINUOUS_LOGIC_OR_LOCKED_RESET"
   },
   "net_contract": [
     {
@@ -474,7 +478,10 @@
     "safety hardware design and independent clock-loss path pending review",
     "new sensor GPIO assignments and module IO voltage not finalized",
     "PCB outline, standoffs, antenna/USB clearances deferred by user",
-    "Manual jumper procedure must be verified on actual boards; no automatic USB backfeed protection. DSN output/load and capacitor ESR/ripple/voltage transients unmeasured."
+    "Manual jumper procedure must be verified on actual boards; no automatic USB backfeed protection. DSN output/load and capacitor ESR/ripple/voltage transients unmeasured.",
+    "DSN IN+ currently shares VM_MOTOR; split logic feed before implementing motor supply cutoff",
+    "charger/load-sharing source path and input/reset policy not selected or implemented",
+    "protected pack voltage measurement circuit, ADC pin and warning thresholds not implemented"
   ],
   "sources": {
     "brain_config": {
@@ -503,6 +510,27 @@
   "pending_user_choices": [
     "exact plug-in connector series, pitch, wire gauge and supplier; candidates in docs/awcar-connector-selection.md",
     "actual module/header dimensions and revisions",
-    "assembly/component budget if needed for final part selection"
-  ]
+    "assembly/component budget if needed for final part selection",
+    "charging input: DC adapter vs USB-C/PD vs designer cost/size choice",
+    "logic continuity when connecting/disconnecting charge source"
+  ],
+  "power_architecture_review": {
+    "native_source_reviewed_at_commit": "c72a26e",
+    "native_schematic_satisfies_latest_power_requirements": false,
+    "observed_connections": {
+      "F1.2": "PACK_FUSED",
+      "SW1.1": "PACK_FUSED",
+      "SW1.2": "VM_MOTOR",
+      "U11.IN+": "VM_MOTOR"
+    },
+    "required_changes": [
+      "Split logic feed from motor disconnect path",
+      "Add motor supply disconnect plus independent driver disable",
+      "Select and implement charging/load-sharing path",
+      "Add protected pack voltage sensing and low-battery warning"
+    ],
+    "requirements_document": "docs/awcar-power-safety-requirements.md",
+    "charging_motor_inhibit": "INITIAL_DESIGN_PROPOSAL_NOT_IMPLEMENTED_OR_SEPARATELY_CONFIRMED",
+    "native_schematic_changed_for_new_power_requirements": false
+  }
 }

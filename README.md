@@ -16,6 +16,10 @@ khổ A3,60 phần tử/68 net, module cắm rút. Có tụ nguồn, tụ sát m
 jumper nguồn RUN/DEBUG. Bench ngspice chỉ kiểm tầng STBY ứng viên; nguồn
 USB/DSN thực, gate đầy đủ và footprint còn mở, chưa phát hành PCB.
 
+Yêu cầu nguồn mới: [E-stop cắt nhánh motor, sạc khi bật logic và đo pin](docs/awcar-power-safety-requirements.md).
+Native schematic còn phải tách nguồn DSN khỏi VM_MOTOR và bổ sung các khối
+ngắt/sạc/chia tải/đo trước khi triển khai layout.
+
 [Xem ảnh schematic A3](docs/awcar-schematic-a3.png) ·
 [Phóng to SVG](docs/awcar-schematic-a3.svg) ·
 [Mở thư mục KiCad](hardware/pcb/README.md).
