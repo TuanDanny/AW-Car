@@ -116,7 +116,11 @@
       "sensors",
       "STBY references and title-block clearance"
     ],
-    "exports": "build/awcar-a3-20261107/final-svg/aw_car.svg"
+    "exports": "build/awcar-a3-20261107/final-svg/aw_car.svg",
+    "repo_previews": {
+      "docs/awcar-schematic-a3.png": "0d1b67f15bcce3696bf91bf88f8a743162d242ca5608f0a19bcf45ed0c1702a1",
+      "docs/awcar-schematic-a3.svg": "49ecddd302da4a340bba1d1986a73692a12a911ab208ea110d68f030961a29ef"
+    }
   },
   "cleanup": {
     "old_pcb_concept_and_hierarchical_project_removed": true,

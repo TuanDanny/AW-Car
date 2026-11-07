@@ -12,6 +12,10 @@ khổ A3,60 phần tử/68 net, module cắm rút. Có tụ nguồn, tụ sát m
 jumper nguồn RUN/DEBUG. Bench ngspice chỉ kiểm tầng STBY ứng viên; nguồn
 USB/DSN thực, gate đầy đủ và footprint còn mở, chưa phát hành PCB.
 
+[Xem ảnh schematic A3](docs/awcar-schematic-a3.png) ·
+[Phóng to SVG](docs/awcar-schematic-a3.svg) ·
+[Mở thư mục KiCad](hardware/pcb/README.md).
+
 Top FPGA triển khai là **[`aw_car_top`](fpga/rtl/aw_car_top.sv)**, bọc lõi
 `drive_core`; chẩn đoán khi chạy đi qua STATUS v2 (RX/lệnh/mất mẫu/encoder/invariant),
 không xuất bus debug thành chân board. Cấu hình tổng hợp ở [`synth_aw_car.ys`](fpga/synth_aw_car.ys).

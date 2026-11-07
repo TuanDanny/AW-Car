@@ -8,6 +8,12 @@ Dây tín hiệu nối trực tiếp giữa các chân; các nhãn nguồn cùng
 Input bên trái, output bên phải, nguồn trên và GND dưới; chân hai chiều giữ
 nhóm giao tiếp. Module dự kiến cắm rút, không hàn cố định lên carrier.
 
+![Schematic đấu nối AW-Car A3](../../docs/awcar-schematic-a3.png)
+
+[Mở ảnh đầy đủ](../../docs/awcar-schematic-a3.png) ·
+[Mở SVG để phóng to](../../docs/awcar-schematic-a3.svg).
+Ảnh được xuất từ chính source KiCad đã kiểm thử; cập nhật ảnh khi đổi schematic.
+
 Thư mục này giữ source KiCad: project, schematic, thư viện symbol cục bộ
 `aw_car.kicad_sym`, `sym-lib-table` và model `generic-clamp.lib`. Đã bỏ các
 sheet/project tách và hình/script PCB concept cũ khỏi thư mục theo yêu cầu

@@ -7,6 +7,10 @@ tham chiếu ở [design inputs](awcar-schematic-design-inputs.json),
 [thiết kế lọc nguồn/jumper](awcar-a3-filter-design.md) và
 [báo cáo kiểm chứng](awcar-schematic-verification.json).
 
+[Ảnh schematic A3](awcar-schematic-a3.png) và
+[SVG phóng to](awcar-schematic-a3.svg) xuất từ bản KiCad đã kiểm thử;
+giữ đồng bộ khi sửa source trong `hardware/pcb`.
+
 - [Flash và kiểm tra reset/liên kết ba board06/11](../fpga/targets/tang_nano9k/flash-link-report.md),
   [JSON số đo](fpga-flash-link-evidence.json): reload Flash và reset LOCKED
   và power-cycle/ngắt dây đã thử; verify lịch sử FAIL; bổ sung công cụ phân loại và bản sửa Motion ở báo cáo.
