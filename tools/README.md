@@ -8,6 +8,8 @@ passive/BJT từ thư viện KiCad cài tại máy. Mặc định từ chối gh
 đã có; `--overwrite` sao lưu trước vào build, không dùng để ghi đè chỉnh tay
 chưa review. `check_awcar_schematic.py` kiểm netlist XML KiCad với contract
 UART/GPIO/audio/driver, jumper, tụ và đối chiếu toàn bộ60 phần tử/68 net;
+kiểm cả footprint ứng viên đã ghi trong manifest để phát hiện nhầm vỏ
+0805/1206. Có footprint không đồng nghĩa tụ tồn kho đã đạt định mức.
 `simulate_awcar_clamps.py` dùng ngspice DLL mô phỏng
 R/Q đọc từ netlist đó. Không có lệnh COM/flash/ARM hoặc phát hành PCB.
 Cách mở/chạy và giới hạn mô hình ở [KiCad](../hardware/pcb/README.md).

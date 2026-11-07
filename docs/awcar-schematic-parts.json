@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "status": "A3_CONNECTION_DRAFT_MANUAL_RUN_DEBUG_JUMPERS",
+  "status": "A3_DRAFT_SMD_STOCK_CANDIDATES_AND_REAR_REMOVABLE_JUMPERS",
   "provenance": {
     "source_commit": "7f0d8653227f5579a614ab18afb6865dd82b87fa",
     "baseline_export_sha256": "b4e0e8ff05c26f6024301a342650979c982440a27c454a07c8fd2217e0fcdff4",
@@ -8,7 +8,10 @@
     "approved_changes": [
       "A3, inputs left / outputs right / supply top / GND bottom",
       "13 added capacitors: 9 carrier decoupling/bulk, 4 non-polar motor-terminal capacitors off carrier",
-      "DSN target 5V to amplifier; manual RUN/DEBUG power jumper for each controller"
+      "DSN target 5V to amplifier; manual RUN/DEBUG power jumper for each controller",
+      "Prefer SMD; external PCB fabrication and owner hand assembly",
+      "Gate integrated on carrier; JP1-JP3 removable shunts on rear side",
+      "8 capacitor stock package candidates; voltage/dielectric not qualified"
     ]
   },
   "parts": [
@@ -16,7 +19,13 @@
       "ref": "C10",
       "symbol": "C",
       "value": "100n",
-      "properties": {},
+      "properties": {
+        "Stock_Group": "STOCK_C_100N_0805",
+        "Stock_Source_Label": "C6",
+        "Stock_Status": "LOOSE_OWNED_PENDING_VOLTAGE_DIELECTRIC",
+        "Stock_Rated_Voltage": "UNKNOWN",
+        "Footprint_Status": "CANDIDATE_GEOMETRY_ONLY_NOT_ELECTRICALLY_QUALIFIED"
+      },
       "pins": [
         {
           "number": "1",
@@ -40,13 +49,20 @@
       "nets": {
         "1": "3V3_MOTION",
         "2": "GND"
-      }
+      },
+      "footprint": "Capacitor_SMD:C_0805_2012Metric"
     },
     {
       "ref": "C9",
       "symbol": "C",
       "value": "100n",
-      "properties": {},
+      "properties": {
+        "Stock_Group": "STOCK_C_100N_0805",
+        "Stock_Source_Label": "C5",
+        "Stock_Status": "LOOSE_OWNED_PENDING_VOLTAGE_DIELECTRIC",
+        "Stock_Rated_Voltage": "UNKNOWN",
+        "Footprint_Status": "CANDIDATE_GEOMETRY_ONLY_NOT_ELECTRICALLY_QUALIFIED"
+      },
       "pins": [
         {
           "number": "1",
@@ -70,7 +86,8 @@
       "nets": {
         "1": "3V3_MOTION",
         "2": "GND"
-      }
+      },
+      "footprint": "Capacitor_SMD:C_0805_2012Metric"
     },
     {
       "ref": "F1",
@@ -666,7 +683,9 @@
       "ref": "J9",
       "symbol": "Gate_Interface",
       "value": "Gate/latch/watchdog required interface",
-      "properties": {},
+      "properties": {
+        "Design_Intent": "REPLACE_PLACEHOLDER_WITH_ON_CARRIER_GATE_LATCH_WATCHDOG_CIRCUIT"
+      },
       "pins": [
         {
           "number": "1",
@@ -2354,7 +2373,12 @@
         "Voltage_Rating": "50V",
         "Placement": "Carrier, at MAX98357A power socket",
         "Technology": "Non-polar ceramic X7R or suitable film",
-        "Design_Status": "INITIAL_VALUE_REQUIRES_SOURCE_AND_LOAD_MEASUREMENT"
+        "Design_Status": "INITIAL_VALUE_REQUIRES_SOURCE_AND_LOAD_MEASUREMENT",
+        "Stock_Group": "STOCK_C_100N_0805",
+        "Stock_Source_Label": "C4",
+        "Stock_Status": "LOOSE_OWNED_PENDING_VOLTAGE_DIELECTRIC",
+        "Stock_Rated_Voltage": "UNKNOWN",
+        "Footprint_Status": "CANDIDATE_GEOMETRY_ONLY_NOT_ELECTRICALLY_QUALIFIED"
       },
       "pins": [
         {
@@ -2380,7 +2404,8 @@
         "1": "5V_DSN_TARGET",
         "2": "GND"
       },
-      "on_board": true
+      "on_board": true,
+      "footprint": "Capacitor_SMD:C_0805_2012Metric"
     },
     {
       "ref": "C202",
@@ -2390,7 +2415,12 @@
         "Voltage_Rating": "10V",
         "Placement": "Carrier, at MAX98357A power socket",
         "Technology": "Non-polar ceramic X7R or suitable film",
-        "Design_Status": "INITIAL_VALUE_REQUIRES_SOURCE_AND_LOAD_MEASUREMENT"
+        "Design_Status": "INITIAL_VALUE_REQUIRES_SOURCE_AND_LOAD_MEASUREMENT",
+        "Stock_Group": "STOCK_C_10U_1206",
+        "Stock_Source_Label": "C1",
+        "Stock_Status": "LOOSE_OWNED_PENDING_VOLTAGE_DIELECTRIC",
+        "Stock_Rated_Voltage": "UNKNOWN",
+        "Footprint_Status": "CANDIDATE_GEOMETRY_ONLY_NOT_ELECTRICALLY_QUALIFIED"
       },
       "pins": [
         {
@@ -2416,7 +2446,8 @@
         "1": "5V_DSN_TARGET",
         "2": "GND"
       },
-      "on_board": true
+      "on_board": true,
+      "footprint": "Capacitor_SMD:C_1206_3216Metric"
     },
     {
       "ref": "C203",
@@ -2462,7 +2493,12 @@
         "Voltage_Rating": "50V",
         "Placement": "Carrier, at DRV8833 L VM/GND socket",
         "Technology": "Non-polar ceramic X7R or suitable film",
-        "Design_Status": "INITIAL_VALUE_REQUIRES_SOURCE_AND_LOAD_MEASUREMENT"
+        "Design_Status": "INITIAL_VALUE_REQUIRES_SOURCE_AND_LOAD_MEASUREMENT",
+        "Stock_Group": "STOCK_C_100N_0805",
+        "Stock_Source_Label": "C7",
+        "Stock_Status": "LOOSE_OWNED_PENDING_VOLTAGE_DIELECTRIC",
+        "Stock_Rated_Voltage": "UNKNOWN",
+        "Footprint_Status": "CANDIDATE_GEOMETRY_ONLY_NOT_ELECTRICALLY_QUALIFIED"
       },
       "pins": [
         {
@@ -2488,7 +2524,8 @@
         "1": "VM_MOTOR",
         "2": "GND"
       },
-      "on_board": true
+      "on_board": true,
+      "footprint": "Capacitor_SMD:C_0805_2012Metric"
     },
     {
       "ref": "C212",
@@ -2498,7 +2535,12 @@
         "Voltage_Rating": "25V",
         "Placement": "Carrier, at DRV8833 L VM/GND socket",
         "Technology": "Non-polar ceramic X7R or suitable film",
-        "Design_Status": "INITIAL_VALUE_REQUIRES_SOURCE_AND_LOAD_MEASUREMENT"
+        "Design_Status": "INITIAL_VALUE_REQUIRES_SOURCE_AND_LOAD_MEASUREMENT",
+        "Stock_Group": "STOCK_C_10U_1206",
+        "Stock_Source_Label": "C2",
+        "Stock_Status": "LOOSE_OWNED_PENDING_VOLTAGE_DIELECTRIC",
+        "Stock_Rated_Voltage": "UNKNOWN",
+        "Footprint_Status": "CANDIDATE_GEOMETRY_ONLY_NOT_ELECTRICALLY_QUALIFIED"
       },
       "pins": [
         {
@@ -2524,7 +2566,8 @@
         "1": "VM_MOTOR",
         "2": "GND"
       },
-      "on_board": true
+      "on_board": true,
+      "footprint": "Capacitor_SMD:C_1206_3216Metric"
     },
     {
       "ref": "C213",
@@ -2570,7 +2613,12 @@
         "Voltage_Rating": "50V",
         "Placement": "Carrier, at DRV8833 R VM/GND socket",
         "Technology": "Non-polar ceramic X7R or suitable film",
-        "Design_Status": "INITIAL_VALUE_REQUIRES_SOURCE_AND_LOAD_MEASUREMENT"
+        "Design_Status": "INITIAL_VALUE_REQUIRES_SOURCE_AND_LOAD_MEASUREMENT",
+        "Stock_Group": "STOCK_C_100N_0805",
+        "Stock_Source_Label": "C8",
+        "Stock_Status": "LOOSE_OWNED_PENDING_VOLTAGE_DIELECTRIC",
+        "Stock_Rated_Voltage": "UNKNOWN",
+        "Footprint_Status": "CANDIDATE_GEOMETRY_ONLY_NOT_ELECTRICALLY_QUALIFIED"
       },
       "pins": [
         {
@@ -2596,7 +2644,8 @@
         "1": "VM_MOTOR",
         "2": "GND"
       },
-      "on_board": true
+      "on_board": true,
+      "footprint": "Capacitor_SMD:C_0805_2012Metric"
     },
     {
       "ref": "C222",
@@ -2606,7 +2655,12 @@
         "Voltage_Rating": "25V",
         "Placement": "Carrier, at DRV8833 R VM/GND socket",
         "Technology": "Non-polar ceramic X7R or suitable film",
-        "Design_Status": "INITIAL_VALUE_REQUIRES_SOURCE_AND_LOAD_MEASUREMENT"
+        "Design_Status": "INITIAL_VALUE_REQUIRES_SOURCE_AND_LOAD_MEASUREMENT",
+        "Stock_Group": "STOCK_C_10U_1206",
+        "Stock_Source_Label": "C3",
+        "Stock_Status": "LOOSE_OWNED_PENDING_VOLTAGE_DIELECTRIC",
+        "Stock_Rated_Voltage": "UNKNOWN",
+        "Footprint_Status": "CANDIDATE_GEOMETRY_ONLY_NOT_ELECTRICALLY_QUALIFIED"
       },
       "pins": [
         {
@@ -2632,7 +2686,8 @@
         "1": "VM_MOTOR",
         "2": "GND"
       },
-      "on_board": true
+      "on_board": true,
+      "footprint": "Capacitor_SMD:C_1206_3216Metric"
     },
     {
       "ref": "C223",
@@ -2823,7 +2878,10 @@
       "symbol": "Jumper",
       "value": "RUN_BRAIN",
       "properties": {
-        "Operation": "RUN=shunt installed, USB unplugged; DEBUG=remove shunt BEFORE connecting USB. No automatic source selection."
+        "Operation": "RUN=shunt installed, USB unplugged; DEBUG=remove shunt BEFORE connecting USB. No automatic source selection.",
+        "PCB_Side_Intent": "BACK_SIDE_LAYOUT_PENDING",
+        "Assembly": "Removable shunt; THT 1x02 2.54mm header candidate",
+        "Footprint_Status": "CANDIDATE_HEIGHT_AND_ACCESS_CLEARANCE_PENDING"
       },
       "pins": [
         {
@@ -2848,14 +2906,18 @@
       "nets": {
         "1": "5V_DSN_TARGET",
         "2": "5V_BRAIN_RUN"
-      }
+      },
+      "footprint": "Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical"
     },
     {
       "ref": "JP2",
       "symbol": "Jumper",
       "value": "RUN_MOTION",
       "properties": {
-        "Operation": "RUN=shunt installed, USB unplugged; DEBUG=remove shunt BEFORE connecting USB. No automatic source selection."
+        "Operation": "RUN=shunt installed, USB unplugged; DEBUG=remove shunt BEFORE connecting USB. No automatic source selection.",
+        "PCB_Side_Intent": "BACK_SIDE_LAYOUT_PENDING",
+        "Assembly": "Removable shunt; THT 1x02 2.54mm header candidate",
+        "Footprint_Status": "CANDIDATE_HEIGHT_AND_ACCESS_CLEARANCE_PENDING"
       },
       "pins": [
         {
@@ -2880,14 +2942,18 @@
       "nets": {
         "1": "5V_DSN_TARGET",
         "2": "5V_MOTION_RUN"
-      }
+      },
+      "footprint": "Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical"
     },
     {
       "ref": "JP3",
       "symbol": "Jumper",
       "value": "RUN_TANG",
       "properties": {
-        "Operation": "RUN=shunt installed, USB unplugged; DEBUG=remove shunt BEFORE connecting USB. No automatic source selection."
+        "Operation": "RUN=shunt installed, USB unplugged; DEBUG=remove shunt BEFORE connecting USB. No automatic source selection.",
+        "PCB_Side_Intent": "BACK_SIDE_LAYOUT_PENDING",
+        "Assembly": "Removable shunt; THT 1x02 2.54mm header candidate",
+        "Footprint_Status": "CANDIDATE_HEIGHT_AND_ACCESS_CLEARANCE_PENDING"
       },
       "pins": [
         {
@@ -2912,7 +2978,8 @@
       "nets": {
         "1": "5V_DSN_TARGET",
         "2": "5V_TANG_RUN"
-      }
+      },
+      "footprint": "Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical"
     }
   ],
   "expected_nets": {

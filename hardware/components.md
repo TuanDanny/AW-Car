@@ -8,6 +8,13 @@ có điều kiện, không phải cấu hình motor hiện tại.
 Đây là mốc kiểm kê hiện tại; BOM trong issue #1 và sơ đồ ngày 24/10 là tham chiếu
 cũ. Chưa có kết quả đo điện hoặc kiểm thử tích hợp cho các món đã có.
 
+**Bổ sung07/11/2026:** chủ dự án có linh kiện rời theo ảnh:4 tụ10µF/1206,
+5 tụ100nF/0805,5 trở1kΩ/0805 và1 trở10Ω/0805; số lượng theo các ký hiệu
+liệt kê trên ảnh, chưa kiểm đếm độc lập. Định mức tụ chưa rõ. Phân bổ ứng
+viên và phần giữ dự phòng ở [kế hoạch tận dụng](../docs/awcar-passive-reuse.md),
+dữ liệu ở [kiểm kê tụ/trở](../docs/awcar-passive-stock.json). R8/DNP trên ảnh
+là vị trí không lắp, không được tính thêm một điện trở.
+
 ## 1. Linh kiện đã có
 
 | Mã | Linh kiện | Số lượng | Đã biết và việc cần xác nhận |

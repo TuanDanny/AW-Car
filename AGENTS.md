@@ -67,6 +67,11 @@
   mở jumper trước USB, đóng chỉ khi USB đã tháo; chưa có cách ly tự động.
   Dùng nhánh `feat/f04-pcb-schematic` theo quyết định tách nhánh07/11;
   không sửa target Tang, `hardware/cad` hoặc firmware đang chạy trong tác vụ PCB.
+  Chốt tiếp07/11: đặt xưởng làm PCB, chủ dự án tự hàn, ưu tiên SMD; gate
+  tích hợp trên carrier. JP1–JP3 là header/cầu nối rút được ở mặt sau,
+  không phải cầu thiếc. Chưa có layout nên mặt sau mới là yêu cầu bố trí.
+  Tụ rời trong ảnh có footprint0805/1206 nhưng chưa rõ điện áp/điện môi;
+  chỉ phân bổ ứng viên, không ghi thông số yêu cầu thành định mức hàng tồn.
   Symbol GPIO/package chưa phải footprint module; không tự gán số pad/lỗ gá.
   Mô hình STBY generic chưa thay gate/E-stop/watchdog đầy đủ. Không suppress
   ERC hoặc coi bench PASS là quyền phát hành PCB/mở driver. Giữ chỉnh tay;

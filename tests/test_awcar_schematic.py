@@ -125,6 +125,12 @@ class SchematicContractTests(unittest.TestCase):
         self.tree.find('./components/comp[@ref="C213"]/fields/field[@name="Voltage_Rating"]').text = "6.3V"
         with self.assertRaises(ValueError): self.run_check()
 
+    def test_stock_capacitor_wrong_package_rejected(self):
+        # A correct 10u value/net is insufficient if its 1206 stock is
+        # accidentally assigned 0805 pads for manufacture.
+        self.tree.find('./components/comp[@ref="C202"]/footprint').text = "Capacitor_SMD:C_0805_2012Metric"
+        with self.assertRaises(ValueError): self.run_check()
+
     def test_signal_pins_connected_by_wires_even_without_net_labels(self):
         # Remove every label, then have KiCad independently resolve physical
         # wires. A label-only collection of disconnected modules fails here.

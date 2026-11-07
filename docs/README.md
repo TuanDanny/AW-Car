@@ -10,6 +10,10 @@ tham chiếu ở [design inputs](awcar-schematic-design-inputs.json),
 [Hoàn thiện schematic trước layout](awcar-pcb-next-stage.md): các ref/net
 còn mở, thông số module thực cần xác nhận và thứ tự chốt nguồn/gate/giắc.
 
+[Tận dụng tụ/trở rời và yêu cầu lắp ráp](awcar-passive-reuse.md),
+[dữ liệu kiểm kê](awcar-passive-stock.json): footprint ứng viên0805/1206,
+định mức tụ còn thiếu; ưu tiên SMD, gate trên carrier, jumper rút được mặt sau.
+
 [Ảnh schematic A3](awcar-schematic-a3.png) và
 [SVG phóng to](awcar-schematic-a3.svg) xuất từ bản KiCad đã kiểm thử;
 giữ đồng bộ khi sửa source trong `hardware/pcb`.

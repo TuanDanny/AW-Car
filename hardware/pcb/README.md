@@ -27,9 +27,17 @@ trước `tang-nano9k-target/AW-Car`, trong
 đưa cache/lịch sử cục bộ đó vào nhánh PCB trên GitHub.
 
 **Chưa tạo layout.** Khi schematic và thành phần được chốt, layout native
-sẽ đặt ngay đây với tên `aw_car.kicad_pcb`; chưa có footprint/pad/outline
-hoặc Gerber được duyệt. GPIO ESP32 và mã package Tang trên symbol là ID
+sẽ đặt ngay đây với tên `aw_car.kicad_pcb`; footprint/pad/outline
+và Gerber chưa được duyệt. Đã gán ứng viên footprint0805/1206 cho8 tụ
+và header1×2 bước2,54mm cho3 jumper. GPIO ESP32 và mã package Tang trên symbol là ID
 logic để đối chiếu đấu dây, chưa phải số pad header của devboard/module.
+
+Chủ dự án chọn **đặt xưởng làm bo, tự hàn, ưu tiên SMD; gate trên carrier**.
+JP1–JP3 dùng header/cầu nối rút được **ở mặt sau**; thuộc tính schematic
+ghi yêu cầu này, chờ đặt/lật footprint và kiểm khoảng hở ở layout.
+[Linh kiện rời tận dụng](../../docs/awcar-passive-reuse.md): dành5 tụ100nF,
+3 tụ10µF; định mức tụ chưa rõ nên chưa xác nhận đủ điều kiện lắp. Các
+trở1kΩ/10Ω để dự phòng, không thay các giá trị tầng STBY hiện tại.
 
 Nguồn trên xe:2S cấp VM driver trực tiếp; DSN6000AUD mục tiêu5,0V cấp amp
 và ba board qua jumper riêng: JP1 Brain, JP2 Motion, JP3 Tang. **Đổi jumper
@@ -45,12 +53,12 @@ với dây loa/motor dự kiến<=20cm. Chi tiết và nguồn tham chiếu ở
 
 Các phần còn mở trong [dữ liệu thiết kế](../../docs/awcar-schematic-design-inputs.json):
 nguồn/USB trên board thực, BMS/sạc/cầu chì, GPIO cảm biến, header/footprint,
-tải DSN và giá trị/ESR/ripple tụ. J9 là **interface gate cần triển khai**,
-chưa phải gate/E-stop/watchdog độc lập đầy đủ. Chưa nghiệm thu nguồn motor.
+tải DSN và giá trị/ESR/ripple tụ. J9 là **khối giao tiếp chờ thay bằng gate
+trên carrier**, chưa phải gate/E-stop/watchdog độc lập đầy đủ. Chưa nghiệm thu nguồn motor.
 
 [Trình tự hoàn thiện schematic trước layout](../../docs/awcar-pcb-next-stage.md)
-ghi rõ từng ref/net còn mở, thông số cần lấy từ module thực và ba lựa chọn
-đang chốt về gate, cách hàn và đầu nối. Tiếp tục tại worktree `aw-car-pcb`;
+ghi rõ từng ref/net còn mở, thông số cần lấy từ module thực và các lựa chọn
+đã chốt về gate/cách hàn/jumper; họ đầu nối dây còn mở. Tiếp tục tại worktree `aw-car-pcb`;
 bản project trong worktree Tang cũ được giữ để đối chiếu chỉnh sửa trước đó.
 
 ## Kiểm tra và mô phỏng

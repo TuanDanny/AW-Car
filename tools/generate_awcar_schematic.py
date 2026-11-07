@@ -364,7 +364,7 @@ class Sheet:
             prop_val = prop("Value", visible, y-height/2-1.27, offset)
         inst = [f'(symbol (lib_id "AWCAR:{name}") (at {x:g} {y:g} 0) (unit 1)',
             f'(in_bom yes) (on_board {"yes" if part.get("on_board", True) else "no"}) (dnp no)', f'(uuid {q(uid(ref))})', prop_ref, prop_val,
-            f'(property "Footprint" "" (at {x:g} {y:g} 0) {effects(.9, "(hide yes)")})',
+            f'(property "Footprint" {q(part.get("footprint", ""))} (at {x:g} {y:g} 0) {effects(.9, "(hide yes)")})',
             f'(property "Review_Status" "DRAFT_NOT_FOR_PCB" (at {x:g} {y:g} 0) {effects(.9, "(hide yes)")})',
             f'(property "Description" {q(part["value"])} (at {x:g} {y:g} 0) {effects(.9, "(hide yes)")})']
         for key, val in part["properties"].items():

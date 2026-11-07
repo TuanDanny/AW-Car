@@ -29,7 +29,14 @@
     "passive_placement": "Supply capacitors on carrier, motor suppression capacitors at motor terminals",
     "filter_scope": "Basic capacitors first, no output ferrites/inductors until measurements justify them",
     "source_topology": "2S direct VM, DSN6000AUD target 5V to amplifier and controllers via individual manual RUN/DEBUG jumpers",
-    "usb_debug_selection": "Remove jumper for the board BEFORE connecting USB; USB removed BEFORE reinstalling RUN jumper; amplifier stays on DSN"
+    "usb_debug_selection": "Remove jumper for the board BEFORE connecting USB; USB removed BEFORE reinstalling RUN jumper; amplifier stays on DSN",
+    "pcb_fabrication": "External PCB fabricator; owner hand soldering, not home etched PCB",
+    "assembly_preference": "Prefer SMD; reported loose capacitor stock 0805 and 1206",
+    "safety_gate_location": "Integrated on main carrier; actual circuit still pending",
+    "run_debug_jumper_style": "Removable pin header and shunt, not solder bridge",
+    "run_debug_jumper_side": "Rear side; physical access/clearance pending layout",
+    "passive_stock": "docs/awcar-passive-stock.json; loose parts owned, capacitor ratings unknown",
+    "estop_owned": false
   },
   "net_contract": [
     {
@@ -492,8 +499,8 @@
   "limits": "Logical GPIO numbers are not physical header or footprint pad numbers. No guessed footprints or Gerber release.",
   "updated_date": "2026-11-07",
   "pending_user_choices": [
-    "safety gate integrated on carrier vs separate removable gate board; controller modules remain removable",
-    "assembly/package preference and budget",
-    "external power/motor/signal connector families and cable termination preference"
+    "external power/motor/signal connector families and cable termination preference",
+    "actual module/header dimensions and revisions",
+    "assembly/component budget if needed for final part selection"
   ]
 }

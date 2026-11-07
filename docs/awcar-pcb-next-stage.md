@@ -11,9 +11,13 @@ khi chuyển sang project hiện tại.
 Schematic một trang A3 có 60 phần tử/68 net. Đã có dây UART/GPIO, nguồn
 qua ba jumper RUN/DEBUG, bốn cầu H độc lập, audio/OLED và tụ ứng viên.
 Module cắm rút; C301–C304 lắp tại motor, không đặt lên carrier.
-Chưa có layout, footprint hoặc đầu nối vật lý được duyệt.
+Chủ dự án đã chọn đặt xưởng làm PCB, tự hàn và ưu tiên SMD; gate nằm trên
+carrier, jumper RUN/DEBUG dạng header/cầu nối rút được ở mặt sau. Đã gán
+ứng viên footprint cho8 tụ và3 jumper; chưa có layout hoặc footprint/đầu
+nối vật lý được duyệt. [Phân bổ đồ có sẵn](awcar-passive-reuse.md) giữ rõ
+điện áp/điện môi tụ còn thiếu.
 
-Lượt kiểm tra này: 97/97 unittest đạt, KiCad ERC 0 vi phạm và checker
+Lượt kiểm tra sau bổ sung đồ rời: 98/98 unittest đạt, KiCad ERC 0 vi phạm và checker
 netlist đạt 10 nhóm contract. Đây là kiểm chứng source/kết nối; chưa kiểm
 nguồn thực, dòng tải, cơ khí hay gate hoàn chỉnh. Không suy ra sẵn sàng sản xuất.
 
@@ -21,7 +25,7 @@ nguồn thực, dòng tải, cơ khí hay gate hoàn chỉnh. Không suy ra sẵ
 
 | Phần | Có trong source | Cần chốt trước footprint/layout |
 | --- | --- | --- |
-| Gate/E-stop | J9 là interface; Q101/Q102 và Q111/Q112 là tầng STBY ứng viên | Gate trên carrier hay bo cắm rời; linh kiện chốt lỗi, giám sát nguồn/sự sống độc lập, đường E-stop và trình tự clear |
+| Gate/E-stop | J9 là interface chờ thay bằng mạch trên carrier; Q101/Q102 và Q111/Q112 là tầng STBY ứng viên | Linh kiện chốt lỗi, giám sát nguồn/sự sống độc lập, đường E-stop và trình tự clear |
 | Nguồn pack | J30 nhận đầu ra pack đã bảo vệ, F1 còn `RATING_TBD` | Mã cell, cấu hình pack/BMS, đầu sạc, dòng khởi động/kẹt; sau đó chọn cầu chì/dây/đầu nối |
 | Nguồn logic/loa | U11 DSN mục tiêu 5 V, JP1/2/3 tách từng controller | Đo DSN ở tải thực, đường USB trên đúng board và cấp ngược qua tín hiệu khi một board mất nguồn |
 | Nguồn cảm biến | `5V_SENSOR_SOURCE_TBD`, `3V3_SENSORS_TBD` | Nguồn cụ thể và ngân sách dòng; hiện chưa nối các net này tới nguồn thực |
@@ -39,10 +43,12 @@ logic theo contract là 3,3 V; số package Tang không phải số thứ tự l
 
 ## Trình tự tiếp tục
 
-1. Chốt ba lựa chọn đang hỏi: vị trí gate, cách hàn và họ đầu nối. Giữ các
-   quyết định đã có: DSN cấp 5 V, VM trực tiếp 2S, jumper riêng từng board,
-   module cắm rút và tụ motor ngoài carrier.
-2. Hoàn thiện nguồn/gate/cảm biến trên chính schematic A3. Gate cần sơ đồ
+1. Chốt họ đầu nối dây còn mở, đối chiếu đồ rời đang có và kích thước
+   module. Vị trí gate/cách hàn/jumper đã được trả lời; giữ DSN cấp 5 V,
+   VM trực tiếp 2S, jumper riêng từng board, module cắm rút và tụ motor
+   ngoài carrier. Chừa chỗ tiếp cận cầu nối và đầu hàn phía dưới PCB.
+2. Hoàn thiện nguồn/gate/cảm biến trên chính schematic A3. Chủ dự án xác
+   nhận chưa có nút E-stop, cần chọn cùng mạch gate. Gate cần sơ đồ
    mạch thực; không dùng khối J9 hoặc một cổng AND như bằng chứng đã có
    watchdog/chốt lỗi. Thiết kế giám sát mất clock phải chỉ rõ tín hiệu được
    giám sát; permit tĩnh không chứng minh FPGA còn chạy.

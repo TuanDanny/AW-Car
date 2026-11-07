@@ -2,18 +2,18 @@
   "date": "2026-11-07",
   "branch": "feat/f04-pcb-schematic",
   "base_commit": "382fbbe",
-  "status": "A3_INPUT_LEFT_OUTPUT_RIGHT_FILTER_AND_MANUAL_JUMPER_DRAFT",
+  "status": "A3_DRAFT_SMD_STOCK_PACKAGE_CANDIDATES_REAR_SHUNT_JUMPERS",
   "native_main_sheets": 1,
   "paper": "A3",
   "kicad_version": "10.0.6",
   "sources_sha256": {
     "aw_car.kicad_pro": "658374c275ab2285e29b059cfcfd97e63b2798cb109410dd2cc7a42d37eb4c68",
-    "aw_car.kicad_sch": "afb0e973a572ad1d184de21589851cc37a3b505046cc1022909fdf423ff5cbff",
+    "aw_car.kicad_sch": "bc998fbd941ad350a5ee1346b44451201cec6a7d4fab43545fe7657b37cdc23a",
     "aw_car.kicad_sym": "d6e8ca830d0e2f672321890da23eb866acb475d74242f817ad7c76f28ef0e727",
     "generic-clamp.lib": "f00991eee192afb8c89f4e60f469f836006d4337b972f235d1bbc9c3e8fc2049",
     "sym-lib-table": "b6db454b24479108521d9febe1b91ac84cf8a92cac3272b4a9e8a6297002f994"
   },
-  "manifest_sha256": "16353df63c8eb3344c79076a2bca8d116f1da6ec340c07b1256d415e24cf9286",
+  "manifest_sha256": "3fa31fdb9a69660dc3c1781c2c18391847e8ca2616891a9f780302f00b3ad36e",
   "native_wire_segments": 383,
   "pin_contract": {
     "pin_contract_passed": true,
@@ -32,7 +32,7 @@
     ],
     "components": 60,
     "nets": 68,
-    "exported_netlist_sha256": "b3fd9b1931dfb100b0bb0015d132f1fb419e099b98ab6b2ff2605ffc7ac45f84",
+    "exported_netlist_sha256": "65713642e68180533c16aef74fd0c5dade51f87c257f0b1125f9f142e3e492cb",
     "schematic_release_ready": false,
     "limits": "Logical module IDs only; power/gate/USB/footprints unresolved. Not ERC/electrical/hardware sign-off."
   },
@@ -81,9 +81,9 @@
   "tests": {
     "unittest_command": "python -m unittest discover -s tests",
     "returncode": 0,
-    "total": 97,
+    "total": 98,
     "skipped": 0,
-    "native_schematic_tests": 17,
+    "native_schematic_tests": 18,
     "pcb_source_preservation_tests": 5,
     "signal_wire_check": "All 53 non-power groups connected after stripping ALL labels and exporting with KiCad.",
     "harmful_mutations_rejected": [
@@ -101,7 +101,8 @@
       "reversed electrolytic",
       "polarized motor capacitor",
       "motor capacitor on carrier",
-      "underrated VM bulk cap"
+      "underrated VM bulk cap",
+      "wrong 0805/1206 stock capacitor footprint"
     ]
   },
   "visual_review": {
@@ -120,6 +121,10 @@
     "repo_previews": {
       "docs/awcar-schematic-a3.png": "0d1b67f15bcce3696bf91bf88f8a743162d242ca5608f0a19bcf45ed0c1702a1",
       "docs/awcar-schematic-a3.svg": "49ecddd302da4a340bba1d1986a73692a12a911ab208ea110d68f030961a29ef"
+    },
+    "stock_update_preview_check": {
+      "visible_preview_unchanged": true,
+      "method": "native SVG normalized comparison, raster fallback if needed"
     }
   },
   "cleanup": {
@@ -171,5 +176,24 @@
       "new_worktree_contract_sha256": "a52f29e066b7250669b249b111ea1b0beac83bed567ef0063ce1f9366145d7ce",
       "fpga_firmware_cad_diff_from_shared_base": []
     }
+  },
+  "stock_update": {
+    "source_before_metadata_sha256": "afb0e973a572ad1d184de21589851cc37a3b505046cc1022909fdf423ff5cbff",
+    "inventory": "docs/awcar-passive-stock.json",
+    "inventory_sha256": "92d7e573a35c2028478d9f006e0bcc4ccfd9c04ac81806368abacb5f217581af",
+    "candidate_capacitor_footprints": 8,
+    "candidate_removable_jumper_footprints": 3,
+    "jumper_side": "BACK_SIDE_INTENT_ONLY_NO_LAYOUT",
+    "stock_voltage_and_dielectric_qualified": false,
+    "all_11_candidate_footprints_exist_in_installed_kicad_library": true,
+    "candidate_footprint_pad_ids_checked": [
+      "1",
+      "2"
+    ],
+    "only_hidden_schematic_metadata_changed": true,
+    "net_connectivity_changed": false,
+    "gate_placement_decision": "INTEGRATED_ON_CARRIER_CIRCUIT_NOT_YET_IMPLEMENTED",
+    "simulation_rerun": false,
+    "simulation_note": "Historical STBY simulation above retains its original netlist hash. No R/C/Q values or connectivity changed; no new simulation of unqualified stock parts claimed."
   }
 }

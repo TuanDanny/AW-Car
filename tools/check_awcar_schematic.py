@@ -133,6 +133,9 @@ def check(source):
         raise ValueError(f"Connection differs from reviewed manifest: {different}")
     if set(n.components) != {p["ref"] for p in baseline["parts"]}:
         raise ValueError("Component inventory differs from reviewed manifest")
+    for part in baseline["parts"]:
+        if "footprint" in part and n.components[part["ref"]].findtext("footprint", "") != part["footprint"]:
+            raise ValueError(f"Footprint differs from reviewed candidate: {part['ref']}")
     checks.append("all_nets_and_components_match_reviewed_manifest")
     return {"pin_contract_passed": True, "manifest_equivalence_passed": True, "checks": checks, "components": len(n.components),
             "nets": len(n.nets), "exported_netlist_sha256": hashlib.sha256(Path(source).read_bytes()).hexdigest(),

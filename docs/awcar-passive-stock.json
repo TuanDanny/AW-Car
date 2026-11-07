@@ -1,0 +1,53 @@
+{
+  "date": "2026-11-07",
+  "source": "User image codex-clipboard-337eea86-dc3e-4693-9b28-b11e69d91dab.png and chat replies",
+  "ownership": "USER_CONFIRMED_LOOSE_PARTS",
+  "quantity_basis": "Counts inferred from reference lists in image; not independently recounted",
+  "electrical_qualification": "UNKNOWN_CAPACITOR_VOLTAGE_DIELECTRIC_TOLERANCE_AND_MPN",
+  "groups": [
+    {
+      "id": "STOCK_C_10U_1206",
+      "value": "10u",
+      "source_labels": ["C1", "C2", "C3", "C9"],
+      "reported_quantity": 4,
+      "footprint": "Capacitor_SMD:C_1206_3216Metric",
+      "rated_voltage_v": null,
+      "dielectric": null,
+      "allocations": {"C202": "C1", "C212": "C2", "C222": "C3"},
+      "spare_source_labels": ["C9"],
+      "approved_for_population": false
+    },
+    {
+      "id": "STOCK_C_100N_0805",
+      "value": "100n",
+      "source_labels": ["C4", "C5", "C6", "C7", "C8"],
+      "reported_quantity": 5,
+      "footprint": "Capacitor_SMD:C_0805_2012Metric",
+      "rated_voltage_v": null,
+      "dielectric": null,
+      "allocations": {"C201": "C4", "C9": "C5", "C10": "C6", "C211": "C7", "C221": "C8"},
+      "spare_source_labels": [],
+      "approved_for_population": false
+    },
+    {
+      "id": "STOCK_R_1K_0805",
+      "value": "1k",
+      "source_labels": ["R1", "R2", "R3", "R4", "R5"],
+      "reported_quantity": 5,
+      "footprint": "Resistor_SMD:R_0805_2012Metric",
+      "allocations": {},
+      "status": "SPARE_NO_MATCH_TO_CURRENT_CLAMP_VALUES"
+    },
+    {
+      "id": "STOCK_R_10R_0805",
+      "value": "10",
+      "source_labels": ["R9"],
+      "reported_quantity": 1,
+      "footprint": "Resistor_SMD:R_0805_2012Metric",
+      "allocations": {},
+      "status": "SPARE_NO_CURRENT_CIRCUIT_REQUIREMENT"
+    }
+  ],
+  "unpopulated_source_pads": [{"label": "R8", "status": "DNP_NOT_AN_OWNED_COMPONENT"}],
+  "limits": "Image labels identify stock only, not AW-Car schematic references. Footprints describe geometry, not voltage or effective capacitance. Allocations reserve candidates; they do not authorize assembly of unqualified capacitors."
+}
