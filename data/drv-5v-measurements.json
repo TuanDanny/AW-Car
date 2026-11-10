@@ -1,0 +1,23 @@
+{
+  "date": "2026-11-10",
+  "scope": "Manual Web to Motion to SPI to FPGA to real DRV8833, USB VM about5V, no motors",
+  "method": "User-operated DC multimeter, red BO1 and black BO2 on the module being measured",
+  "speed_percent": 100,
+  "motion_build": "simplev1-3196afc4efb1",
+  "fpga_usercode": "0x0000A6C1",
+  "actions": ["forward", "backward", "left", "right"],
+  "left_reported_approx_v": [5.1, -5.1, -5.1, 5.1],
+  "right_expected_approx_v": [5.1, -5.1, 5.1, -5.1],
+  "right_user_confirmed_expected_signs_and_levels": true,
+  "right_individual_readings_transcribed": false,
+  "initial_left_turn_zero": "Not reproduced when holding the command; user then reported about-5.1V. Initial cause not established",
+  "passed_scope": "Full-duty polarity on B bridge of both modules, four Manual directions",
+  "not_measured": [
+    "A bridges on the new simplev1 firmware",
+    "PWM frequency with a scope or logic analyzer",
+    "30percent differential voltage under a resistor load",
+    "Voice-commanded bridge voltage",
+    "Motor current or actual motion",
+    "2S battery operation"
+  ]
+}

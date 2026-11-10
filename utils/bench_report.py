@@ -29,7 +29,7 @@ def summarize(motion: Path, brain: Path | None, after_ms=0, before_ms=None):
         if key != previous:
             transitions.append(row)
             previous = key
-    result = {'scope': 'real USB-powered boards; VM off, no motors. Duty/ACK is not voltage/speed proof',
+    result = {'scope': 'Console command/ACK evidence only. Power/motor state is not inferred. Duty/ACK is not voltage/speed proof',
               'raw_logs_committed': False, 'observations': len(rows), 'transitions': transitions}
     if rows:
         result['last'] = rows[-1]

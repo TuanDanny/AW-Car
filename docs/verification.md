@@ -1,8 +1,10 @@
 # Kiểm chứng simplev1 — 10/11/2026
 
 Mốc hiện tại: source cho ba board đã build và nạp; Manual/AI có duty đúng dấu và
-ACK SPI trên phần cứng thật. **VM ngắt, chưa motor**. Không có PIN/ARM/Gate handshake
-cũ. Không coi mốc này là xe đã chạy hoặc nghiệm thu nguồn2S/PID.
+ACK SPI trên phần cứng thật. Các lượt log đầu giữ VM ngắt; sau đó người dùng cấp
+**VM USB khoảng5V, chưa motor** và đo được bốn chiều đúng trên cầuB cả hai DRV.
+Không có PIN/ARM/Gate handshake cũ. Không coi mốc này là xe đã chạy hoặc nghiệm thu
+nguồn2S/PID.
 
 ## Build và kiểm thử phần mềm
 
@@ -70,6 +72,21 @@ Giữ tiếng Trung, BOOT/Web nghe, mic, loa, OLED. Người dùng xác nhận O
 bình thường sau bản vá cuối. AI lùi đã kiểm policy/action trên host; chưa tách
 được một câu thoại lùi thành công trong cửa sổ log thật, chưa đánh dấu đạt riêng.
 
+Lượt DMM cuối ởManual100%, đỏBO1/đenBO2, không motor:
+
+| Lệnh | DRV trái | DRV phải |
+| --- | ---: | ---: |
+| Tiến | +5,1V | khoảng+5,1V |
+| Lùi | −5,1V | khoảng−5,1V |
+| Quay trái | −5,1V | khoảng+5,1V |
+| Quay phải | +5,1V | khoảng−5,1V |
+
+Trái là số người dùng đọc; phải người dùng xác nhận đúng bốn giá trị dự kiến,
+không chép từng số riêng. Lần trái0V ban đầu không tái hiện khi giữ nút lâu hơn;
+nguyên nhân ban đầu chưa kết luận. Kết quả này xác nhận đường Manual đầy đủ tới
+cầuH-B thật, không thay đo cầuA, điện áp thoại hoặc PWM30%. Dữ liệu ở
+`data/drv-5v-measurements.json`.
+
 Mẫu cuối52 input: Motion timestamp nhận yêu cầu → ngay trước gọi API SPI:
 p50 **248µs**, p95 **384µs**, p99/max **1.577µs**. Mẫu nhỏ này đạt mục tiêu ban đầu
 5/10ms, chưa phải benchmark1.000lệnh Web trên ESP hoặc độ trễ toàn xe.
@@ -100,8 +117,9 @@ trên ESP trong task log nền, không phải localhost. Lần đọc20s cuối 
   trộn các lỗi có chủ đích này vào số liệu vận hành trước nạp.
 - Chỉ một encoder thật ởP28, chưa gắn trục/đo vòng: RTL đã test xung, chưa nghiệm
   thu encoder trên bitstream mới bằng quay đúng vòng hoặc PID. PID giữ tắt.
-- Chưa đo GPIO PWM/DRV đầu ra trên **bản simplev1**; kết quả cầu H ở bản cũ không
-  thay phép đo mới. Chưa motor, pin2S, giới hạn dòng, hiệu chuẩn, E-stop/gate vật lý.
+- Đã đo cực tính cầuB haiDRV trên simplev1 ở100%; chưa đo cầuA/PWM bằng dụng cụ
+  bắt xung hoặc điện áp30% có tải trở. Chưa motor, pin2S, giới hạn dòng, hiệu chuẩn,
+  E-stop/gate vật lý. Kết quả cầuH bản cũ không được tính là phép đo mới.
 - 30phút/28.768lệnh là host; soak30phút trên ESP thật vẫn còn lại. Bộ đếm thực
   đã vượt1.000input nhưng chưa có trace đầy đủ cho mọi input hoặc thời gian toàn xe.
 

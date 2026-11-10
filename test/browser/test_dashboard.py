@@ -259,13 +259,20 @@ class DashboardTests(unittest.TestCase):
 
     def test_03_release_older_key_keeps_latest(self):
         self.page.keyboard.down("w")
+        self.wait(lambda: bool(self.probe.commands("drive")) and self.probe.commands("drive")[-1].get("action") == "forward")
         self.page.keyboard.down("a")
+        # Keyboard RPC completion does not drain Playwright's WebSocket observer.
+        # Establish the LEFT frame boundary before marking; otherwise an earlier
+        # FORWARD notification can arrive after marker on a busy CI runner.
+        self.wait(lambda: bool(self.probe.commands("drive")) and self.probe.commands("drive")[-1].get("action") == "left")
         marker = len(self.probe.sent)
         self.page.keyboard.up("w")
-        self.page.wait_for_timeout(130)
+        self.wait(lambda: len(self.probe.commands("drive", marker)) >= 2,
+                  "Latest held key must continue repeating after the older key releases", timeout=1)
         self.assertFalse(self.probe.commands("neutral", marker))
         frames = self.probe.commands("drive", marker)
-        self.assertTrue(frames and all(value["action"] == "left" for value in frames))
+        self.assertTrue(frames and all(value["action"] == "left" for value in frames), frames)
+        self.assertEqual(self.sim_state()["action"], "left")
         self.page.keyboard.up("a")
         self.wait_zero()
 

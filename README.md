@@ -20,5 +20,5 @@ build thành công là bằng chứng xe đã chạy. Phép thử phần cứng 
 
 Đọc [build/nạp/thu log](docs/build.md) và [báo cáo kiểm chứng](docs/verification.md).
 Ngày10/11: Manual bốn hướng và AI quay trái/phải đã có log SPI trên ba board;
-VM ngắt, chưa motor. PID mặc định tắt. Không dùng kết quả tín hiệu này làm nghiệm thu
-điện áp cầu H, nguồn2S hoặc cơ khí xe.
+cầuB cả haiDRV đã đo đúng cực tính ở100% với VM USB khoảng5V, chưa motor.
+PID mặc định tắt. Chưa nghiệm thu cầuA trên bản mới, nguồn2S hoặc cơ khí xe.

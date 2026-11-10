@@ -4,8 +4,8 @@ Tang Nano9K GW1NR-LV9QN88PC6/I5, một clock 27 MHz, SystemVerilog thuần.
 Đây là triển khai mới cho [contract](../docs/protocol.md), không tương thích UART
 FPGA cũ. [RTL](rtl/README.md), [target](targets/tang_nano9k/README.md),
 [test](../test/rtl/README.md). Đã thử SRAM, lưu embedded Flash và nạp lại từ Flash;
-SPI với Motion và dấu duty Manual/AI có log board thật. VM vẫn ngắt, chưa đo DRV
-hoặc chạy motor. Xem [báo cáo kiểm chứng](../docs/verification.md).
+SPI với Motion và dấu duty Manual/AI có log board thật. Đã đo đúng cực tính cầuB
+haiDRV ởManual100%, VM USB khoảng5V, chưa motor. Xem [báo cáo kiểm chứng](../docs/verification.md).
 
 ```powershell
 C:/Espressif/python_env/idf6.1_py3.13_env/Scripts/python.exe utils/build_fpga.py
