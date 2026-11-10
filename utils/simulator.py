@@ -110,6 +110,10 @@ class Native:
                 ok = True
         if not ok:
             self.rejected += 1
+        # Firmware consumes its input batch, then ticks, then publishes a
+        # snapshot. Do not expose target()'s intermediate Released reason with
+        # the previous live duty when a STATUS immediately follows a repeat.
+        self.event(0)
         return {"t": "result", "ok": ok, "reason": "received" if ok else "rejected"}
 
 async def app_context(app):

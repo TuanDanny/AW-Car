@@ -184,6 +184,13 @@ thu công suất, nguồn2S hoặc phép đo độ trễ toàn xe.
 
 ## Danh sách bằng chứng skeleton
 
+CI bổ sung simplev1 trên13248d9 bắt được race ở simulator: STATUS sau repeat
+đôi lúc nằm giữa target() và tick(), công bố Released cùng duty405 nên observer
+chưa xác nhận. Firmware Motion thật đã input→tick→snapshot trong cùng task.
+Simulator nay thực hiện tick trước publish; tái hiện độc lập trước405/Released,
+sau405/Active và thêm ca browser25. Không sửa firmware/timeout/đi dây hoặc đổi
+các số đo điện thoại để xử lý một lỗi mô hình host.
+
 Ngày10/11 có thêm [92mẫu điện thoại thật](latency-results.md): p95 bấm→STATUS
 125,2ms, max221,4ms; Motion→trước SPI p99=0,668ms, max2,045ms. Chưa đạt hết
 budget chẩn đoán và chưa đo cạnh PWM. Frame/ACK SPI tăng nhiều trong lượt này;

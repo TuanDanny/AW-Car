@@ -35,6 +35,11 @@ touch3giây qua nhiều STATUS; ca22 xác nhận AI bỏ duration chạy3giây. 
 Ca23/24 kiểm observer `/#latency`: đủ bốn nút, giá trị timestamp hợp lệ và hủy
 lượt đo khi generation đổi. Observer dùng native WebSocket, không proxy.
 
+Ca25 gửi repeat và STATUS liền nhau: simulator phải chạy input→tick→snapshot
+như firmware, không công bố reason Released trung gian kèm duty đang khác0.
+Đã tái hiện trước sửa:405/Released; sau sửa:405/Active. Không nới timeout của
+observer hoặc bỏ assertion để che lỗi đồng bộ trong mô hình host.
+
 Ca AI dùng `/sim/event` để kiểm tra thời lượng native, STOP/generation cũ và
 AI tiếp tục khi đóng Web. Mỗi test reset simulator; không chạy đồng thời một
 suite khác cùng cổng. Thời gian bấm/chu kỳ giữ đo trên browser/host, không
