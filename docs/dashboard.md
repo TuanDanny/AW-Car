@@ -21,7 +21,7 @@ HTTPS. AP Motion: `AW-CAR` / `123456789`, địa chỉ `http://192.168.4.1`.
   Thanh STOP cố định dưới màn hình, kể cả khi cuộn trên điện thoại.
 - **AI** khóa bốn nút Manual. STOP, đổi mode, Bắt đầu nghe và Dừng nghe vẫn
   dùng được. Web không phân xử lệnh AI và không kéo dài thời lượng AI.
-- **Wi-Fi Internet cho Brain** gửi tên mạng/mật khẩu qua Motion tới Brain.
+- **Wi-Fi AI và quản trị** lưu mạng trên Motion và gửi tên mạng/mật khẩu tới Brain.
   Không đổi kết nối AP của điện thoại. SSID 1–32 byte, mật khẩu 0–64 byte UTF-8;
   mật khẩu trống dành cho mạng mở. Trang xóa ô mật khẩu ngay khi gửi, không
   log, lưu localStorage/cookie, ghi URL hay hiển thị lại mật khẩu. Trạng thái
@@ -33,6 +33,11 @@ Press gửi `{"t":"drive","action":"forward","speed":30}` ngay trong sự kiện
 bấm; lặp mỗi 50 ms khi giữ. Nút/phím mới thay nút cũ. Thả nút mới nhất gửi
 `{"t":"neutral"}` và không khôi phục nút/phím trước; thả nút cũ không ảnh hưởng
 nút mới. Không có hàng đợi MOVE hoặc khôi phục thao tác sau STOP/đổi mode.
+
+Socket bận ngắn thì bỏ lần lặp đó, giữ thao tác vật lý; không xếp thêm MOVE.
+Tắc liên tục150ms thì hủy giữ, gửi neutral và cần nhấn lại. STATUS cũng không
+xếp thêm vào socket đang bận. ACK lặp không ghi lại thông báo/DOM mỗi20Hz;
+nhả, cancel, STOP và deadline500ms của Motion giữ nguyên.
 
 Pointer capture giữ được sự kiện nhả ngoài nút. Pointer cancel, mất capture,
 blur, trang hidden, đóng trang và focus ô nhập đều xóa thao tác giữ. Phím repeat
@@ -98,6 +103,9 @@ FPGA, motor, reset, mất liên kết hoặc dừng vật lý trên xe.
 - Bấm ngay và chu kỳ giữ được đo trên browser/host; không phải số đo độ trễ
   ESP32, UART, SPI hay motor. Các trường latency chưa đo hiển thị `—`.
 - Layout tĩnh 1440/390/320 px, cú pháp JS/Python, README và khoảng trắng đạt.
+- Lượt sửa giữ nút:22/22 ca browser đạt, gồm backpressure ngắn/dài, giữ touch3s
+  và AI mặc định3s. Có tái hiện FAIL của code cũ bằng WebSocket native trước sửa;
+  không dùng các số host này để công bố độ trễ Wi-Fi thật.
 - Native DLL dùng tên theo hash nên chạy lại suite trong khi simulator mở được;
   unittest/cấu trúc đã được chạy lại và đạt. Browser chuẩn không cần mở COM.
 - Web phần cứng đã được người dùng kiểm bốn hướng ở30%; AI trái/phải khớp log

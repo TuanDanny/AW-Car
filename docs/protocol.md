@@ -11,7 +11,7 @@ Mapping: Forward=(+,+), Backward=(-,-), Left=(-,+), Right=(+,-).
 Boot Manual/0; STOP thắng MOVE cùng đợt xử lý, chuyển Manual và tăng generation.
 Đổi mode/trang mới cũng tăng generation và hủy mục tiêu. Web ngắt trong Manual về 0;
 AI không phụ thuộc Web. Thả nút về 0; nút mới thay nút cũ, không khôi phục nút cũ.
-Manual hết hạn 500 ms. AI duration=0 là 1000 ms, khác 0 phải trong 100..3000 ms.
+Manual hết hạn 500 ms. AI duration=0 là 3000 ms, khác 0 phải trong 100..3000 ms.
 AI mới thay cũ. Brain mất UART/cloud trong AI → 0/Manual. Manual không phụ thuộc Brain.
 FPGA mất lệnh hợp lệ 500 ms về 0. Đảo cực phải có 40 ms neutral.
 

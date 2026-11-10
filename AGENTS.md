@@ -13,7 +13,8 @@ Yêu cầu được duyệt ngày 10/11/2026 thay thế kiến trúc cũ **chỉ
 - FPGA: SPI mode 0/1 MHz, PWM 20 kHz, encoder một OUT, clock 27 MHz. HDL chỉ .sv.
 - Không PIN, ARM, validated, CLEAR_FAULT, Gate handshake hay lỗi chốt. Boot/STOP/timeout về 0.
 - STOP ưu tiên, về Manual; nói chuyện độc lập. Mode/STOP đổi generation; không chạy lại lệnh cũ.
-- Manual timeout 500 ms; AI 100–3000 ms, mặc định 1000 ms. PID chờ đủ encoder và hiệu chuẩn.
+- Manual timeout 500 ms; AI 100–3000 ms, mặc định 3000 ms theo yêu cầu10/11/2026.
+  Câu có chỉ định thời gian dùng giá trị riêng; PID chờ đủ encoder và hiệu chuẩn.
 - Contract duy nhất: docs/protocol.md và esp/shared/include/simple/protocol.hpp.
 - Không mở COM/JTAG hoặc nạp khi phiên khác đang sở hữu cổng. VM motor ngắt trước đổi firmware/dây.
 - Không commit NVS, mật khẩu Internet, PIN, flash dump, build, log thô. Giữ LICENSE và dependency lock.

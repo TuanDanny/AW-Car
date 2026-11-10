@@ -7,11 +7,11 @@ namespace brain {
 void AddTools(McpServer& mcp) {
     mcp.AddTool("self.car.move",
         "控制小车：action只能是forward前进、backward后退、left原地左转、right原地右转。"
-        "speed百分比0到100默认30；duration毫秒100到3000默认1000。"
+        "speed百分比0到100默认30；duration毫秒100到3000默认3000（三秒），用户指定时间则使用指定值。"
         "须在AI模式开始新听音会话；排队成功不代表车已运动。",
         PropertyList({Property("action", kPropertyTypeString).SetMaxLength(8),
             Property("speed", kPropertyTypeInteger, 30, 0, 100),
-            Property("duration", kPropertyTypeInteger, 1000, 100, 3000)}),
+            Property("duration", kPropertyTypeInteger, simple::kAiDefaultDurationMs, 100, 3000)}),
         [](const PropertyList& p) -> ToolResult {
             const auto& action = p["action"].value<std::string>();
             simple::Action command;

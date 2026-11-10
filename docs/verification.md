@@ -163,7 +163,21 @@ Soak ESP30phút/A-B và độ trễ điện thoại→PWM vẫn chưa được c
 Xem `data/brain-ota-checkpoint.json`, `data/motion-ota-checkpoint.json` và
 [hướng dẫn dùng](ota-usage.md).
 
-## Tệp bằng chứng skeleton
+## Sửa giữ nút và thời lượng AI
+
+Người dùng báo giữ nút chập chờn trên bản OTA trước; không coi lượt nghiệm thu
+đó là UI PASS dù log đã nhận đúng hướng. Đã tái hiện một nguyên nhân: client tự
+hủy giữ khi bufferedAmount chỉ bận60ms. Bản sửa bỏ lần lặp khi bận ngắn, hủy giữ
+nếu tắc liên tục150ms, tránh xếp MOVE/STATUS và bớt ghi DOM từ ACK lặp. Nhả/STOP
+và deadline500ms không đổi. AI mặc định3giây ở cả schema Brain và Control Motion,
+câu có thời gian riêng vẫn100..3000ms.
+
+26test host và22test browser đạt; gồm tái hiện trước/sau, giữ touch3giây, tắc dài
+không replay và default3giây. Hai ESP đã build/nạp, Motion readback khớp SHA,
+Brain boot VALID. Xem `data/web-hold-fix-checkpoint.json`; phản hồi điện thoại
+thật và log AI mới được ghi riêng, không suy từ simulator.
+
+## Danh sách bằng chứng skeleton
 
 `data/bench-manual.json`, `bench-ai.json`, `bench-final.json`,
 `bench-flash-recovery.json` chỉ giữ command/ACK/error/latency; không có câu nói,

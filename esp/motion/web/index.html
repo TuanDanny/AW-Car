@@ -232,6 +232,7 @@
       const keysDown = new Set();
 
       function notify(message, error = false) {
+        if ($('notice').textContent === message && $('notice').dataset.error === String(error)) return;
         $('notice').textContent = message;
         $('notice').dataset.error = String(error);
       }
@@ -257,24 +258,36 @@
       }
       function sendHeld() {
         if (!held) return;
-        // Do not keep a MOVE for replay after a blocked socket drains.
-        if (!canDrive() || socket.bufferedAmount !== 0) { clearHeld(true); return; }
+        if (!canDrive()) { clearHeld(true); return; }
+        const now = performance.now();
+        // Skip brief backpressure without queuing MOVE or losing the held input.
+        // A long gap still cancels the hold; draining later must not revive it.
+        const busy = socket.bufferedAmount !== 0;
+        if (busy && held.blockedAt === null) held.blockedAt = now;
+        if (held.blockedAt !== null && now - held.blockedAt >= 150) {
+          clearHeld(true); notify('Đường gửi lệnh bị chậm. Đã hủy giữ; nhấn lại để chạy.', true); return;
+        }
+        if (busy) return;
+        held.blockedAt = null;
         if (!send({ t: 'drive', action: held.action, speed: Number($('speed').value) })) clearHeld(false);
       }
       function press(owner, action, element) {
         if (!canDrive()) return;
         clearHeld(false);
-        held = { owner, action, element };
+        held = { owner, action, element, blockedAt: null };
         element.classList.add('is-held');
         sendHeld();
         if (held) heldTimer = setInterval(sendHeld, 50);
       }
       function release(owner) { if (held?.owner === owner) clearHeld(true); }
       function controls() {
-        directions.forEach((button) => { button.disabled = !canDrive(); });
+        const drive = canDrive();
+        directions.forEach((button) => { if (button.disabled !== !drive) button.disabled = !drive; });
         const available = open() && fresh && received && !status?.maintenance;
-        for (const id of ['manual-mode', 'ai-mode', 'listen-start', 'listen-stop', 'wifi-submit']) $(id).disabled = !available;
-        $('speed').disabled = !canDrive();
+        for (const id of ['manual-mode', 'ai-mode', 'listen-start', 'listen-stop', 'wifi-submit']) {
+          if ($(id).disabled !== !available) $(id).disabled = !available;
+        }
+        if ($('speed').disabled !== !drive) $('speed').disabled = !drive;
         for (const mode of ['manual', 'ai']) $(mode + '-mode').setAttribute('aria-pressed', String(received && status?.mode === mode));
         $('mode-hint').textContent = status?.maintenance ? 'Motion đang bảo trì OTA · điều khiển đã khóa.'
           : !available ? 'Chờ trạng thái Motion trước khi điều khiển.'
@@ -297,8 +310,8 @@
       }
       function chip(id, label, state) {
         const element = $(id);
-        element.dataset.state = state;
-        element.lastElementChild.textContent = label;
+        if (element.dataset.state !== state) element.dataset.state = state;
+        if (element.lastElementChild.textContent !== label) element.lastElementChild.textContent = label;
       }
       function unknownLinks() {
         chip('fpga-link', 'FPGA · chưa cập nhật', 'warn');
@@ -394,9 +407,11 @@
           if (!data || typeof data !== 'object') return;
           if (data.t === 'status') onStatus(data);
           else if (data.t === 'result') {
-            if (data.ok === false) { clearHeld(false); awaitingMode = null; controls(); }
+            if (data.ok === false) {
+              clearHeld(false); awaitingMode = null; controls();
+              notify('Motion từ chối yêu cầu. Kiểm tra kết nối và trạng thái.', true);
+            } else if (data.reason !== 'received') notify('Motion đã nhận yêu cầu. Xem trạng thái phản hồi.');
             // No raw result echo: a server error must not disclose Wi-Fi credentials.
-            notify(data.ok ? 'Motion đã nhận yêu cầu. Xem trạng thái phản hồi.' : 'Motion từ chối yêu cầu. Kiểm tra kết nối và trạng thái.', !data.ok);
           }
         });
         ws.addEventListener('close', (event) => {
@@ -475,7 +490,7 @@
       $('reconnect').addEventListener('click', connect);
       setInterval(() => {
         if (!open()) return;
-        send({ t: 'status' });
+        if (socket.bufferedAmount === 0) send({ t: 'status' });
         if (performance.now() - lastStatusAt > 1000) stale();
       }, 100);
       connect();

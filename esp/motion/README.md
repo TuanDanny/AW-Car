@@ -10,6 +10,9 @@ MOVE/mode bị từ chối khi bảo trì; kết thúc/lỗi/reboot về Manual0
 Boot trial phải xác nhận task control và output0, không cần Internet/Xiaozhi.
 Không ARM/PIN. Một task control core1 owns SPI2/GPIO10, HTTP task chỉ tiếp nhận.
 Manual độc lập Brain. PID mặc định tắt; không dùng encoder một OUT để suy chiều.
+Web gửi ngay khi nhấn, lặp20Hz. Socket bận ngắn thì bỏ lần gửi lặp; tắc liên tục
+quá150ms thì hủy giữ, không tự phát lại. Nhả/STOP/timeout500ms vẫn về0.
+AI bỏ duration hoặc duration0 dùng3giây; thời gian chỉ định riêng giữ100..3000ms.
 
 Build: `python ../../utils/build_esp.py motion` từ thư mục này hoặc xem root hướng dẫn.
 Không nạp cho tới khi VM ngắt, các dây SPI/tháo fixture theo sơ đồ đã được xác nhận.

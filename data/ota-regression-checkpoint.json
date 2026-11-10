@@ -1,0 +1,46 @@
+{
+  "scope": "real ESP logs during AP driving and router management; no motor/VM",
+  "ui_acceptance": "NOT ACCEPTED: user reported intermittent hold/stutter; follow-up fix tracked separately",
+  "board_build": "simplev1-835a7505f4da",
+  "counter_includes": "accepted timestamped inputs, including MOVE/STOP/mode; not a complete per-input trace",
+  "inputs_total": 1288,
+  "recent_window": 256,
+  "mailbox_to_before_spi_us": {
+    "p50": 266,
+    "p95": 301,
+    "p99": 667,
+    "max": 2086
+  },
+  "spi_io_errors": 0,
+  "spi_frame_errors": 9,
+  "spi_ack_errors": 9,
+  "manual_actions_observed": [
+    "backward",
+    "forward",
+    "left",
+    "right"
+  ],
+  "ai_actions_observed": [
+    "forward",
+    "right"
+  ],
+  "ai_completed_to_zero": true,
+  "router_log_polling": {
+    "motion": {
+      "samples_received": 371,
+      "connection_errors": 0,
+      "initial_history_overwrite_reported": true
+    },
+    "brain": {
+      "samples_received": 374,
+      "connection_errors": 0,
+      "initial_history_overwrite_reported": true
+    }
+  },
+  "not_claimed": [
+    "controlled A/B",
+    "30-minute hardware soak",
+    "phone-to-PWM latency",
+    "motor operation"
+  ]
+}

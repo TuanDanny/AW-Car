@@ -163,7 +163,7 @@ async def sim_event(request):
         native.flags = int(obj.get("flags", native.flags)) & 15
     elif kind in ("ai", "move"):
         generation = int(obj.get("generation", native.state()["generation"]))
-        ok = native.event(7, ACTION.get(obj.get("action"), 99), int(obj.get("speed", 30)), int(obj.get("duration_ms", 1000)), generation)
+        ok = native.event(7, ACTION.get(obj.get("action"), 99), int(obj.get("speed", 30)), int(obj.get("duration_ms", 3000)), generation)
     elif kind == "counts":
         native.counts = [int(obj.get("left", 0)), int(obj.get("right", 0))]
     elif kind == "reset":

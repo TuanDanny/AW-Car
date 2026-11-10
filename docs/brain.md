@@ -12,8 +12,9 @@ Motion về Manual nhưng không đóng hội thoại. Chuyển lại AI phải 
 mới; phiên cloud cũ không tự có lại quyền lái. Session metadata thiếu thì tool move
 bị từ chối, không nới kiểm tra để làm demo.
 
-Các tool: self.car.move(action,speed=30,duration=1000), self.car.stop,
+Các tool: self.car.move(action,speed=30,duration=3000), self.car.stop,
 self.car.get_state. Duration100..3000ms, bốn action forward/backward/left/right.
+Không nói thời gian thì mặc định3giây; câu có thời gian riêng vẫn giữ giá trị đó.
 Callback chỉ ghi mục tiêu mới nhất, không ngủ chờ. Thông báo queued không phải
 bằng chứng cầu H/motor đã nhận lệnh. Không có tool ARM, đổi mode hay ghi PWM.
 

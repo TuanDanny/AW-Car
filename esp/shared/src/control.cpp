@@ -43,7 +43,7 @@ bool Control::ai(const AiMove& m,uint64_t now) {
        (m.duration_ms!=0 && (m.duration_ms<100 || m.duration_ms>3000)) ||
        !fpga_connected(now) || !brain_connected(now) ||
        (brain_.flags&(kWifiReady|kCloudReady))!=(kWifiReady|kCloudReady)) return false;
-    target(m.action,m.speed,now+(m.duration_ms?m.duration_ms:1000)); return true;
+    target(m.action,m.speed,now+(m.duration_ms?m.duration_ms:kAiDefaultDurationMs)); return true;
 }
 void Control::brain(const BrainState& state,uint64_t now) { brain_=state;brain_at_=now;brain_seen_=true; }
 void Control::fpga(const SpiStatus& state,uint64_t now) { fpga_=state;fpga_at_=now;fpga_seen_=true; }

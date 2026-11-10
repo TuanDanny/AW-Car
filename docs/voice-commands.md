@@ -2,10 +2,14 @@
 
 Chọn AI trên Web, bấm Bắt đầu nghe hoặc BOOT. Mỗi lệnh có tốc độ riêng; bỏ tốc độ
 thì dùng30%, không ghi nhớ mức của câu trước. Phần trăm là dutyPWM, chưa phải
-vận tốc đo được. Hành động mặc định1s, cho phép100–3000ms; không xếp hàng.
+vận tốc đo được. Hành động mặc định3s, cho phép100–3000ms; không xếp hàng.
 
 | Nghĩa | Câu tiếng Trung | Pinyin |
 | --- | --- | --- |
+| Tiến, mặc định3giây/30% | 前进。 | Qián jìn. |
+| Lùi, mặc định3giây/30% | 后退。 | Hòu tuì. |
+| Quay trái, mặc định3giây/30% | 原地左转。 | Yuán dì zuǒ zhuǎn. |
+| Quay phải, mặc định3giây/30% | 原地右转。 | Yuán dì yòu zhuǎn. |
 | Tiến2giây,60% | 前进两秒，速度百分之六十。 | Qián jìn liǎng miǎo, sù dù bǎi fēn zhī liù shí. |
 | Lùi2giây,40% | 后退两秒，速度百分之四十。 | Hòu tuì liǎng miǎo, sù dù bǎi fēn zhī sì shí. |
 | Quay trái tại chỗ2giây,50% | 原地左转两秒，速度百分之五十。 | Yuán dì zuǒ zhuǎn liǎng miǎo, sù dù bǎi fēn zhī wǔ shí. |

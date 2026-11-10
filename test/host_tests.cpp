@@ -76,7 +76,7 @@ void control() {
     const auto old=c.state().generation;c.stop();CHECK(c.state().generation!=old && c.state().mode==Mode::Manual && c.state().left==0);
     c.set_mode(Mode::Ai);links(c,800);const auto epoch=c.state().generation;
     CHECK(!c.manual(Action::Forward,30,800));CHECK(!c.ai({old,Action::Forward,30,1000},800));
-    CHECK(c.ai({epoch,Action::Forward,30,0},800));c.tick(800);c.tick(801);CHECK(c.state().left==405);
+    CHECK(c.ai({epoch,Action::Forward,30,1000},800));c.tick(800);c.tick(801);CHECK(c.state().left==405);
     links(c,1290);c.tick(1290);links(c,1780);c.tick(1799);CHECK(c.state().left==405);
     c.tick(1800);CHECK(c.state().left==0 && c.state().mode==Mode::Ai && c.state().reason==Reason::AiComplete);
     links(c,1900);CHECK(c.ai({epoch,Action::Forward,50,3000},1900));c.tick(1900);c.tick(1901);
@@ -105,6 +105,18 @@ void pid() {
     for(unsigned i=0;i<10000;++i) { const float out=p.update(1000,0);CHECK(std::isfinite(out) && out>=0 && out<=100 && p.integral<=20); }
     p.reset();CHECK(p.integral==0 && p.previous_error==0 && p.derivative==0);
     p.dt=0;CHECK(p.update(10,0)==0);
+}
+void ai_default_duration() {
+    using namespace simple;
+    CHECK(AiMove{}.duration_ms==3000);
+    for(auto duration:{uint16_t(0),kAiDefaultDurationMs,uint16_t(1000)}) {
+        Control c(42);c.set_mode(Mode::Ai);links(c,100);
+        CHECK(c.ai({c.state().generation,Action::Forward,30,duration},100));
+        const uint64_t deadline=100+(duration?duration:kAiDefaultDurationMs);
+        for(uint64_t now=100;now<deadline;now+=100) { links(c,now);c.tick(now); }
+        links(c,deadline-1);c.tick(deadline-1);CHECK(c.state().left==405);
+        c.tick(deadline);CHECK(c.state().left==0 && c.state().reason==Reason::AiComplete);
+    }
 }
 void maintenance() {
     using namespace simple;
@@ -173,4 +185,4 @@ void log_ring() {
     batch=ring.read(20,records,3);CHECK(batch.count==1 && std::strlen(records[0].text)==255);
 }
 }
-int main() { codec();control();pid();maintenance();network_policy();log_ring();std::printf("PASS native assertions=%u seed=731 SPI_random=12000 UART_frames=1024 PID=disabled_on_firmware\n",assertions); }
+int main() { codec();control();pid();ai_default_duration();maintenance();network_policy();log_ring();std::printf("PASS native assertions=%u seed=731 SPI_random=12000 UART_frames=1024 PID=disabled_on_firmware\n",assertions); }

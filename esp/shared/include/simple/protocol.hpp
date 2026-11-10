@@ -8,6 +8,7 @@ constexpr uint8_t kVersion = 1;
 constexpr size_t kSpiBytes = 32, kMaxPayload = 128, kMaxFrame = kMaxPayload + 9;
 constexpr int16_t kDutyMax = 1350;
 constexpr uint32_t kClockHz = 27000000;
+constexpr uint16_t kAiDefaultDurationMs = 3000;
 enum class Mode : uint8_t { Manual = 0, Ai = 1 };
 enum class Action : uint8_t { Neutral, Forward, Backward, Left, Right };
 enum class Reason : uint8_t {
@@ -54,7 +55,7 @@ bool decode_spi_command(const SpiBytes& bytes, SpiCommand& out);
 SpiBytes encode_spi_status(const SpiStatus& status);
 bool decode_spi_status(const SpiBytes& bytes, SpiStatus& out);
 
-struct AiMove { uint32_t generation{}; Action action{Action::Neutral}; uint8_t speed{30}; uint16_t duration_ms{1000}; };
+struct AiMove { uint32_t generation{}; Action action{Action::Neutral}; uint8_t speed{30}; uint16_t duration_ms{kAiDefaultDurationMs}; };
 struct BrainState {
     uint8_t flags{}, wifi_result{};
     int8_t rssi{};
