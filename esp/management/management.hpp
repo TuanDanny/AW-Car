@@ -17,4 +17,5 @@ private: bool held_{};
 // request_check must schedule a check in the application's own event loop.
 void start_boot_guard(void(*request_check)());
 esp_err_t confirm_local_boot();
+bool boot_pending();
 }

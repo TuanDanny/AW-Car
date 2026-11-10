@@ -22,6 +22,9 @@ Xem [phạm vi nghiệm thu và bản đang chạy](docs/skeleton-baseline.md) t
 Xem [contract](docs/protocol.md) trước khi thay giao thức. Không coi mô phỏng hoặc
 build thành công là bằng chứng xe đã chạy. Phép thử phần cứng phải ghi riêng.
 
+Nhánh nâng cấp `codex/simplev1-ota`: [cách dùng OTA/log qua router](docs/ota-usage.md).
+Manual vẫn chỉ qua AW-CAR/192.168.4.1; main chưa nhận nâng cấp này.
+
 Đọc [build/nạp/thu log](docs/build.md) và [báo cáo kiểm chứng](docs/verification.md).
 Ngày10/11: Manual bốn hướng và AI quay trái/phải đã có log SPI trên ba board;
 cầuB cả haiDRV đã đo đúng cực tính ở100% với VM USB khoảng5V, chưa motor.

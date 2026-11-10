@@ -66,8 +66,8 @@ python utils/program_fpga.py --vm-off --location 529
 Flasher ESP từ chối sai VID/PID, flash size, partition layout hoặc image hash.
 Chỉ ghi app đã chọn và assets Brain; đọc ngược kiểm SHA. Giữ partition table,
 NVS, otadata Brain và motioncfg cũ. **Không dùng lệnh flash-all/merged image tại
-0x0000** từ build output cho các board đã có dữ liệu. App Brain hiện ở0x20000,
-Motion0x10000; công cụ xác định slot từ bảng phân vùng thật.
+0x0000** từ build output cho các board đã có dữ liệu. Công cụ xác định slot từ
+bảng phân vùng và metadata thật; không giả định app luôn ở một offset cố định.
 
 Nạp FPGA mặc định SRAM: mất điện sẽ mất bản SRAM. Flash chỉ sau khi có báo cáo
 `build/bringup/spi-acceptance.json` đạt và trùng hash bitstream đang nạp:
@@ -112,6 +112,22 @@ Không đổi token/chứng chỉ khi OTA. Lần bootstrap Brain dùng USB để
 rollback đã kiểm SHA; không ghi eFuse/OTP. Motion cần migration riêng trước khi
 có OTA. `--test-rollback` chỉ dành cho phép thử có VM ngắt; không dùng để chạy xe.
 Mất kết nối upload không tự gửi lại: CLI kiểm build/ELF đang chạy trước khi báo đạt.
+
+Motion cũ cần migration USB đúng một lần, với VM ngắt/motor rời:
+
+```powershell
+python utils/build_esp.py motion
+& $espPython utils/migrate_motion_ota.py --port COM7 --vm-off
+python utils/awcarctl.py upload motion
+```
+
+Migration giữ nguyên factory/NVS/phy_init/motioncfg, sao lưu các vùng sắp ghi trong
+build/private và kiểm SHA đọc ngược trước reset. Giữ USB ổn định: thao tác đổi
+bootloader/bảng phân vùng qua USB không có tính nguyên tử của OTA hai app slot.
+Board đã migration dùng `upload motion`, không chạy migration lần hai. Trong OTA,
+Motion khóa GPIO10/MOVE, gửi duty0 và kiểm ACK trước ghi; Web báo bảo trì. Sau lỗi
+hoặc reboot chỉ Manual0, cần thao tác lái mới. Health không đợi router/cloud,
+nhưng cần control task chạy, GPIO10LOW và ACK hai gói zero từ FPGA.
 
 Motion phát **AW-CAR / 123456789**, mở `http://192.168.4.1`. Không PIN/Cho phép.
 Manual mặc định30%; giữ nút chạy, nhả về0, DỪNG về0 và Manual. Chuyển AI rồi bấm

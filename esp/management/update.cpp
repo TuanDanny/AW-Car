@@ -46,6 +46,7 @@ struct Transfer {
 UpdateLease::UpdateLease() { bool expected=false;held_=writing.compare_exchange_strong(expected,true); }
 UpdateLease::~UpdateLease() { if(held_) writing=false; }
 bool update_busy() { return writing.load(); }
+bool boot_pending() { return pending(); }
 bool ota_available(UpdateHooks hooks) {
 #ifdef CONFIG_BOOTLOADER_APP_ROLLBACK_ENABLE
     return hooks.enter && hooks.leave && esp_ota_get_next_update_partition(nullptr)!=nullptr;

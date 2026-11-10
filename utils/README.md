@@ -5,6 +5,9 @@
 `upload brain` nạp app vào slot không chạy, xác minh boot/ELF và health cục bộ;
 Motion phải migration riêng trước. `test_ota_receiver.py` kiểm các ca từ chối,
 truyền dở và reset, chỉ chạy trên bàn với `--vm-off`.
+
+`migrate_motion_ota.py` chỉ dành lần USB chuyển từ layout legacy; đã bootstrap
+thì chỉ upload app. Mỗi vùng bị ghi đều sao lưu trước, giữ factory/NVS/motioncfg.
 Build sinh token/chứng chỉ riêng trong build/private/management-keys; giữ chúng
 để dùng từ laptop, không commit. CLI pin đúng chứng chỉ, không dùng verify=false.
 

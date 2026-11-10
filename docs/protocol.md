@@ -15,6 +15,11 @@ Manual hết hạn 500 ms. AI duration=0 là 1000 ms, khác 0 phải trong 100..
 AI mới thay cũ. Brain mất UART/cloud trong AI → 0/Manual. Manual không phụ thuộc Brain.
 FPGA mất lệnh hợp lệ 500 ms về 0. Đảo cực phải có 40 ms neutral.
 
+OTA Motion dùng MAINTENANCE cục bộ, không phải ARM/Gate của kiến trúc cũ:
+vào/ra đều tăng generation, hủy mục tiêu và về Manual0; trong lúc này từ chối
+mode/MOVE. GPIO10LOW và ACK hai gói SPI duty0 là điều kiện trước ghi flash.
+Reason bổ sung ở cuối enum là Maintenance=15; wire layout/version không đổi.
+
 ## UART: 460800 8N1
 
 Khung: `53 31 | version:u8=1 | type:u8 | length:u8<=128 | seq:u16 | payload | crc:u16`.
@@ -76,4 +81,5 @@ Ví dụ: `{"t":"drive","action":"forward","speed":30}`; action forward/backward
 `{"t":"status"}` mỗi 100 ms. Drive gửi ngay và lặp 50 ms khi giữ, không gửi hàng đợi cũ.
 Web tự xóa phím khi blur/hidden/close và không auto reconnect/restore MOVE.
 Status trả mode/action/speed/duty/generation, SPI/Brain/cloud, counts, reason/build ID.
+`maintenance:true` khóa nút lái/mode và xóa thao tác đang giữ; STOP vẫn gửi được.
 Không có tốc độ/pin giả, ARM hay báo target/ACK thành số đo xe đã chạy.

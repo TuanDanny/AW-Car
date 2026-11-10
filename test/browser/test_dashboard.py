@@ -502,6 +502,24 @@ class DashboardTests(unittest.TestCase):
         self.assertEqual(self.sim_state()["right"], 0)
         self.assertFalse(self.probe.commands("drive"), "The browser must not synthesize AI MOVE commands")
 
+    def test_18_maintenance_clears_held_and_never_replays(self):
+        self.page.locator('#forward').hover()
+        self.page.mouse.down()
+        self.wait(lambda:self.probe.latest.get('left',0)>0)
+        self.sim_event({'event':'maintenance','enabled':True})
+        self.wait(lambda:self.probe.latest.get('maintenance') is True)
+        self.wait_zero()
+        self.assertTrue(self.page.locator('#forward').is_disabled())
+        self.assertTrue(self.page.locator('#ai-mode').is_disabled())
+        self.assertIn('bảo trì',self.page.locator('#mode-hint').inner_text())
+        self.assertFalse(self.sim_state()['driver'])
+        self.page.mouse.up()
+        self.sim_event({'event':'maintenance','enabled':False})
+        self.wait(lambda:self.probe.latest.get('maintenance') is False)
+        self.page.wait_for_timeout(650)
+        self.wait_zero()
+        self.assertFalse(self.sim_state()['driver'])
+
     def test_17_ai_continues_when_web_disconnects(self):
         self.page.locator("#ai-mode").click()
         self.wait_mode("ai")

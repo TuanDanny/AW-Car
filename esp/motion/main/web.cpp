@@ -48,6 +48,7 @@ esp_err_t status(httpd_req_t* request) {
     cJSON_AddNumberToObject(r,"left",s.car.left);cJSON_AddNumberToObject(r,"right",s.car.right);
     cJSON_AddNumberToObject(r,"generation",s.car.generation);cJSON_AddStringToObject(r,"reason",simple::reason_name(s.car.reason));
     cJSON_AddBoolToObject(r,"simulator",false);
+    cJSON_AddBoolToObject(r,"maintenance",s.maintenance);
     const auto net=network_state();auto* network=cJSON_AddObjectToObject(r,"motion_network");
     cJSON_AddBoolToObject(network,"configured",net.configured);cJSON_AddBoolToObject(network,"online",net.online);
     cJSON_AddBoolToObject(network,"connecting",net.connecting);cJSON_AddStringToObject(network,"ip",net.ip);
@@ -96,6 +97,7 @@ esp_err_t message(httpd_req_t* request,cJSON* json) {
     auto& runtime=Runtime::get();
     if(std::strcmp(type,"status")==0) return status(request);
     if(std::strcmp(type,"stop")==0) { runtime.stop();return result(request,true,"received"); }
+    if(runtime.snapshot().maintenance) return result(request,false,"maintenance");
     if(std::strcmp(type,"neutral")==0) { runtime.drive(simple::Action::Neutral,0);return result(request,true,"received"); }
     if(std::strcmp(type,"mode")==0) {
         const auto* mode=string(json,"mode");if(!mode || (std::strcmp(mode,"manual") && std::strcmp(mode,"ai"))) return result(request,false,"invalid_mode");

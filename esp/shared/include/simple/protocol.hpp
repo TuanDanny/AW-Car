@@ -12,7 +12,7 @@ enum class Mode : uint8_t { Manual = 0, Ai = 1 };
 enum class Action : uint8_t { Neutral, Forward, Backward, Left, Right };
 enum class Reason : uint8_t {
     Boot, Released, Stop, ModeChanged, ManualTimeout, AiComplete,
-    BrainLost, FpgaLost, Takeover, InternetLost, WrongMode, Invalid, Reversing, Waking, Active
+    BrainLost, FpgaLost, Takeover, InternetLost, WrongMode, Invalid, Reversing, Waking, Active, Maintenance
 };
 enum class Type : uint8_t {
     BrainState = 0x01, AiMove = 0x02, Stop = 0x03,

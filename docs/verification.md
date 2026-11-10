@@ -141,7 +141,29 @@ trên ESP trong task log nền, không phải localhost. Lần đọc20s cuối 
 - 30phút/28.768lệnh là host; soak30phút trên ESP thật vẫn còn lại. Bộ đếm thực
   đã vượt1.000input nhưng chưa có trace đầy đủ cho mọi input hoặc thời gian toàn xe.
 
-## Tệp bằng chứng
+## Nâng cấp AP+STA / OTA ngày10/11/2026
+
+Nhánh `codex/simplev1-ota` giữ main/skeleton nguyên mốc đã duyệt. Manual vẫn
+chỉ interface AP; probe từ router bị từ chối kể cả giả Host/Origin. Hai board
+có HTTPS3232/mDNS và log RAM lấy mẫu. User đã xác nhận Manual/STOP, OLED và AI
+bình thường khi đọc log, và hồi quy sau OTA Brain. Uploader dùng Python theo
+lựa chọn tiếp của user; không ghi Arduino IDE là đã tương thích.
+
+Brain và Motion đã nhận app qua OTA, kiểm build/ELF và boot VALID; đã thử sai
+project/SHA, body bị ngắt, reset giữa truyền và bản health cố ý lỗi để rollback
+thật. Motion migration USB giữ factory/NVS/motioncfg/PHY byte-for-byte, bản sao
+vùng ghi giữ riêng. Log cập nhật ghi maintenance1, duty0/0, GPIO10LOW; input
+pad được bật để đọc mức chân. Bản cuối không có cờ cố ý lỗi health.
+
+Mốc này không thay SPI/FPGA/audio/PID/timeout500ms và không nghiệm thu motor/2S.
+Cặp lỗi SPI frame/ACK rải rác có từ trước vẫn phải cách ly; không che cờ lỗi.
+26test host (browser opt-in được skip trong discovery), 18ca browser riêng,
+52.273assertion native và127context Brain đạt; cả hai firmware build được.
+Soak ESP30phút/A-B và độ trễ điện thoại→PWM vẫn chưa được coi là đạt.
+Xem `data/brain-ota-checkpoint.json`, `data/motion-ota-checkpoint.json` và
+[hướng dẫn dùng](ota-usage.md).
+
+## Tệp bằng chứng skeleton
 
 `data/bench-manual.json`, `bench-ai.json`, `bench-final.json`,
 `bench-flash-recovery.json` chỉ giữ command/ACK/error/latency; không có câu nói,

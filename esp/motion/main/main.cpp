@@ -7,6 +7,7 @@
 #include "esp_system.h"
 #include "esp_wifi.h"
 #include "nvs_flash.h"
+#include "management.hpp"
 #ifndef SIMPLE_BUILD_ID
 #define SIMPLE_BUILD_ID "simplev1-dev"
 #endif
@@ -31,5 +32,6 @@ extern "C" void app_main() {
     motion::start_network();
     ESP_ERROR_CHECK(esp_event_handler_register(WIFI_EVENT,ESP_EVENT_ANY_ID,wifi_event,nullptr));
     motion::start_web();
+    management::start_boot_guard([] { motion::Runtime::get().check_local_boot(); });
     ESP_LOGI("simple_motion","build=%s AP+STA ready http://192.168.4.1; UART13/14 SPI15/16/4/5 STBY10; PID=off",SIMPLE_BUILD_ID);
 }

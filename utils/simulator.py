@@ -175,6 +175,8 @@ async def sim_event(request):
         native.counts = [0, 0]
     elif kind == "stop":
         native.event(3, 2)
+    elif kind == "maintenance":
+        native.event(8, int(bool(obj.get("enabled", True))))
     else:
         ok = False
     return web.json_response({"ok": ok, "state": native.state()})

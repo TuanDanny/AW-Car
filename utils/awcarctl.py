@@ -11,7 +11,7 @@ import re
 import time
 import ssl
 from management_keys import key_file, read_key
-from ota_image import BINARIES, inspect_image
+from ota_image import BINARIES, inspect_bytes
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -63,7 +63,8 @@ class Client:
         return reply
 
     def upload(self,path,manifest,expect_rollback=False,timeout=120):
-        candidate=inspect_image(path,self.role,manifest)
+        # Own immutable bytes: a concurrent build must not alter a streaming upload.
+        image=path.read_bytes();candidate=inspect_bytes(image,self.role,manifest)
         if bool(manifest.get('test_rollback'))!=expect_rollback:
             raise ValueError('A rollback test image requires --expect-rollback; a normal update must not use that flag')
         before=self.get('/info')
@@ -74,14 +75,13 @@ class Client:
         if self.connection.sock: self.connection.sock.settimeout(30)
         acknowledged=False
         try:
-            with path.open('rb') as source:
-                self.connection.request('POST','/update',body=source,headers={
-                    'Authorization':'Bearer '+self.key,'Content-Type':'application/octet-stream',
-                    'Content-Length':str(candidate['bytes']),'X-AW-SHA256':candidate['sha256']})
-                response=self.connection.getresponse();body=response.read(2048)
-                if response.status!=202:
-                    raise ValueError('OTA rejected HTTP '+str(response.status)+': '+body.decode(errors='replace'))
-                acknowledged=True
+            self.connection.request('POST','/update',body=image,headers={
+                'Authorization':'Bearer '+self.key,'Content-Type':'application/octet-stream',
+                'Content-Length':str(candidate['bytes']),'X-AW-SHA256':candidate['sha256']})
+            response=self.connection.getresponse();body=response.read(2048)
+            if response.status!=202:
+                raise ValueError('OTA rejected HTTP '+str(response.status)+': '+body.decode(errors='replace'))
+            acknowledged=True
         except (OSError,http.client.HTTPException):
             # The reply can be lost during reboot. Verify the running image;
             # never automatically send the firmware a second time.

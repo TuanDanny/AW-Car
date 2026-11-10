@@ -12,8 +12,9 @@ Không hook vprintf/audio và không lưu hội thoại/PCM/mật khẩu. Task H
 core0; không gọi socket/JSON/log từ Motion control task. Tái sử dụng kết nối TLS
 khi poll để tránh handshake mỗi lần; tối đa2 socket và không tăng pool dashboard.
 
-OTA Brain dùng POST `/update`: xác thực TLS/token, chip/project/size/SHA256,
-chỉ ghi slot không chạy và chọn boot sau khi image hợp lệ. Chưa bootstrap OTA Motion.
+OTA hai board dùng POST `/update`: xác thực TLS/token, chip/project/size/SHA256,
+chỉ ghi slot không chạy và chọn boot sau khi image hợp lệ. Motion cần migration
+USB riêng một lần trước; MAINTENANCE khóa MOVE/GPIO10 và gửi PWM0 trước ghi flash.
 Health check chạy cục bộ, trial không xác nhận trong15s sẽ reboot để rollback.
 Ảnh test cố ý lỗi health chỉ được dùng qua OTA với cờ test, không nạp USB.
 mDNS quảng cáo service `_awcar._tcp` để tìm board; TXT ota phản ánh khả năng hiện có.

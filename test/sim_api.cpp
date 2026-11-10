@@ -29,11 +29,12 @@ API int car_event(void* p,unsigned event,unsigned a,unsigned b,unsigned duration
         case 5:{simple::BrainState s{};s.flags=uint8_t(a);c.brain(s,now);return 1;}
         case 6:{simple::SpiStatus s{};s.left_count=a;s.right_count=b;c.fpga(s,now);return 1;}
         case 7:return c.ai({generation,simple::Action(a),uint8_t(b),uint16_t(duration)},now);
+        case 8:c.maintenance(a!=0);return 1;
         default:return 0;
     }
 }
 API int car_state(void* p,char* out,unsigned capacity,unsigned long long now) {
     auto& c=*static_cast<simple::Control*>(p);const auto s=c.state();
-    return std::snprintf(out,capacity,"{\"mode\":\"%s\",\"generation\":%u,\"action\":\"%s\",\"speed\":%u,\"left\":%d,\"right\":%d,\"reason\":\"%s\",\"fpga_connected\":%s,\"brain_connected\":%s,\"driver\":%s,\"left_count\":%u,\"right_count\":%u}",
-        s.mode==simple::Mode::Manual?"manual":"ai",s.generation,simple::action_name(s.action),s.speed,s.left,s.right,simple::reason_name(s.reason),c.fpga_connected(now)?"true":"false",c.brain_connected(now)?"true":"false",c.driver_enabled()?"true":"false",s.left_count,s.right_count);
+    return std::snprintf(out,capacity,"{\"mode\":\"%s\",\"generation\":%u,\"action\":\"%s\",\"speed\":%u,\"left\":%d,\"right\":%d,\"reason\":\"%s\",\"fpga_connected\":%s,\"brain_connected\":%s,\"driver\":%s,\"left_count\":%u,\"right_count\":%u,\"maintenance\":%s}",
+        s.mode==simple::Mode::Manual?"manual":"ai",s.generation,simple::action_name(s.action),s.speed,s.left,s.right,simple::reason_name(s.reason),c.fpga_connected(now)?"true":"false",c.brain_connected(now)?"true":"false",c.driver_enabled()?"true":"false",s.left_count,s.right_count,c.maintaining()?"true":"false");
 }

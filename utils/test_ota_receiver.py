@@ -57,7 +57,9 @@ def main():
     parser.add_argument('--manifest',type=Path)
     parser.add_argument('--reset-port')
     parser.add_argument('--output',type=Path)
+    parser.add_argument('--only',choices=['wrong_project','wrong_sha256','interrupted','reset_incomplete'])
     args=parser.parse_args()
+    if args.only=='reset_incomplete' and not args.reset_port: parser.error('--reset-port is required for that case')
     build=ROOT/'build'/args.board
     image=args.image or build/BINARIES[args.board]
     manifest=json.loads((args.manifest or build/'manifest.json').read_text())
@@ -67,7 +69,8 @@ def main():
     client=Client(args.board,args.ip);before=client.get('/info');client.close()
     if not before.get('ota_enabled') or before.get('ota_state')!='valid': raise ValueError('OTA bootstrap/health required')
     cases=[]
-    for case in ('wrong_project','wrong_sha256','interrupted')+ (('reset_incomplete',) if args.reset_port else ()):
+    selected=(args.only,) if args.only else ('wrong_project','wrong_sha256','interrupted')+ (('reset_incomplete',) if args.reset_port else ())
+    for case in selected:
         client=Client(args.board,args.ip)
         body=data
         if case=='wrong_project':

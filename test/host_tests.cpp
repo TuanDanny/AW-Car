@@ -106,6 +106,29 @@ void pid() {
     p.reset();CHECK(p.integral==0 && p.previous_error==0 && p.derivative==0);
     p.dt=0;CHECK(p.update(10,0)==0);
 }
+void maintenance() {
+    using namespace simple;
+    Control c(20);links(c,1);CHECK(c.manual(Action::Forward,100,1));c.tick(1);c.tick(2);
+    CHECK(c.driver_enabled() && c.state().left==1350);
+    c.set_mode(Mode::Ai);const auto old=c.state().generation;
+    CHECK(c.ai({old,Action::Forward,100,3000},3));c.tick(3);c.tick(4);
+    c.maintenance(true);CHECK(c.maintaining() && !c.driver_enabled() && c.state().left==0);
+    CHECK(c.state().mode==Mode::Manual && c.state().reason==Reason::Maintenance);
+    const auto entered=c.state().generation;c.maintenance(true);CHECK(c.state().generation==entered);
+    for(unsigned n=0;n<1000;++n) {
+        links(c,5+n);c.set_mode(Mode::Ai);
+        CHECK(!c.manual(Action::Forward,100,5+n));
+        CHECK(!c.ai({c.state().generation,Action::Backward,100,3000},5+n));
+        c.tick(5+n);CHECK(!c.driver_enabled() && !c.state().left && !c.state().right);
+    }
+    c.stop();CHECK(c.maintaining() && c.state().reason==Reason::Maintenance);
+    c.maintenance(false);c.tick(1005);
+    CHECK(!c.maintaining() && !c.driver_enabled() && !c.state().left && c.state().mode==Mode::Manual);
+    CHECK(!c.ai({old,Action::Forward,100,1000},1005)); // Old AI cannot survive update/failure.
+    c.set_mode(Mode::Ai);CHECK(!c.ai({old,Action::Forward,100,1000},1005));
+    c.set_mode(Mode::Manual);CHECK(c.manual(Action::Forward,30,1005));c.tick(1005);c.tick(1006);
+    CHECK(c.state().left==405); // Only a fresh explicit command may move again.
+}
 void network_policy() {
     using P=simple::NetworkPolicy;using A=P::Action;
     P p;CHECK(p.step(0,false)==A::None);
@@ -150,4 +173,4 @@ void log_ring() {
     batch=ring.read(20,records,3);CHECK(batch.count==1 && std::strlen(records[0].text)==255);
 }
 }
-int main() { codec();control();pid();network_policy();log_ring();std::printf("PASS native assertions=%u seed=731 SPI_random=12000 UART_frames=1024 PID=disabled_on_firmware\n",assertions); }
+int main() { codec();control();pid();maintenance();network_policy();log_ring();std::printf("PASS native assertions=%u seed=731 SPI_random=12000 UART_frames=1024 PID=disabled_on_firmware\n",assertions); }

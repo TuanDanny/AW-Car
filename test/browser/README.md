@@ -24,6 +24,9 @@ STOP/Space, mode/listen, Wi-Fi, mất STATUS một lần, AI mất STATUS, tab t
 1001/controller_replaced, refresh và nối lại tường minh. Proxy mất STATUS chỉ
 bỏ bản tin từ server thật, không tự tạo phản hồi hay phân xử lệnh.
 
+Ca18 bật MAINTENANCE qua native core: thao tác giữ bị xóa, khóa nút lái/mode và
+thoát bảo trì không phát lại lệnh. Fixture `/sim/*` chỉ có trên localhost.
+
 Ca AI dùng `/sim/event` để kiểm tra thời lượng native, STOP/generation cũ và
 AI tiếp tục khi đóng Web. Mỗi test reset simulator; không chạy đồng thời một
 suite khác cùng cổng. Thời gian bấm/chu kỳ giữ đo trên browser/host, không

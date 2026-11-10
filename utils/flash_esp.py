@@ -82,17 +82,18 @@ def main():
     nvs=actual["nvs"]
     nvs_before=read(nvs["offset"],nvs["size"],"nvs-before.bin")
     preserved={"nvs":sha(nvs_before),"partition_table":sha(table)}
-    if args.board=="brain":
+    if "otadata" in actual:
         ota=actual["otadata"]
         ota_before=read(ota["offset"],ota["size"],"otadata-before.bin")
         preserved["otadata"]=sha(ota_before)
         apps=sorted([p for p in actual.values() if p["type"]==0 and 0x10<=p["subtype"]<=0x1f],key=lambda p:p["subtype"])
-        app=active_ota(ota_before,apps);app_name="aw_car_brain.bin"
+        app=active_ota(ota_before,apps)
     else:
-        app=actual["factory"];app_name="simplev1_motion.bin"
-        if "motioncfg" in actual:
-            cfg=actual["motioncfg"]
-            preserved["motioncfg"]=sha(read(cfg["offset"],cfg["size"],"motioncfg-before.bin"))
+        app=actual["factory"]
+    app_name="aw_car_brain.bin" if args.board=="brain" else "simplev1_motion.bin"
+    if "motioncfg" in actual:
+        cfg=actual["motioncfg"]
+        preserved["motioncfg"]=sha(read(cfg["offset"],cfg["size"],"motioncfg-before.bin"))
     images=[(app["offset"],build/app_name)]
     if args.board=="brain": images.append((actual["assets"]["offset"],build/"generated_assets.bin"))
     if args.bootstrap_ota:

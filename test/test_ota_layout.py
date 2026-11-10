@@ -1,4 +1,4 @@
-"""Check the proposed Motion OTA layout without accessing a board."""
+"""Check the Motion OTA layout against the preserved pre-migration layout."""
 import csv
 import unittest
 from pathlib import Path
@@ -17,8 +17,8 @@ def read_layout(path):
 class OtaLayoutTest(unittest.TestCase):
     def test_candidate_preserves_existing_partitions(self):
         motion = ROOT / "esp" / "motion"
-        old = read_layout(motion / "partitions.csv")
-        new = read_layout(motion / "partitions_ota_candidate.csv")
+        old = read_layout(motion / "partitions_legacy.csv")
+        new = read_layout(motion / "partitions.csv")
         for name, entry in old.items():
             self.assertEqual(new[name], entry, name)
         self.assertEqual(new["otadata"][:2], ("data", "ota"))

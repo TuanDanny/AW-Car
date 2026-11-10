@@ -28,6 +28,13 @@
     "returned_state": "valid"
   },
   "health": "Application event loop and UART worker, independent of Internet/cloud readiness",
+  "final_release": {
+    "build": "simplev1-5d635e831c29",
+    "image_sha256": "b1dce82d29a8afe5c68a651c52fd55af0e0edba0d0b38ce6c9ed5a9e6cd0fbe0",
+    "elf_sha256": "d698f8d7ed028f7c1e7376dbf8f974f957e06582f4d0ec3eec9f560cf068ff3f",
+    "state": "valid"
+  },
+  "user_regression_after_initial_ota": "Manual/STOP, OLED and Xiaozhi all normal",
   "pending": ["User regression of audio/OLED/BOOT after final OTA", "Long-load benchmark and full physical timing"],
   "not_claimed": ["Motor operation", "Full-board hardware acceptance", "Arduino IDE network uploader compatibility"]
 }

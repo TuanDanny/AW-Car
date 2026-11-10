@@ -7,6 +7,8 @@ class Control {
 public:
     explicit Control(uint32_t generation=1): generation_(generation?generation:1) {}
     void stop(Reason reason=Reason::Stop);
+    void maintenance(bool enabled);
+    bool maintaining() const { return maintenance_; }
     void set_mode(Mode mode);
     void takeover() { stop(Reason::Takeover); }
     void disconnect() { if(mode_==Mode::Manual) stop(Reason::Released); }
@@ -31,7 +33,7 @@ private:
     int16_t desired_left_{},desired_right_{},left_{},right_{};
     int8_t last_left_sign_{},last_right_sign_{};
     uint64_t deadline_{},last_left_at_{},last_right_at_{},wake_until_{},brain_at_{},fpga_at_{},now_{};
-    bool driver_{},brain_seen_{},fpga_seen_{};
+    bool driver_{},brain_seen_{},fpga_seen_{},maintenance_{};
     BrainState brain_{};
     SpiStatus fpga_{};
 };
