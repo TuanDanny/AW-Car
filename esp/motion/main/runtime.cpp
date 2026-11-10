@@ -1,4 +1,5 @@
 #include "runtime.hpp"
+#include "network_activity.hpp"
 #include <algorithm>
 #include <cstring>
 #include <inttypes.h>
@@ -73,7 +74,7 @@ Snapshot Runtime::snapshot() {
 }
 bool Runtime::network_busy() {
     portENTER_CRITICAL(&mux_);
-    const bool busy=snapshot_.car.left || snapshot_.car.right || pending_.source!=Source::None || management::update_busy();
+    const bool busy=network_motion_busy(snapshot_.car,pending_.source!=Source::None,management::update_busy());
     portEXIT_CRITICAL(&mux_);return busy;
 }
 bool Runtime::begin_update() {

@@ -3,6 +3,8 @@
 `index.html` là toàn bộ dashboard tiếng Việt: HTML/CSS/JavaScript nội tuyến,
 không dependency, CDN hoặc tài nguyên ngoài. Motion phục vụ ở `/`, WebSocket `/ws`.
 Contract nằm tại `docs/protocol.md`; hướng dẫn tại `docs/dashboard.md`.
+Render kiểm giá trị text/attribute trước khi ghi, tái dùng Intl.NumberFormat.
+Không đổi cadence20Hz/STATUS10Hz hoặc dời xử lý quyền/STOP sang lịch vẽ.
 
 Giữ nút hoặc W/S/A/D để gửi ngay rồi lặp 50 ms. Nhả nút mới nhất về neutral,
 không khôi phục nút trước. Space gửi STOP. Trang chỉ kết nối một lần; sau khi

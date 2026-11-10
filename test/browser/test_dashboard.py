@@ -622,6 +622,26 @@ class DashboardTests(unittest.TestCase):
         self.page.mouse.up()
         self.page.locator('#stop').click();self.wait_zero()
 
+    def test_26_unchanged_status_avoids_text_mutations_but_new_duty_renders(self):
+        self.page.evaluate("""() => {
+          window.__stableWrites=0;
+          window.__stableObserver=new MutationObserver(rows=>{window.__stableWrites+=rows.length;});
+          for(const id of ['build','left-duty','right-duty','mode-hint','listen-state'])
+            window.__stableObserver.observe(document.getElementById(id),{childList:true,characterData:true,subtree:true});
+        }""")
+        marker=len(self.probe.statuses)
+        self.wait(lambda:len(self.probe.statuses)>=marker+10)
+        self.assertEqual(self.page.evaluate('window.__stableWrites'),0,
+                         'Identical fields must not be rewritten on each STATUS')
+        self.pointer_down('forward')
+        self.wait(lambda:self.page.locator('#left-duty').inner_text()=='+405')
+        self.assertEqual(self.page.locator('#right-duty').inner_text(),'+405')
+        self.page.mouse.up();self.wait_zero()
+        self.wait(lambda:self.page.locator('#left-duty').inner_text()=='0')
+        self.assertGreater(self.page.evaluate('window.__stableWrites'),0,
+                           'Changed duty must still render')
+        self.page.evaluate('window.__stableObserver.disconnect()')
+
     def test_18_maintenance_clears_held_and_never_replays(self):
         self.page.locator('#forward').hover()
         self.page.mouse.down()

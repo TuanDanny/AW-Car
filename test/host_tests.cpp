@@ -2,6 +2,7 @@
 #include "simple/pid.hpp"
 #include "simple/network_policy.hpp"
 #include "simple/log_ring.hpp"
+#include "../esp/motion/main/network_activity.hpp"
 #include <cmath>
 #include <cstdio>
 #include <cstdlib>
@@ -172,6 +173,30 @@ void network_policy() {
     mapped[0]=0x20;CHECK(!simple::ipv4_destination(mapped,16,got)); // Real IPv6 is not an AP IPv4 match.
     mapped[0]=0;mapped[10]=0;CHECK(!simple::ipv4_destination(mapped,16,got));
     for(size_t size:{0U,1U,3U,5U,15U}) CHECK(!simple::ipv4_destination(mapped,size,got));
+
+    // Use the same predicate as Runtime, with actual zero-output transition states.
+    simple::Control c(400);links(c,500);
+    CHECK(c.manual(simple::Action::Forward,30,500));c.tick(500);
+    CHECK(c.state().reason==simple::Reason::Waking && !c.state().left && !c.state().right);
+    CHECK(motion::network_motion_busy(c.state(),false,false));
+    P waking;waking.configure(0);
+    CHECK(waking.step(500,motion::network_motion_busy(c.state(),false,false))==A::None);
+    P connecting;connecting.configure(0);CHECK(connecting.step(500,false)==A::Connect);
+    CHECK(connecting.step(501,motion::network_motion_busy(c.state(),false,false))==A::Cancel);
+    c.tick(501);CHECK(c.state().left==405);
+    CHECK(c.manual(simple::Action::Backward,30,502));c.tick(502);
+    CHECK(c.state().reason==simple::Reason::Reversing && !c.state().left && !c.state().right);
+    P reversing;reversing.configure(0);
+    CHECK(reversing.step(502,motion::network_motion_busy(c.state(),false,false))==A::None);
+    P online;online.configure(0);CHECK(online.step(500,false)==A::Connect);online.got_ip();
+    CHECK(online.step(502,motion::network_motion_busy(c.state(),false,false))==A::None && online.online());
+    c.stop();CHECK(!motion::network_motion_busy(c.state(),false,false));
+    CHECK(motion::network_motion_busy(c.state(),true,false));
+    CHECK(motion::network_motion_busy(c.state(),false,true));
+    c.maintenance(true);CHECK(motion::network_motion_busy(c.state(),false,true));
+    P idle;idle.configure(0);CHECK(idle.step(500,motion::network_motion_busy(c.state(),false,false))==A::Connect);
+    auto inconsistent=c.state();inconsistent.left=1;
+    CHECK(motion::network_motion_busy(inconsistent,false,false));
 }
 void log_ring() {
     simple::LogRing<4> ring;simple::LogRing<4>::Record records[3];

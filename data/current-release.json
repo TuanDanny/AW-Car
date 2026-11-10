@@ -1,6 +1,6 @@
 {
-  "date_local": "2026-11-10",
-  "role": "accepted software prototype, hardware latency/reliability limitations explicitly retained",
+  "date_local": "2026-11-11",
+  "role": "accepted stable software skeleton; motor, 2S, PID and physical latency are later milestones",
   "boards": {
     "brain": {
       "build_id": "simplev1-814afb90103b",
@@ -13,11 +13,11 @@
       "prior_ota_valid_confirmed": true
     },
     "motion": {
-      "build_id": "simplev1-2f131b1123c6",
-      "source_digest": "5cbdd1b49dd6e64cfdee94e17e672200b568e421682380f2c99f371e78db45e5",
+      "build_id": "simplev1-33495b1fe7e0",
+      "source_digest": "ccf9765ae164f4fabab97062a9b1147c08a81042e01c990495c3d343b1fba4e9",
       "image": {
-        "bytes": 1079936,
-        "sha256": "b65348070155a1ffd1fe14a72a7797630089adde6cfadac2fe3b91dc39d08f2f"
+        "bytes": 1080256,
+        "sha256": "d62c815ba037b262a162d1d82b11ef8073add9432509eb2b908e1136582baab9"
       },
       "test_rollback": false,
       "readback_verified": true,
@@ -42,12 +42,12 @@
   "software_checks": {
     "unit_tests": 28,
     "unit_skips": 1,
-    "native_assertions": 52283,
+    "native_assertions": 52301,
     "brain_context_checks": 127,
-    "browser_tests": 25,
+    "browser_tests": 26,
     "rtl_testbenches": 4
   },
-  "phone_latency_report": "data/latency-phone.json",
+  "phone_latency_report": "data/optimization-comparison.json",
   "spi_issue_resolved": false,
   "failed_cs_experiment_discarded": true,
   "simulator_publication_fix": {
@@ -56,5 +56,34 @@
     "regression_before": "405/released",
     "regression_after": "405/active",
     "browser_regression_test": 25
+  },
+  "release": "prototype-v2",
+  "official_branch": "main",
+  "prototype_v2": {
+    "implementation_commit": "79b42044e731527141a9a8f43f47f0199dce5ae1",
+    "baseline_main": "97f9fcd87ebb6859abe696cdca2b94231b6b0154",
+    "phone_A_samples": 60,
+    "phone_B_samples": 61,
+    "phone_status_p50_ms": [
+      218.6,
+      102.2
+    ],
+    "phone_status_p95_ms": [
+      305.2,
+      305.2
+    ],
+    "phone_status_max_ms": [
+      426.8,
+      405.5
+    ],
+    "host_dom_mutation_reduction_percent": 87.6,
+    "motion_flash_readback_verified": true,
+    "brain_image_unchanged": true,
+    "fpga_source_unchanged": true,
+    "manual_ai_oled_speaker_user_confirmed": true,
+    "spi_error_delta_B_window": 0,
+    "spi_issue_proven_resolved": false,
+    "new_ota_cycle_tested": false,
+    "new_30_min_soak_tested": false
   }
 }

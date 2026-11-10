@@ -1,0 +1,110 @@
+{
+  "date_local": "2026-11-10",
+  "baseline_git": "97f9fcd87ebb6859abe696cdca2b94231b6b0154",
+  "review_only": true,
+  "firmware_modified": false,
+  "hardware_ports_opened": false,
+  "device_flashing_performed": false,
+  "main_modified": false,
+  "network_policy_probe": {
+    "scope": "Native C++ Control and NetworkPolicy; output-vs-intent predicate from Runtime::network_busy reviewed statically",
+    "wireless_effect_measured": false,
+    "hardware_opened": false,
+    "production_changed": false,
+    "findings": [
+      {
+        "state": "waking",
+        "left": 0,
+        "right": 0,
+        "current_busy": false,
+        "intent_busy": true,
+        "current_policy": "connect",
+        "intent_policy": "defer"
+      },
+      {
+        "state": "reversing",
+        "left": 0,
+        "right": 0,
+        "current_busy": false,
+        "intent_busy": true,
+        "current_policy": "connect",
+        "intent_policy": "defer"
+      }
+    ]
+  },
+  "ui_idle_probe": {
+    "scope": "Desktop Chromium, 390x844 viewport, idle native C++ simulator only; not Android CPU/Wi-Fi or physical latency",
+    "hardware_opened": false,
+    "production_changed": false,
+    "candidate": "Lab-only conditional textContent setter for selected render fields, no scheduling/protocol changes",
+    "runs": [
+      {
+        "mutations": 750,
+        "by_type": {
+          "childList": 630,
+          "attributes": 120
+        },
+        "left": "0",
+        "right": "0",
+        "manual": "true",
+        "mode": "baseline",
+        "seconds": 3.018,
+        "status_frames": 30,
+        "status_bytes": 25976,
+        "page_errors": [],
+        "mutations_per_status": 25.0
+      },
+      {
+        "mutations": 183,
+        "by_type": {
+          "childList": 63,
+          "attributes": 120
+        },
+        "left": "0",
+        "right": "0",
+        "manual": "true",
+        "mode": "guard_equal_text",
+        "seconds": 3.016,
+        "status_frames": 30,
+        "status_bytes": 25994,
+        "page_errors": [],
+        "mutations_per_status": 6.1
+      },
+      {
+        "mutations": 750,
+        "by_type": {
+          "childList": 630,
+          "attributes": 120
+        },
+        "left": "0",
+        "right": "0",
+        "manual": "true",
+        "mode": "baseline",
+        "seconds": 3.017,
+        "status_frames": 30,
+        "status_bytes": 26018,
+        "page_errors": [],
+        "mutations_per_status": 25.0
+      },
+      {
+        "mutations": 183,
+        "by_type": {
+          "childList": 63,
+          "attributes": 120
+        },
+        "left": "0",
+        "right": "0",
+        "manual": "true",
+        "mode": "guard_equal_text",
+        "seconds": 3.014,
+        "status_frames": 30,
+        "status_bytes": 26100,
+        "page_errors": [],
+        "mutations_per_status": 6.1
+      }
+    ]
+  },
+  "ui_mutation_reduction_percent": 75.6,
+  "phone_latency_improvement_measured": false,
+  "note": "Review probes only. The conditional DOM setter was injected into an isolated host browser, not applied to production HTML. Radio impact of the intent predicate is not measured."
+}

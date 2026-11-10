@@ -10,3 +10,5 @@
 - [Dùng OTA và log hằng ngày](ota-usage.md).
 - [Đo độ trễ bốn nút trên điện thoại](latency-measurement.md).
 - [Kết quả92mẫu thật và giới hạn SPI](latency-results.md).
+- [Review tối ưu, chưa thay firmware](optimization-review.md).
+- [Bản tối ưu nhỏ và số đo A/B sau nạp Motion](optimization-results.md).

@@ -222,6 +222,16 @@
     (() => {
       'use strict';
       const $ = (id) => document.getElementById(id);
+
+      function setText(id, value) {
+        const element = $(id), label = String(value);
+        if (element.textContent !== label) element.textContent = label;
+      }
+      function setAttr(id, name, value) {
+        const element = $(id), label = String(value);
+        if (element.getAttribute(name) !== label) element.setAttribute(name, label);
+      }
+
       const directions = [...document.querySelectorAll('[data-action]')];
       const keyActions = { KeyW: 'forward', KeyS: 'backward', KeyA: 'left', KeyD: 'right' };
       const actionNames = { neutral: 'Lệnh về 0', forward: 'Lệnh tiến', backward: 'Lệnh lùi', left: 'Lệnh quay trái', right: 'Lệnh quay phải' };
@@ -288,12 +298,12 @@
           if ($(id).disabled !== !available) $(id).disabled = !available;
         }
         if ($('speed').disabled !== !drive) $('speed').disabled = !drive;
-        for (const mode of ['manual', 'ai']) $(mode + '-mode').setAttribute('aria-pressed', String(received && status?.mode === mode));
-        $('mode-hint').textContent = status?.maintenance ? 'Motion đang bảo trì OTA · điều khiển đã khóa.'
+        for (const mode of ['manual', 'ai']) setAttr(mode + '-mode', 'aria-pressed', received && status?.mode === mode);
+        setText('mode-hint', status?.maintenance ? 'Motion đang bảo trì OTA · điều khiển đã khóa.'
           : !available ? 'Chờ trạng thái Motion trước khi điều khiển.'
           : awaitingMode !== null ? 'Đang chờ Motion xác nhận chế độ.'
-          : status.mode === 'ai' ? 'AI điều khiển di chuyển. STOP luôn sẵn sàng.' : 'Manual · Giữ một nút hoặc phím để chạy.';
-        $('telemetry').dataset.fresh = String(fresh);
+          : status.mode === 'ai' ? 'AI điều khiển di chuyển. STOP luôn sẵn sàng.' : 'Manual · Giữ một nút hoặc phím để chạy.');
+        setAttr('telemetry', 'data-fresh', fresh);
       }
       function stop() {
         clearHeld(false);
@@ -319,41 +329,42 @@
         chip('wifi-link', 'Wi-Fi —', 'warn');
         chip('cloud-link', 'Cloud —', 'warn');
       }
-      const number = (value) => Number.isFinite(value) ? value.toLocaleString('vi-VN') : '—';
+      const numberFormat = new Intl.NumberFormat('vi-VN');
+      const number = (value) => Number.isFinite(value) ? numberFormat.format(value) : '—';
       const signed = (value) => Number.isFinite(value) ? (value > 0 ? '+' : '') + value : '—';
       function render(data) {
         const fpga = data.fpga || {}, brain = data.brain || {}, diag = data.diag || {};
-        $('simulator').hidden = data.simulator !== true;
+        if ($('simulator').hidden !== (data.simulator !== true)) $('simulator').hidden = data.simulator !== true;
         chip('fpga-link', 'FPGA ' + (fpga.connected ? 'đã nối' : 'mất liên kết'), fpga.connected ? 'good' : 'bad');
         chip('brain-link', brain.connected ? 'Đã kết nối' : 'Mất liên kết', brain.connected ? 'good' : 'bad');
         chip('wifi-link', 'Wi-Fi ' + (brain.wifi ? 'đã nối' : 'chưa nối'), brain.wifi ? 'good' : 'warn');
         chip('cloud-link', 'Cloud ' + (brain.cloud ? 'đã nối' : 'chưa nối'), brain.cloud ? 'good' : 'warn');
-        $('listen-state').textContent = brain.speaking ? 'Brain đang nói' : brain.listening ? 'Brain đang nghe' : 'Brain chưa bật nghe';
+        setText('listen-state', brain.speaking ? 'Brain đang nói' : brain.listening ? 'Brain đang nghe' : 'Brain chưa bật nghe');
         const networkResult = ['Chưa có yêu cầu kết nối', 'Đang lưu / kết nối Wi-Fi', 'Đã có IP', 'Kết nối Wi-Fi thất bại'][brain.wifi_result] || 'Chưa có kết quả Wi-Fi';
         // textContent keeps SSID/status strings inert; passwords are never rendered.
         const mn = data.motion_network || {};
         const motionResult = mn.online ? 'Đã có IP' : mn.connecting ? 'Đang kết nối' : mn.configured ? 'Chờ kết nối lại' : 'Chưa cấu hình';
-        $('network-caption').textContent = 'Brain: ' + (brain.ssid || '—') + ' · ' + (brain.ip || '—') + ' · ' + networkResult
-          + ' | Motion quản trị: ' + (mn.ip || '—') + ' · ' + motionResult + '. Lái xe chỉ qua AW-CAR / 192.168.4.1.';
-        $('left-duty').textContent = signed(data.left);
-        $('right-duty').textContent = signed(data.right);
-        $('left-count').textContent = number(fpga.left_count);
-        $('right-count').textContent = number(fpga.right_count);
-        $('left-seen').textContent = fpga.left_seen ? 'Đã thấy cạnh lên' : 'Chưa thấy cạnh lên';
-        $('right-seen').textContent = fpga.right_seen ? 'Đã thấy cạnh lên' : 'Chưa thấy cạnh lên';
-        $('reason').textContent = String(data.reason ?? '—');
-        $('generation').textContent = number(data.generation) + ' / ' + number(fpga.applied_seq);
-        $('build').textContent = String(data.build ?? '—');
-        $('uart').textContent = number(diag.uart_rx) + ' / ' + number(diag.uart_errors);
-        $('spi').textContent = number(diag.spi_ok) + ' / ' + number(diag.spi_errors);
-        $('latency-count').textContent = number(diag.latency_count);
-        $('latency').textContent = [diag.latency_p50_us, diag.latency_p95_us, diag.latency_p99_us].map(number).join(' / ') + ' µs';
-        $('latency-max').textContent = number(diag.latency_max_us) + ' µs';
-        $('runtime').textContent = number(diag.heap) + ' B / ' + (Number.isFinite(diag.uptime_ms) ? number(Math.floor(diag.uptime_ms / 1000)) + ' s' : '—');
+        setText('network-caption', 'Brain: ' + (brain.ssid || '—') + ' · ' + (brain.ip || '—') + ' · ' + networkResult
+          + ' | Motion quản trị: ' + (mn.ip || '—') + ' · ' + motionResult + '. Lái xe chỉ qua AW-CAR / 192.168.4.1.');
+        setText('left-duty', signed(data.left));
+        setText('right-duty', signed(data.right));
+        setText('left-count', number(fpga.left_count));
+        setText('right-count', number(fpga.right_count));
+        setText('left-seen', fpga.left_seen ? 'Đã thấy cạnh lên' : 'Chưa thấy cạnh lên');
+        setText('right-seen', fpga.right_seen ? 'Đã thấy cạnh lên' : 'Chưa thấy cạnh lên');
+        setText('reason', String(data.reason ?? '—'));
+        setText('generation', number(data.generation) + ' / ' + number(fpga.applied_seq));
+        setText('build', String(data.build ?? '—'));
+        setText('uart', number(diag.uart_rx) + ' / ' + number(diag.uart_errors));
+        setText('spi', number(diag.spi_ok) + ' / ' + number(diag.spi_errors));
+        setText('latency-count', number(diag.latency_count));
+        setText('latency', [diag.latency_p50_us, diag.latency_p95_us, diag.latency_p99_us].map(number).join(' / ') + ' µs');
+        setText('latency-max', number(diag.latency_max_us) + ' µs');
+        setText('runtime', number(diag.heap) + ' B / ' + (Number.isFinite(diag.uptime_ms) ? number(Math.floor(diag.uptime_ms / 1000)) + ' s' : '—'));
         const action = typeof data.action === 'number' ? actionOrder[data.action] : data.action;
-        $('motion-state').textContent = data.maintenance ? 'Bảo trì OTA · không điều khiển' : (data.mode === 'ai' ? 'AI' : 'Manual') + ' · ' + (actionNames[action] || 'Chưa rõ lệnh');
-        $('motion-detail').textContent = 'Theo STATUS Motion · mức lệnh ' + number(data.speed) + '%';
-        $('last-status').textContent = 'STATUS vừa nhận · 10 Hz';
+        setText('motion-state', data.maintenance ? 'Bảo trì OTA · không điều khiển' : (data.mode === 'ai' ? 'AI' : 'Manual') + ' · ' + (actionNames[action] || 'Chưa rõ lệnh'));
+        setText('motion-detail', 'Theo STATUS Motion · mức lệnh ' + number(data.speed) + '%');
+        setText('last-status', 'STATUS vừa nhận · 10 Hz');
       }
       function onStatus(data) {
         if (data.mode !== 'manual' && data.mode !== 'ai') return;

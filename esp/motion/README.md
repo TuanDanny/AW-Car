@@ -17,5 +17,9 @@ Chế độ đo tùy chọn: mở `/#latency`. Observer JS chỉ nạp khi bật
 điện thoại bấm→gửi/STATUS đúng mục tiêu; một dòng latency_probe/lượt vào console.
 Không đo cạnh PWM/motor; không thêm việc vào car_control và không tự phát MOVE.
 
+Ứng viên tối ưu giữ toàn bộ control flow/tần số/giao thức: Web bỏ ghi DOM lặp
+và dùng formatter chung; worker network coi Waking/Reversing là motion busy.
+Không đổi SPI/RTL/PID, priority, guard đảo chiều hoặc thời lượng AI.
+
 Build: `python ../../utils/build_esp.py motion` từ thư mục này hoặc xem root hướng dẫn.
 Không nạp cho tới khi VM ngắt, các dây SPI/tháo fixture theo sơ đồ đã được xác nhận.
