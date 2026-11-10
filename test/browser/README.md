@@ -32,6 +32,9 @@ bận60ms và bận kéo dài: giữ ngắn được tiếp tục, tắc dài ph
 touch3giây qua nhiều STATUS; ca22 xác nhận AI bỏ duration chạy3giây. Đây là kiểm
 điều kiện phần mềm, không giả làm số đo Wi-Fi điện thoại thật.
 
+Ca23/24 kiểm observer `/#latency`: đủ bốn nút, giá trị timestamp hợp lệ và hủy
+lượt đo khi generation đổi. Observer dùng native WebSocket, không proxy.
+
 Ca AI dùng `/sim/event` để kiểm tra thời lượng native, STOP/generation cũ và
 AI tiếp tục khi đóng Web. Mỗi test reset simulator; không chạy đồng thời một
 suite khác cùng cổng. Thời gian bấm/chu kỳ giữ đo trên browser/host, không

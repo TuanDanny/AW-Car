@@ -57,6 +57,14 @@ lệnh Motion đang báo. AI tiếp tục theo deadline riêng khi Web ngắt.
 
 ## Dữ liệu hiển thị
 
+Đo trên điện thoại: mở `http://192.168.4.1/#latency`. Bộ đo không tự chạy xe;
+giữ VM ngắt và người dùng bấm từng nút, giữ0,5–1giây rồi nhả1giây. Timestamp
+bấm/gửi/STATUS cùng đồng hồ performance của browser; một mẫu chỉ hợp lệ khi
+mode/generation không đổi, mục tiêu đúng dấu/duty và SPI/seq có tiến triển.
+Số cuối là phản hồi setpoint phần mềm, gồm poll100ms; không xác nhận cạnh PWM
+hoặc motor đã quay. Bỏ `#latency` và tải lại để tắt hoàn toàn observer. Log chỉ
+giữ hướng và hai số microsecond, không có hội thoại hay credential.
+
 `status` dùng đúng shape firmware: `build`, `mode`, `action`, `speed`, `left`,
 `right`, `reason`, `generation`; `fpga` gồm connected/applied_seq/count/seen;
 `brain` gồm connected/wifi/cloud/listening/speaking/ssid/ip/wifi_result;

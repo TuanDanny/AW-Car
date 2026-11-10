@@ -494,6 +494,12 @@
         if (performance.now() - lastStatusAt > 1000) stale();
       }, 100);
       connect();
+      function loadLatencyObserver() {
+        if (location.hash !== '#latency' || $('latency-observer')) return;
+        const observer = document.createElement('script'); observer.id = 'latency-observer';
+        observer.src = '/latency.js'; document.head.appendChild(observer);
+      }
+      window.addEventListener('hashchange', loadLatencyObserver); loadLatencyObserver();
     })();
   </script>
 </body>

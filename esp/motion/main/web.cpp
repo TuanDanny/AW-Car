@@ -17,6 +17,7 @@
 #define SIMPLE_BUILD_ID "simplev1-dev"
 #endif
 extern const char page_start[] asm("_binary_index_html_start");
+extern const char latency_start[] asm("_binary_latency_js_start");
 namespace motion {
 namespace {
 httpd_handle_t server{};
@@ -96,6 +97,14 @@ esp_err_t message(httpd_req_t* request,cJSON* json) {
     const char* type=string(json,"t");if(!type) return result(request,false,"invalid_type");
     auto& runtime=Runtime::get();
     if(std::strcmp(type,"status")==0) return status(request);
+    if(std::strcmp(type,"latency")==0) {
+        const auto* action=string(json,"action");int dispatch=0,confirm=0;
+        if(!action || (std::strcmp(action,"forward") && std::strcmp(action,"backward") && std::strcmp(action,"left") && std::strcmp(action,"right")) ||
+           !integer(json,"dispatch_us",0,2000000,dispatch) || !integer(json,"confirm_us",dispatch,2000000,confirm))
+            return result(request,false,"invalid_latency_sample");
+        ESP_LOGI("latency_probe","action=%s dispatch_us=%d confirm_us=%d scope=phone_to_status poll_ms=100",action,dispatch,confirm);
+        return result(request,true,"received");
+    }
     if(std::strcmp(type,"stop")==0) { runtime.stop();return result(request,true,"received"); }
     if(runtime.snapshot().maintenance) return result(request,false,"maintenance");
     if(std::strcmp(type,"neutral")==0) { runtime.drive(simple::Action::Neutral,0);return result(request,true,"received"); }
@@ -193,6 +202,12 @@ esp_err_t index(httpd_req_t* request) {
     httpd_resp_set_hdr(request,"X-Content-Type-Options","nosniff");httpd_resp_set_hdr(request,"X-Frame-Options","DENY");
     return httpd_resp_send(request,page_start,HTTPD_RESP_USE_STRLEN);
 }
+esp_err_t latency_script(httpd_req_t* request) {
+    if(!request_on_ap(request)) return httpd_resp_send_err(request,HTTPD_403_FORBIDDEN,"AP only");
+    httpd_resp_set_type(request,"text/javascript; charset=utf-8");httpd_resp_set_hdr(request,"Cache-Control","no-store");
+    httpd_resp_set_hdr(request,"X-Content-Type-Options","nosniff");
+    return httpd_resp_send(request,latency_start,HTTPD_RESP_USE_STRLEN);
+}
 }
 void start_web() {
     httpd_config_t config=HTTPD_DEFAULT_CONFIG();config.task_priority=4;config.core_id=0;config.stack_size=12288;
@@ -201,6 +216,8 @@ void start_web() {
     config.close_fn=close_socket;ESP_ERROR_CHECK(httpd_start(&server,&config));
     httpd_uri_t root{};root.uri="/";root.method=HTTP_GET;root.handler=index;
     ESP_ERROR_CHECK(httpd_register_uri_handler(server,&root));
+    httpd_uri_t probe{};probe.uri="/latency.js";probe.method=HTTP_GET;probe.handler=latency_script;
+    ESP_ERROR_CHECK(httpd_register_uri_handler(server,&probe));
     httpd_uri_t ws{};ws.uri="/ws";ws.method=HTTP_GET;ws.handler=ws_handler;ws.is_websocket=true;
     ws.handle_ws_control_frames=true;ws.ws_pre_handshake_cb=pre_handshake;ws.ws_post_handshake_cb=post_handshake;
     ESP_ERROR_CHECK(httpd_register_uri_handler(server,&ws));

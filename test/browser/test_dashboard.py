@@ -138,7 +138,9 @@ class DashboardTests(unittest.TestCase):
         # These cases need the browser's native bufferedAmount; the Playwright
         # relay emulates it and would hide real client backpressure behavior.
         if self._testMethodName not in ('test_19_brief_socket_backpressure_keeps_physical_hold',
-                                       'test_20_sustained_backpressure_requires_a_fresh_press'):
+                                       'test_20_sustained_backpressure_requires_a_fresh_press',
+                                       'test_23_latency_observer_records_four_buttons',
+                                       'test_24_latency_observer_cancels_old_generation'):
             self.context.route_web_socket("**/ws", self.relay)
         self.sim_event({"event": "reset"})
         self.page, self.probe = self.new_page()
@@ -524,8 +526,10 @@ class DashboardTests(unittest.TestCase):
         self.wait(lambda: self.sim_state()['left'] > 0)
         marker=len(self.probe.sent)
         for _ in range(4):
-            self.page.evaluate('window.__testBuffered=true');self.page.wait_for_timeout(60)
-            self.page.evaluate('window.__testBuffered=false');self.page.wait_for_timeout(140)
+            # Clear in the browser: Python/CI scheduling must not accidentally
+            # extend an intended60ms injection into a >150ms real blockage.
+            self.page.evaluate('window.__testBuffered=true; setTimeout(()=>window.__testBuffered=false,60)')
+            self.page.wait_for_timeout(200)
             self.assertTrue(self.page.locator('#forward').evaluate("e=>e.classList.contains('is-held')"),
                             'A brief busy socket must skip a repeat, not cancel the physical hold: '
                             +self.page.locator('#notice').inner_text()+' '+str(self.page.evaluate('window.__inputTrace.slice(-6)')))
@@ -569,6 +573,36 @@ class DashboardTests(unittest.TestCase):
         self.assertEqual(self.sim_state()['left'],405,'Default AI action must outlast one second')
         self.wait(lambda:self.sim_state()['reason']=='ai_complete',timeout=3)
         self.wait_zero()
+
+    def start_latency_observer(self):
+        self.page.goto(OPTIONS['url'].rstrip('/')+'/#latency',wait_until='networkidle')
+        self.page.wait_for_selector('#latency-readout')
+        self.page.wait_for_selector('#telemetry[data-fresh="true"]')
+        self.page.wait_for_timeout(150);self.wait_zero()
+
+    def test_23_latency_observer_records_four_buttons(self):
+        self.start_latency_observer();marker=len(self.probe.sent)
+        for action in ['forward','backward','left','right']:
+            self.page.locator('#'+action).evaluate("e=>e.scrollIntoView({block:'center'})")
+            self.pointer_down(action)
+            self.page.wait_for_timeout(350)
+            self.assertTrue(any(v['action']==action for v in self.probe.commands('latency',marker)),
+                            self.page.locator('#latency-readout').inner_text()+' '+str(self.probe.latest)+' '+str(self.probe.errors))
+            self.page.mouse.up();self.wait_zero();self.page.wait_for_timeout(80)
+        records=self.probe.commands('latency',marker)
+        self.assertEqual(len(records),4)
+        self.assertTrue(all(0<=v['dispatch_us']<=v['confirm_us']<2000000 for v in records))
+        self.assertIn('Tiến · 1',self.page.locator('#latency-readout').inner_text())
+        self.assertEqual(self.probe.errors,[])
+
+    def test_24_latency_observer_cancels_old_generation(self):
+        self.start_latency_observer();marker=len(self.probe.sent)
+        self.page.locator('#forward').evaluate("e=>e.scrollIntoView({block:'center'})")
+        self.pointer_down('forward');self.sim_event({'event':'maintenance','enabled':True})
+        self.page.wait_for_timeout(300);self.page.mouse.up()
+        self.assertFalse(self.probe.commands('latency',marker))
+        self.assertIn('Lượt chưa xác nhận/hủy: 1',self.page.locator('#latency-readout').inner_text())
+        self.assertEqual(self.sim_state()['left'],0)
 
     def test_18_maintenance_clears_held_and_never_replays(self):
         self.page.locator('#forward').hover()

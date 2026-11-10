@@ -13,6 +13,9 @@ Manual độc lập Brain. PID mặc định tắt; không dùng encoder một O
 Web gửi ngay khi nhấn, lặp20Hz. Socket bận ngắn thì bỏ lần gửi lặp; tắc liên tục
 quá150ms thì hủy giữ, không tự phát lại. Nhả/STOP/timeout500ms vẫn về0.
 AI bỏ duration hoặc duration0 dùng3giây; thời gian chỉ định riêng giữ100..3000ms.
+Chế độ đo tùy chọn: mở `/#latency`. Observer JS chỉ nạp khi bật, ghi timestamp
+điện thoại bấm→gửi/STATUS đúng mục tiêu; một dòng latency_probe/lượt vào console.
+Không đo cạnh PWM/motor; không thêm việc vào car_control và không tự phát MOVE.
 
 Build: `python ../../utils/build_esp.py motion` từ thư mục này hoặc xem root hướng dẫn.
 Không nạp cho tới khi VM ngắt, các dây SPI/tháo fixture theo sơ đồ đã được xác nhận.
