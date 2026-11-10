@@ -1,0 +1,49 @@
+{
+  "build_id": "simplev1-9441bc362b38",
+  "source_commit": "4040a80",
+  "scope": "Real Motion AP control with STA connected; VM off, no motors",
+  "sta_boundary": {
+    "root_403": true,
+    "spoofed_root_403": true,
+    "ws_rejected": true,
+    "spoofed_ws_rejected": true,
+    "no_control_frames_sent_by_probe": true
+  },
+  "observed_actions": [
+    "backward",
+    "forward",
+    "left",
+    "right"
+  ],
+  "neutral_after_release_observed": true,
+  "explicit_stop_observed": true,
+  "mailbox_to_spi_api_us": {
+    "firmware_samples_total": 382,
+    "window": 256,
+    "p50": 266,
+    "p95": 335,
+    "p99": 1611,
+    "max": 2419
+  },
+  "timing_is_phone_to_pwm": false,
+  "router_loss_reconnect_accepted": true,
+  "overall_apsta_acceptance": false,
+  "raw_logs_committed": false,
+  "offline_observations": {
+    "span_ms": 74202,
+    "actions": [
+      "backward",
+      "forward",
+      "left"
+    ],
+    "reconnected": true,
+    "spi_io_errors": 0,
+    "sporadic_frame_ack_errors_present": true
+  },
+  "functional_network_checkpoint_pass": true,
+  "still_pending": [
+    "log-load and OTA-load benchmark",
+    "controlled AP-only versus APSTA A/B",
+    "phone-to-PWM measurement"
+  ]
+}

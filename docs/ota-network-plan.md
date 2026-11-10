@@ -19,8 +19,8 @@ Nhánh làm việc: `codex/simplev1-ota`, từ `fff2940`; main/skeleton giữ m�
 | Mốc | Trạng thái hiện tại | Điều kiện trước mốc tiếp |
 | --- | --- | --- |
 | 0: build identity/baseline | Đã sửa hash bao gồm sdkconfig.defaults; có hash sdkconfig sinh ra | Hai ESP build được, regression và baseline có phạm vi rõ |
-| 1: Motion AP+STA | Có source/build, đã nạp thử app qua USB; chưa nghiệm thu mạng | Test AP Manual độc lập, STA có IP/mất router/reconnect và so latency |
-| 2: AP-only control | Đã chặn local socket không thuộc AP tại `/`, handshake và frame `/ws` | Test trực tiếp từ STA kể cả giả Host/Origin; AP vẫn giữ/nhả/STOP đúng |
+| 1: Motion AP+STA | Đạt kiểm tra chức năng trên bàn: có IP, mất mạng vẫn Manual/STOP và nối lại | A/B/tải và button→PWM vẫn dành mốc7 |
+| 2: AP-only control | Đạt probe laptop thật: root403, WS từ chối với cả Host/Origin giả; AP lái được | Tiếp tục hồi quy khi thêm management |
 | 3: discovery/log | Chưa triển khai | Poll log nhỏ có giới hạn, không tranh phiên điều khiển; fallback IP |
 | 4: Brain OTA | Chưa triển khai | Xác thực/đúng board, local health không cần cloud, update lỗi/rollback thật |
 | 5: Motion OTA | Chỉ có bảng phân vùng ứng viên chưa kích hoạt | USB migration giữ dữ liệu, MAINTENANCE khóa MOVE/công suất, rollback thật |
@@ -30,6 +30,9 @@ Nhánh làm việc: `codex/simplev1-ota`, từ `fff2940`; main/skeleton giữ m�
 Theo cổng kiểm thử trong bản review, không mở OTA hoặc thay partition/bootloader trên
 board trước khi hoàn thành kiểm mạng/điều khiển và chuẩn bị migration. Mỗi mốc có diff,
 test, báo cáo; chưa PASS phần cứng phải ghi đúng trạng thái chờ.
+Lượt nghiệm thu mạng chức năng ở [bằng chứng đã lọc](../data/apsta-router-check.json):
+mailbox→SPI p99=1611us/max2419us; chưa đo button→PWM hoặc A/B tải dài.
+Có lỗi frame/ACK SPI rải rác, không có lỗi SPI I/O ở mẫu; chưa coi toàn chuỗi hoàn hảo.
 
 ## AP+STA đang thử
 
