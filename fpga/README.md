@@ -1,60 +1,34 @@
-# FPGA truyền động
+# FPGA simplev1
 
-Nơi lưu RTL và testbench cho 2 encoder A/B, PWM 2 motor sau, giao tiếp Motion
-và watchdog/FSM. PID, xử lý cảm biến an toàn và servo lái nằm ở ESP32 Motion.
-Toàn bộ nguồn RTL/testbench dùng **SystemVerilog, đuôi `.sv`**; hook/CI chặn
-đuôi HDL khác. Runner bật `iverilog -g2012`, script tổng hợp bật `read_verilog -sv`.
+Tang Nano9K GW1NR-LV9QN88PC6/I5, một clock 27 MHz, SystemVerilog thuần.
+Đây là triển khai mới cho [contract](../docs/protocol.md), không tương thích UART
+FPGA cũ. [RTL](rtl/README.md), [target](targets/tang_nano9k/README.md),
+[test](../test/rtl/README.md). Chưa nạp hoặc thử phần cứng simplev1.
 
-Trạng thái: đã có RTL/testbench cho reset, encoder X4 hai bánh, snapshot,
-PWM hai kênh, trình tự đổi chiều độc lập driver và UART/parser/CRC/serializer/
-command guard, FSM/watchdog và top `drive_core` đã nối link với PWM. Chưa có
-adapter driver, wrapper/constraints cho Tang Nano 9K hoặc báo cáo timing. Hợp đồng GPIO phục hồi/ARM
-và gate ngoài ở [fpga-safety.md](../firmware/shared/fpga-safety.md). Xem giao diện ở
-[rtl](rtl/README.md), ca thử ở [tb](tb/README.md).
-
-Top logic ở `rtl/drive_core.sv`; module con chia theo `common`, `encoder`,
-`pwm`, `link`, `safety`, mỗi nhóm có README. Runner tìm `.sv` đệ quy trong
-`rtl/`; bốn script tổng hợp dùng đường dẫn nhóm tương ứng.
-
-Chạy từ root sau khi Icarus/VVP có trong PATH:
-
-```sh
-python tools/run_fpga_tests.py
+```powershell
+C:/Espressif/python_env/idf6.1_py3.13_env/Scripts/python.exe utils/build_fpga.py
 ```
 
-Runner nhận `--iverilog` và `--vvp` để dùng đường dẫn cục bộ, `--waves` để lưu
-VCD tại `fpga/build/`. Có22 testbench; `--report fpga/build/regression-report.json`
-cùng `--require-module-coverage` xuất bằng chứng module -> test và chặn module
-chưa tham gia bài PASS. Đây chưa phải coverage dòng/nhánh/toggle hoặc timing
-vật lý. CI lưu JSON thành artifact và chạy mô phỏng trên Linux. Viết lõi độc lập hãng;
-chỉ thêm thư mục target khi có wrapper/constraints thực tế.
+Mặc định chạy Icarus (gồm đủ 13.500.000 clock watchdog), tổng hợp/PnR/STA Gowin
+và kiểm netlist sau PnR. Có `--rtl-only`, `--gowin-only`, `--test tb_spi` để chẩn
+đoán; báo cáo ghi rõ phần chưa chạy. Build/log/netlist ở `build/fpga`, không commit.
+Không có thao tác Programmer, COM hoặc JTAG trong flow.
 
-Với bộ Icarus cục bộ đã chuẩn bị trên máy này, không cần đổi PATH hệ thống:
+SPI mode0/1MHz có setup/hold/gap CS >=2us; MOSI chỉ được chốt sau CS lên và đúng
+256 bit hợp lệ. RX là SR32 snapshot tại CS xuống, luôn có seq của lệnh trước.
+`applied_seq` xác nhận setpoint đã chốt; chân driver cập nhật ở biên PWM kế tiếp
+(<=50us, hoặc thêm một chu kỳ zero khi đổi dấu trực tiếp). Không chờ biên PWM
+để cập nhật seq vì giao dịch tiếp có thể bắt đầu sau 2us.
 
-```sh
-python tools/run_fpga_tests.py --iverilog build/toolchain/ucrt64/bin/iverilog.exe --vvp build/toolchain/ucrt64/bin/vvp.exe
-```
+Motion thực hiện guard cơ khí 40ms và nhớ dấu nonzero cuối. FPGA không cộng thêm
+40ms; chỉ có một chu kỳ PWM zero 50us khi đổi dấu trực tiếp. Duty0=4 chân LOW,
+|duty|1350=HIGH liên tục chân được chọn. Reset/timeout khóa PWM độc lập biên.
+Watchdog 500ms chỉ được làm mới bởi lệnh hợp lệ, không có lỗi chốt/ARM/session.
 
-Kết quả chạy và giới hạn được ghi ở [verification.md](verification.md).
-Chưa nối motor thật: còn cần driver/gate an toàn bên ngoài, target và thử trên bàn.
+Encoder hai FF đồng bộ, xác nhận mức ổn định 256 tick (~9,48us); baseline đầu
+không sinh cạnh giả. Đếm cạnh lên unsigned; period có sau hai cạnh, age saturate.
+Chân phải P28 không pull FPGA do đã có pull-up ngoài ở level shifter; P27 chưa
+dùng kéo xuống. Lọc không thay điện trở ngoài hoặc chứng minh đầu vào thả nổi an toàn.
 
-Runner mặc định chạy top 2 giây ở clock rút gọn2,7MHz và bài lỗi ở27MHz.
-Dùng `--full-timing --timeout 1800` để chạy cả bài2giây ở27MHz; CI dùng chế độ
-này. Đây là thời gian mô phỏng, thời gian chạy trên máy có thể lâu hơn nhiều.
-
-`synth_encoder.ys`, `synth_pwm.ys`, `synth_link.ys`, `synth_drive.ys` kiểm tra latch/lỗi cấu trúc và mapping
-generic Gowin; chạy từ root sau khi có `fpga/build/` bằng `yosys -s <script>`
-hoặc YoWASP-Yosys. Đã chạy Yosys0.70 cục bộ; CI cũng chạy bốn script này, gồm top hoàn chỉnh.
-Chưa có pinout/constraints/PnR/STA đúng chip; cell count sơ bộ không kết luận fit.
-Luồng đề xuất: Icarus/VVP + GTKWave để mô phỏng, Gowin Education để tổng hợp,
-place-and-route và kiểm tra timing đúng chip Tang Nano 9K; không cần Quartus.
-Tcd/Tpd min/max, setup/hold và slack được kiểm tra bằng STA sau route ở bước
-target, trước khi mua board; xem [tiêu chí timing](../docs/fpga-rtl-design-test-plan.md#5-tổng-hợp-và-điều-kiện-quyết-định-mua-board).
-Board mục tiêu **Nano 9K / GW1NR-LV9QN88PC6/I5**, chưa mua hoặc xác nhận
-fit/timing/giá. Tối ưu duty và timer vẫn giữ mục tiêu 9K; số liệu trước/sau
-ở [verification.md](verification.md). Công cụ kiểm chứng tương đương với bản
-trước: `python tools/check_fpga_equivalence.py --base 821cfae --yosys <yosys>`.
-
-Xem [kế hoạch và nghiệm thu toàn hệ thống](../docs/fpga-drive-plan.md).
-Chi tiết [thiết kế RTL, kiểm thử và thứ tự triển khai](../docs/fpga-rtl-design-test-plan.md).
-Wire format và ranh giới phiên/ARM ở [protocol v1](../firmware/shared/fpga-protocol.md).
+LED1 active-low: chờ nhấp nháy mỗi500ms, liên kết còn hạn sáng liên tục; LED2–6 tắt.
+Observer không phản hồi vào PWM/SPI/watchdog. STA/mô phỏng không thay đo board/motor.

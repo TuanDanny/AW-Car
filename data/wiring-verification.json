@@ -1,0 +1,6 @@
+{
+  "pass": true,
+  "native_netlist_pins_checked": 87,
+  "cst_connections_checked": 9,
+  "scope": "logical USB bench interconnect, not a PCB/ERC/power certification"
+}

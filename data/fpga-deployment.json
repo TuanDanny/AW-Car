@@ -1,0 +1,13 @@
+{
+  "at_utc": "2026-11-10T01:59:54.746076+00:00",
+  "mode": "flash",
+  "sha256": "64212c9aa7f73ec7779f27e3f2fd48f7b7e3a62ae9eee3a9dffc78a0ecb4cf43",
+  "usercode": "0x0000A6C1",
+  "status": "0x0003F020",
+  "pass": true,
+  "crc_on": true,
+  "security_on": true,
+  "byte_readback_verified": false,
+  "spi_runtime_tested": false,
+  "reloaded_from_embedded_flash": true
+}

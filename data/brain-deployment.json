@@ -1,0 +1,17 @@
+{
+  "at_utc": "2026-11-10T02:08:42.458285+00:00",
+  "board": "brain",
+  "port": "COM3",
+  "build_id": "simplev1-e8adbccbfcf0",
+  "app_offset": "0x20000",
+  "readback_sha256": {
+    "aw_car_brain.bin": "4940a899cc720e6265bacfbd4308a9b73ff70dfdbf35beba9cf0f5b236dad714",
+    "generated_assets.bin": "7034fc1a926ec88297cba70f58397fadc40f103e083eda92d7c7050f55938112"
+  },
+  "nvs_preserved": true,
+  "partition_table_preserved": true,
+  "otadata_preserved": true,
+  "legacy_motioncfg_preserved": false,
+  "pass": true,
+  "vm_off_confirmed": true
+}

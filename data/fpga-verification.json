@@ -1,0 +1,94 @@
+{
+  "rtl_tests": [
+    {
+      "test": "tb_pwm_encoder",
+      "result": "PASS",
+      "seconds": 0.515
+    },
+    {
+      "test": "tb_spi",
+      "result": "PASS",
+      "seconds": 7.887
+    },
+    {
+      "test": "tb_nano9k",
+      "result": "PASS",
+      "seconds": 0.412
+    },
+    {
+      "test": "tb_watchdog",
+      "result": "PASS",
+      "seconds": 76.037
+    }
+  ],
+  "timing": {
+    "fmax_mhz": 57.767,
+    "setup_violated_endpoints": 0,
+    "hold_violated_endpoints": 0,
+    "paths_analyzed": 2335,
+    "endpoints_analyzed": 2315,
+    "worst_setup_slack_ns": 19.726,
+    "worst_hold_slack_ns": 0.508,
+    "worst_recovery_slack_ns": 28.458,
+    "worst_removal_slack_ns": 1.878,
+    "tns_ns": {
+      "setup": 0.0,
+      "hold": 0.0
+    },
+    "constraints": [
+      {
+        "name": "TC_CLOCK",
+        "status": "Actived"
+      },
+      {
+        "name": "TC_CLOCK_UNCERTAINTY",
+        "status": "Actived"
+      },
+      {
+        "name": "TC_CLOCK_UNCERTAINTY",
+        "status": "Actived"
+      },
+      {
+        "name": "TC_MAX_DELAY",
+        "status": "Actived"
+      },
+      {
+        "name": "TC_MIN_DELAY",
+        "status": "Actived"
+      },
+      {
+        "name": "TC_MAX_DELAY",
+        "status": "Actived"
+      },
+      {
+        "name": "TC_MIN_DELAY",
+        "status": "Actived"
+      },
+      {
+        "name": "TC_MAX_DELAY",
+        "status": "Actived"
+      },
+      {
+        "name": "TC_FALSE_PATH",
+        "status": "Actived"
+      }
+    ],
+    "unconstrained_path_count": null,
+    "scope": "Routed STA at 27MHz with 0.2ns uncertainty and 37.037ns boundary transport budgets; five asynchronous first-sampler D pins excepted. No synchronous SPI clock claim. Gowin text report does not enumerate all unconstrained paths; board signal integrity/MTBF not measured.",
+    "result": "PASS"
+  },
+  "post_pnr_simulation": {
+    "result": "PASS",
+    "test": "tb_nano9k",
+    "seconds": 8.231,
+    "sdf": false,
+    "scope": "Functional routed netlist with installed Gowin primitives; timing evaluated separately by STA"
+  },
+  "pin_audit": {
+    "result": "PASS",
+    "ports": 18,
+    "package_database_checked": true,
+    "right_encoder_pull": "NONE (external level-shifter pull-up required)"
+  },
+  "scope": "Icarus/Gowin offline; board deployment recorded separately"
+}

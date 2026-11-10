@@ -1,0 +1,527 @@
+{
+  "scope": "simplev1 USB bench wiring; NOT PCB",
+  "pins": [
+    {
+      "ref": "U1",
+      "pin": "5V",
+      "net": "5V_BRAIN",
+      "type": "power_in"
+    },
+    {
+      "ref": "U1",
+      "pin": "3V3",
+      "net": "3V3_BRAIN",
+      "type": "power_out"
+    },
+    {
+      "ref": "U1",
+      "pin": "GPIO18",
+      "net": "BM_MOTION_TX",
+      "type": "input"
+    },
+    {
+      "ref": "U1",
+      "pin": "GPIO6",
+      "net": "MIC_SD",
+      "type": "input"
+    },
+    {
+      "ref": "U1",
+      "pin": "GPIO17",
+      "net": "BM_BRAIN_TX",
+      "type": "output"
+    },
+    {
+      "ref": "U1",
+      "pin": "GPIO4",
+      "net": "MIC_WS",
+      "type": "output"
+    },
+    {
+      "ref": "U1",
+      "pin": "GPIO5",
+      "net": "MIC_BCLK",
+      "type": "output"
+    },
+    {
+      "ref": "U1",
+      "pin": "GPIO7",
+      "net": "AMP_DIN",
+      "type": "output"
+    },
+    {
+      "ref": "U1",
+      "pin": "GPIO15",
+      "net": "AMP_BCLK",
+      "type": "output"
+    },
+    {
+      "ref": "U1",
+      "pin": "GPIO16",
+      "net": "AMP_LRC",
+      "type": "output"
+    },
+    {
+      "ref": "U1",
+      "pin": "GPIO41",
+      "net": "OLED_SDA",
+      "type": "bidirectional"
+    },
+    {
+      "ref": "U1",
+      "pin": "GPIO42",
+      "net": "OLED_SCL",
+      "type": "bidirectional"
+    },
+    {
+      "ref": "U1",
+      "pin": "GND",
+      "net": "GND",
+      "type": "power_in"
+    },
+    {
+      "ref": "U2",
+      "pin": "5V",
+      "net": "5V_MOTION",
+      "type": "power_in"
+    },
+    {
+      "ref": "U2",
+      "pin": "GPIO14",
+      "net": "BM_BRAIN_TX",
+      "type": "input"
+    },
+    {
+      "ref": "U2",
+      "pin": "GPIO16",
+      "net": "SPI_MISO",
+      "type": "input"
+    },
+    {
+      "ref": "U2",
+      "pin": "GPIO13",
+      "net": "BM_MOTION_TX",
+      "type": "output"
+    },
+    {
+      "ref": "U2",
+      "pin": "GPIO15",
+      "net": "SPI_MOSI",
+      "type": "output"
+    },
+    {
+      "ref": "U2",
+      "pin": "GPIO4",
+      "net": "SPI_SCLK",
+      "type": "output"
+    },
+    {
+      "ref": "U2",
+      "pin": "GPIO5",
+      "net": "SPI_CS_N",
+      "type": "output"
+    },
+    {
+      "ref": "U2",
+      "pin": "GPIO10",
+      "net": "STBY_COMMAND",
+      "type": "output"
+    },
+    {
+      "ref": "U2",
+      "pin": "GND",
+      "net": "GND",
+      "type": "power_in"
+    },
+    {
+      "ref": "U3",
+      "pin": "5V",
+      "net": "5V_TANG",
+      "type": "power_in"
+    },
+    {
+      "ref": "U3",
+      "pin": "3V3",
+      "net": "3V3_TANG",
+      "type": "power_out"
+    },
+    {
+      "ref": "U3",
+      "pin": "P25",
+      "net": "SPI_MOSI",
+      "type": "input"
+    },
+    {
+      "ref": "U3",
+      "pin": "P29",
+      "net": "SPI_SCLK",
+      "type": "input"
+    },
+    {
+      "ref": "U3",
+      "pin": "P30",
+      "net": "SPI_CS_N",
+      "type": "input"
+    },
+    {
+      "ref": "U3",
+      "pin": "P28",
+      "net": "ENC_R_3V3",
+      "type": "input"
+    },
+    {
+      "ref": "U3",
+      "pin": "P26",
+      "net": "SPI_MISO",
+      "type": "output"
+    },
+    {
+      "ref": "U3",
+      "pin": "P35",
+      "net": "L_IN1",
+      "type": "output"
+    },
+    {
+      "ref": "U3",
+      "pin": "P40",
+      "net": "L_IN2",
+      "type": "output"
+    },
+    {
+      "ref": "U3",
+      "pin": "P41",
+      "net": "R_IN1",
+      "type": "output"
+    },
+    {
+      "ref": "U3",
+      "pin": "P42",
+      "net": "R_IN2",
+      "type": "output"
+    },
+    {
+      "ref": "U3",
+      "pin": "GND",
+      "net": "GND",
+      "type": "power_in"
+    },
+    {
+      "ref": "U4",
+      "pin": "VM",
+      "net": "VM_5V_BENCH",
+      "type": "power_in"
+    },
+    {
+      "ref": "U4",
+      "pin": "STBY",
+      "net": "STBY_L",
+      "type": "input"
+    },
+    {
+      "ref": "U4",
+      "pin": "AIN1",
+      "net": "L_IN1",
+      "type": "input"
+    },
+    {
+      "ref": "U4",
+      "pin": "BIN1",
+      "net": "L_IN1",
+      "type": "input"
+    },
+    {
+      "ref": "U4",
+      "pin": "AIN2",
+      "net": "L_IN2",
+      "type": "input"
+    },
+    {
+      "ref": "U4",
+      "pin": "BIN2",
+      "net": "L_IN2",
+      "type": "input"
+    },
+    {
+      "ref": "U4",
+      "pin": "AO1",
+      "net": "L_AO1",
+      "type": "output"
+    },
+    {
+      "ref": "U4",
+      "pin": "AO2",
+      "net": "L_AO2",
+      "type": "output"
+    },
+    {
+      "ref": "U4",
+      "pin": "BO1",
+      "net": "L_BO1",
+      "type": "output"
+    },
+    {
+      "ref": "U4",
+      "pin": "BO2",
+      "net": "L_BO2",
+      "type": "output"
+    },
+    {
+      "ref": "U4",
+      "pin": "GND",
+      "net": "GND",
+      "type": "power_in"
+    },
+    {
+      "ref": "U5",
+      "pin": "VM",
+      "net": "VM_5V_BENCH",
+      "type": "power_in"
+    },
+    {
+      "ref": "U5",
+      "pin": "STBY",
+      "net": "STBY_R",
+      "type": "input"
+    },
+    {
+      "ref": "U5",
+      "pin": "AIN1",
+      "net": "R_IN1",
+      "type": "input"
+    },
+    {
+      "ref": "U5",
+      "pin": "BIN1",
+      "net": "R_IN1",
+      "type": "input"
+    },
+    {
+      "ref": "U5",
+      "pin": "AIN2",
+      "net": "R_IN2",
+      "type": "input"
+    },
+    {
+      "ref": "U5",
+      "pin": "BIN2",
+      "net": "R_IN2",
+      "type": "input"
+    },
+    {
+      "ref": "U5",
+      "pin": "AO1",
+      "net": "R_AO1",
+      "type": "output"
+    },
+    {
+      "ref": "U5",
+      "pin": "AO2",
+      "net": "R_AO2",
+      "type": "output"
+    },
+    {
+      "ref": "U5",
+      "pin": "BO1",
+      "net": "R_BO1",
+      "type": "output"
+    },
+    {
+      "ref": "U5",
+      "pin": "BO2",
+      "net": "R_BO2",
+      "type": "output"
+    },
+    {
+      "ref": "U5",
+      "pin": "GND",
+      "net": "GND",
+      "type": "power_in"
+    },
+    {
+      "ref": "U6",
+      "pin": "VDD",
+      "net": "3V3_BRAIN",
+      "type": "power_in"
+    },
+    {
+      "ref": "U6",
+      "pin": "SCK",
+      "net": "MIC_BCLK",
+      "type": "input"
+    },
+    {
+      "ref": "U6",
+      "pin": "WS",
+      "net": "MIC_WS",
+      "type": "input"
+    },
+    {
+      "ref": "U6",
+      "pin": "LR",
+      "net": "GND",
+      "type": "input"
+    },
+    {
+      "ref": "U6",
+      "pin": "SD",
+      "net": "MIC_SD",
+      "type": "output"
+    },
+    {
+      "ref": "U6",
+      "pin": "GND",
+      "net": "GND",
+      "type": "power_in"
+    },
+    {
+      "ref": "U7",
+      "pin": "VCC",
+      "net": "5V_BRAIN",
+      "type": "power_in"
+    },
+    {
+      "ref": "U7",
+      "pin": "DIN",
+      "net": "AMP_DIN",
+      "type": "input"
+    },
+    {
+      "ref": "U7",
+      "pin": "BCLK",
+      "net": "AMP_BCLK",
+      "type": "input"
+    },
+    {
+      "ref": "U7",
+      "pin": "LRC",
+      "net": "AMP_LRC",
+      "type": "input"
+    },
+    {
+      "ref": "U7",
+      "pin": "SPK+",
+      "net": "SPK_P",
+      "type": "output"
+    },
+    {
+      "ref": "U7",
+      "pin": "SPK-",
+      "net": "SPK_N",
+      "type": "output"
+    },
+    {
+      "ref": "U7",
+      "pin": "GND",
+      "net": "GND",
+      "type": "power_in"
+    },
+    {
+      "ref": "U8",
+      "pin": "VCC",
+      "net": "3V3_BRAIN",
+      "type": "power_in"
+    },
+    {
+      "ref": "U8",
+      "pin": "SDA",
+      "net": "OLED_SDA",
+      "type": "bidirectional"
+    },
+    {
+      "ref": "U8",
+      "pin": "SCL",
+      "net": "OLED_SCL",
+      "type": "input"
+    },
+    {
+      "ref": "U8",
+      "pin": "GND",
+      "net": "GND",
+      "type": "power_in"
+    },
+    {
+      "ref": "U9",
+      "pin": "HV",
+      "net": "5V_TANG",
+      "type": "power_in"
+    },
+    {
+      "ref": "U9",
+      "pin": "LV",
+      "net": "3V3_TANG",
+      "type": "power_in"
+    },
+    {
+      "ref": "U9",
+      "pin": "HV2",
+      "net": "ENC_R_5V",
+      "type": "input"
+    },
+    {
+      "ref": "U9",
+      "pin": "LV2",
+      "net": "ENC_R_3V3",
+      "type": "output"
+    },
+    {
+      "ref": "U9",
+      "pin": "GND",
+      "net": "GND",
+      "type": "power_in"
+    },
+    {
+      "ref": "U10",
+      "pin": "VCC",
+      "net": "5V_TANG",
+      "type": "power_in"
+    },
+    {
+      "ref": "U10",
+      "pin": "OUT",
+      "net": "ENC_R_5V",
+      "type": "output"
+    },
+    {
+      "ref": "U10",
+      "pin": "GND",
+      "net": "GND",
+      "type": "power_in"
+    },
+    {
+      "ref": "LS1",
+      "pin": "1",
+      "net": "SPK_P",
+      "type": "passive"
+    },
+    {
+      "ref": "LS1",
+      "pin": "2",
+      "net": "SPK_N",
+      "type": "passive"
+    },
+    {
+      "ref": "R1",
+      "pin": "1",
+      "net": "STBY_COMMAND",
+      "type": "passive"
+    },
+    {
+      "ref": "R1",
+      "pin": "2",
+      "net": "STBY_L",
+      "type": "passive"
+    },
+    {
+      "ref": "R2",
+      "pin": "1",
+      "net": "STBY_COMMAND",
+      "type": "passive"
+    },
+    {
+      "ref": "R2",
+      "pin": "2",
+      "net": "STBY_R",
+      "type": "passive"
+    }
+  ]
+}

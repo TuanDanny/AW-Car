@@ -1,0 +1,16 @@
+{
+  "at_utc": "2026-11-10T02:09:04.958195+00:00",
+  "board": "motion",
+  "port": "COM7",
+  "build_id": "simplev1-3196afc4efb1",
+  "app_offset": "0x10000",
+  "readback_sha256": {
+    "simplev1_motion.bin": "30772cbf1014ddf8a5adb3e302204415669353ecf823f10ca3f2182e7db8c35d"
+  },
+  "nvs_preserved": true,
+  "partition_table_preserved": true,
+  "otadata_preserved": false,
+  "legacy_motioncfg_preserved": true,
+  "pass": true,
+  "vm_off_confirmed": true
+}

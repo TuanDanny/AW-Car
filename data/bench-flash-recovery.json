@@ -1,0 +1,52 @@
+{
+  "scope": "real USB-powered boards; VM off, no motors. Duty/ACK is not voltage/speed proof",
+  "raw_logs_committed": false,
+  "observations": 15,
+  "transitions": [
+    {
+      "at_ms": 583946,
+      "mode": "Manual",
+      "generation": 1850685590,
+      "action": "neutral",
+      "left": 0,
+      "right": 0,
+      "spi": true,
+      "ack": 51615,
+      "reason": "released",
+      "uart_rx": 2635,
+      "uart_errors": 1,
+      "spi_errors": 1408
+    }
+  ],
+  "last": {
+    "at_ms": 654142,
+    "mode": "Manual",
+    "generation": 1850685590,
+    "action": "neutral",
+    "left": 0,
+    "right": 0,
+    "spi": true,
+    "ack": 112,
+    "reason": "released",
+    "uart_rx": 2983,
+    "uart_errors": 1,
+    "spi_errors": 1410
+  },
+  "observed_span_ms": 70196,
+  "uart_error_delta": 0,
+  "spi_error_delta": 2,
+  "last_diag": {
+    "count": 52,
+    "window": 52,
+    "p50": 248,
+    "p95": 384,
+    "p99": 1577,
+    "max": 1577,
+    "heap": 230136,
+    "spi_io_errors": 0,
+    "spi_frame_errors": 1404,
+    "spi_ack_errors": 6,
+    "spi_startup": 1
+  },
+  "latency_scope": "Motion accepted input mailbox timestamp to SPI API entry, microseconds; latest256 sample window"
+}

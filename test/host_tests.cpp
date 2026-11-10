@@ -1,0 +1,108 @@
+#include "simple/control.hpp"
+#include "simple/pid.hpp"
+#include <cmath>
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
+#include <random>
+
+namespace {
+unsigned assertions=0;
+void check(bool value,const char* condition,int line) {
+    ++assertions;if(!value) { std::fprintf(stderr,"FAIL line=%d %s\n",line,condition);std::exit(1); }
+}
+#define CHECK(x) check(bool(x),#x,__LINE__)
+void links(simple::Control& c,uint64_t now) {
+    c.fpga({},now);simple::BrainState brain{};brain.flags=3;c.brain(brain,now);
+}
+void codec() {
+    const auto* sample=reinterpret_cast<const uint8_t*>("123456789");
+    CHECK(simple::crc16(sample,9)==0x29b1);
+    std::mt19937 random(731);
+    for(unsigned i=0;i<12000;++i) {
+        const simple::SpiCommand sent{uint16_t(random()),int16_t(int(random()%2701)-1350),int16_t(int(random()%2701)-1350)};
+        auto bytes=simple::encode_spi_command(sent);simple::SpiCommand got{};
+        CHECK(simple::decode_spi_command(bytes,got));CHECK(got.seq==sent.seq && got.left==sent.left && got.right==sent.right);
+        bytes[random()%32]^=uint8_t(1U<<(random()%8));CHECK(!simple::decode_spi_command(bytes,got));
+    }
+    simple::SpiStatus s{7,65535,0xffffffff,12345,1350,2700,42,0xffffffff},decoded{};
+    auto bytes=simple::encode_spi_status(s);CHECK(simple::decode_spi_status(bytes,decoded));
+    CHECK(decoded.right_age_ticks==0xffffffff && decoded.left_count==0xffffffff && decoded.left_period_ticks==1350);
+    bytes[3]|=0x80;simple::write16(bytes.data()+30,simple::crc16(bytes.data(),30));CHECK(!simple::decode_spi_status(bytes,decoded));
+    simple::SpiCommand invalid{};
+    for(int duty:{-1351,1351,-32768,32767}) CHECK(!simple::decode_spi_command(simple::encode_spi_command({4,int16_t(duty),0}),invalid));
+    std::array<uint8_t,simple::kMaxFrame> out{};simple::UartParser parser;simple::Frame received{};
+    for(unsigned i=0;i<1024;++i) {
+        simple::Frame f{simple::Type::WifiConfig,uint16_t(i),uint8_t(random()%129),{}};
+        for(auto& b:f.payload) b=uint8_t(random());
+        const auto length=simple::encode_uart(f,out.data(),out.size());CHECK(length==size_t(f.size)+9);
+        unsigned messages=0;
+        for(size_t j=0;j<length;++j) if(parser.push(out[j],received)) ++messages;
+        CHECK(messages==1 && received.seq==f.seq && received.size==f.size);
+        CHECK(std::memcmp(received.payload.data(),f.payload.data(),f.size)==0);
+    }
+    auto f=simple::make_ai_move(65535,{0x12345678,simple::Action::Left,30,3000});
+    const auto n=simple::encode_uart(f,out.data(),out.size());
+    out[n-1]^=1;for(size_t j=0;j<n;++j) CHECK(!parser.push(out[j],received));
+    out[n-1]^=1;unsigned accepted=0;
+    for(size_t j=0;j<n;++j) accepted+=parser.push(out[j],received)?1:0;
+    CHECK(accepted==1 && parser.errors()>0);simple::AiMove ai{};CHECK(simple::parse_ai_move(received,ai));
+    CHECK(ai.duration_ms==3000 && ai.generation==0x12345678);
+    // Truncated big frame followed by good frames: bounded memory and recovery.
+    parser.reset();const uint8_t fragment[]={0x53,0x31,1,0x01,128,0,0,9};
+    for(auto b:fragment) parser.push(b,received);
+    accepted=0;for(unsigned repeat=0;repeat<24;++repeat) for(size_t j=0;j<n;++j) accepted+=parser.push(out[j],received)?1:0;
+    CHECK(accepted>10);
+    f=simple::make_ai_move(1,{1,simple::Action::Forward,101,1000});CHECK(!simple::parse_ai_move(f,ai));
+    for(auto duration:{1,99,3001,65535}) { f=simple::make_ai_move(1,{1,simple::Action::Forward,30,uint16_t(duration)});CHECK(!simple::parse_ai_move(f,ai)); }
+    simple::BrainState b{};b.flags=15;b.ssid[31]='X';b.ipv4={192,168,100,2};b.rssi=-45;
+    simple::BrainState b2{};CHECK(simple::parse_brain_state(simple::make_brain_state(3,b),b2));CHECK(b2.rssi==-45 && b2.ssid[31]=='X');
+    simple::MotionState m{44,simple::Mode::Ai,simple::Action::Right,100,simple::Reason::Active,1350,-1350,true,9,10,65535},m2{};
+    CHECK(simple::parse_motion_state(simple::make_motion_state(1,m),m2));CHECK(m2.right==-1350 && m2.generation==44 && m2.mode==simple::Mode::Ai);
+}
+void control() {
+    using namespace simple;
+    Control c(91);CHECK(c.state().mode==Mode::Manual && c.state().left==0 && !c.driver_enabled());
+    CHECK(!c.manual(Action::Forward,30,0));links(c,100);
+    CHECK(c.manual(Action::Forward,30,100));c.tick(100);CHECK(c.driver_enabled() && c.state().left==0);
+    c.tick(101);CHECK(c.state().left==405 && c.state().right==405);
+    links(c,599);c.tick(599);CHECK(c.state().left==405);c.tick(600);CHECK(c.state().left==0 && c.state().reason==Reason::ManualTimeout);
+    CHECK(c.manual(Action::Backward,100,601));c.tick(601);CHECK(c.state().left==0);
+    c.tick(638);CHECK(c.state().left==0);c.tick(639);CHECK(c.state().left==0);c.tick(640);CHECK(c.state().left==-1350);
+    CHECK(c.manual(Action::Left,30,650));c.tick(650);CHECK(c.state().left==0 && c.state().right==0);
+    links(c,700);c.tick(700);c.tick(701);CHECK(c.state().left==-405 && c.state().right==405);
+    const auto old=c.state().generation;c.stop();CHECK(c.state().generation!=old && c.state().mode==Mode::Manual && c.state().left==0);
+    c.set_mode(Mode::Ai);links(c,800);const auto epoch=c.state().generation;
+    CHECK(!c.manual(Action::Forward,30,800));CHECK(!c.ai({old,Action::Forward,30,1000},800));
+    CHECK(c.ai({epoch,Action::Forward,30,0},800));c.tick(800);c.tick(801);CHECK(c.state().left==405);
+    links(c,1290);c.tick(1290);links(c,1780);c.tick(1799);CHECK(c.state().left==405);
+    c.tick(1800);CHECK(c.state().left==0 && c.state().mode==Mode::Ai && c.state().reason==Reason::AiComplete);
+    links(c,1900);CHECK(c.ai({epoch,Action::Forward,50,3000},1900));c.tick(1900);c.tick(1901);
+    CHECK(c.ai({epoch,Action::Right,30,100},1950));c.tick(1950);links(c,2000);c.tick(2000);c.tick(2001);
+    CHECK(c.state().left==405 && c.state().right==-405);c.tick(2050);CHECK(c.state().left==0);
+    CHECK(c.ai({epoch,Action::Forward,30,1000},2100));c.disconnect();CHECK(c.state().mode==Mode::Ai); // Web loss independent of AI.
+    links(c,2100);c.tick(2100);c.tick(2101);CHECK(c.state().left==405);
+    c.fpga({},2602);c.tick(2602);CHECK(c.state().reason==Reason::BrainLost && c.state().mode==Mode::Manual && !c.driver_enabled());
+    links(c,2700);CHECK(c.manual(Action::Forward,30,2700));c.tick(2700);c.tick(2701);c.disconnect();CHECK(c.state().left==0 && c.state().mode==Mode::Manual);
+    CHECK(c.manual(Action::Forward,30,2800));c.tick(2800);c.tick(2801);c.tick(3301);CHECK(c.state().reason==Reason::FpgaLost);
+    links(c,3400);c.tick(3400);CHECK(c.state().left==0); // no replay after SPI recovery
+    CHECK(c.manual(Action::Right,0,3401));c.tick(3401);CHECK(c.state().left==0 && !c.driver_enabled());
+    c.set_mode(Mode::Ai);links(c,3500);CHECK(c.ai({c.state().generation,Action::Forward,30,1000},3500));
+    BrainState offline{};c.brain(offline,3501);c.tick(3501);CHECK(c.state().reason==Reason::InternetLost && c.state().mode==Mode::Manual);
+    c.takeover();CHECK(c.state().reason==Reason::Takeover && c.state().left==0);
+    CHECK(!c.manual(Action(99),30,3502));CHECK(!c.manual(Action::Forward,101,3502));
+    // Manual remains independent of absent Brain/Internet.
+    c.fpga({},10000);CHECK(c.manual(Action::Forward,30,10000));c.tick(10000);c.tick(10001);CHECK(c.state().left==405);
+    for(auto a:{Action::Forward,Action::Backward,Action::Left,Action::Right}) for(auto speed:{0,30,100}) {
+        Control isolated(1);links(isolated,1);CHECK(isolated.manual(a,uint8_t(speed),1));isolated.tick(1);isolated.tick(2);
+        const int magnitude=(speed*1350+50)/100;CHECK(std::abs(isolated.state().left)==magnitude && std::abs(isolated.state().right)==magnitude);
+    }
+}
+void pid() {
+    simple::Pid p;p.kp=2;p.ki=3;p.kd=.1f;p.high=100;p.integral_high=20;
+    for(unsigned i=0;i<10000;++i) { const float out=p.update(1000,0);CHECK(std::isfinite(out) && out>=0 && out<=100 && p.integral<=20); }
+    p.reset();CHECK(p.integral==0 && p.previous_error==0 && p.derivative==0);
+    p.dt=0;CHECK(p.update(10,0)==0);
+}
+}
+int main() { codec();control();pid();std::printf("PASS native assertions=%u seed=731 SPI_random=12000 UART_frames=1024 PID=disabled_on_firmware\n",assertions); }

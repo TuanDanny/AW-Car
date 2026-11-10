@@ -1,0 +1,28 @@
+name: simplev1
+on:
+  push:
+    branches: [simplev1]
+  pull_request:
+  workflow_dispatch:
+jobs:
+  host:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+      - name: Native compiler and RTL simulator
+        run: sudo apt-get update && sudo apt-get install -y g++ iverilog
+      - run: python utils/check_repo.py
+      - run: python -m unittest discover -s test
+      - run: python utils/build_fpga.py --rtl-only --report build/rtl-ci.json
+      - name: Browser dependencies
+        run: |
+          python -m pip install -r utils/requirements-test.txt
+          python -m playwright install --with-deps chromium
+      - name: Browser against native C++ simulator
+        run: |
+          python utils/simulator.py --port 8783 > build/simulator.log 2>&1 &
+          python test/browser/test_dashboard.py --port 8783 --output build/browser
+      - run: git diff --check

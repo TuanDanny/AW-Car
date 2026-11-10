@@ -1,0 +1,26 @@
+menu "AW-Car Brain simplev1 (fixed hardware)"
+config OTA_URL
+    string "Xiaozhi activation/configuration endpoint"
+    default "https://api.tenclass.net/xiaozhi/ota/"
+config USE_AUDIO_PROCESSOR
+    bool "Stock ESP-SR audio processing"
+    default y
+config USE_DEVICE_AEC
+    bool
+    default n
+config USE_SERVER_AEC
+    bool
+    default n
+config SEND_WAKE_WORD_DATA
+    bool
+    default n
+config WAKE_WORD_DETECTION_IN_LISTENING
+    bool
+    default n
+config USE_AUDIO_DEBUGGER
+    bool
+    default n
+config AUDIO_DEBUG_UDP_SERVER
+    string
+    default ""
+endmenu

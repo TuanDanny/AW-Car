@@ -1,0 +1,66 @@
+{
+  "at_utc": "2026-11-10T01:53:19.396557+00:00",
+  "environment": "localhost WebSocket + real shared C++ Control; FPGA/Brain simulated",
+  "duration_s": 8.054027899997891,
+  "commands": 129,
+  "rejected": 0,
+  "host_command_ack_us": {
+    "p50": 430.4,
+    "p95": 576.5,
+    "p99": 611.0,
+    "max": 618.5
+  },
+  "final": {
+    "mode": "manual",
+    "generation": 305,
+    "action": "neutral",
+    "speed": 0,
+    "left": 0,
+    "right": 0,
+    "reason": "stop",
+    "fpga_connected": true,
+    "brain_connected": true,
+    "driver": false,
+    "left_count": 0,
+    "right_count": 0,
+    "t": "status",
+    "build": "simplev1-host",
+    "simulator": true,
+    "fpga": {
+      "connected": true,
+      "applied_seq": 39407,
+      "left_count": 0,
+      "right_count": 0,
+      "left_seen": false,
+      "right_seen": false
+    },
+    "brain": {
+      "connected": true,
+      "wifi": true,
+      "cloud": true,
+      "listening": false,
+      "speaking": false,
+      "ssid": "Motion giả lập",
+      "ip": "127.0.0.1",
+      "wifi_result": 2
+    },
+    "diag": {
+      "uart_rx": 0,
+      "uart_errors": 0,
+      "spi_ok": 0,
+      "spi_errors": 0,
+      "latency_count": 0,
+      "latency_p50_us": null,
+      "latency_p95_us": null,
+      "latency_p99_us": null,
+      "latency_max_us": null,
+      "heap": null,
+      "uptime_ms": 25245143,
+      "host_commands": 29044,
+      "rejected": 0
+    }
+  },
+  "esp_latency_measured": false,
+  "hardware_tested": false,
+  "pass": true
+}

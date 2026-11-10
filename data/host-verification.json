@@ -1,0 +1,13 @@
+{
+  "tests": 17,
+  "passed": 17,
+  "duration_s": 31.601,
+  "environment": "Playwright Chromium + native shared Control C++; real Wi-Fi/boards not part of this suite",
+  "captures": [
+    "dashboard-desktop.png",
+    "dashboard-mobile.png"
+  ],
+  "native_assertions": 49180,
+  "brain_context_checks": 127,
+  "native_core_sha256": "f373eb1c33741b34439871c54f0a6cb915b16420904e5ee7ffd03ad27e10a1d0"
+}

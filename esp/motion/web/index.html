@@ -1,0 +1,481 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#f4f7fc">
+  <meta name="color-scheme" content="light">
+  <title>AW-Car · Điều khiển</title>
+  <style>
+    :root {
+      --paper: #f4f7fc; --white: #fff; --ink: #102b54; --muted: #61718b;
+      --blue: #174ab6; --pale: #eaf0fc; --line: #dce5f2; --red: #c52c42;
+      --green: #157855; --amber: #986313; --radius: 22px;
+      font-family: "Segoe UI", -apple-system, BlinkMacSystemFont, sans-serif;
+      color: var(--ink); background: var(--paper); font-synthesis: none;
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; padding-bottom: calc(112px + env(safe-area-inset-bottom)); }
+    button, input { font: inherit; }
+    button { cursor: pointer; -webkit-tap-highlight-color: transparent; }
+    button:disabled { cursor: default; opacity: .42; }
+    button:focus-visible, input:focus-visible, summary:focus-visible {
+      outline: 3px solid var(--blue); outline-offset: 4px;
+    }
+    button, input, summary { touch-action: manipulation; }
+    [hidden] { display: none !important; }
+    .wrap { width: min(1160px, calc(100% - 64px)); margin: auto; }
+    .top { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 30px 0 26px; }
+    .brand { display: flex; align-items: center; gap: 13px; }
+    .brand-mark { width: 43px; height: 43px; color: var(--blue); }
+    .brand-name { font: 650 25px/1 "Bahnschrift", "Segoe UI", sans-serif; letter-spacing: -.6px; }
+    .brand small { display: block; margin-top: 6px; font-size: 12px; color: var(--muted); letter-spacing: .5px; }
+    .session { display: flex; align-items: center; justify-content: flex-end; gap: 12px; flex-wrap: wrap; }
+    .chip { display: inline-flex; align-items: center; gap: 8px; font-size: 12px; color: var(--muted); }
+    .dot { width: 7px; height: 7px; border-radius: 50%; background: #98a5b9; flex-shrink: 0; }
+    [data-state="good"] .dot { background: var(--green); }
+    [data-state="warn"] .dot { background: var(--amber); }
+    [data-state="bad"] .dot { background: var(--red); }
+    .small-button { border: 1px solid var(--line); background: var(--white); color: var(--blue); border-radius: 10px; padding: 9px 13px; font-size: 13px; font-weight: 600; }
+    .intro { display: flex; justify-content: space-between; align-items: flex-end; gap: 20px; margin: 10px 0 25px; }
+    h1 { font: 600 clamp(28px, 3.2vw, 38px)/1.15 "Bahnschrift", "Segoe UI", sans-serif; letter-spacing: -1px; margin: 0 0 9px; }
+    .intro p { margin: 0; color: var(--muted); font-size: 14px; line-height: 1.6; }
+    .sim { border: 1px solid #e5c17d; color: #79500c; background: #fff6e6; padding: 10px 13px; border-radius: 11px; font-size: 12px; font-weight: 700; white-space: nowrap; }
+    .connection-note { color: var(--red); font-size: 13px; line-height: 1.6; margin: -8px 0 18px; overflow-wrap: anywhere; }
+    .layout { display: grid; grid-template-columns: minmax(0, 1.22fr) minmax(0, 1fr); gap: 22px; align-items: start; }
+    .panel { background: var(--white); border: 1px solid var(--line); border-radius: var(--radius); padding: 25px; min-width: 0; }
+    .panel-head { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+    h2 { margin: 0; font-size: 17px; font-weight: 650; letter-spacing: -.25px; }
+    .sub { color: var(--muted); font-size: 12px; line-height: 1.6; margin: 7px 0 0; }
+    .modes { display: flex; gap: 4px; background: var(--paper); padding: 4px; border-radius: 12px; }
+    .modes button { border: 0; border-radius: 9px; padding: 9px 15px; font-size: 13px; font-weight: 650; color: var(--muted); background: transparent; }
+    .modes button[aria-pressed="true"] { background: var(--ink); color: var(--white); }
+    .pad { display: grid; grid-template: repeat(3, 86px) / repeat(3, 1fr); gap: 10px; max-width: 392px; margin: 27px auto 15px; }
+    .direction { display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 6px; padding: 9px 4px; color: var(--blue); background: var(--pale); border: 1px solid transparent; border-radius: 16px; font-size: 13px; font-weight: 650; user-select: none; -webkit-user-select: none; touch-action: none; }
+    .direction svg { width: 25px; height: 25px; stroke-width: 1.7; }
+    .direction:not(:disabled):hover { border-color: #a5bce8; }
+    .direction.is-held { background: var(--blue); color: var(--white); border-color: var(--blue); }
+    #forward { grid-area: 1 / 2; } #left { grid-area: 2 / 1; }
+    #right { grid-area: 2 / 3; } #backward { grid-area: 3 / 2; }
+    .pad-center { grid-area: 2 / 2; display: grid; place-items: center; color: var(--ink); }
+    .car { width: 44px; height: 70px; }
+    .pad-hint { text-align: center; min-height: 22px; color: var(--muted); font-size: 12px; margin-bottom: 19px; }
+    kbd { font: 11px/1.2 Consolas, monospace; background: var(--paper); border: 1px solid var(--line); border-radius: 4px; padding: 2px 4px; }
+    .speed { border-top: 1px solid var(--line); padding-top: 19px; }
+    .speed-head { display: flex; align-items: baseline; justify-content: space-between; gap: 15px; }
+    .speed label { font-size: 13px; font-weight: 600; }
+    .speed output { font: 600 28px/1 "Bahnschrift", "Segoe UI", sans-serif; letter-spacing: -.8px; }
+    .speed output small { font-size: 14px; margin-left: 2px; color: var(--muted); }
+    input[type="range"] { width: 100%; accent-color: var(--blue); margin: 19px 0 8px; height: 22px; cursor: pointer; }
+    .range-ends { display: flex; justify-content: space-between; color: var(--muted); font-size: 11px; }
+    .right-stack { display: grid; gap: 22px; }
+    .links { display: flex; gap: 16px; flex-wrap: wrap; margin-top: 18px; }
+    .listen-state { font-size: 13px; margin: 20px 0 12px; min-height: 20px; }
+    .button-row { display: flex; gap: 10px; }
+    .button { min-height: 42px; padding: 10px 16px; border: 1px solid var(--line); border-radius: 11px; background: var(--white); color: var(--ink); font-size: 13px; font-weight: 600; }
+    .button.primary { background: var(--blue); border-color: var(--blue); color: var(--white); }
+    .button-row .button { flex: 1; }
+    .network-caption { margin-top: 18px; color: var(--muted); font-size: 12px; line-height: 1.7; overflow-wrap: anywhere; }
+    form { margin-top: 18px; }
+    .field { margin-bottom: 13px; }
+    .field label { display: block; font-size: 12px; font-weight: 600; margin-bottom: 7px; }
+    .field input { width: 100%; height: 42px; border: 1px solid var(--line); border-radius: 10px; padding: 9px 12px; background: var(--paper); color: var(--ink); font-size: 14px; }
+    .field input::placeholder { color: #8592a6; }
+    .form-bottom { display: flex; align-items: center; justify-content: space-between; gap: 15px; }
+    .form-bottom .sub { margin: 0; max-width: 215px; font-size: 11px; }
+    .form-bottom .button { flex-shrink: 0; white-space: nowrap; }
+    .notice { margin: 18px 0 0; font-size: 12px; min-height: 19px; color: var(--muted); line-height: 1.6; }
+    .notice[data-error="true"] { color: var(--red); }
+    .telemetry { margin-top: 22px; padding: 21px 25px; }
+    .telemetry-head { display: flex; align-items: center; justify-content: space-between; gap: 18px; margin-bottom: 18px; }
+    .telemetry-head h2 { font-size: 14px; }
+    .last-status { font-size: 11px; color: var(--muted); text-align: right; }
+    .metrics { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 18px; }
+    .metric .label { font-size: 11px; color: var(--muted); }
+    .metric .value { margin: 7px 0 3px; font: 500 23px/1.1 "Bahnschrift", "Segoe UI", sans-serif; font-variant-numeric: tabular-nums; letter-spacing: -.6px; overflow-wrap: anywhere; }
+    .metric .unit { font-size: 10px; color: var(--muted); }
+    #telemetry[data-fresh="false"] .metrics { opacity: .5; }
+    details { border-top: 1px solid var(--line); margin-top: 20px; padding-top: 14px; }
+    summary { font-size: 12px; color: var(--muted); cursor: pointer; }
+    .diagnostics { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px 22px; margin: 18px 0 0; }
+    .diagnostics div { min-width: 0; }
+    dt { font-size: 11px; color: var(--muted); }
+    dd { margin: 4px 0 0; font: 12px/1.5 Consolas, monospace; overflow-wrap: anywhere; }
+    .footnote { color: var(--muted); font-size: 11px; margin: 16px 3px 0; line-height: 1.7; }
+    .stop-dock { position: fixed; bottom: 0; left: 0; right: 0; z-index: 10; background: var(--white); border-top: 1px solid var(--line); padding: 15px 0 calc(15px + env(safe-area-inset-bottom)); }
+    .dock-inner { display: flex; align-items: center; justify-content: space-between; gap: 22px; }
+    .motion-state { min-width: 0; }
+    .motion-state strong { display: block; font-size: 15px; font-weight: 650; }
+    .motion-state span { display: block; color: var(--muted); font-size: 11px; margin-top: 5px; line-height: 1.5; }
+    #stop { flex-shrink: 0; display: flex; align-items: center; justify-content: center; gap: 13px; width: 260px; min-height: 60px; border: 0; border-radius: 14px; background: var(--red); color: var(--white); font: 700 21px/1 "Bahnschrift", "Segoe UI", sans-serif; letter-spacing: 1px; user-select: none; touch-action: none; }
+    #stop svg { width: 22px; height: 22px; }
+    #stop small { font: 11px/1 "Segoe UI", sans-serif; letter-spacing: 0; opacity: .8; margin-left: 7px; }
+    #stop:active { background: #a71f33; }
+    @media (max-width: 760px) {
+      .wrap { width: calc(100% - 32px); } .top { padding: 18px 0; }
+      .brand-name { font-size: 22px; } .brand-mark { width: 36px; height: 36px; }
+      .session { gap: 8px; max-width: 175px; } .session .chip { font-size: 11px; }
+      .intro { align-items: flex-start; margin: 6px 0 20px; flex-direction: column; gap: 12px; }
+      .intro p { font-size: 13px; } .layout { grid-template-columns: 1fr; gap: 16px; }
+      .panel { padding: 21px; border-radius: 19px; } .right-stack { gap: 16px; }
+      .pad { max-width: 350px; margin-top: 18px; grid-template-rows: repeat(3, 70px); gap: 8px; }
+      .direction { font-size: 12px; border-radius: 14px; } .modes button { padding: 9px 13px; }
+      .telemetry { margin-top: 16px; } .metrics { grid-template-columns: 1fr 1fr; gap: 20px; }
+      .diagnostics { grid-template-columns: 1fr 1fr; } .stop-dock { padding-top: 12px; }
+      .dock-inner { gap: 12px; } #stop { width: 44%; min-height: 58px; gap: 9px; }
+      #stop small { display: none; } .motion-state strong { font-size: 13px; }
+      .motion-state span { font-size: 10px; } .telemetry-head { align-items: flex-start; }
+    }
+    @media (max-width: 350px) {
+      .panel { padding: 16px; } .top { align-items: flex-start; }
+      .brand { gap: 8px; } .brand-mark { width: 29px; }
+      .session { max-width: 130px; } .pad { gap: 7px; } .direction { font-size: 11px; }
+      .form-bottom { align-items: flex-start; flex-direction: column; } #stop { width: 43%; }
+    }
+  </style>
+</head>
+<body>
+  <header class="wrap top">
+    <div class="brand">
+      <svg class="brand-mark" viewBox="0 0 44 44" fill="none" aria-hidden="true"><rect x="10" y="3" width="24" height="38" rx="10" stroke="currentColor" stroke-width="2"/><path d="M16 18l6-6 6 6M22 12v18" stroke="currentColor" stroke-width="2"/><path d="M5 12v7m0 6v7m34-20v7m0 6v7" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></svg>
+      <div><div class="brand-name">AW-CAR</div><small>simplev1 / Motion</small></div>
+    </div>
+    <div class="session">
+      <span id="connection" class="chip" data-state="warn"><span class="dot"></span><span id="connection-label">Đang kết nối</span></span>
+      <button id="reconnect" class="small-button" type="button" hidden>Kết nối lại</button>
+    </div>
+  </header>
+  <main class="wrap">
+    <div class="intro">
+      <div><h1>Điều khiển xe</h1><p>Giữ để di chuyển. Thả để về 0.</p></div>
+      <div id="simulator" class="sim" hidden>MÔ PHỎNG · Không phải xe thật</div>
+    </div>
+    <p id="connection-note" class="connection-note" role="status" hidden></p>
+    <div class="layout">
+      <section class="panel" aria-labelledby="drive-title">
+        <div class="panel-head">
+          <h2 id="drive-title">Di chuyển</h2>
+          <div class="modes" role="group" aria-label="Chế độ">
+            <button id="manual-mode" type="button" aria-pressed="false" disabled>Manual</button>
+            <button id="ai-mode" type="button" aria-pressed="false" disabled>AI</button>
+          </div>
+        </div>
+        <p id="mode-hint" class="sub">Chờ trạng thái Motion trước khi điều khiển.</p>
+        <div class="pad" role="group" aria-label="Giữ để di chuyển">
+          <button class="direction" id="forward" data-action="forward" aria-label="Tiến" aria-keyshortcuts="W" type="button" disabled><svg viewBox="0 0 28 28" fill="none" stroke="currentColor" aria-hidden="true"><path d="M14 23V5m-7 7 7-7 7 7"/></svg><span>Tiến</span></button>
+          <button class="direction" id="left" data-action="left" aria-label="Quay trái" aria-keyshortcuts="A" type="button" disabled><svg viewBox="0 0 28 28" fill="none" stroke="currentColor" aria-hidden="true"><path d="M8 7H4v8m0-8 6 5m-6-5a10 10 0 1 1-1 13"/></svg><span>Quay trái</span></button>
+          <div class="pad-center" aria-hidden="true"><svg class="car" viewBox="0 0 44 70" fill="none"><rect x="10" y="6" width="24" height="58" rx="9" stroke="currentColor" stroke-width="1.5"/><path d="M10 22h24M10 47h24m-18-9 6-8 6 8M22 30v15" stroke="currentColor" stroke-width="1.5"/><path d="M5 16v12m0 15v12m34-39v12m0 15v12" stroke="currentColor" stroke-width="4" stroke-linecap="round"/></svg></div>
+          <button class="direction" id="right" data-action="right" aria-label="Quay phải" aria-keyshortcuts="D" type="button" disabled><svg viewBox="0 0 28 28" fill="none" stroke="currentColor" aria-hidden="true"><path d="M20 7h4v8m0-8-6 5m6-5a10 10 0 1 0 1 13"/></svg><span>Quay phải</span></button>
+          <button class="direction" id="backward" data-action="backward" aria-label="Lùi" aria-keyshortcuts="S" type="button" disabled><svg viewBox="0 0 28 28" fill="none" stroke="currentColor" aria-hidden="true"><path d="M14 5v18m-7-7 7 7 7-7"/></svg><span>Lùi</span></button>
+        </div>
+        <div class="pad-hint">Hoặc giữ <kbd>W</kbd> <kbd>A</kbd> <kbd>S</kbd> <kbd>D</kbd> · Quay tại chỗ</div>
+        <div class="speed">
+          <div class="speed-head"><label for="speed">Mức lệnh</label><output id="speed-value" for="speed">30<small>%</small></output></div>
+          <input id="speed" type="range" min="0" max="100" step="1" value="30" aria-label="Mức lệnh phần trăm">
+          <div class="range-ends"><span>0%</span><span>100%</span></div>
+        </div>
+      </section>
+      <div class="right-stack">
+        <section class="panel" aria-labelledby="brain-title">
+          <div class="panel-head"><h2 id="brain-title">Trò chuyện với Brain</h2><span id="brain-link" class="chip"><span class="dot"></span><span>Chưa có dữ liệu</span></span></div>
+          <p class="sub">Nghe và trò chuyện ở cả Manual lẫn AI.</p>
+          <div class="links"><span id="wifi-link" class="chip"><span class="dot"></span><span>Wi-Fi —</span></span><span id="cloud-link" class="chip"><span class="dot"></span><span>Cloud —</span></span></div>
+          <p id="listen-state" class="listen-state">Chưa có trạng thái nghe.</p>
+          <div class="button-row"><button id="listen-start" class="button primary" type="button" disabled>Bắt đầu nghe</button><button id="listen-stop" class="button" type="button" disabled>Dừng nghe</button></div>
+        </section>
+        <section class="panel" aria-labelledby="wifi-title">
+          <h2 id="wifi-title">Wi-Fi Internet cho Brain</h2>
+          <p class="sub">Điện thoại vẫn kết nối với AP của Motion.</p>
+          <form id="wifi-form" autocomplete="off">
+            <div class="field"><label for="ssid">Tên mạng (SSID)</label><input id="ssid" name="ssid" type="text" maxlength="32" placeholder="Tên Wi-Fi Internet" autocomplete="off" required></div>
+            <div class="field"><label for="password">Mật khẩu</label><input id="password" name="password" type="password" maxlength="64" placeholder="Để trống nếu mạng mở" autocomplete="new-password"></div>
+            <div class="form-bottom"><p class="sub">Gửi trực tiếp tới Brain. Trang không lưu mật khẩu.</p><button id="wifi-submit" class="button primary" type="submit" disabled>Kết nối Wi-Fi</button></div>
+          </form>
+          <div id="network-caption" class="network-caption">Mạng hiện tại: —<br>IP Brain: —</div>
+        </section>
+      </div>
+    </div>
+    <p id="notice" class="notice" role="status" aria-live="polite"></p>
+    <section id="telemetry" class="panel telemetry" data-fresh="false" aria-labelledby="telemetry-title">
+      <div class="telemetry-head"><div class="panel-head"><h2 id="telemetry-title">Phản hồi Motion</h2><span id="fpga-link" class="chip"><span class="dot"></span><span>FPGA —</span></span></div><span id="last-status" class="last-status">Chưa có STATUS</span></div>
+      <div class="metrics">
+        <div class="metric"><div class="label">Lệnh PWM trái</div><div id="left-duty" class="value">—</div><div class="unit">duty / 1350 · có dấu</div></div>
+        <div class="metric"><div class="label">Lệnh PWM phải</div><div id="right-duty" class="value">—</div><div class="unit">duty / 1350 · có dấu</div></div>
+        <div class="metric"><div class="label">Encoder trái</div><div id="left-count" class="value">—</div><div id="left-seen" class="unit">Chưa có dữ liệu</div></div>
+        <div class="metric"><div class="label">Encoder phải</div><div id="right-count" class="value">—</div><div id="right-seen" class="unit">Chưa có dữ liệu</div></div>
+      </div>
+      <details><summary>Thông tin kết nối &amp; chẩn đoán</summary><dl class="diagnostics">
+        <div><dt>Lý do từ Motion</dt><dd id="reason">—</dd></div><div><dt>Generation / Applied seq</dt><dd id="generation">—</dd></div><div><dt>Build</dt><dd id="build">—</dd></div>
+        <div><dt>UART RX / lỗi</dt><dd id="uart">—</dd></div><div><dt>SPI OK / lỗi</dt><dd id="spi">—</dd></div><div><dt>Mẫu độ trễ</dt><dd id="latency-count">—</dd></div>
+        <div><dt>Độ trễ p50 / p95 / p99</dt><dd id="latency">—</dd></div><div><dt>Độ trễ lớn nhất</dt><dd id="latency-max">—</dd></div><div><dt>Heap / thời gian chạy</dt><dd id="runtime">—</dd></div>
+      </dl></details>
+    </section>
+    <p class="footnote">PWM là lệnh điều khiển, không phải tốc độ đo. Encoder một OUT chỉ đếm cạnh, không xác định chiều.</p>
+  </main>
+  <footer class="stop-dock">
+    <div class="wrap dock-inner">
+      <div class="motion-state"><strong id="motion-state">Chờ trạng thái Motion</strong><span id="motion-detail">Chưa xác nhận trạng thái xe.</span></div>
+      <button id="stop" type="button" aria-label="STOP" aria-keyshortcuts="Space"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="3" stroke="currentColor" stroke-width="2"/></svg><span>STOP<small>Space</small></span></button>
+    </div>
+  </footer>
+  <script>
+    (() => {
+      'use strict';
+      const $ = (id) => document.getElementById(id);
+      const directions = [...document.querySelectorAll('[data-action]')];
+      const keyActions = { KeyW: 'forward', KeyS: 'backward', KeyA: 'left', KeyD: 'right' };
+      const actionNames = { neutral: 'Lệnh về 0', forward: 'Lệnh tiến', backward: 'Lệnh lùi', left: 'Lệnh quay trái', right: 'Lệnh quay phải' };
+      const actionOrder = ['neutral', 'forward', 'backward', 'left', 'right'];
+      let socket = null, status = null, fresh = false, received = false;
+      let lastStatusAt = 0, staleEpisode = false, awaitingMode = null;
+      let held = null, heldTimer = null;
+      const keysDown = new Set();
+
+      function notify(message, error = false) {
+        $('notice').textContent = message;
+        $('notice').dataset.error = String(error);
+      }
+      function open() { return socket && socket.readyState === WebSocket.OPEN; }
+      function send(message) {
+        if (!open()) return false;
+        try { socket.send(JSON.stringify(message)); return true; }
+        catch { return false; }
+      }
+      function editable(target) {
+        return target instanceof Element && Boolean(target.closest('input, textarea, select, [contenteditable]:not([contenteditable="false"])'));
+      }
+      function clearHeld(neutral = false) {
+        const hadHeld = held !== null;
+        if (held) held.element.classList.remove('is-held');
+        held = null;
+        clearInterval(heldTimer);
+        heldTimer = null;
+        if (neutral && hadHeld && status?.mode === 'manual') send({ t: 'neutral' });
+      }
+      function canDrive() {
+        return open() && fresh && received && status?.mode === 'manual' && awaitingMode === null && !document.hidden;
+      }
+      function sendHeld() {
+        if (!held) return;
+        // Do not keep a MOVE for replay after a blocked socket drains.
+        if (!canDrive() || socket.bufferedAmount !== 0) { clearHeld(true); return; }
+        if (!send({ t: 'drive', action: held.action, speed: Number($('speed').value) })) clearHeld(false);
+      }
+      function press(owner, action, element) {
+        if (!canDrive()) return;
+        clearHeld(false);
+        held = { owner, action, element };
+        element.classList.add('is-held');
+        sendHeld();
+        if (held) heldTimer = setInterval(sendHeld, 50);
+      }
+      function release(owner) { if (held?.owner === owner) clearHeld(true); }
+      function controls() {
+        directions.forEach((button) => { button.disabled = !canDrive(); });
+        const available = open() && fresh && received;
+        for (const id of ['manual-mode', 'ai-mode', 'listen-start', 'listen-stop', 'wifi-submit']) $(id).disabled = !available;
+        $('speed').disabled = !canDrive();
+        for (const mode of ['manual', 'ai']) $(mode + '-mode').setAttribute('aria-pressed', String(received && status?.mode === mode));
+        $('mode-hint').textContent = !available ? 'Chờ trạng thái Motion trước khi điều khiển.'
+          : awaitingMode !== null ? 'Đang chờ Motion xác nhận chế độ.'
+          : status.mode === 'ai' ? 'AI điều khiển di chuyển. STOP luôn sẵn sàng.' : 'Manual · Giữ một nút hoặc phím để chạy.';
+        $('telemetry').dataset.fresh = String(fresh);
+      }
+      function stop() {
+        clearHeld(false);
+        awaitingMode = 'manual';
+        const sent = send({ t: 'stop' });
+        notify(sent ? 'Đã gửi STOP. Chờ phản hồi Motion.' : 'Chưa gửi được STOP: WebSocket đang ngắt.', !sent);
+        controls();
+      }
+      function mode(modeName) {
+        clearHeld(true);
+        awaitingMode = modeName;
+        if (!send({ t: 'mode', mode: modeName })) { awaitingMode = null; notify('Chưa gửi được yêu cầu đổi chế độ.', true); }
+        controls();
+      }
+      function chip(id, label, state) {
+        const element = $(id);
+        element.dataset.state = state;
+        element.lastElementChild.textContent = label;
+      }
+      function unknownLinks() {
+        chip('fpga-link', 'FPGA · chưa cập nhật', 'warn');
+        chip('brain-link', 'Chưa cập nhật', 'warn');
+        chip('wifi-link', 'Wi-Fi —', 'warn');
+        chip('cloud-link', 'Cloud —', 'warn');
+      }
+      const number = (value) => Number.isFinite(value) ? value.toLocaleString('vi-VN') : '—';
+      const signed = (value) => Number.isFinite(value) ? (value > 0 ? '+' : '') + value : '—';
+      function render(data) {
+        const fpga = data.fpga || {}, brain = data.brain || {}, diag = data.diag || {};
+        $('simulator').hidden = data.simulator !== true;
+        chip('fpga-link', 'FPGA ' + (fpga.connected ? 'đã nối' : 'mất liên kết'), fpga.connected ? 'good' : 'bad');
+        chip('brain-link', brain.connected ? 'Đã kết nối' : 'Mất liên kết', brain.connected ? 'good' : 'bad');
+        chip('wifi-link', 'Wi-Fi ' + (brain.wifi ? 'đã nối' : 'chưa nối'), brain.wifi ? 'good' : 'warn');
+        chip('cloud-link', 'Cloud ' + (brain.cloud ? 'đã nối' : 'chưa nối'), brain.cloud ? 'good' : 'warn');
+        $('listen-state').textContent = brain.speaking ? 'Brain đang nói' : brain.listening ? 'Brain đang nghe' : 'Brain chưa bật nghe';
+        const networkResult = ['Chưa có yêu cầu kết nối', 'Đang lưu / kết nối Wi-Fi', 'Đã có IP', 'Kết nối Wi-Fi thất bại'][brain.wifi_result] || 'Chưa có kết quả Wi-Fi';
+        // textContent keeps SSID/status strings inert; passwords are never rendered.
+        $('network-caption').textContent = 'Mạng: ' + (brain.ssid || '—') + ' · IP: ' + (brain.ip || '—') + ' · ' + networkResult;
+        $('left-duty').textContent = signed(data.left);
+        $('right-duty').textContent = signed(data.right);
+        $('left-count').textContent = number(fpga.left_count);
+        $('right-count').textContent = number(fpga.right_count);
+        $('left-seen').textContent = fpga.left_seen ? 'Đã thấy cạnh lên' : 'Chưa thấy cạnh lên';
+        $('right-seen').textContent = fpga.right_seen ? 'Đã thấy cạnh lên' : 'Chưa thấy cạnh lên';
+        $('reason').textContent = String(data.reason ?? '—');
+        $('generation').textContent = number(data.generation) + ' / ' + number(fpga.applied_seq);
+        $('build').textContent = String(data.build ?? '—');
+        $('uart').textContent = number(diag.uart_rx) + ' / ' + number(diag.uart_errors);
+        $('spi').textContent = number(diag.spi_ok) + ' / ' + number(diag.spi_errors);
+        $('latency-count').textContent = number(diag.latency_count);
+        $('latency').textContent = [diag.latency_p50_us, diag.latency_p95_us, diag.latency_p99_us].map(number).join(' / ') + ' µs';
+        $('latency-max').textContent = number(diag.latency_max_us) + ' µs';
+        $('runtime').textContent = number(diag.heap) + ' B / ' + (Number.isFinite(diag.uptime_ms) ? number(Math.floor(diag.uptime_ms / 1000)) + ' s' : '—');
+        const action = typeof data.action === 'number' ? actionOrder[data.action] : data.action;
+        $('motion-state').textContent = (data.mode === 'ai' ? 'AI' : 'Manual') + ' · ' + (actionNames[action] || 'Chưa rõ lệnh');
+        $('motion-detail').textContent = 'Theo STATUS Motion · mức lệnh ' + number(data.speed) + '%';
+        $('last-status').textContent = 'STATUS vừa nhận · 10 Hz';
+      }
+      function onStatus(data) {
+        if (data.mode !== 'manual' && data.mode !== 'ai') return;
+        if (received && (data.mode !== status.mode || data.generation !== status.generation)) clearHeld(false);
+        status = data; received = true; fresh = true; staleEpisode = false; lastStatusAt = performance.now();
+        if (awaitingMode === data.mode) awaitingMode = null;
+        render(data);
+        chip('connection', 'Motion đã kết nối', 'good');
+        $('connection-note').hidden = true;
+        controls();
+      }
+      function stale() {
+        if (staleEpisode) return;
+        staleEpisode = true;
+        // One neutral per stale episode, only in Manual. Motion owns the 500 ms deadline.
+        clearHeld(false);
+        if (received && status?.mode === 'manual') send({ t: 'neutral' });
+        fresh = false;
+        unknownLinks();
+        chip('connection', 'Chưa nhận STATUS mới', 'warn');
+        $('connection-note').hidden = false;
+        $('connection-note').textContent = 'STATUS quá hạn. Đã xóa thao tác giữ; chưa xác nhận trạng thái xe.';
+        $('motion-state').textContent = 'Chưa có trạng thái mới';
+        $('motion-detail').textContent = 'Không xác nhận xe đã dừng.';
+        $('last-status').textContent = 'Dữ liệu cuối · đã quá hạn';
+        controls();
+      }
+      function connect() {
+        if (socket && (socket.readyState === WebSocket.OPEN || socket.readyState === WebSocket.CONNECTING)) return;
+        clearHeld(false); keysDown.clear(); received = false; fresh = false; awaitingMode = null; staleEpisode = false;
+        unknownLinks();
+        chip('connection', 'Đang kết nối', 'warn');
+        $('reconnect').hidden = true;
+        $('motion-state').textContent = 'Chờ trạng thái Motion';
+        $('motion-detail').textContent = 'Chưa xác nhận trạng thái xe.';
+        controls();
+        let ws;
+        try { ws = new WebSocket((location.protocol === 'https:' ? 'wss://' : 'ws://') + location.host + '/ws'); }
+        catch { chip('connection', 'Không mở được WebSocket', 'bad'); $('reconnect').hidden = false; return; }
+        socket = ws;
+        ws.addEventListener('open', () => {
+          if (socket !== ws) return;
+          lastStatusAt = performance.now();
+          chip('connection', 'Đã nối · chờ STATUS', 'warn');
+          send({ t: 'status' });
+        });
+        ws.addEventListener('message', (event) => {
+          if (socket !== ws) return;
+          let data;
+          try { data = JSON.parse(event.data); } catch { return; }
+          if (!data || typeof data !== 'object') return;
+          if (data.t === 'status') onStatus(data);
+          else if (data.t === 'result') {
+            if (data.ok === false) { clearHeld(false); awaitingMode = null; controls(); }
+            // No raw result echo: a server error must not disclose Wi-Fi credentials.
+            notify(data.ok ? 'Motion đã nhận yêu cầu. Xem trạng thái phản hồi.' : 'Motion từ chối yêu cầu. Kiểm tra kết nối và trạng thái.', !data.ok);
+          }
+        });
+        ws.addEventListener('close', (event) => {
+          if (socket !== ws) return;
+          clearHeld(false); keysDown.clear(); fresh = false; awaitingMode = null;
+          unknownLinks();
+          chip('connection', 'Đã ngắt kết nối', 'bad');
+          $('reconnect').hidden = false;
+          $('connection-note').hidden = false;
+          $('connection-note').textContent = 'WebSocket ' + event.code + ' · ' + (event.reason || 'không có lý do') + (event.reason === 'controller_replaced' ? ' · Trang khác đã nhận quyền điều khiển.' : '') + ' Chọn Kết nối lại để mở phiên mới.';
+          $('motion-state').textContent = 'Chưa xác nhận trạng thái xe';
+          $('motion-detail').textContent = 'Đã xóa thao tác giữ trên trang.';
+          $('last-status').textContent = status ? 'Dữ liệu cuối · đã ngắt' : 'Chưa có STATUS';
+          controls();
+        });
+        ws.addEventListener('error', () => {
+          if (socket !== ws) return;
+          clearHeld(false); fresh = false; controls();
+        });
+      }
+
+      directions.forEach((button) => {
+        button.addEventListener('pointerdown', (event) => {
+          if (event.button !== 0 || !canDrive()) return;
+          event.preventDefault();
+          button.focus({ preventScroll: true });
+          button.setPointerCapture(event.pointerId);
+          press('pointer:' + event.pointerId, button.dataset.action, button);
+        });
+        button.addEventListener('lostpointercapture', (event) => release('pointer:' + event.pointerId));
+        button.addEventListener('contextmenu', (event) => event.preventDefault());
+        button.addEventListener('click', (event) => event.preventDefault());
+      });
+      window.addEventListener('pointerup', (event) => release('pointer:' + event.pointerId));
+      window.addEventListener('pointercancel', () => clearHeld(true));
+      window.addEventListener('keydown', (event) => {
+        if (event.code === 'Space' && !editable(event.target)) {
+          event.preventDefault(); if (!event.repeat) stop(); return;
+        }
+        const action = keyActions[event.code];
+        if (!action || editable(event.target) || event.ctrlKey || event.altKey || event.metaKey) return;
+        event.preventDefault();
+        if (event.repeat || keysDown.has(event.code)) return;
+        keysDown.add(event.code);
+        press('key:' + event.code, action, $(action));
+      });
+      window.addEventListener('keyup', (event) => {
+        if (!keyActions[event.code]) return;
+        keysDown.delete(event.code); release('key:' + event.code);
+      });
+      window.addEventListener('blur', () => { clearHeld(true); keysDown.clear(); });
+      document.addEventListener('visibilitychange', () => { if (document.hidden) { clearHeld(true); keysDown.clear(); } });
+      document.addEventListener('focusin', (event) => { if (editable(event.target)) clearHeld(true); });
+      window.addEventListener('pagehide', () => { clearHeld(true); keysDown.clear(); if (open()) socket.close(1000, 'page_exit'); });
+      $('speed').addEventListener('input', () => {
+        $('speed-value').replaceChildren(document.createTextNode($('speed').value), Object.assign(document.createElement('small'), { textContent: '%' }));
+        sendHeld();
+      });
+      $('stop').addEventListener('pointerdown', (event) => { if (event.button === 0) { event.preventDefault(); stop(); } });
+      $('stop').addEventListener('click', (event) => { if (event.detail === 0) stop(); });
+      $('manual-mode').addEventListener('click', () => mode('manual'));
+      $('ai-mode').addEventListener('click', () => mode('ai'));
+      $('listen-start').addEventListener('click', () => { clearHeld(true); send({ t: 'listen', enabled: true }); });
+      $('listen-stop').addEventListener('click', () => { clearHeld(true); send({ t: 'listen', enabled: false }); });
+      $('wifi-form').addEventListener('submit', (event) => {
+        event.preventDefault(); clearHeld(true);
+        const ssid = $('ssid').value, password = $('password').value;
+        $('password').value = '';
+        const encoder = new TextEncoder();
+        if (encoder.encode(ssid).length < 1 || encoder.encode(ssid).length > 32 || encoder.encode(password).length > 64) {
+          notify('Tên mạng cần 1–32 byte; mật khẩu tối đa 64 byte UTF-8.', true); return;
+        }
+        const sent = send({ t: 'wifi', ssid, password });
+        notify(sent ? 'Đã gửi cấu hình Wi-Fi tới Brain. Chờ kết quả kết nối.' : 'Chưa gửi được cấu hình Wi-Fi.', !sent);
+      });
+      $('reconnect').addEventListener('click', connect);
+      setInterval(() => {
+        if (!open()) return;
+        send({ t: 'status' });
+        if (performance.now() - lastStatusAt > 1000) stale();
+      }, 100);
+      connect();
+    })();
+  </script>
+</body>
+</html>
