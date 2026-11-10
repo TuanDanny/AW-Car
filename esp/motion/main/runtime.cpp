@@ -68,6 +68,11 @@ bool Runtime::wifi(const char* ssid,size_t n,const char* password,size_t p) {
 Snapshot Runtime::snapshot() {
     portENTER_CRITICAL(&mux_);const auto copy=snapshot_;portEXIT_CRITICAL(&mux_);return copy;
 }
+bool Runtime::network_busy() {
+    portENTER_CRITICAL(&mux_);
+    const bool busy=snapshot_.car.left || snapshot_.car.right || pending_.source!=Source::None;
+    portEXIT_CRITICAL(&mux_);return busy;
+}
 void Runtime::accept(const simple::Frame& f) {
     simple::BrainState brain;simple::AiMove ai;
     portENTER_CRITICAL(&mux_);++snapshot_.uart_rx;portEXIT_CRITICAL(&mux_);

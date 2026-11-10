@@ -4,6 +4,7 @@ Trang tiếng Việt tại `esp/motion/web/index.html`, một file chứa HTML/C
 không CDN, font tải ngoài, framework hay bước build frontend. Motion phục vụ
 HTTP `/` và WebSocket `/ws` trên cùng host; dùng `wss` nếu trang được mở bằng
 HTTPS. AP Motion: `AW-CAR` / `123456789`, địa chỉ `http://192.168.4.1`.
+Điều khiển chỉ nhận qua interface AP. Router/STA không cung cấp dashboard hoặc `/ws` lái xe.
 Đọc `protocol.md` để xem contract phía Motion/Brain/FPGA.
 
 ## Sử dụng

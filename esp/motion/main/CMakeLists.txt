@@ -1,4 +1,4 @@
-idf_component_register(SRCS "main.cpp" "runtime.cpp" "web.cpp"
+idf_component_register(SRCS "main.cpp" "runtime.cpp" "web.cpp" "network_manager.cpp"
     INCLUDE_DIRS "." REQUIRES shared esp_driver_gpio esp_driver_spi esp_driver_uart
     esp_wifi esp_netif esp_event esp_http_server esp_timer nvs_flash espressif__cjson espressif__led_strip
     EMBED_TXTFILES "../web/index.html")

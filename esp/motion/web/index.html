@@ -317,7 +317,10 @@
         $('listen-state').textContent = brain.speaking ? 'Brain đang nói' : brain.listening ? 'Brain đang nghe' : 'Brain chưa bật nghe';
         const networkResult = ['Chưa có yêu cầu kết nối', 'Đang lưu / kết nối Wi-Fi', 'Đã có IP', 'Kết nối Wi-Fi thất bại'][brain.wifi_result] || 'Chưa có kết quả Wi-Fi';
         // textContent keeps SSID/status strings inert; passwords are never rendered.
-        $('network-caption').textContent = 'Mạng: ' + (brain.ssid || '—') + ' · IP: ' + (brain.ip || '—') + ' · ' + networkResult;
+        const mn = data.motion_network || {};
+        const motionResult = mn.online ? 'Đã có IP' : mn.connecting ? 'Đang kết nối' : mn.configured ? 'Chờ kết nối lại' : 'Chưa cấu hình';
+        $('network-caption').textContent = 'Brain: ' + (brain.ssid || '—') + ' · ' + (brain.ip || '—') + ' · ' + networkResult
+          + ' | Motion quản trị: ' + (mn.ip || '—') + ' · ' + motionResult + '. Lái xe chỉ qua AW-CAR / 192.168.4.1.';
         $('left-duty').textContent = signed(data.left);
         $('right-duty').textContent = signed(data.right);
         $('left-count').textContent = number(fpga.left_count);

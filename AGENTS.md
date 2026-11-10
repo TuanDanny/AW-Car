@@ -1,5 +1,9 @@
 # AW-Car simplev1
 
+- Ngoại lệ được người dùng giao10/11/2026: phát triển AP+STA/OTA trên
+  `codex/simplev1-ota` tại D:/Project/AW-Car-ota; áp dụng docs/ota-network-plan.md.
+  Manual chỉ AP192.168.4.1; router chỉ Xiaozhi/OTA/log. Chưa merge main.
+
 Yêu cầu được duyệt ngày 10/11/2026 thay thế kiến trúc cũ **chỉ trên nhánh simplev1**.
 
 - Theo yêu cầu10/11/2026: chỉ giữ nhánh main (prototype v1) và simplev1 (skeleton).

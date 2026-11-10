@@ -10,6 +10,19 @@ import sys
 
 ROOT = Path(__file__).resolve().parents[1]
 
+def source_digest(root: Path, board: str) -> str:
+    """Include defaults/lockfiles; exclude generated sdkconfig and build output."""
+    digest = hashlib.sha256()
+    for directory in [root / 'esp' / board, root / 'esp/shared']:
+        for file in sorted(directory.rglob('*')):
+            if not file.is_file() or any(p in {'build', 'managed_components', '__pycache__'} for p in file.parts):
+                continue
+            if file.name in {'sdkconfig', 'sdkconfig.old'}:
+                continue
+            digest.update(file.relative_to(root).as_posix().encode())
+            digest.update(file.read_bytes())
+    return digest.hexdigest()
+
 def environment() -> tuple[dict[str, str], Path, Path]:
     env = os.environ.copy()
     sdk = Path(env.get("IDF_PATH", "C:/Espressif/frameworks/esp-idf-v6.1"))
@@ -38,13 +51,7 @@ def main() -> None:
     project = ROOT / "esp" / args.board
     build = ROOT / "build" / args.board
     build.mkdir(parents=True, exist_ok=True)
-    digest = hashlib.sha256()
-    for directory in [project, ROOT / "esp/shared"]:
-        for file in sorted(directory.rglob("*")):
-            if file.is_file() and not any(p in {"build", "managed_components", "__pycache__"} for p in file.parts) and not file.name.startswith("sdkconfig.") and file.name != "sdkconfig":
-                digest.update(file.relative_to(ROOT).as_posix().encode())
-                digest.update(file.read_bytes())
-    build_id = "simplev1-" + digest.hexdigest()[:12]
+    build_id = "simplev1-" + source_digest(ROOT, args.board)[:12]
     command = [str(python), str(sdk / "tools/idf.py"), "-C", str(project), "-B", str(build), "-D", "IDF_TARGET=esp32s3", "-D", f"SIMPLE_BUILD_ID={build_id}"]
     if args.clean:
         subprocess.run(command + ["fullclean"], env=env, check=True)
@@ -60,6 +67,7 @@ def main() -> None:
         raise SystemExit(f"Build failed ({code}); read {build / 'build.log'}")
     images = {p.name: {"bytes": p.stat().st_size, "sha256": hashlib.sha256(p.read_bytes()).hexdigest()} for p in build.glob("*.bin")}
     report = {"board": args.board, "build_id": build_id, "images": images, "flashed": False}
+    report['sdkconfig_sha256'] = hashlib.sha256((project/'sdkconfig').read_bytes()).hexdigest()
     (build / "manifest.json").write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")
     print(json.dumps(report, indent=2))
 

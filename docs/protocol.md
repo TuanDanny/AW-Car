@@ -66,6 +66,8 @@ là liên kết sống. Master reset được phép bắt đầu seq mới; khô
 ## WebSocket JSON (Motion)
 
 HTTP `/`, WS `/ws`, không PIN/cookie. AP AW-CAR/123456789, 192.168.4.1.
+Chỉ interface AP được mở dashboard/lái xe; kiểm tra local socket IP ngoài Host/Origin.
+STA/router chỉ dành cho AI và quản trị, không nhận MOVE/mode qua `/ws`.
 Chỉ một socket điều khiển; socket mới stop/Manual rồi thay socket cũ. Origin cùng host.
 
 Ví dụ: `{"t":"drive","action":"forward","speed":30}`; action forward/backward/left/right.

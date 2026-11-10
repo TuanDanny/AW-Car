@@ -1,5 +1,6 @@
 #include "simple/control.hpp"
 #include "simple/pid.hpp"
+#include "simple/network_policy.hpp"
 #include <cmath>
 #include <cstdio>
 #include <cstdlib>
@@ -104,5 +105,37 @@ void pid() {
     p.reset();CHECK(p.integral==0 && p.previous_error==0 && p.derivative==0);
     p.dt=0;CHECK(p.update(10,0)==0);
 }
+void network_policy() {
+    using P=simple::NetworkPolicy;using A=P::Action;
+    P p;CHECK(p.step(0,false)==A::None);
+    p.configure(0);CHECK(p.step(499,false)==A::None);CHECK(p.step(500,false)==A::Connect);
+    CHECK(p.step(1000,false)==A::None); // Do not restart a DHCP/connection attempt.
+    CHECK(p.step(15500,false)==A::Cancel);CHECK(p.failures()==1);
+    p.disconnected(15501);CHECK(p.failures()==1); // Duplicate event does not postpone forever.
+    CHECK(p.step(16499,false)==A::None);CHECK(p.step(16500,false)==A::Connect);
+    p.got_ip();CHECK(p.online() && p.failures()==0);CHECK(p.step(50000,true)==A::None);
+    p.disconnected(50000);CHECK(p.step(51000,true)==A::None);
+    CHECK(p.step(52999,false)==A::None);CHECK(p.step(53000,false)==A::Connect);
+    CHECK(p.step(53001,true)==A::Cancel); // Cancel off-channel attempts if driving starts.
+    CHECK(p.step(55000,false)==A::None);CHECK(p.step(55001,false)==A::Connect);
+    p.configure(60000);uint64_t now=60500;
+    for(unsigned n=0;n<12;++n) {
+        CHECK(p.step(now,false)==A::Connect);p.disconnected(now);
+        const auto wait=p.retry_ms(now);CHECK(wait>=1000 && wait<=60000);
+        if(n>=5) CHECK(wait==60000);
+        CHECK(p.step(now+wait-1,false)==A::None);now+=wait;
+    }
+    CHECK(simple::on_interface(0x0104a8c0,0x0104a8c0));
+    CHECK(!simple::on_interface(0,0));CHECK(!simple::on_interface(0x6401a8c0,0x0104a8c0));
+    uint8_t ap[4]={192,168,4,1},sta[4]={192,168,0,10};uint32_t a{},s{},got{};
+    CHECK(simple::ipv4_destination(ap,4,a));CHECK(simple::ipv4_destination(sta,4,s));
+    uint8_t mapped[16]={0};mapped[10]=mapped[11]=0xff;std::memcpy(mapped+12,ap,4);
+    CHECK(simple::ipv4_destination(mapped,16,got) && simple::on_interface(got,a));
+    std::memcpy(mapped+12,sta,4);
+    CHECK(simple::ipv4_destination(mapped,16,got) && !simple::on_interface(got,a));
+    mapped[0]=0x20;CHECK(!simple::ipv4_destination(mapped,16,got)); // Real IPv6 is not an AP IPv4 match.
+    mapped[0]=0;mapped[10]=0;CHECK(!simple::ipv4_destination(mapped,16,got));
+    for(size_t size:{0U,1U,3U,5U,15U}) CHECK(!simple::ipv4_destination(mapped,size,got));
 }
-int main() { codec();control();pid();std::printf("PASS native assertions=%u seed=731 SPI_random=12000 UART_frames=1024 PID=disabled_on_firmware\n",assertions); }
+}
+int main() { codec();control();pid();network_policy();std::printf("PASS native assertions=%u seed=731 SPI_random=12000 UART_frames=1024 PID=disabled_on_firmware\n",assertions); }

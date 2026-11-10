@@ -28,6 +28,7 @@ public:
     bool listen(bool enabled);
     bool wifi(const char* ssid,size_t ssid_len,const char* password,size_t password_len);
     Snapshot snapshot();
+    bool network_busy();
 private:
     enum class Source { None,Manual,Ai };
     struct Pending {

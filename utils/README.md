@@ -1,5 +1,8 @@
 # Công cụ
 
+`probe_ap_boundary.py --ip <Motion-STA-IP>`: từ LAN router kiểm root và WS handshake
+thật/giả Host/Origin AP; không gửi frame lái. Địa chỉ AP192.168.4.1 bị từ chối đầu vào.
+
 `build_esp.py motion|brain`: build ESP-IDF, không nạp. `build_host.py`: native C++.
 Các thư mục build, log thô, flash dump không đưa vào Git. Công cụ flash phải xác nhận
 đúng manifest/board và trạng thái VM trước khi dùng; không tự dò rồi ghi mọi COM.

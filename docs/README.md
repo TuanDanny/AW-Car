@@ -4,3 +4,4 @@
 - [Nguồn tham khảo](upstream.md), [Brain](brain.md), [Dashboard](dashboard.md).
 - [Build/nạp/log](build.md), [kết quả kiểm chứng](verification.md).
 - [Mốc skeleton đã duyệt](skeleton-baseline.md), [câu nói/pinyin/dịch nghĩa](voice-commands.md).
+- [AP+STA / OTA đã duyệt và cổng kiểm thử](ota-network-plan.md).

@@ -1,5 +1,14 @@
 # Kiểm chứng simplev1 — 10/11/2026
 
+**Nhánh AP+STA/OTA đang phát triển:** xem [checkpoint](../data/apsta-checkpoint.json)
+và [cổng kiểm thử](ota-network-plan.md). Mốc skeleton dưới đây là baseline cũ;
+không dùng số đo đó để đánh dấu AP+STA/OTA mới PASS.
+Đã build hai ESP, 10 bài unittest (1 bỏ qua), 17 browser test trên mô phỏng.
+Motion đã nạp/đọc ngược app `simplev1-9441bc362b38`, giữ NVS/partition/motioncfg.
+Brain chỉ build lại; chưa nạp thay firmware Brain. Có bản sửa IPv4-mapped IPv6
+sau khi chủ dự án báo dashboard bị chặn nhầm. Đang chờ thử điện thoại/router/latency;
+chưa kích hoạt migration, management log hoặc OTA.
+
 Mốc hiện tại: source cho ba board đã build và nạp; Manual/AI có duty đúng dấu và
 ACK SPI trên phần cứng thật. Các lượt log đầu giữ VM ngắt; sau đó người dùng cấp
 **VM USB khoảng5V, chưa motor** và đo được bốn chiều đúng trên cầuB cả hai DRV.

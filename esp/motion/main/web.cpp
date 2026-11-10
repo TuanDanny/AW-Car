@@ -1,4 +1,5 @@
 #include "runtime.hpp"
+#include "network_manager.hpp"
 #include <algorithm>
 #include <cmath>
 #include <cstdio>
@@ -47,6 +48,12 @@ esp_err_t status(httpd_req_t* request) {
     cJSON_AddNumberToObject(r,"left",s.car.left);cJSON_AddNumberToObject(r,"right",s.car.right);
     cJSON_AddNumberToObject(r,"generation",s.car.generation);cJSON_AddStringToObject(r,"reason",simple::reason_name(s.car.reason));
     cJSON_AddBoolToObject(r,"simulator",false);
+    const auto net=network_state();auto* network=cJSON_AddObjectToObject(r,"motion_network");
+    cJSON_AddBoolToObject(network,"configured",net.configured);cJSON_AddBoolToObject(network,"online",net.online);
+    cJSON_AddBoolToObject(network,"connecting",net.connecting);cJSON_AddStringToObject(network,"ip",net.ip);
+    cJSON_AddStringToObject(network,"ssid",net.ssid);cJSON_AddNumberToObject(network,"attempts",net.attempts);
+    cJSON_AddNumberToObject(network,"retry_ms",net.retry_ms);cJSON_AddNumberToObject(network,"failures",net.failures);
+    cJSON_AddNumberToObject(network,"disconnect_reason",net.disconnect_reason);cJSON_AddNumberToObject(network,"ap_channel",net.ap_channel);
     auto* f=cJSON_AddObjectToObject(r,"fpga");cJSON_AddBoolToObject(f,"connected",s.car.fpga_link);
     cJSON_AddNumberToObject(f,"applied_seq",s.car.applied_seq);cJSON_AddNumberToObject(f,"left_count",s.fpga.left_count);
     cJSON_AddNumberToObject(f,"right_count",s.fpga.right_count);cJSON_AddBoolToObject(f,"left_seen",(s.fpga.flags&2)!=0);
@@ -118,8 +125,10 @@ esp_err_t message(httpd_req_t* request,cJSON* json) {
         if(!ssid || !password) return result(request,false,"invalid_wifi");
         const size_t n=std::strlen(ssid),p=std::strlen(password);
         if(!n || n>32 || p>64 || (p>0 && p<8)) return result(request,false,"invalid_wifi");
-        if(!runtime.snapshot().brain_connected) return result(request,false,"brain_unavailable");
-        return result(request,runtime.wifi(ssid,n,password,p),"received");
+        runtime.stop();
+        const bool motion_ok=configure_network(ssid,n,password,p);
+        const bool brain_ok=runtime.snapshot().brain_connected && runtime.wifi(ssid,n,password,p);
+        return result(request,motion_ok && brain_ok,motion_ok?(brain_ok?"wifi_both_queued":"motion_queued_brain_unavailable"):"motion_network_queue_failed");
     }
     return result(request,false,"unknown_command");
 }
@@ -128,6 +137,9 @@ void close_socket(httpd_handle_t,int fd) {
     close(fd);
 }
 esp_err_t pre_handshake(httpd_req_t* request) {
+    if(!request_on_ap(request)) {
+        ESP_LOGW("simple_web","STA control denied");return ESP_FAIL;
+    }
     // URI/header access happens exactly here, never after WS upgrade.
     char origin[80]{},host[48]{};
     if(httpd_req_get_hdr_value_str(request,"Origin",origin,sizeof(origin))!=ESP_OK ||
@@ -155,6 +167,7 @@ esp_err_t post_handshake(httpd_req_t* request) {
     return status(request);
 }
 esp_err_t ws_handler(httpd_req_t* request) {
+    if(!request_on_ap(request)) return ESP_FAIL;
     if(httpd_req_to_sockfd(request)!=owner) return ESP_FAIL;
     httpd_ws_frame_t frame{};auto rc=httpd_ws_recv_frame(request,&frame,0);
     if(rc!=ESP_OK) { ++recv_errors;return rc; }
@@ -173,6 +186,7 @@ esp_err_t ws_handler(httpd_req_t* request) {
     return message(request,json.get());
 }
 esp_err_t index(httpd_req_t* request) {
+    if(!request_on_ap(request)) return httpd_resp_send_err(request,HTTPD_403_FORBIDDEN,"Dashboard is available on AW-CAR / 192.168.4.1 only");
     httpd_resp_set_type(request,"text/html; charset=utf-8");httpd_resp_set_hdr(request,"Cache-Control","no-store");
     httpd_resp_set_hdr(request,"X-Content-Type-Options","nosniff");httpd_resp_set_hdr(request,"X-Frame-Options","DENY");
     return httpd_resp_send(request,page_start,HTTPD_RESP_USE_STRLEN);
