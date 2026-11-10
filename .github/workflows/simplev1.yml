@@ -1,7 +1,7 @@
 name: simplev1
 on:
   push:
-    branches: [simplev1]
+    branches: [main, simplev1]
   pull_request:
   workflow_dispatch:
 jobs:

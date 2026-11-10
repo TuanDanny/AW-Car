@@ -62,6 +62,7 @@ console Motion (Web lấy chính snapshot đó), cùng `applied_seq` tăng từ 
 | Manual quay trái | −405 | +405 | Đã thấy log |
 | Manual quay phải | +405 | −405 | Đã thấy log |
 | AI tiến | +405 | +405 | Đã thấy tool và log |
+| AI lùi | −405 | −405 | Log bản cuối có `action=backward`, SPI còn liên kết |
 | AI quay trái | −405 | +405 | Tool/log/Web khớp; người dùng xác nhận |
 | AI quay phải | +405 | −405 | Tool/log/Web khớp; người dùng xác nhận |
 | Nhả/hết thời lượng | 0 | 0 | Đã thấy released/ai_complete |
@@ -69,8 +70,9 @@ console Motion (Web lấy chính snapshot đó), cùng `applied_seq` tăng từ 
 AI trái/phải khoảng1s rồi về0; không xếp hàng. Lượt đầu ởManual bị từ chối đúng;
 sau khi chọnAI và bắt đầu nghe mới, backend có session thật và tool được thực thi.
 Giữ tiếng Trung, BOOT/Web nghe, mic, loa, OLED. Người dùng xác nhận OLED/AI vẫn
-bình thường sau bản vá cuối. AI lùi đã kiểm policy/action trên host; chưa tách
-được một câu thoại lùi thành công trong cửa sổ log thật, chưa đánh dấu đạt riêng.
+bình thường sau bản vá cuối. Lượt log sau đó đã có AI lùi−405/−405; AI tiến ở
+60/80/100% có duty810/1080/1350. Người dùng chọn giữ tốc độ riêng từng lệnh,
+không nêu tốc độ thì30%, không lưu mặc định mới qua câu tiếp theo.
 
 Lượt DMM cuối ởManual100%, đỏBO1/đenBO2, không motor:
 
@@ -84,7 +86,9 @@ Lượt DMM cuối ởManual100%, đỏBO1/đenBO2, không motor:
 Trái là số người dùng đọc; phải người dùng xác nhận đúng bốn giá trị dự kiến,
 không chép từng số riêng. Lần trái0V ban đầu không tái hiện khi giữ nút lâu hơn;
 nguyên nhân ban đầu chưa kết luận. Kết quả này xác nhận đường Manual đầy đủ tới
-cầuH-B thật, không thay đo cầuA, điện áp thoại hoặc PWM30%. Dữ liệu ở
+cầuH-B thật, không thay đo cầuA hoặc PWM30%. Người dùng còn xác nhận đã thử AI
+và đo điện áp hoạt động đúng, nhưng chưa chép số đo riêng theo từng câu thoại.
+Dữ liệu ở
 `data/drv-5v-measurements.json`.
 
 Mẫu cuối52 input: Motion timestamp nhận yêu cầu → ngay trước gọi API SPI:
@@ -129,4 +133,5 @@ trên ESP trong task log nền, không phải localhost. Lần đọc20s cuối 
 `bench-flash-recovery.json` chỉ giữ command/ACK/error/latency; không có câu nói,
 SSID/mật khẩu thật, MAC, NVS hay raw console. Báo cáo build/soak/FPGA và wiring
 được lưu trong `data`. Log thô, backup và image nằm ở `build/private`/`build`,
-không vào Git. Các worktree và main cũ giữ nguyên; nhánh bàn giao là `simplev1`.
+không vào Git. Theo yêu cầu chốt prototype v1, main dùng nội dung simplev1; các
+nhánh khác lưu phục hồi cục bộ rồi xóa. Worktree cũ giữ file ở trạng thái detached.

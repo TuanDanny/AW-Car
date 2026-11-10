@@ -12,11 +12,12 @@
   "right_individual_readings_transcribed": false,
   "initial_left_turn_zero": "Not reproduced when holding the command; user then reported about-5.1V. Initial cause not established",
   "passed_scope": "Full-duty polarity on B bridge of both modules, four Manual directions",
+  "voice_voltage_user_confirmation": "User additionally confirmed AI control and measured bridge voltage were OK; individual voice-command readings were not transcribed",
   "not_measured": [
     "A bridges on the new simplev1 firmware",
     "PWM frequency with a scope or logic analyzer",
     "30percent differential voltage under a resistor load",
-    "Voice-commanded bridge voltage",
+    "Per-action numerical readings for voice-commanded bridge voltage",
     "Motor current or actual motion",
     "2S battery operation"
   ]

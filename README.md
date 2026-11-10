@@ -1,9 +1,13 @@
-# AW-Car simplev1
+# AW-Car — prototype v1
 
 Skeleton độc lập: **Web → Motion → SPI → FPGA → DRV8833**, Brain chuyên Xiaozhi.
 
-Nhánh `simplev1`, workspace `D:/Project/AW-Car/simplev1`. Giữ nguyên các nhánh cũ.
+`main` là bản **prototype v1**; `simplev1` giữ nền skeleton cùng nội dung khi chốt.
+Workspace chính: `D:/Project/AW-Car`; worktree skeleton: `D:/Project/AW-Car/simplev1`.
 Manual trước, AI sau, PID viết sẵn nhưng chưa bật. Không dùng ARM/PIN/Gate handshake.
+
+**Mốc nền đã được chủ dự án duyệt: `prototype-v1` / `simplev1-skeleton-v1` (10/11/2026).**
+Xem [phạm vi nghiệm thu và bản đang chạy](docs/skeleton-baseline.md) trước khi nâng cấp.
 
 | Thư mục | Nội dung |
 | --- | --- |

@@ -1,0 +1,30 @@
+{
+  "brain": {
+    "source_build_id": "simplev1-e8adbccbfcf0",
+    "source_and_readback_match": true,
+    "images": {
+      "aw_car_brain.bin": "4940a899cc720e6265bacfbd4308a9b73ff70dfdbf35beba9cf0f5b236dad714",
+      "generated_assets.bin": "7034fc1a926ec88297cba70f58397fadc40f103e083eda92d7c7050f55938112"
+    }
+  },
+  "motion": {
+    "source_build_id": "simplev1-3196afc4efb1",
+    "source_and_readback_match": true,
+    "images": {
+      "simplev1_motion.bin": "30772cbf1014ddf8a5adb3e302204415669353ecf823f10ca3f2182e7db8c35d"
+    }
+  },
+  "fpga": {
+    "source_files_match": 9,
+    "bitstream_sha256": "64212c9aa7f73ec7779f27e3f2fd48f7b7e3a62ae9eee3a9dffc78a0ecb4cf43",
+    "usercode": "0x0000A6C1",
+    "embedded_flash_reload_passed": true,
+    "byte_readback_verified": false
+  },
+  "accepted_date": "2026-11-10",
+  "accepted_by": "project owner",
+  "source_parent_commit": "f515995b8ca0017b693123aae449be80d47f0c94",
+  "baseline_tag": "simplev1-skeleton-v1",
+  "scope": "Bench skeleton; VM USB about5V, no motors; PID disabled",
+  "ai_speed": "per command, default30percent, no persistent preference"
+}

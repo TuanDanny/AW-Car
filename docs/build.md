@@ -1,7 +1,8 @@
 # Build, nạp và thu log
 
-Chạy lệnh từ root worktree `simplev1`. Nhánh này độc lập với main và các worktree
-Brain/Motion/Tang cũ; không chạy công cụ của hai phiên cùng lúc trên một board.
+Chạy lệnh từ root checkout main hoặc worktree `simplev1`. Main là prototype v1;
+simplev1 là nhánh skeleton. Các worktree Brain/Motion/Tang cũ chỉ giữ để tham khảo
+phục hồi, không chạy công cụ của hai phiên cùng lúc trên một board.
 
 ## Công cụ
 
