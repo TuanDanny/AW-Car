@@ -1,0 +1,331 @@
+{
+  "baseline_git": "97f9fcd87ebb6859abe696cdca2b94231b6b0154",
+  "implementation_commit": "79b4204",
+  "scope": "Small UI/STA-idle optimizations; 20 Hz input / 10 Hz STATUS unchanged; real phone confirmed setpoint, not physical PWM",
+  "vm_off": true,
+  "motors_connected": false,
+  "same_phone_and_position_requested": true,
+  "observer_sha256": "5cd76f7598e59e01f63282b886159f2cacdc145c538d37cc988d812a2139ff76",
+  "observer_unchanged": true,
+  "baseline": {
+    "scope": "Real phone PointerEvent timestamp to send and matching Motion setpoint STATUS; not physical PWM edge",
+    "status_poll_ms": 100,
+    "directions": {
+      "forward": {
+        "dispatch": {
+          "n": 17,
+          "p50_ms": 12.6,
+          "p95_ms": 26.3,
+          "p99_ms": 26.3,
+          "max_ms": 26.3
+        },
+        "setpoint_status": {
+          "n": 17,
+          "p50_ms": 142.2,
+          "p95_ms": 288.5,
+          "p99_ms": 288.5,
+          "max_ms": 288.5
+        },
+        "within_proposed_budget": false
+      },
+      "backward": {
+        "dispatch": {
+          "n": 16,
+          "p50_ms": 9.9,
+          "p95_ms": 19.3,
+          "p99_ms": 19.3,
+          "max_ms": 19.3
+        },
+        "setpoint_status": {
+          "n": 16,
+          "p50_ms": 218.6,
+          "p95_ms": 426.8,
+          "p99_ms": 426.8,
+          "max_ms": 426.8
+        },
+        "within_proposed_budget": false
+      },
+      "left": {
+        "dispatch": {
+          "n": 13,
+          "p50_ms": 8.8,
+          "p95_ms": 220.6,
+          "p99_ms": 220.6,
+          "max_ms": 220.6
+        },
+        "setpoint_status": {
+          "n": 13,
+          "p50_ms": 220.9,
+          "p95_ms": 305.2,
+          "p99_ms": 305.2,
+          "max_ms": 305.2
+        },
+        "within_proposed_budget": false
+      },
+      "right": {
+        "dispatch": {
+          "n": 14,
+          "p50_ms": 9.7,
+          "p95_ms": 19.3,
+          "p99_ms": 19.3,
+          "max_ms": 19.3
+        },
+        "setpoint_status": {
+          "n": 14,
+          "p50_ms": 140.2,
+          "p95_ms": 340.0,
+          "p99_ms": 340.0,
+          "max_ms": 340.0
+        },
+        "within_proposed_budget": false
+      }
+    },
+    "minimum_per_direction": 10,
+    "budget_note": "Proposed diagnostic budgets, not a certified hardware limit",
+    "budgets_ms": {
+      "dispatch_p95": 10,
+      "status_p95": 150,
+      "status_p99": 200,
+      "status_max": 300
+    },
+    "physical_pwm_measured": false,
+    "motor_motion_measured": false,
+    "enough_samples": true,
+    "pass": false,
+    "motion_before_spi": {
+      "inputs": 932,
+      "window": 256,
+      "p50_ms": 0.264,
+      "p95_ms": 0.401,
+      "p99_ms": 0.587,
+      "max_ms": 2.004,
+      "within_existing_3ms_10ms_budget": true
+    },
+    "pooled": {
+      "dispatch": {
+        "n": 60,
+        "p50_ms": 10.0,
+        "p95_ms": 22.3,
+        "p99_ms": 220.6,
+        "max_ms": 220.6
+      },
+      "setpoint_status": {
+        "n": 60,
+        "p50_ms": 218.6,
+        "p95_ms": 305.2,
+        "p99_ms": 426.8,
+        "max_ms": 426.8
+      }
+    },
+    "capture_note": "All valid samples from the original 300s window plus supplementary window before changing firmware; 8 original samples retained, not discarded.",
+    "build": "simplev1-2f131b1123c6",
+    "vm_off": true,
+    "motors_connected": false
+  },
+  "candidate": {
+    "scope": "Real phone PointerEvent timestamp to send and matching Motion setpoint STATUS; not physical PWM edge",
+    "status_poll_ms": 100,
+    "directions": {
+      "forward": {
+        "dispatch": {
+          "n": 17,
+          "p50_ms": 10.0,
+          "p95_ms": 68.4,
+          "p99_ms": 68.4,
+          "max_ms": 68.4
+        },
+        "setpoint_status": {
+          "n": 17,
+          "p50_ms": 111.8,
+          "p95_ms": 405.5,
+          "p99_ms": 405.5,
+          "max_ms": 405.5
+        },
+        "within_proposed_budget": false
+      },
+      "backward": {
+        "dispatch": {
+          "n": 16,
+          "p50_ms": 8.9,
+          "p95_ms": 13.2,
+          "p99_ms": 13.2,
+          "max_ms": 13.2
+        },
+        "setpoint_status": {
+          "n": 16,
+          "p50_ms": 133.8,
+          "p95_ms": 280.6,
+          "p99_ms": 280.6,
+          "max_ms": 280.6
+        },
+        "within_proposed_budget": false
+      },
+      "left": {
+        "dispatch": {
+          "n": 15,
+          "p50_ms": 11.5,
+          "p95_ms": 63.0,
+          "p99_ms": 63.0,
+          "max_ms": 63.0
+        },
+        "setpoint_status": {
+          "n": 15,
+          "p50_ms": 108.8,
+          "p95_ms": 316.0,
+          "p99_ms": 316.0,
+          "max_ms": 316.0
+        },
+        "within_proposed_budget": false
+      },
+      "right": {
+        "dispatch": {
+          "n": 13,
+          "p50_ms": 12.0,
+          "p95_ms": 13.7,
+          "p99_ms": 13.7,
+          "max_ms": 13.7
+        },
+        "setpoint_status": {
+          "n": 13,
+          "p50_ms": 80.6,
+          "p95_ms": 230.4,
+          "p99_ms": 230.4,
+          "max_ms": 230.4
+        },
+        "within_proposed_budget": false
+      }
+    },
+    "minimum_per_direction": 10,
+    "budget_note": "Proposed diagnostic budgets, not a certified hardware limit",
+    "budgets_ms": {
+      "dispatch_p95": 10,
+      "status_p95": 150,
+      "status_p99": 200,
+      "status_max": 300
+    },
+    "physical_pwm_measured": false,
+    "motor_motion_measured": false,
+    "enough_samples": true,
+    "pass": false,
+    "motion_before_spi": {
+      "inputs": 1106,
+      "window": 256,
+      "p50_ms": 0.263,
+      "p95_ms": 0.416,
+      "p99_ms": 0.764,
+      "max_ms": 2.282,
+      "within_existing_3ms_10ms_budget": true
+    },
+    "pooled": {
+      "dispatch": {
+        "n": 61,
+        "p50_ms": 10.1,
+        "p95_ms": 13.7,
+        "p99_ms": 68.4,
+        "max_ms": 68.4
+      },
+      "setpoint_status": {
+        "n": 61,
+        "p50_ms": 102.2,
+        "p95_ms": 305.2,
+        "p99_ms": 405.5,
+        "max_ms": 405.5
+      }
+    },
+    "build": "simplev1-33495b1fe7e0",
+    "vm_off": true,
+    "motors_connected": false
+  },
+  "capture_windows": {
+    "A": [
+      {
+        "first_uptime_ms": 12688700,
+        "last_uptime_ms": 12988261,
+        "uart_error_delta": 0,
+        "spi_error_delta": 0,
+        "panic": 0,
+        "watchdog": 0
+      },
+      {
+        "first_uptime_ms": 13152186,
+        "last_uptime_ms": 13313647,
+        "uart_error_delta": 0,
+        "spi_error_delta": 2,
+        "panic": 0,
+        "watchdog": 0
+      }
+    ],
+    "B": [
+      {
+        "first_uptime_ms": 106246,
+        "last_uptime_ms": 370215,
+        "uart_error_delta": 0,
+        "spi_error_delta": 0,
+        "panic": 0,
+        "watchdog": 0
+      }
+    ]
+  },
+  "host_render": {
+    "baseline": {
+      "status_frames": 60,
+      "mutations": 1500,
+      "mutations_per_status": 25.0,
+      "status_callback": {
+        "n": 60,
+        "p50_ms": 0.3,
+        "p95_ms": 0.5,
+        "max_ms": 1.7
+      }
+    },
+    "candidate": {
+      "status_frames": 60,
+      "mutations": 186,
+      "mutations_per_status": 3.1,
+      "status_callback": {
+        "n": 60,
+        "p50_ms": 0.1,
+        "p95_ms": 0.2,
+        "max_ms": 0.3
+      }
+    }
+  },
+  "host_mutation_reduction_percent": 87.6,
+  "comparison": {
+    "status_median_reduction_percent": 53.25,
+    "phone_status_p95_improved": false,
+    "phone_latency_budget_pass": false,
+    "causal_attribution_established": false
+  },
+  "checks": {
+    "repo": true,
+    "unit_tests": 28,
+    "unit_skipped_opt_in_browser": 1,
+    "native_assertions": 52301,
+    "brain_context_checks": 127,
+    "browser_tests": 26,
+    "browser_seconds": 52.252,
+    "brain_build": "simplev1-814afb90103b",
+    "brain_image_unchanged": true,
+    "motion_build": "simplev1-33495b1fe7e0",
+    "motion_flash_readback_pass": true,
+    "nvs_preserved": true,
+    "partition_table_preserved": true,
+    "otadata_preserved": true,
+    "legacy_motioncfg_preserved": true,
+    "manual_hold_release_stop_ai_3s_oled_speaker_user_confirmed": true,
+    "fpga_source_unchanged": true,
+    "new_ota_cycle_tested": false,
+    "physical_pwm_edge_tested": false,
+    "new_30_min_soak_tested": false
+  },
+  "motion_image_sha256": "d62c815ba037b262a162d1d82b11ef8073add9432509eb2b908e1136582baab9",
+  "limitations": [
+    "Two A windows (8+52) retained entirely; one B window; no randomized crossover or causal attribution",
+    "Only confirmed phone samples exported; cancelled/missing sample counts not available from serial",
+    "Per-direction N 13-17; p95/p99 and maxima are preliminary",
+    "Motion p99 is latest 256-input window; maximum since boot, unlike A uptime; not matched windows",
+    "Host callback time is synchronous JS only, not paint or Android CPU",
+    "No active STA outage/retry radio A/B, no hardware PWM timing, no motor or 2S supply test"
+  ]
+}
