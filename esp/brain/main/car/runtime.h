@@ -19,6 +19,7 @@ public:
     bool Move(const DriveContext& context, simple::Action action, int speed, int duration_ms);
     void Stop();
     std::string StateJson();
+    void Diagnostics(char* output,size_t capacity);
     void SetCloud(bool connected);
     void AudioClosed(bool cloud_closed);
     void SetAudio(bool listening, bool speaking);

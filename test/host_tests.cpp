@@ -1,6 +1,7 @@
 #include "simple/control.hpp"
 #include "simple/pid.hpp"
 #include "simple/network_policy.hpp"
+#include "simple/log_ring.hpp"
 #include <cmath>
 #include <cstdio>
 #include <cstdlib>
@@ -137,5 +138,16 @@ void network_policy() {
     mapped[0]=0;mapped[10]=0;CHECK(!simple::ipv4_destination(mapped,16,got));
     for(size_t size:{0U,1U,3U,5U,15U}) CHECK(!simple::ipv4_destination(mapped,size,got));
 }
+void log_ring() {
+    simple::LogRing<4> ring;simple::LogRing<4>::Record records[3];
+    auto batch=ring.read(0,records,3);CHECK(batch.count==0 && batch.next==0);
+    for(uint64_t i=1;i<=20;++i) ring.append(i*500,"sample");
+    batch=ring.read(0,records,3);CHECK(batch.count==3 && batch.dropped==16 && batch.next==19);
+    CHECK(records[0].seq==17 && records[0].ms==8500 && std::strcmp(records[0].text,"sample")==0);
+    batch=ring.read(batch.next,records,3);CHECK(batch.count==1 && batch.next==20 && batch.dropped==0);
+    CHECK(ring.read(20,records,3).count==0);CHECK(ring.read(UINT64_MAX,records,3).count==0);
+    char large[1000];std::memset(large,'x',sizeof(large));large[999]=0;ring.append(1,large);
+    batch=ring.read(20,records,3);CHECK(batch.count==1 && std::strlen(records[0].text)==255);
 }
-int main() { codec();control();pid();network_policy();std::printf("PASS native assertions=%u seed=731 SPI_random=12000 UART_frames=1024 PID=disabled_on_firmware\n",assertions); }
+}
+int main() { codec();control();pid();network_policy();log_ring();std::printf("PASS native assertions=%u seed=731 SPI_random=12000 UART_frames=1024 PID=disabled_on_firmware\n",assertions); }

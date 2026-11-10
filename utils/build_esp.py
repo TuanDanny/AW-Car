@@ -7,13 +7,14 @@ import os
 from pathlib import Path
 import subprocess
 import sys
+from management_keys import prepare
 
 ROOT = Path(__file__).resolve().parents[1]
 
 def source_digest(root: Path, board: str) -> str:
     """Include defaults/lockfiles; exclude generated sdkconfig and build output."""
     digest = hashlib.sha256()
-    for directory in [root / 'esp' / board, root / 'esp/shared']:
+    for directory in [root / 'esp' / board, root / 'esp/shared', root / 'esp/management']:
         for file in sorted(directory.rglob('*')):
             if not file.is_file() or any(p in {'build', 'managed_components', '__pycache__'} for p in file.parts):
                 continue
@@ -51,8 +52,9 @@ def main() -> None:
     project = ROOT / "esp" / args.board
     build = ROOT / "build" / args.board
     build.mkdir(parents=True, exist_ok=True)
-    build_id = "simplev1-" + source_digest(ROOT, args.board)[:12]
-    command = [str(python), str(sdk / "tools/idf.py"), "-C", str(project), "-B", str(build), "-D", "IDF_TARGET=esp32s3", "-D", f"SIMPLE_BUILD_ID={build_id}"]
+    key_directory, key_id = prepare(ROOT, args.board, python)
+    build_id = "simplev1-" + hashlib.sha256((source_digest(ROOT, args.board) + key_id).encode()).hexdigest()[:12]
+    command = [str(python), str(sdk / "tools/idf.py"), "-C", str(project), "-B", str(build), "-D", "IDF_TARGET=esp32s3", "-D", f"SIMPLE_BUILD_ID={build_id}", "-D", f"SIMPLE_MGMT_KEY_DIR={key_directory}"]
     if args.clean:
         subprocess.run(command + ["fullclean"], env=env, check=True)
     with (build / "build.log").open("w", encoding="utf-8") as log:
@@ -68,6 +70,7 @@ def main() -> None:
     images = {p.name: {"bytes": p.stat().st_size, "sha256": hashlib.sha256(p.read_bytes()).hexdigest()} for p in build.glob("*.bin")}
     report = {"board": args.board, "build_id": build_id, "images": images, "flashed": False}
     report['sdkconfig_sha256'] = hashlib.sha256((project/'sdkconfig').read_bytes()).hexdigest()
+    report['management_key_id'] = key_id
     (build / "manifest.json").write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")
     print(json.dumps(report, indent=2))
 

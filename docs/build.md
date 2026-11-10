@@ -82,6 +82,26 @@ cho mọi máy. Giữ CRCCheck/Security ON. ReadCodes/UserCode không thay byte 
 
 ## Mở Web và thử
 
+### Quản trị qua router (nhánh AP+STA/OTA)
+
+Điện thoại lái qua AW-CAR /192.168.4.1. Laptop ở cùng Wi-Fi ngoài với hai ESP:
+
+```powershell
+python utils/awcarctl.py discover
+# Khi .local chưa resolve trên mạng/máy này:
+python utils/awcarctl.py discover --brain-ip <Brain-STA-IP> --motion-ip <Motion-STA-IP>
+python utils/awcarctl.py info motion --ip <Motion-STA-IP>
+python utils/awcarctl.py logs motion --ip <Motion-STA-IP> --seconds 60
+python utils/awcarctl.py logs brain --ip <Brain-STA-IP> --seconds 60
+```
+
+Đây là HTTPS3232, token qua TLS và pin đúng chứng chỉ đã nạp USB; không dùng `/ws`.
+Log là mẫu chẩn đoán500ms/best-effort, không thay trace nối tiếp hoặc phép đo PWM.
+Các file `build/private/management-keys/{brain,motion}.{key,tls.key,crt}` cần giữ
+ngoài Git khi dọn build/chuyển laptop. Có thể dùng `AWCAR_KEY_DIR` để đặt chúng ở
+thư mục riêng. Không đưa khóa vào chat hoặc bỏ kiểm chứng chỉ khi gặp lỗi.
+Hiện chưa có lệnh upload; bootstrap OTA/rollback là mốc tiếp theo.
+
 Motion phát **AW-CAR / 123456789**, mở `http://192.168.4.1`. Không PIN/Cho phép.
 Manual mặc định30%; giữ nút chạy, nhả về0, DỪNG về0 và Manual. Chuyển AI rồi bấm
 Bắt đầu nghe để tạo lượt mới. Ví dụ: 前进一秒, 后退一秒, 原地左转一秒,

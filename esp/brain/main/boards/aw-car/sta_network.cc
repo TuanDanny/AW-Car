@@ -1,5 +1,6 @@
 #include "sta_network.h"
 #include "car/runtime.h"
+#include "management.hpp"
 #include <ssid_manager.h>
 #include <cJSON.h>
 #include <esp_log.h>
@@ -9,6 +10,10 @@
 #include <cstring>
 
 namespace {
+#ifndef SIMPLE_BUILD_ID
+#define SIMPLE_BUILD_ID "simplev1-dev"
+#endif
+void DescribeBrain(char* output,size_t capacity) { brain::Runtime::Get().Diagnostics(output,capacity); }
 constexpr uint32_t kUp = 1, kDown = 2;
 uint64_t Now() { return esp_timer_get_time()/1000; }
 void Disconnect() {
@@ -121,6 +126,8 @@ void StaNetwork::Run() {
             std::string ssid;
             { std::lock_guard lock(state_mutex_); ssid = ssid_; }
             Notify(NetworkEvent::Connected, ssid);
+            const auto rc=management::start("brain",SIMPLE_BUILD_ID,DescribeBrain);
+            if(rc!=ESP_OK) ESP_LOGE("BrainSTA","management start failed: %s",esp_err_to_name(rc));
         }
         Credentials credentials;
         if (xQueueReceive(configurations_, &credentials, 0) == pdPASS) {

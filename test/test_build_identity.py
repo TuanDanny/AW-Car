@@ -3,8 +3,10 @@ import importlib.util
 from pathlib import Path
 import tempfile
 import unittest
+import sys
 
 ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0,str(ROOT/'utils'))
 spec = importlib.util.spec_from_file_location('build_esp', ROOT/'utils/build_esp.py')
 module = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(module)

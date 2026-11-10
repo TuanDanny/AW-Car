@@ -8,6 +8,7 @@
 #include <esp_log.h>
 #include <esp_timer.h>
 #include <cstring>
+#include <cstdio>
 
 namespace brain {
 namespace { constexpr auto kUart = UART_NUM_1; uint64_t Now() { return esp_timer_get_time()/1000; } }
@@ -96,6 +97,13 @@ std::string Runtime::StateJson() {
     std::string result = text ? text : "{}";
     cJSON_free(text); cJSON_Delete(json);
     return result;
+}
+void Runtime::Diagnostics(char* output,size_t capacity) {
+    simple::MotionState s{};bool fresh=false;
+    { std::lock_guard lock(mutex_);s=context_.motion();fresh=context_.MotionFresh(Now()); }
+    std::snprintf(output,capacity,"{\"cloud\":%d,\"listening\":%d,\"speaking\":%d,\"motion_fresh\":%d,\"generation\":%lu,\"mode\":\"%s\",\"left\":%d,\"right\":%d}",
+        int(cloud_.load()),int(listening_.load()),int(speaking_.load()),int(fresh),
+        static_cast<unsigned long>(s.generation),s.mode==simple::Mode::Manual?"manual":"ai",s.left,s.right);
 }
 bool Runtime::Send(simple::Frame frame) {
     frame.seq = ++sequence_;

@@ -1,5 +1,10 @@
 # Kiểm chứng simplev1 — 10/11/2026
 
+**Checkpoint quản trị mới:** [management-checkpoint.json](../data/management-checkpoint.json)
+ghi hai app đã nạp/đọc ngược, tìm bằng .local/IP, log HTTPS và xác thực trên board.
+Chủ dự án xác nhận Manual/STOP/OLED/AI vẫn bình thường khi đọc log. Chưa có OTA;
+không chuyển kết quả log/metadata thành nghiệm thu cập nhật hoặc độ trễ toàn xe.
+
 **Nhánh AP+STA/OTA đang phát triển:** xem [checkpoint](../data/apsta-checkpoint.json)
 và [cổng kiểm thử](ota-network-plan.md). Mốc skeleton dưới đây là baseline cũ;
 không dùng số đo đó để đánh dấu AP+STA/OTA mới PASS.

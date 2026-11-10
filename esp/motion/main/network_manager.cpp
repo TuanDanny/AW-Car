@@ -1,5 +1,7 @@
 #include "network_manager.hpp"
 #include "runtime.hpp"
+#include "management.hpp"
+#include <cstdio>
 #include "simple/network_policy.hpp"
 #include <cstring>
 #include <atomic>
@@ -22,6 +24,16 @@ NetworkState published{};
 std::atomic<uint16_t> last_reason{0};
 constexpr uint32_t kUp=1,kDown=2;
 constexpr const char* tag="motion_network";
+#ifndef SIMPLE_BUILD_ID
+#define SIMPLE_BUILD_ID "simplev1-dev"
+#endif
+void describe_motion(char* out,size_t size) {
+    const auto s=Runtime::get().snapshot();
+    std::snprintf(out,size,"{\"mode\":\"%s\",\"action\":\"%s\",\"left\":%d,\"right\":%d,\"generation\":%lu,\"reason\":\"%s\",\"fpga\":%d,\"uart_errors\":%lu,\"spi_errors\":%lu}",
+        s.car.mode==simple::Mode::Manual?"manual":"ai",simple::action_name(s.car.action),s.car.left,s.car.right,
+        static_cast<unsigned long>(s.car.generation),simple::reason_name(s.car.reason),s.car.fpga_link,
+        static_cast<unsigned long>(s.uart_errors),static_cast<unsigned long>(s.spi_errors));
+}
 uint64_t now_ms() { return esp_timer_get_time()/1000; }
 void disconnect() {
     const auto rc=esp_wifi_disconnect();
@@ -71,6 +83,8 @@ void run(void*) {
                esp_wifi_sta_get_ap_info(&record)==ESP_OK &&
                std::strncmp(reinterpret_cast<const char*>(record.ssid),current.ssid,32)==0) {
                 policy.got_ip();ESP_LOGI(tag,"STA IP " IPSTR,IP2STR(&ip.ip));
+                const auto rc=management::start("motion",SIMPLE_BUILD_ID,describe_motion);
+                if(rc!=ESP_OK) ESP_LOGE(tag,"management start err=%s",esp_err_to_name(rc));
             }
         }
         Credentials incoming{};

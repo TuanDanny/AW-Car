@@ -1,5 +1,10 @@
 # Công cụ
 
+`awcarctl.py discover`, `info brain|motion`, `logs brain|motion --seconds 60`:
+quản trị read-only trên STA, HTTPS3232; thêm `--ip` khi không tìm thấy .local.
+Build sinh token/chứng chỉ riêng trong build/private/management-keys; giữ chúng
+để dùng từ laptop, không commit. CLI pin đúng chứng chỉ, không dùng verify=false.
+
 `probe_ap_boundary.py --ip <Motion-STA-IP>`: từ LAN router kiểm root và WS handshake
 thật/giả Host/Origin AP; không gửi frame lái. Địa chỉ AP192.168.4.1 bị từ chối đầu vào.
 
