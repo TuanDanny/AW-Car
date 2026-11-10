@@ -14,6 +14,8 @@ namespace {
 #define SIMPLE_BUILD_ID "simplev1-dev"
 #endif
 void DescribeBrain(char* output,size_t capacity) { brain::Runtime::Get().Diagnostics(output,capacity); }
+bool EnterUpdate() { return brain::Runtime::Get().BeginUpdate(); }
+void LeaveUpdate() { brain::Runtime::Get().EndUpdate(); }
 constexpr uint32_t kUp = 1, kDown = 2;
 uint64_t Now() { return esp_timer_get_time()/1000; }
 void Disconnect() {
@@ -126,7 +128,7 @@ void StaNetwork::Run() {
             std::string ssid;
             { std::lock_guard lock(state_mutex_); ssid = ssid_; }
             Notify(NetworkEvent::Connected, ssid);
-            const auto rc=management::start("brain",SIMPLE_BUILD_ID,DescribeBrain);
+            const auto rc=management::start("brain",SIMPLE_BUILD_ID,DescribeBrain,{EnterUpdate,LeaveUpdate});
             if(rc!=ESP_OK) ESP_LOGE("BrainSTA","management start failed: %s",esp_err_to_name(rc));
         }
         Credentials credentials;

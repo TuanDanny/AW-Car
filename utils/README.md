@@ -1,7 +1,10 @@
 # Công cụ
 
 `awcarctl.py discover`, `info brain|motion`, `logs brain|motion --seconds 60`:
-quản trị read-only trên STA, HTTPS3232; thêm `--ip` khi không tìm thấy .local.
+đọc quản trị trên STA, HTTPS3232; thêm `--ip` khi không tìm thấy .local.
+`upload brain` nạp app vào slot không chạy, xác minh boot/ELF và health cục bộ;
+Motion phải migration riêng trước. `test_ota_receiver.py` kiểm các ca từ chối,
+truyền dở và reset, chỉ chạy trên bàn với `--vm-off`.
 Build sinh token/chứng chỉ riêng trong build/private/management-keys; giữ chúng
 để dùng từ laptop, không commit. CLI pin đúng chứng chỉ, không dùng verify=false.
 

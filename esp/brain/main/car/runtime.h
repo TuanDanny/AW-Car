@@ -20,6 +20,9 @@ public:
     void Stop();
     std::string StateJson();
     void Diagnostics(char* output,size_t capacity);
+    bool BeginUpdate();
+    void EndUpdate();
+    bool WorkerHealthy() const;
     void SetCloud(bool connected);
     void AudioClosed(bool cloud_closed);
     void SetAudio(bool listening, bool speaking);
@@ -32,6 +35,8 @@ private:
     std::mutex mutex_;
     AiContext context_;
     std::atomic<bool> cloud_{false}, listening_{false}, speaking_{false}, stop_pending_{false};
+    std::atomic<bool> updating_{false};
+    std::atomic<uint32_t> worker_at_{0};
     QueueHandle_t moves_{};
     TaskHandle_t task_{};
     StaNetwork* network_{};

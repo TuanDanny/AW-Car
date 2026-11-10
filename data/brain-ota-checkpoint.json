@@ -1,0 +1,33 @@
+{
+  "stage": 4,
+  "board": "brain",
+  "vm_off": true,
+  "motors_connected": false,
+  "transport": "STA HTTPS3232, certificate pin and Bearer authentication",
+  "usb_bootstrap": {
+    "bootloader_bytes": 22672,
+    "bootloader_sha256": "b6aa942fae4e6d68ae850a81f9c6af686ae405d2f7048929145cf7edb9faf099",
+    "app_assets_bootloader_readback_verified": true,
+    "partition_table_nvs_otadata_preserved_during_programming": true
+  },
+  "ota_success": {
+    "running_build": "simplev1-17b446cc405d",
+    "elf_sha256": "4fd03fca357997d3fcb3c988646c50c376fd092a1eb026bfb13250ce7c206ede",
+    "state": "valid"
+  },
+  "negative_cases": {
+    "wrong_project": "HTTP400, active ELF unchanged",
+    "wrong_sha256": "HTTP400, active ELF unchanged",
+    "interrupted_body": "same boot/ELF recovered, 10.23s observed",
+    "reset_mid_transfer": "new boot, same active ELF valid"
+  },
+  "rollback": {
+    "trial_build": "simplev1-32cced5d4b75",
+    "trial_observed": true,
+    "returned_to_good_elf": true,
+    "returned_state": "valid"
+  },
+  "health": "Application event loop and UART worker, independent of Internet/cloud readiness",
+  "pending": ["User regression of audio/OLED/BOOT after final OTA", "Long-load benchmark and full physical timing"],
+  "not_claimed": ["Motor operation", "Full-board hardware acceptance", "Arduino IDE network uploader compatibility"]
+}

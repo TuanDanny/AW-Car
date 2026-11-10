@@ -12,7 +12,7 @@ Nhánh làm việc: `codex/simplev1-ota`, từ `fff2940`; main/skeleton giữ m�
 - Quản trị qua STA sẽ có service riêng có xác thực; không tái sử dụng owner `/ws`.
 - Không GUI laptop, Arduino Core, thay chân, đổi SPI/RTL/PID, audio/OLED hoặc timeout500ms.
 - Hostname không tự tạo OTA. `.local` cần mDNS; hostname DHCP hiện chỉ là bước chuẩn bị.
-- Mốc3 thêm service read-only HTTPS3232; chưa có OTA receiver, không quảng cáo OTA.
+- Mốc3 thêm HTTPS3232; mốc4 mở OTA Brain sau kiểm thử âm và rollback thật.
 
 ## Cổng kiểm thử và checkpoint
 
@@ -22,7 +22,7 @@ Nhánh làm việc: `codex/simplev1-ota`, từ `fff2940`; main/skeleton giữ m�
 | 1: Motion AP+STA | Đạt kiểm tra chức năng trên bàn: có IP, mất mạng vẫn Manual/STOP và nối lại | A/B/tải và button→PWM vẫn dành mốc7 |
 | 2: AP-only control | Đạt probe laptop thật: root403, WS từ chối với cả Host/Origin giả; AP lái được | Tiếp tục hồi quy khi thêm management |
 | 3: discovery/log | Đạt thử board: .local/IP, HTTPS/auth, log lấy mẫu; chủ dự án xác nhận Manual/STOP/OLED/AI | Tiếp tục benchmark dài và kiểm socket pool; xem management-checkpoint.json |
-| 4: Brain OTA | Chưa triển khai | Xác thực/đúng board, local health không cần cloud, update lỗi/rollback thật |
+| 4: Brain OTA | Đạt OTA, sai project/SHA, truyền dở/reset và rollback thật | Audio/OLED/BOOT hồi quy sau OTA còn chờ xác nhận người dùng |
 | 5: Motion OTA | Chỉ có bảng phân vùng ứng viên chưa kích hoạt | USB migration giữ dữ liệu, MAINTENANCE khóa MOVE/công suất, rollback thật |
 | 6: Arduino compatibility | Mới đối chiếu uploader chính thức | Receiver phải thực sự tương thích; binary vẫn build ESP-IDF |
 | 7: A/B | Chưa thực hiện | p99≤3ms/max≤10ms là mục tiêu input→SPI; button→PWM/STOP đo riêng |

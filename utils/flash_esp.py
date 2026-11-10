@@ -45,13 +45,16 @@ def main():
     parser.add_argument("board",choices=["motion","brain"])
     parser.add_argument("--port",required=True)
     parser.add_argument("--vm-off",action="store_true",required=True)
+    parser.add_argument("--bootstrap-ota",action="store_true",help="Brain only: back up and install the built rollback-capable bootloader")
     args=parser.parse_args()
+    if args.bootstrap_ota and args.board!='brain': raise ValueError('Use the dedicated Motion partition migration tool')
     import serial.tools.list_ports
     expected=(0x303a,0x1001) if args.board=="brain" else (0x1a86,0x55d3)
     port=next((p for p in serial.tools.list_ports.comports() if p.device.casefold()==args.port.casefold()),None)
     if not port or (port.vid,port.pid)!=expected: raise SystemExit("Port identity does not match selected board; no write")
     build=ROOT/"build"/args.board
     manifest=json.loads((build/"manifest.json").read_text())
+    if manifest.get('test_rollback'): raise ValueError('Rollback test images must only be sent to the inactive OTA slot, never over USB')
     private=ROOT/"build/private"/(args.board+"-"+datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ"))
     private.mkdir(parents=True,exist_ok=True)
     import esptool
@@ -92,9 +95,17 @@ def main():
             preserved["motioncfg"]=sha(read(cfg["offset"],cfg["size"],"motioncfg-before.bin"))
     images=[(app["offset"],build/app_name)]
     if args.board=="brain": images.append((actual["assets"]["offset"],build/"generated_assets.bin"))
+    if args.bootstrap_ota:
+        config=(ROOT/'esp/brain/sdkconfig').read_text()
+        if 'CONFIG_BOOTLOADER_APP_ROLLBACK_ENABLE=y' not in config.splitlines(): raise ValueError('Bootloader rollback is not enabled')
+        bootloader=build/'bootloader/bootloader.bin'
+        if bootloader.stat().st_size>0x8000: raise ValueError('Bootloader exceeds reserved region')
+        read(0,0x8000,'bootloader-before.bin')
+        images.append((0,bootloader))
     if (build/app_name).stat().st_size>app["size"]: raise ValueError("App exceeds existing slot")
     for offset,path in images:
-        if manifest["images"][path.name]["sha256"]!=sha(path.read_bytes()): raise ValueError("Image/manifest hash mismatch")
+        name=path.relative_to(build).as_posix()
+        if manifest["images"][name]["sha256"]!=sha(path.read_bytes()): raise ValueError("Image/manifest hash mismatch")
     # One current-app snapshot per selected release, not a repeated16MiB full backup.
     read(app["offset"],app["size"],"app-before.bin")
     invoke(esptool.cmds.write_flash,esp,[(offset,str(path)) for offset,path in images],
@@ -115,6 +126,7 @@ def main():
             "build_id":manifest["build_id"],"app_offset":hex(app["offset"]),"readback_sha256":verified,
             "nvs_preserved":True,"partition_table_preserved":True,"otadata_preserved":"otadata" in preserved,
             "legacy_motioncfg_preserved":"motioncfg" in preserved,"pass":True,"vm_off_confirmed":True}
+    report['rollback_bootloader_installed']=args.bootstrap_ota
     (ROOT/"build/bringup").mkdir(parents=True,exist_ok=True)
     (ROOT/"build/bringup"/(args.board+"-flash.json")).write_text(json.dumps(report,indent=2)+"\n",encoding="utf-8")
     print(json.dumps(report,indent=2))

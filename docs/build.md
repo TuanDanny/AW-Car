@@ -100,7 +100,18 @@ Log là mẫu chẩn đoán500ms/best-effort, không thay trace nối tiếp ho�
 Các file `build/private/management-keys/{brain,motion}.{key,tls.key,crt}` cần giữ
 ngoài Git khi dọn build/chuyển laptop. Có thể dùng `AWCAR_KEY_DIR` để đặt chúng ở
 thư mục riêng. Không đưa khóa vào chat hoặc bỏ kiểm chứng chỉ khi gặp lỗi.
-Hiện chưa có lệnh upload; bootstrap OTA/rollback là mốc tiếp theo.
+OTA Brain đã thử trên board; chỉ nạp application của đúng project, không dùng
+merged image. Build rồi upload qua router, CLI kiểm chứng chỉ/hash và chờ boot valid:
+
+```powershell
+python utils/build_esp.py brain
+python utils/awcarctl.py upload brain
+```
+
+Không đổi token/chứng chỉ khi OTA. Lần bootstrap Brain dùng USB để cài bootloader
+rollback đã kiểm SHA; không ghi eFuse/OTP. Motion cần migration riêng trước khi
+có OTA. `--test-rollback` chỉ dành cho phép thử có VM ngắt; không dùng để chạy xe.
+Mất kết nối upload không tự gửi lại: CLI kiểm build/ELF đang chạy trước khi báo đạt.
 
 Motion phát **AW-CAR / 123456789**, mở `http://192.168.4.1`. Không PIN/Cho phép.
 Manual mặc định30%; giữ nút chạy, nhả về0, DỪNG về0 và Manual. Chuyển AI rồi bấm

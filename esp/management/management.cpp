@@ -1,4 +1,5 @@
 #include "management.hpp"
+#include "update.hpp"
 #include "management_key.hpp"
 #include "simple/log_ring.hpp"
 #include "simple/network_policy.hpp"
@@ -24,6 +25,7 @@ namespace {
 httpd_handle_t server{};
 const char *role_name{},*build_name{};
 Describe describe_state{};
+UpdateHooks update_hooks{};
 char boot_id[33]{};
 simple::LogRing<> ring;
 portMUX_TYPE ring_mux=portMUX_INITIALIZER_UNLOCKED;
@@ -54,7 +56,8 @@ bool on_sta(httpd_req_t* r) {
     return valid && simple::on_interface(destination,ip.ip.addr);
 }
 esp_err_t deny(httpd_req_t* r,const char* status,const char* why) {
-    httpd_resp_set_status(r,status);return httpd_resp_sendstr(r,why);
+    httpd_resp_set_status(r,status);httpd_resp_set_hdr(r,"Connection","close");httpd_resp_sendstr(r,why);
+    return ESP_FAIL;
 }
 esp_err_t json(httpd_req_t* r,cJSON* value) {
     if(!value) return ESP_ERR_NO_MEM;
@@ -76,11 +79,14 @@ esp_err_t info(httpd_req_t* r) {
     if(!on_sta(r)) return deny(r,"403 Forbidden","STA only");
     if(!authenticate(r)) return deny(r,"401 Unauthorized","authentication required");
     char status[256]{};describe_state(status,sizeof(status));const auto* app=esp_app_get_description();
+    char elf[65]{};hex(app->app_elf_sha256,32,elf);
     auto* root=cJSON_CreateObject();if(!root) return ESP_ERR_NO_MEM;
     cJSON_AddStringToObject(root,"build",build_name);
     cJSON_AddStringToObject(root,"project",app->project_name);cJSON_AddStringToObject(root,"version",app->version);
+    cJSON_AddStringToObject(root,"elf_sha256",elf);
     cJSON_AddStringToObject(root,"boot",boot_id);cJSON_AddNumberToObject(root,"heap",esp_get_free_heap_size());
-    cJSON_AddNumberToObject(root,"uptime_ms",double(now_ms()));cJSON_AddBoolToObject(root,"ota_enabled",false);
+    cJSON_AddNumberToObject(root,"uptime_ms",double(now_ms()));cJSON_AddBoolToObject(root,"ota_enabled",ota_available(update_hooks));
+    cJSON_AddStringToObject(root,"ota_state",ota_state());cJSON_AddBoolToObject(root,"updating",update_busy());
     if(auto* s=cJSON_Parse(status)) cJSON_AddItemToObject(root,"status",s);
     return json(r,root);
 }
@@ -114,10 +120,15 @@ void sample(void*) {
         vTaskDelay(pdMS_TO_TICKS(500));
     }
 }
+esp_err_t update(httpd_req_t* r) {
+    if(!on_sta(r)) return deny(r,"403 Forbidden","STA only");
+    if(!authenticate(r)) return deny(r,"401 Unauthorized","authentication required");
+    return receive_update(r,update_hooks);
 }
-esp_err_t start(const char* role,const char* build,Describe describe) {
+}
+esp_err_t start(const char* role,const char* build,Describe describe,UpdateHooks hooks) {
     if(initialized) return ESP_OK;
-    role_name=role;build_name=build;describe_state=describe;random_nonce(boot_id);
+    role_name=role;build_name=build;describe_state=describe;update_hooks=hooks;random_nonce(boot_id);
     // IDF6.1's SSL default macro omits a deprecated field and triggers C++ -Werror.
     // Initialize all fields to zero, then set the documented defaults we use.
     httpd_ssl_config_t config{};config.httpd=HTTPD_DEFAULT_CONFIG();config.port_secure=3232;
@@ -132,11 +143,11 @@ esp_err_t start(const char* role,const char* build,Describe describe) {
     config.prvtkey_len=sizeof(awcar_private::tls_key);
     config.tls_handshake_timeout_ms=3000;
     auto rc=httpd_ssl_start(&server,&config);if(rc!=ESP_OK) return rc;
-    httpd_uri_t handlers[2]{};
-    const char* paths[]={"/info","/logs"};
-    esp_err_t (*functions[])(httpd_req_t*)={info,logs};
-    for(size_t i=0;i<2;++i) {
-        handlers[i].uri=paths[i];handlers[i].method=HTTP_GET;handlers[i].handler=functions[i];
+    httpd_uri_t handlers[3]{};
+    const char* paths[]={"/info","/logs","/update"};
+    esp_err_t (*functions[])(httpd_req_t*)={info,logs,update};
+    for(size_t i=0;i<3;++i) {
+        handlers[i].uri=paths[i];handlers[i].method=i==2?HTTP_POST:HTTP_GET;handlers[i].handler=functions[i];
         rc=httpd_register_uri_handler(server,&handlers[i]);
         if(rc!=ESP_OK) { httpd_ssl_stop(server);server=nullptr;return rc; }
     }
@@ -144,7 +155,7 @@ esp_err_t start(const char* role,const char* build,Describe describe) {
     if(rc==ESP_OK) {
         char hostname[32]{};std::snprintf(hostname,sizeof(hostname),"awcar-%s",role);
         rc=mdns_hostname_set(hostname);
-        mdns_txt_item_t txt[]={{"role",role},{"ota","0"}};
+        mdns_txt_item_t txt[]={{"role",role},{"ota",ota_available(hooks)?"1":"0"}};
         if(rc==ESP_OK) rc=mdns_service_add(hostname,"_awcar","_tcp",3232,txt,2);
     }
     if(rc!=ESP_OK) { mdns_free();httpd_ssl_stop(server);server=nullptr;return rc; }
