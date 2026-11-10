@@ -1,5 +1,13 @@
 # AW-Car simplev1
 
+- Quyết định11/11/2026: main là nhánh chính thức duy nhất, prototype v2 và
+  skeleton tối giản, ổn định cho mọi nâng cấp. Đưa các tối ưu đã kiểm thử qua
+  PR/squash, chạy CI trên PR và chạy lại main; đạt mới tag prototype-v2 và xóa
+  local/remote simplev1 cùng codex/simplev1-ota. Giữ tag baseline, lịch sử phục
+  hồi và file worktree; không force-push hoặc xóa thay đổi chưa commit.
+  Yêu cầu này thay quy tắc giữ hai nhánh thường trực bên dưới. Tính năng sau
+  làm trên nhánh tác vụ ngắn từ main, review/test/merge rồi xóa khi CI đạt.
+
 - Ngoại lệ được người dùng giao10/11/2026: phát triển AP+STA/OTA trên
   `codex/simplev1-ota` tại D:/Project/AW-Car-ota; áp dụng docs/ota-network-plan.md.
   Manual chỉ AP192.168.4.1; router chỉ Xiaozhi/OTA/log. Yêu cầu tiếp10/11:
@@ -23,5 +31,7 @@ Yêu cầu được duyệt ngày 10/11/2026 thay thế kiến trúc cũ **chỉ
 - Không commit NVS, mật khẩu Internet, PIN, flash dump, build, log thô. Giữ LICENSE và dependency lock.
 - Trước commit: python utils/check_repo.py; python -m unittest discover -s test; git diff --check;
   build cả hai firmware, mô phỏng RTL và Gowin đúng phần đổi. Ghi rõ phép thử chưa thực hiện.
-- Mỗi thư mục nguồn có README. Phát triển trên simplev1; chỉ cập nhật main theo mốc
-  được chủ dự án giao. CI chạy trên cả main và simplev1. Không di chuyển tag baseline.
+- Mỗi thư mục nguồn có README. Main giữ flow đã nghiệm thu; nâng cấp tối thiểu,
+  đo trước/sau, không thêm phức tạp nếu chưa có lợi ích. CI chạy PR và main.
+  Không di chuyển tag baseline; giới hạn phần cứng ghi rõ, không gọi phần mềm
+  prototype là đã nghiệm thu motor/nguồn2S/PID.

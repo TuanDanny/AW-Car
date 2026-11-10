@@ -1,7 +1,8 @@
 # Tối ưu nhỏ simplev1: kết quả trước/sau
 
 Ngày11/11/2026. Baseline main `97f9fcd`; source tối ưu `79b4204` trên
-`codex/simplev1-ota`. Đây là bản thử đã nạp riêng Motion, chưa thay main.
+`codex/simplev1-ota`. Bản B đã nạp riêng Motion. Sau số đo và xác nhận người dùng,
+chủ dự án duyệt đưa lên main thành prototype v2 qua PR và CI.
 Kế hoạch và lý do chọn ở [review](optimization-review.md); số liệu đầy đủ ở
 [comparison](../data/optimization-comparison.json), [121 mẫu điện thoại](../data/optimization-phone-samples.json)
 và [benchmark Web](../data/optimization-web-render.json).
@@ -96,5 +97,6 @@ cạnh PWM, motor hoặc nguồn2S trong đợt này. Không thay firmware Brain
 không tổng hợp Gowin lại. Kiểm tra cấu trúc và diff đạt; log thô, Wi-Fi, ASR và
 Flash dump vẫn ở thư mục private được Git bỏ qua.
 
-Giữ bản tối ưu trên nhánh riêng để review. Main97f9fcd và các tag baseline vẫn
-nguyên; không coi kết quả này là nghiệm thu động cơ hoặc độ trễ toàn xe.
+Main97f9fcd là mốc A để đối chiếu. Theo duyệt tiếp11/11, đưa source lên main,
+tag prototype-v2 sau CI và xóa hai nhánh tác vụ. Giữ các tag baseline; không coi
+kết quả này là nghiệm thu động cơ hoặc độ trễ toàn xe.
