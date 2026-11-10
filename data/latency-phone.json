@@ -1,0 +1,163 @@
+{
+  "scope": "Real phone PointerEvent timestamp to send and matching Motion setpoint STATUS; not physical PWM edge",
+  "status_poll_ms": 100,
+  "directions": {
+    "forward": {
+      "dispatch": {
+        "n": 27,
+        "p50_ms": 9.0,
+        "p95_ms": 18.0,
+        "p99_ms": 22.7,
+        "max_ms": 22.7
+      },
+      "setpoint_status": {
+        "n": 27,
+        "p50_ms": 79.5,
+        "p95_ms": 151.2,
+        "p99_ms": 221.4,
+        "max_ms": 221.4
+      },
+      "within_proposed_budget": false
+    },
+    "backward": {
+      "dispatch": {
+        "n": 25,
+        "p50_ms": 9.9,
+        "p95_ms": 13.3,
+        "p99_ms": 16.9,
+        "max_ms": 16.9
+      },
+      "setpoint_status": {
+        "n": 25,
+        "p50_ms": 57.1,
+        "p95_ms": 115.3,
+        "p99_ms": 148.4,
+        "max_ms": 148.4
+      },
+      "within_proposed_budget": false
+    },
+    "left": {
+      "dispatch": {
+        "n": 20,
+        "p50_ms": 10.2,
+        "p95_ms": 28.6,
+        "p99_ms": 35.3,
+        "max_ms": 35.3
+      },
+      "setpoint_status": {
+        "n": 20,
+        "p50_ms": 72.8,
+        "p95_ms": 117.3,
+        "p99_ms": 123.2,
+        "max_ms": 123.2
+      },
+      "within_proposed_budget": false
+    },
+    "right": {
+      "dispatch": {
+        "n": 20,
+        "p50_ms": 9.3,
+        "p95_ms": 14.6,
+        "p99_ms": 15.8,
+        "max_ms": 15.8
+      },
+      "setpoint_status": {
+        "n": 20,
+        "p50_ms": 73.5,
+        "p95_ms": 111.0,
+        "p99_ms": 140.8,
+        "max_ms": 140.8
+      },
+      "within_proposed_budget": false
+    }
+  },
+  "minimum_per_direction": 10,
+  "budget_note": "Proposed diagnostic budgets, not a certified hardware limit",
+  "budgets_ms": {
+    "dispatch_p95": 10,
+    "status_p95": 150,
+    "status_p99": 200,
+    "status_max": 300
+  },
+  "physical_pwm_measured": false,
+  "motor_motion_measured": false,
+  "enough_samples": true,
+  "pass": false,
+  "motion_before_spi": {
+    "inputs": 501,
+    "window": 256,
+    "p50_ms": 0.253,
+    "p95_ms": 0.457,
+    "p99_ms": 0.668,
+    "max_ms": 2.045,
+    "within_existing_3ms_10ms_budget": true
+  },
+  "date_local": "2026-11-10",
+  "motion_build": "simplev1-2f131b1123c6",
+  "brain_build": "simplev1-814afb90103b",
+  "observed_conditions": {
+    "vm_off": true,
+    "motors_connected": false,
+    "phone_on_aw_car": true,
+    "laptop_remained_on_router": true,
+    "manual_duty": "30% initially; later console shows 1175/1350 (~87%), pooled timing only",
+    "retained_confirmed_samples": 92,
+    "not_a_30_minute_soak": true,
+    "p99_sample_size_note": "20\u201327 samples per direction; tail estimates preliminary, not a 1000-click trial"
+  },
+  "pooled": {
+    "dispatch": {
+      "n": 92,
+      "p50_ms": 9.7,
+      "p95_ms": 17.7,
+      "p99_ms": 35.3,
+      "max_ms": 35.3
+    },
+    "setpoint_status": {
+      "n": 92,
+      "p50_ms": 69.8,
+      "p95_ms": 125.2,
+      "p99_ms": 221.4,
+      "max_ms": 221.4
+    }
+  },
+  "spi_diagnostic_window": {
+    "duration_ms": 206656,
+    "io_errors_delta": 0,
+    "frame_errors_delta": 1955,
+    "ack_mismatches_delta": 1991,
+    "cause_established": false,
+    "pass": false
+  },
+  "last_sampled_motion": {
+    "action": "neutral",
+    "duty": "0/0",
+    "reason": "released",
+    "driver_gpio": "0",
+    "uart_err": "0"
+  },
+  "console_fault_markers": {
+    "panic": 0,
+    "watchdog": 0,
+    "backtrace": 0
+  },
+  "measurement_limitations": [
+    "Only confirmed press samples are retained; incomplete/cancelled count remains phone-local, so this is not a command delivery reliability estimate.",
+    "STATUS confirms software setpoint and advancing SPI sequence; it does not echo applied duty or measure physical PWM.",
+    "Motion histogram is a final 256-input window plus boot-wide max, not 500 independently correlated click-to-SPI traces.",
+    "Initial phone measurement and later free-form button presses pooled; no controlled A/B or radio trace."
+  ],
+  "capture_duration_s": 300.0,
+  "console_fault_markers_by_board": {
+    "COM3": {
+      "panic": 0,
+      "watchdog": 0,
+      "backtrace": 0
+    },
+    "COM7": {
+      "panic": 0,
+      "watchdog": 0,
+      "backtrace": 0
+    }
+  }
+}
