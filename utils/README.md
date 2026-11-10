@@ -1,5 +1,11 @@
 # Công cụ
 
+`benchmark_web_render.py --port 8798 --baseline-port 8800 --baseline-ref 97f9fcd`:
+A/B HTML thật trên hai simulator localhost riêng. Server8800 dùng `simulator.py
+--html <HTML baseline>`; server8798 dùng HTML hiện tại. Tool xác minh đúng HTML,
+đếm DOM mutation và thời gian callback STATUS trên host.
+Không phát MOVE tự động hoặc coi số đo host là độ trễ Wi-Fi/PWM.
+
 `awcarctl.py discover`, `info brain|motion`, `logs brain|motion --seconds 60`:
 đọc quản trị trên STA, HTTPS3232; thêm `--ip` khi không tìm thấy .local.
 `upload brain` nạp app vào slot không chạy, xác minh boot/ELF và health cục bộ;

@@ -126,7 +126,7 @@ async def app_context(app):
     native.dll.car_destroy(native.pointer)
 
 async def index(request):
-    return web.Response(text=(ROOT / "esp/motion/web/index.html").read_text(encoding="utf-8"), content_type="text/html", headers={"Cache-Control": "no-store"})
+    return web.Response(text=request.app['html'].read_text(encoding="utf-8"), content_type="text/html", headers={"Cache-Control": "no-store"})
 
 async def latency_script(request):
     return web.Response(text=(ROOT/'esp/motion/web/latency.js').read_text(encoding='utf-8'),content_type='text/javascript')
@@ -194,9 +194,11 @@ async def sim_event(request):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--port", type=int, default=8783)
+    parser.add_argument('--html',type=Path,default=ROOT/'esp/motion/web/index.html',help='Host-only HTML fixture for baseline/candidate comparisons')
     args = parser.parse_args()
     app = web.Application(client_max_size=2048)
     app["native"] = Native()
+    app['html'] = args.html.resolve(strict=True)
     app.cleanup_ctx.append(app_context)
     app.add_routes([web.get("/", index), web.get('/latency.js',latency_script), web.get("/ws", websocket), web.get("/sim/state", lambda r: web.json_response(r.app["native"].state())), web.post("/sim/event", sim_event)])
     web.run_app(app, host="127.0.0.1", port=args.port, print=print)

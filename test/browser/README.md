@@ -40,6 +40,9 @@ như firmware, không công bố reason Released trung gian kèm duty đang khá
 Đã tái hiện trước sửa:405/Released; sau sửa:405/Active. Không nới timeout của
 observer hoặc bỏ assertion để che lỗi đồng bộ trong mô hình host.
 
+Ca26 theo dõi mutation qua10STATUS: các field không đổi không được ghi text
+lại, nhưng khi bắt đầu/nhả Tiến, duty phải cập nhật đúng +405 rồi0.
+
 Ca AI dùng `/sim/event` để kiểm tra thời lượng native, STOP/generation cũ và
 AI tiếp tục khi đóng Web. Mỗi test reset simulator; không chạy đồng thời một
 suite khác cùng cổng. Thời gian bấm/chu kỳ giữ đo trên browser/host, không
