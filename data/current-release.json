@@ -44,10 +44,17 @@
     "unit_skips": 1,
     "native_assertions": 52283,
     "brain_context_checks": 127,
-    "browser_tests": 24,
+    "browser_tests": 25,
     "rtl_testbenches": 4
   },
   "phone_latency_report": "data/latency-phone.json",
   "spi_issue_resolved": false,
-  "failed_cs_experiment_discarded": true
+  "failed_cs_experiment_discarded": true,
+  "simulator_publication_fix": {
+    "hardware_firmware_changed": false,
+    "reason": "Match production input -> tick -> snapshot order; avoid intermediate Released reason with live duty",
+    "regression_before": "405/released",
+    "regression_after": "405/active",
+    "browser_regression_test": 25
+  }
 }

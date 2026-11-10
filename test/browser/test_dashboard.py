@@ -604,6 +604,24 @@ class DashboardTests(unittest.TestCase):
         self.assertIn('Lượt chưa xác nhận/hủy: 1',self.page.locator('#latency-readout').inner_text())
         self.assertEqual(self.sim_state()['left'],0)
 
+    def test_25_command_status_snapshot_is_after_control_tick(self):
+        self.pointer_down('forward')
+        self.wait(lambda:self.probe.latest.get('left')==405)
+        marker=len(self.probe.statuses)
+        self.page.evaluate("""() => {
+          for (let i=0;i<5;i++) {
+            window.__testSocket.send(JSON.stringify({t:'drive',action:'forward',speed:30}));
+            window.__testSocket.send(JSON.stringify({t:'status'}));
+          }
+        }""")
+        self.wait(lambda:len(self.probe.statuses)>=marker+5)
+        replies=self.probe.statuses[marker:]
+        self.assertFalse(any(s.get('action')=='forward' and s.get('left')==405 and
+                             s.get('reason')=='released' for s in replies),
+                         'STATUS must not expose the intermediate target-before-tick state')
+        self.page.mouse.up()
+        self.page.locator('#stop').click();self.wait_zero()
+
     def test_18_maintenance_clears_held_and_never_replays(self):
         self.page.locator('#forward').hover()
         self.page.mouse.down()
