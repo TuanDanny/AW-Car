@@ -42,6 +42,17 @@
     "root_cause": "ESP-IDF dual-stack HTTP returns IPv4-mapped IPv6; original filter accepted AF_INET only",
     "fix": "sockaddr_storage plus strict IPv4/mapped IPv6 normalization; native regression added"
   },
+  "mapped_fix_idle_observations": {
+    "build_id": "simplev1-9441bc362b38",
+    "duration_s": 180,
+    "both_boards_panic": 0,
+    "both_boards_task_watchdog": 0,
+    "motion_uart_error_end": 0,
+    "motion_spi_error_end": 0,
+    "duty_end": [0, 0],
+    "nonzero_motion_observed": false,
+    "phone_apsta_test_observed": false
+  },
   "pending": [
     "APSTA phone and router testing",
     "STA socket access denial on hardware",
