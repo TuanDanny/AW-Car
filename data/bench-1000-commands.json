@@ -1,0 +1,83 @@
+{
+  "scope": "real USB-powered boards; VM off, no motors. Duty/ACK is not voltage/speed proof",
+  "raw_logs_committed": false,
+  "observations": 5,
+  "transitions": [
+    {
+      "at_ms": 348864,
+      "mode": "Manual",
+      "generation": 1821845284,
+      "action": "forward",
+      "left": 1337,
+      "right": 1337,
+      "spi": true,
+      "ack": 4664,
+      "reason": "active",
+      "uart_rx": 1742,
+      "uart_errors": 0,
+      "spi_errors": 4
+    },
+    {
+      "at_ms": 349877,
+      "mode": "Manual",
+      "generation": 1821845284,
+      "action": "neutral",
+      "left": 0,
+      "right": 0,
+      "spi": true,
+      "ack": 4872,
+      "reason": "released",
+      "uart_rx": 1747,
+      "uart_errors": 0,
+      "spi_errors": 4
+    }
+  ],
+  "last": {
+    "at_ms": 364916,
+    "mode": "Manual",
+    "generation": 1821845284,
+    "action": "neutral",
+    "left": 0,
+    "right": 0,
+    "spi": true,
+    "ack": 7880,
+    "reason": "released",
+    "uart_rx": 1822,
+    "uart_errors": 0,
+    "spi_errors": 4
+  },
+  "observed_span_ms": 16052,
+  "uart_error_delta": 0,
+  "spi_error_delta": 0,
+  "last_diag": {
+    "count": 1062,
+    "window": 256,
+    "p50": 256,
+    "p95": 459,
+    "p99": 1671,
+    "max": 2627,
+    "heap": 230516,
+    "spi_io_errors": 0,
+    "spi_frame_errors": 2,
+    "spi_ack_errors": 2,
+    "spi_startup": 1
+  },
+  "latency_scope": "Motion accepted input mailbox timestamp to SPI API entry, microseconds; latest256 sample window",
+  "brain": {
+    "watchdog_events": 0,
+    "panic_events": 0,
+    "backtraces": 0,
+    "fresh_driving_sessions_bound": 0,
+    "move_tool_mentions": 0,
+    "rejected_move_callbacks": 0,
+    "last_oled": {
+      "frames": 243,
+      "max_refresh_us": 55919
+    }
+  },
+  "motion_build_id": "simplev1-3196afc4efb1",
+  "notes": [
+    "sample_count is total accepted inputs, percentiles are latest256, max is all samples",
+    "Raw log capture is20s at the end of the longer control session; it does not cover all1062 inputs or a30-minute device soak"
+  ]
+}

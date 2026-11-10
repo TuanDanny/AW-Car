@@ -76,6 +76,13 @@ p50 **248µs**, p95 **384µs**, p99/max **1.577µs**. Mẫu nhỏ này đạt m�
 Tách driver waking1ms và đổi chiều40ms khỏi số submit này. SPI32byte ở1MHz mất
 256µs trên dây; ACK trong RX là giao dịch trước.
 
+Sau rebuild/readback cuối, người dùng tiếp tục thử Manual tới99% (duty1337/1337)
+rồi nhả0. Motion ghi tổng **1.062input đã nhận**: cửa sổ256mẫu gần nhất p50
+256µs, p95 **459µs**, p99 **1.671µs**; max toàn mẫu **2.627µs**. Số lấy trực tiếp
+trên ESP trong task log nền, không phải localhost. Lần đọc20s cuối chỉ bao phủ
+đoạn cuối phiên; không có trace từng input của toàn1.062mẫu. Đây chưa phải soak
+30phút trên thiết bị. Xem `data/bench-1000-commands.json`.
+
 ## Các lỗi phát hiện và giới hạn
 
 - Brain100Hz: `pdMS_TO_TICKS(5)` bằng0 khiến UART worker có thể spin không chờ.
@@ -95,7 +102,8 @@ Tách driver waking1ms và đổi chiều40ms khỏi số submit này. SPI32byte
   thu encoder trên bitstream mới bằng quay đúng vòng hoặc PID. PID giữ tắt.
 - Chưa đo GPIO PWM/DRV đầu ra trên **bản simplev1**; kết quả cầu H ở bản cũ không
   thay phép đo mới. Chưa motor, pin2S, giới hạn dòng, hiệu chuẩn, E-stop/gate vật lý.
-- 30phút/28.768lệnh là host. Tải30phút và1.000lệnh trên Wi-Fi ESP thật vẫn còn lại.
+- 30phút/28.768lệnh là host; soak30phút trên ESP thật vẫn còn lại. Bộ đếm thực
+  đã vượt1.000input nhưng chưa có trace đầy đủ cho mọi input hoặc thời gian toàn xe.
 
 ## Tệp bằng chứng
 
