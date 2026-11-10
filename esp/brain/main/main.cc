@@ -8,6 +8,8 @@
 #include <freertos/task.h>
 
 #include "application.h"
+#include "car/runtime.h"
+#include "management.hpp"
 
 #define TAG "main"
 #ifndef SIMPLE_BUILD_ID
@@ -24,5 +26,10 @@ extern "C" void app_main(void)
     // Initialize and run the application
     auto& app = Application::GetInstance();
     app.Initialize();
+    management::start_boot_guard([] {
+        Application::GetInstance().Schedule([] {
+            if(brain::Runtime::Get().WorkerHealthy()) management::confirm_local_boot();
+        });
+    });
     app.Run();  // This function runs the main event loop and never returns
 }

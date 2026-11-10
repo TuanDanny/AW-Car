@@ -44,6 +44,7 @@ TRACE = """(() => {
   }, true);
   const original = WebSocket.prototype.send;
   WebSocket.prototype.send = function(payload) {
+    window.__testSocket = this;
     try {
       const value = JSON.parse(payload);
       if (['drive', 'neutral', 'stop'].includes(value.t))
@@ -134,7 +135,13 @@ class DashboardTests(unittest.TestCase):
         self.context.add_init_script(TRACE)
         self.mute_status = False
         self.relays = []
-        self.context.route_web_socket("**/ws", self.relay)
+        # These cases need the browser's native bufferedAmount; the Playwright
+        # relay emulates it and would hide real client backpressure behavior.
+        if self._testMethodName not in ('test_19_brief_socket_backpressure_keeps_physical_hold',
+                                       'test_20_sustained_backpressure_requires_a_fresh_press',
+                                       'test_23_latency_observer_records_four_buttons',
+                                       'test_24_latency_observer_cancels_old_generation'):
+            self.context.route_web_socket("**/ws", self.relay)
         self.sim_event({"event": "reset"})
         self.page, self.probe = self.new_page()
         self.wait(lambda: self.probe.latest.get("simulator") is True,
@@ -501,6 +508,119 @@ class DashboardTests(unittest.TestCase):
         self.assertEqual(self.sim_state()["left"], 0)
         self.assertEqual(self.sim_state()["right"], 0)
         self.assertFalse(self.probe.commands("drive"), "The browser must not synthesize AI MOVE commands")
+
+    def buffered_fixture(self):
+        self.page.evaluate("""() => {
+          const socket=window.__testSocket;
+          let owner=socket, descriptor;
+          while(owner && !descriptor) {
+            descriptor=Object.getOwnPropertyDescriptor(owner,'bufferedAmount');owner=Object.getPrototypeOf(owner);
+          }
+          Object.defineProperty(socket, 'bufferedAmount', {
+            configurable:true, get() { return window.__testBuffered ? 24 : descriptor.get ? descriptor.get.call(socket) : descriptor.value; }
+          });
+        }""")
+
+    def test_19_brief_socket_backpressure_keeps_physical_hold(self):
+        self.buffered_fixture();self.pointer_down()
+        self.wait(lambda: self.sim_state()['left'] > 0)
+        marker=len(self.probe.sent)
+        for _ in range(4):
+            # Clear in the browser: Python/CI scheduling must not accidentally
+            # extend an intended60ms injection into a >150ms real blockage.
+            self.page.evaluate('window.__testBuffered=true; setTimeout(()=>window.__testBuffered=false,60)')
+            self.page.wait_for_timeout(200)
+            self.assertTrue(self.page.locator('#forward').evaluate("e=>e.classList.contains('is-held')"),
+                            'A brief busy socket must skip a repeat, not cancel the physical hold: '
+                            +self.page.locator('#notice').inner_text()+' '+str(self.page.evaluate('window.__inputTrace.slice(-6)')))
+        self.assertFalse(self.probe.commands('neutral',marker))
+        self.assertGreaterEqual(len(self.probe.commands('drive',marker)),6)
+        self.page.mouse.up();self.wait_zero()
+
+    def test_20_sustained_backpressure_requires_a_fresh_press(self):
+        self.buffered_fixture();self.pointer_down()
+        self.wait(lambda: self.sim_state()['left'] > 0)
+        marker=len(self.probe.sent)
+        self.page.evaluate('window.__testBuffered=true');self.page.wait_for_timeout(350)
+        self.assertFalse(self.page.locator('#forward').evaluate("e=>e.classList.contains('is-held')"))
+        self.page.evaluate('window.__testBuffered=false');self.page.wait_for_timeout(180)
+        self.assertFalse(self.probe.commands('drive',marker),'No buffered MOVE replay after cancellation')
+        self.wait_zero();self.page.mouse.up()
+        self.pointer_down();self.wait(lambda:self.sim_state()['left']>0)
+        self.page.mouse.up();self.wait_zero()
+
+    def test_21_touch_hold_through_status_updates(self):
+        self.page.set_viewport_size({'width':390,'height':844})
+        self.page.locator('#forward').scroll_into_view_if_needed()
+        box=self.page.locator('#forward').bounding_box();self.assertIsNotNone(box)
+        cdp=self.context.new_cdp_session(self.page)
+        cdp.send('Emulation.setTouchEmulationEnabled',{'enabled':True})
+        point={'x':box['x']+box['width']/2,'y':box['y']+box['height']/2}
+        cdp.send('Input.dispatchTouchEvent',{'type':'touchStart','touchPoints':[point]})
+        self.wait(lambda:self.sim_state()['left']>0)
+        marker=len(self.probe.sent);self.page.wait_for_timeout(3000)
+        self.assertGreaterEqual(len(self.probe.commands('drive',marker)),45)
+        self.assertFalse(self.probe.commands('neutral',marker))
+        self.assertEqual(self.sim_state()['left'],405)
+        cdp.send('Input.dispatchTouchEvent',{'type':'touchEnd','touchPoints':[]})
+        self.wait_zero();cdp.detach()
+
+    def test_22_ai_omitted_duration_defaults_to_three_seconds(self):
+        self.page.locator('#ai-mode').click();self.wait_mode('ai')
+        self.sim_event({'event':'ai','action':'forward','speed':30})
+        self.wait(lambda:self.sim_state()['left']>0)
+        self.page.wait_for_timeout(1150)
+        self.assertEqual(self.sim_state()['left'],405,'Default AI action must outlast one second')
+        self.wait(lambda:self.sim_state()['reason']=='ai_complete',timeout=3)
+        self.wait_zero()
+
+    def start_latency_observer(self):
+        self.page.goto(OPTIONS['url'].rstrip('/')+'/#latency',wait_until='networkidle')
+        self.page.wait_for_selector('#latency-readout')
+        self.page.wait_for_selector('#telemetry[data-fresh="true"]')
+        self.page.wait_for_timeout(150);self.wait_zero()
+
+    def test_23_latency_observer_records_four_buttons(self):
+        self.start_latency_observer();marker=len(self.probe.sent)
+        for action in ['forward','backward','left','right']:
+            self.page.locator('#'+action).evaluate("e=>e.scrollIntoView({block:'center'})")
+            self.pointer_down(action)
+            self.page.wait_for_timeout(350)
+            self.assertTrue(any(v['action']==action for v in self.probe.commands('latency',marker)),
+                            self.page.locator('#latency-readout').inner_text()+' '+str(self.probe.latest)+' '+str(self.probe.errors))
+            self.page.mouse.up();self.wait_zero();self.page.wait_for_timeout(80)
+        records=self.probe.commands('latency',marker)
+        self.assertEqual(len(records),4)
+        self.assertTrue(all(0<=v['dispatch_us']<=v['confirm_us']<2000000 for v in records))
+        self.assertIn('Tiến · 1',self.page.locator('#latency-readout').inner_text())
+        self.assertEqual(self.probe.errors,[])
+
+    def test_24_latency_observer_cancels_old_generation(self):
+        self.start_latency_observer();marker=len(self.probe.sent)
+        self.page.locator('#forward').evaluate("e=>e.scrollIntoView({block:'center'})")
+        self.pointer_down('forward');self.sim_event({'event':'maintenance','enabled':True})
+        self.page.wait_for_timeout(300);self.page.mouse.up()
+        self.assertFalse(self.probe.commands('latency',marker))
+        self.assertIn('Lượt chưa xác nhận/hủy: 1',self.page.locator('#latency-readout').inner_text())
+        self.assertEqual(self.sim_state()['left'],0)
+
+    def test_18_maintenance_clears_held_and_never_replays(self):
+        self.page.locator('#forward').hover()
+        self.page.mouse.down()
+        self.wait(lambda:self.probe.latest.get('left',0)>0)
+        self.sim_event({'event':'maintenance','enabled':True})
+        self.wait(lambda:self.probe.latest.get('maintenance') is True)
+        self.wait_zero()
+        self.assertTrue(self.page.locator('#forward').is_disabled())
+        self.assertTrue(self.page.locator('#ai-mode').is_disabled())
+        self.assertIn('bảo trì',self.page.locator('#mode-hint').inner_text())
+        self.assertFalse(self.sim_state()['driver'])
+        self.page.mouse.up()
+        self.sim_event({'event':'maintenance','enabled':False})
+        self.wait(lambda:self.probe.latest.get('maintenance') is False)
+        self.page.wait_for_timeout(650)
+        self.wait_zero()
+        self.assertFalse(self.sim_state()['driver'])
 
     def test_17_ai_continues_when_web_disconnects(self):
         self.page.locator("#ai-mode").click()

@@ -24,6 +24,17 @@ STOP/Space, mode/listen, Wi-Fi, mất STATUS một lần, AI mất STATUS, tab t
 1001/controller_replaced, refresh và nối lại tường minh. Proxy mất STATUS chỉ
 bỏ bản tin từ server thật, không tự tạo phản hồi hay phân xử lệnh.
 
+Ca18 bật MAINTENANCE qua native core: thao tác giữ bị xóa, khóa nút lái/mode và
+thoát bảo trì không phát lại lệnh. Fixture `/sim/*` chỉ có trên localhost.
+
+Ca19/20 dùng WebSocket browser thật (không proxy Playwright) để chèn bufferedAmount
+bận60ms và bận kéo dài: giữ ngắn được tiếp tục, tắc dài phải nhấn lại. Ca21 giữ
+touch3giây qua nhiều STATUS; ca22 xác nhận AI bỏ duration chạy3giây. Đây là kiểm
+điều kiện phần mềm, không giả làm số đo Wi-Fi điện thoại thật.
+
+Ca23/24 kiểm observer `/#latency`: đủ bốn nút, giá trị timestamp hợp lệ và hủy
+lượt đo khi generation đổi. Observer dùng native WebSocket, không proxy.
+
 Ca AI dùng `/sim/event` để kiểm tra thời lượng native, STOP/generation cũ và
 AI tiếp tục khi đóng Web. Mỗi test reset simulator; không chạy đồng thời một
 suite khác cùng cổng. Thời gian bấm/chu kỳ giữ đo trên browser/host, không

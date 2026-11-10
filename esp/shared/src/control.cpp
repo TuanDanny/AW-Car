@@ -8,9 +8,14 @@ void Control::clear_target(Reason reason) {
 }
 void Control::stop(Reason reason) {
     ++generation_; if(generation_==0) ++generation_;
-    mode_=Mode::Manual; clear_target(reason);
+    mode_=Mode::Manual; clear_target(maintenance_?Reason::Maintenance:reason);
+}
+void Control::maintenance(bool enabled) {
+    if(maintenance_==enabled) return;
+    maintenance_=enabled;stop(enabled?Reason::Maintenance:Reason::Stop);
 }
 void Control::set_mode(Mode mode) {
+    if(maintenance_) return;
     ++generation_; if(generation_==0) ++generation_;
     mode_=mode; clear_target(Reason::ModeChanged);
 }
@@ -28,17 +33,17 @@ void Control::target(Action a,uint8_t speed,uint64_t deadline) {
 }
 bool Control::manual(Action a,uint8_t speed,uint64_t now) {
     now_=now;
-    if(mode_!=Mode::Manual || !valid_action(a) || speed>100) return false;
+    if(maintenance_ || mode_!=Mode::Manual || !valid_action(a) || speed>100) return false;
     if(a!=Action::Neutral && speed>0 && !fpga_connected(now)) return false;
     target(a,speed,now+500); return true;
 }
 bool Control::ai(const AiMove& m,uint64_t now) {
     now_=now;
-    if(mode_!=Mode::Ai || m.generation!=generation_ || !valid_action(m.action) || m.speed>100 ||
+    if(maintenance_ || mode_!=Mode::Ai || m.generation!=generation_ || !valid_action(m.action) || m.speed>100 ||
        (m.duration_ms!=0 && (m.duration_ms<100 || m.duration_ms>3000)) ||
        !fpga_connected(now) || !brain_connected(now) ||
        (brain_.flags&(kWifiReady|kCloudReady))!=(kWifiReady|kCloudReady)) return false;
-    target(m.action,m.speed,now+(m.duration_ms?m.duration_ms:1000)); return true;
+    target(m.action,m.speed,now+(m.duration_ms?m.duration_ms:kAiDefaultDurationMs)); return true;
 }
 void Control::brain(const BrainState& state,uint64_t now) { brain_=state;brain_at_=now;brain_seen_=true; }
 void Control::fpga(const SpiStatus& state,uint64_t now) { fpga_=state;fpga_at_=now;fpga_seen_=true; }

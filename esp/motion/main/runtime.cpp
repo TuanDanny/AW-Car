@@ -9,6 +9,7 @@
 #include "esp_system.h"
 #include "esp_timer.h"
 #include "led_strip.h"
+#include "management.hpp"
 
 namespace motion {
 namespace {
@@ -22,7 +23,9 @@ Runtime& Runtime::get() { static Runtime runtime;return runtime; }
 void Runtime::wake() { if(control_task_) xTaskNotifyGive(control_task_); }
 void Runtime::start() {
     core_=simple::Control(esp_random());
-    gpio_config_t pin{};pin.pin_bit_mask=1ULL<<kDriver;pin.mode=GPIO_MODE_OUTPUT;pin.pull_down_en=GPIO_PULLDOWN_ENABLE;
+    maintenance_requested_=management::boot_pending();
+    // Input enable makes gpio_get_level read the pad, rather than always return0.
+    gpio_config_t pin{};pin.pin_bit_mask=1ULL<<kDriver;pin.mode=GPIO_MODE_INPUT_OUTPUT;pin.pull_down_en=GPIO_PULLDOWN_ENABLE;
     ESP_ERROR_CHECK(gpio_config(&pin));ESP_ERROR_CHECK(gpio_set_level(kDriver,0));
     // CS is inactive before ownership moves to SPI2. No old permit/handshake outputs.
     ESP_ERROR_CHECK(gpio_set_direction(GPIO_NUM_5,GPIO_MODE_OUTPUT));ESP_ERROR_CHECK(gpio_set_level(GPIO_NUM_5,1));
@@ -68,6 +71,27 @@ bool Runtime::wifi(const char* ssid,size_t n,const char* password,size_t p) {
 Snapshot Runtime::snapshot() {
     portENTER_CRITICAL(&mux_);const auto copy=snapshot_;portEXIT_CRITICAL(&mux_);return copy;
 }
+bool Runtime::network_busy() {
+    portENTER_CRITICAL(&mux_);
+    const bool busy=snapshot_.car.left || snapshot_.car.right || pending_.source!=Source::None || management::update_busy();
+    portEXIT_CRITICAL(&mux_);return busy;
+}
+bool Runtime::begin_update() {
+    maintenance_ready_=false;maintenance_requested_=true;wake();
+    const auto deadline=us()/1000+1000;
+    while(!maintenance_ready_ && us()/1000<deadline) vTaskDelay(pdMS_TO_TICKS(5));
+    return maintenance_ready_ && gpio_get_level(kDriver)==0;
+}
+void Runtime::end_update() {
+    // Discard every queued input before allowing a new, explicit command.
+    portENTER_CRITICAL(&mux_);pending_=Pending{};portEXIT_CRITICAL(&mux_);
+    maintenance_ready_=false;maintenance_requested_=false;wake();
+}
+void Runtime::check_local_boot() {
+    const auto at=control_at_.load();
+    if(maintenance_ready_ && at && uint32_t(us()/1000)-at<100 && gpio_get_level(kDriver)==0 &&
+       management::confirm_local_boot()==ESP_OK) end_update();
+}
 void Runtime::accept(const simple::Frame& f) {
     simple::BrainState brain;simple::AiMove ai;
     portENTER_CRITICAL(&mux_);++snapshot_.uart_rx;portEXIT_CRITICAL(&mux_);
@@ -80,13 +104,21 @@ void Runtime::accept(const simple::Frame& f) {
 }
 void Runtime::control_loop() {
     uint16_t seq=0,last_tx=0;bool have_tx=false;simple::SpiStatus fpga{};
+    bool previous_zero=false;unsigned zero_acks=0;
     for(;;) {
         ulTaskNotifyTake(pdTRUE,pdMS_TO_TICKS(5));
         const uint64_t now=us()/1000;
+        control_at_=uint32_t(now);
         portENTER_CRITICAL(&mux_);const auto inputs=pending_;pending_=Pending{};portEXIT_CRITICAL(&mux_);
+        const bool requested=maintenance_requested_.load();
+        const bool transition=core_.maintaining()!=requested;
+        if(transition) {
+            core_.maintenance(requested);zero_acks=0;maintenance_ready_=false;
+        }
         if(inputs.brain) core_.brain(inputs.brain_state,inputs.brain_at);
         bool rejected=false;
-        if(inputs.stop) core_.stop(inputs.stop_reason);
+        if(requested || transition) rejected=inputs.source!=Source::None || inputs.mode;
+        else if(inputs.stop) core_.stop(inputs.stop_reason);
         else {
             if(inputs.disconnected) core_.disconnect();
             if(inputs.mode) core_.set_mode(inputs.new_mode);
@@ -106,9 +138,16 @@ void Runtime::control_loop() {
         const bool frame_valid=result==ESP_OK && simple::decode_spi_status(rx,received);
         const bool valid=frame_valid && have_tx && received.applied_seq==last_tx;
         if(valid) { fpga=received;core_.fpga(received,us()/1000); }
+        // A response acknowledges the PREVIOUS transfer. Two zero ACKs plus
+        // measured GPIO10 LOW are required before the OTA task may touch flash.
+        if(requested && valid && previous_zero && !state.left && !state.right) ++zero_acks;
+        else zero_acks=0;
+        if(requested) maintenance_ready_=zero_acks>=2 && gpio_get_level(kDriver)==0;
+        previous_zero=!state.left && !state.right;
         // Publish one bounded snapshot; no formatting, socket write, flash or heap here.
         portENTER_CRITICAL(&mux_);
         snapshot_.car=core_.state();snapshot_.brain=core_.brain_state();snapshot_.fpga=fpga;
+        snapshot_.maintenance=requested;snapshot_.driver_gpio=gpio_get_level(kDriver)!=0;
         snapshot_.brain_connected=core_.brain_connected(now);
         if(!have_tx) ++snapshot_.spi_startup;
         else if(valid) ++snapshot_.spi_ok;
@@ -178,9 +217,9 @@ void Runtime::log_loop() {
             if(err==ESP_OK) observed=color;
         }
         if(s.car.generation!=generation || s.car.left!=left || s.car.right!=right || linked!=s.car.fpga_link || ++period>=10) {
-            ESP_LOGI("simple_motion","mode=%s gen=%" PRIu32 " action=%s duty=%d/%d spi=%d ack=%u reason=%s rx=%" PRIu32 " uart_err=%" PRIu32 " spi_err=%" PRIu32,
+            ESP_LOGI("simple_motion","mode=%s gen=%" PRIu32 " action=%s duty=%d/%d spi=%d ack=%u reason=%s maintenance=%d driver_gpio=%d rx=%" PRIu32 " uart_err=%" PRIu32 " spi_err=%" PRIu32,
                 s.car.mode==simple::Mode::Manual?"Manual":"AI",s.car.generation,simple::action_name(s.car.action),s.car.left,s.car.right,s.car.fpga_link,s.car.applied_seq,
-                simple::reason_name(s.car.reason),s.uart_rx,s.uart_errors,s.spi_errors);
+                simple::reason_name(s.car.reason),s.maintenance,s.driver_gpio,s.uart_rx,s.uart_errors,s.spi_errors);
             // All sorting/formatting stays in this background observer, never in control_loop.
             auto samples=s.latency_us;const size_t count=std::min<size_t>(s.latency_count,samples.size());
             std::sort(samples.begin(),samples.begin()+count);

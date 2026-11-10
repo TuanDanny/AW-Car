@@ -8,6 +8,7 @@
 #include <esp_log.h>
 #include <esp_timer.h>
 #include <cstring>
+#include <cstdio>
 
 namespace brain {
 namespace { constexpr auto kUart = UART_NUM_1; uint64_t Now() { return esp_timer_get_time()/1000; } }
@@ -33,6 +34,7 @@ void Runtime::Start(StaNetwork* network, StatusLed* led) {
 }
 DriveContext Runtime::BeginExplicit() {
     std::lock_guard lock(mutex_);
+    if(updating_) return {};
     return context_.BeginExplicit(Now());
 }
 void Runtime::BindSession(const DriveContext& context, const std::string& session) {
@@ -62,7 +64,7 @@ bool Runtime::Move(const DriveContext& context, simple::Action action, int speed
     if (!simple::valid_action(action) || action == simple::Action::Neutral || speed < 0 || speed > 100 ||
         duration_ms < 100 || duration_ms > 3000 || !moves_) return false;
     std::lock_guard lock(mutex_);
-    if (stop_pending_ || !cloud_ || !context_.CanMove(context, Now())) return false;
+    if (updating_ || stop_pending_ || !cloud_ || !context_.CanMove(context, Now())) return false;
     PendingMove pending{context, {context.generation, action, uint8_t(speed), uint16_t(duration_ms)}};
     const bool queued = xQueueOverwrite(moves_, &pending) == pdPASS;
     if (queued && task_) xTaskNotifyGive(task_);
@@ -97,6 +99,24 @@ std::string Runtime::StateJson() {
     cJSON_free(text); cJSON_Delete(json);
     return result;
 }
+void Runtime::Diagnostics(char* output,size_t capacity) {
+    simple::MotionState s{};bool fresh=false;
+    { std::lock_guard lock(mutex_);s=context_.motion();fresh=context_.MotionFresh(Now()); }
+    std::snprintf(output,capacity,"{\"cloud\":%d,\"listening\":%d,\"speaking\":%d,\"motion_fresh\":%d,\"generation\":%lu,\"mode\":\"%s\",\"left\":%d,\"right\":%d}",
+        int(cloud_.load()),int(listening_.load()),int(speaking_.load()),int(fresh),
+        static_cast<unsigned long>(s.generation),s.mode==simple::Mode::Manual?"manual":"ai",s.left,s.right);
+}
+bool Runtime::BeginUpdate() {
+    if(updating_.exchange(true)) return false;
+    Stop();Application::GetInstance().StopListening();
+    const auto deadline=Now()+500;
+    while(stop_pending_ && Now()<deadline) vTaskDelay(pdMS_TO_TICKS(10));
+    return !stop_pending_ && WorkerHealthy();
+}
+void Runtime::EndUpdate() { Invalidate();Stop();updating_=false; }
+bool Runtime::WorkerHealthy() const {
+    const auto at=worker_at_.load();return at && uint32_t(Now())-at<1000;
+}
 bool Runtime::Send(simple::Frame frame) {
     frame.seq = ++sequence_;
     uint8_t bytes[simple::kMaxFrame];
@@ -124,6 +144,7 @@ void Runtime::Run() {
     simple::Frame frame;
     uint64_t next_status = 0;
     for (;;) {
+        worker_at_=uint32_t(Now());
         uint8_t bytes[256];
         const int size = uart_read_bytes(kUart, bytes, sizeof(bytes), 0);
         for (int i = 0; i < size; ++i) if (parser.push(bytes[i], frame)) Receive(frame);
@@ -135,7 +156,7 @@ void Runtime::Run() {
                 if (moves_) xQueueReset(moves_);
             } else {
                 PendingMove pending;
-                if (xQueueReceive(moves_, &pending, 0) == pdPASS && cloud_ &&
+                if (xQueueReceive(moves_, &pending, 0) == pdPASS && !updating_ && cloud_ &&
                     context_.CanMove(pending.context, Now())) Send(simple::make_ai_move(0, pending.move));
             }
         }

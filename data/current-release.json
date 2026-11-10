@@ -1,0 +1,53 @@
+{
+  "date_local": "2026-11-10",
+  "role": "accepted software prototype, hardware latency/reliability limitations explicitly retained",
+  "boards": {
+    "brain": {
+      "build_id": "simplev1-814afb90103b",
+      "source_digest": "62b20eea22c3f465c1762d84d069498577cbe5a8c86d8b21b9b23201247ea67f",
+      "image": {
+        "bytes": 2347440,
+        "sha256": "f08dccc3c71882af4154167aff2238d423f81c71adc00c8d6089decc21301721"
+      },
+      "test_rollback": false,
+      "prior_ota_valid_confirmed": true
+    },
+    "motion": {
+      "build_id": "simplev1-2f131b1123c6",
+      "source_digest": "5cbdd1b49dd6e64cfdee94e17e672200b568e421682380f2c99f371e78db45e5",
+      "image": {
+        "bytes": 1079936,
+        "sha256": "b65348070155a1ffd1fe14a72a7797630089adde6cfadac2fe3b91dc39d08f2f"
+      },
+      "test_rollback": false,
+      "readback_verified": true,
+      "preserved": {
+        "nvs_preserved": true,
+        "partition_table_preserved": true,
+        "otadata_preserved": true,
+        "legacy_motioncfg_preserved": true
+      }
+    },
+    "fpga": {
+      "source_baseline": "fff2940db374f9a86d47193c09c417a4b162d398",
+      "bitstream_sha256": "64212c9aa7f73ec7779f27e3f2fd48f7b7e3a62ae9eee3a9dffc78a0ecb4cf43",
+      "usercode": "0x0000A6C1",
+      "reflashed_in_this_task": false,
+      "new_byte_readback_claimed": false
+    }
+  },
+  "vm_off": true,
+  "motors_connected": false,
+  "raw_private_data_committed": false,
+  "software_checks": {
+    "unit_tests": 28,
+    "unit_skips": 1,
+    "native_assertions": 52283,
+    "brain_context_checks": 127,
+    "browser_tests": 24,
+    "rtl_testbenches": 4
+  },
+  "phone_latency_report": "data/latency-phone.json",
+  "spi_issue_resolved": false,
+  "failed_cs_experiment_discarded": true
+}

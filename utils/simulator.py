@@ -65,7 +65,7 @@ class Native:
                       "cloud": bool(self.flags & 2) and self.brain, "listening": bool(self.flags & 4),
                       "speaking": bool(self.flags & 8), "ssid": self.ssid, "ip": "127.0.0.1",
                       "wifi_result": self.wifi_result},
-            "diag": {"uart_rx": 0, "uart_errors": 0, "spi_ok": 0, "spi_errors": 0,
+            "diag": {"uart_rx": 0, "uart_errors": 0, "spi_ok": self.spi_seq, "spi_errors": 0,
                      "latency_count": 0, "latency_p50_us": None, "latency_p95_us": None,
                      "latency_p99_us": None, "latency_max_us": None, "heap": None,
                      "uptime_ms": self.now(), "host_commands": self.commands, "rejected": self.rejected},
@@ -86,6 +86,9 @@ class Native:
         self.commands += 1
         if kind == "status":
             return self.state()
+        if kind == "latency":
+            ok = obj.get('action') in ACTION and type(obj.get('dispatch_us')) is int and type(obj.get('confirm_us')) is int and 0 <= obj['dispatch_us'] <= obj['confirm_us'] <= 2000000
+            return {"t":"result","ok":ok,"reason":"received" if ok else "invalid_latency_sample"}
         ok = False
         if kind == "stop":
             ok = self.event(3, 2)
@@ -120,6 +123,9 @@ async def app_context(app):
 
 async def index(request):
     return web.Response(text=(ROOT / "esp/motion/web/index.html").read_text(encoding="utf-8"), content_type="text/html", headers={"Cache-Control": "no-store"})
+
+async def latency_script(request):
+    return web.Response(text=(ROOT/'esp/motion/web/latency.js').read_text(encoding='utf-8'),content_type='text/javascript')
 
 async def websocket(request):
     native = request.app["native"]
@@ -163,7 +169,7 @@ async def sim_event(request):
         native.flags = int(obj.get("flags", native.flags)) & 15
     elif kind in ("ai", "move"):
         generation = int(obj.get("generation", native.state()["generation"]))
-        ok = native.event(7, ACTION.get(obj.get("action"), 99), int(obj.get("speed", 30)), int(obj.get("duration_ms", 1000)), generation)
+        ok = native.event(7, ACTION.get(obj.get("action"), 99), int(obj.get("speed", 30)), int(obj.get("duration_ms", 3000)), generation)
     elif kind == "counts":
         native.counts = [int(obj.get("left", 0)), int(obj.get("right", 0))]
     elif kind == "reset":
@@ -175,6 +181,8 @@ async def sim_event(request):
         native.counts = [0, 0]
     elif kind == "stop":
         native.event(3, 2)
+    elif kind == "maintenance":
+        native.event(8, int(bool(obj.get("enabled", True))))
     else:
         ok = False
     return web.json_response({"ok": ok, "state": native.state()})
@@ -186,7 +194,7 @@ def main():
     app = web.Application(client_max_size=2048)
     app["native"] = Native()
     app.cleanup_ctx.append(app_context)
-    app.add_routes([web.get("/", index), web.get("/ws", websocket), web.get("/sim/state", lambda r: web.json_response(r.app["native"].state())), web.post("/sim/event", sim_event)])
+    app.add_routes([web.get("/", index), web.get('/latency.js',latency_script), web.get("/ws", websocket), web.get("/sim/state", lambda r: web.json_response(r.app["native"].state())), web.post("/sim/event", sim_event)])
     web.run_app(app, host="127.0.0.1", port=args.port, print=print)
 
 if __name__ == "__main__":

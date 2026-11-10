@@ -1,5 +1,19 @@
 # Kiểm chứng simplev1 — 10/11/2026
 
+**Checkpoint quản trị mới:** [management-checkpoint.json](../data/management-checkpoint.json)
+ghi hai app đã nạp/đọc ngược, tìm bằng .local/IP, log HTTPS và xác thực trên board.
+Chủ dự án xác nhận Manual/STOP/OLED/AI vẫn bình thường khi đọc log. Chưa có OTA;
+không chuyển kết quả log/metadata thành nghiệm thu cập nhật hoặc độ trễ toàn xe.
+
+**Nhánh AP+STA/OTA đang phát triển:** xem [checkpoint](../data/apsta-checkpoint.json)
+và [cổng kiểm thử](ota-network-plan.md). Mốc skeleton dưới đây là baseline cũ;
+không dùng số đo đó để đánh dấu AP+STA/OTA mới PASS.
+Đã build hai ESP, 10 bài unittest (1 bỏ qua), 17 browser test trên mô phỏng.
+Motion đã nạp/đọc ngược app `simplev1-9441bc362b38`, giữ NVS/partition/motioncfg.
+Brain chỉ build lại; chưa nạp thay firmware Brain. Có bản sửa IPv4-mapped IPv6
+sau khi chủ dự án báo dashboard bị chặn nhầm. Đang chờ thử điện thoại/router/latency;
+chưa kích hoạt migration, management log hoặc OTA.
+
 Mốc hiện tại: source cho ba board đã build và nạp; Manual/AI có duty đúng dấu và
 ACK SPI trên phần cứng thật. Các lượt log đầu giữ VM ngắt; sau đó người dùng cấp
 **VM USB khoảng5V, chưa motor** và đo được bốn chiều đúng trên cầuB cả hai DRV.
@@ -127,7 +141,55 @@ trên ESP trong task log nền, không phải localhost. Lần đọc20s cuối 
 - 30phút/28.768lệnh là host; soak30phút trên ESP thật vẫn còn lại. Bộ đếm thực
   đã vượt1.000input nhưng chưa có trace đầy đủ cho mọi input hoặc thời gian toàn xe.
 
-## Tệp bằng chứng
+## Nâng cấp AP+STA / OTA ngày10/11/2026
+
+Nhánh `codex/simplev1-ota` giữ main/skeleton nguyên mốc đã duyệt. Manual vẫn
+chỉ interface AP; probe từ router bị từ chối kể cả giả Host/Origin. Hai board
+có HTTPS3232/mDNS và log RAM lấy mẫu. User đã xác nhận Manual/STOP, OLED và AI
+bình thường khi đọc log, và hồi quy sau OTA Brain. Uploader dùng Python theo
+lựa chọn tiếp của user; không ghi Arduino IDE là đã tương thích.
+
+Brain và Motion đã nhận app qua OTA, kiểm build/ELF và boot VALID; đã thử sai
+project/SHA, body bị ngắt, reset giữa truyền và bản health cố ý lỗi để rollback
+thật. Motion migration USB giữ factory/NVS/motioncfg/PHY byte-for-byte, bản sao
+vùng ghi giữ riêng. Log cập nhật ghi maintenance1, duty0/0, GPIO10LOW; input
+pad được bật để đọc mức chân. Bản cuối không có cờ cố ý lỗi health.
+
+Mốc này không thay SPI/FPGA/audio/PID/timeout500ms và không nghiệm thu motor/2S.
+Cặp lỗi SPI frame/ACK rải rác có từ trước vẫn phải cách ly; không che cờ lỗi.
+26test host (browser opt-in được skip trong discovery), 18ca browser riêng,
+52.273assertion native và127context Brain đạt; cả hai firmware build được.
+Soak ESP30phút/A-B và độ trễ điện thoại→PWM vẫn chưa được coi là đạt.
+Xem `data/brain-ota-checkpoint.json`, `data/motion-ota-checkpoint.json` và
+[hướng dẫn dùng](ota-usage.md).
+
+## Sửa giữ nút và thời lượng AI
+
+Người dùng báo giữ nút chập chờn trên bản OTA trước; không coi lượt nghiệm thu
+đó là UI PASS dù log đã nhận đúng hướng. Đã tái hiện một nguyên nhân: client tự
+hủy giữ khi bufferedAmount chỉ bận60ms. Bản sửa bỏ lần lặp khi bận ngắn, hủy giữ
+nếu tắc liên tục150ms, tránh xếp MOVE/STATUS và bớt ghi DOM từ ACK lặp. Nhả/STOP
+và deadline500ms không đổi. AI mặc định3giây ở cả schema Brain và Control Motion,
+câu có thời gian riêng vẫn100..3000ms.
+
+26test host và22test browser đạt; gồm tái hiện trước/sau, giữ touch3giây, tắc dài
+không replay và default3giây. Hai ESP đã build/nạp, Motion readback khớp SHA,
+Brain boot VALID. Xem `data/web-hold-fix-checkpoint.json`; phản hồi điện thoại
+thật và log AI mới được ghi riêng, không suy từ simulator.
+
+Người dùng xác nhận sau khi tải lại Web ngày10/11: giữ/nhả đã mượt, không còn
+chập chờn; câu AI không nói thời lượng giữ duty khoảng3giây rồi về0. Chốt đạt
+hai yêu cầu này trong điều kiện VM ngắt, chưa motor; không mở rộng thành nghiệm
+thu công suất, nguồn2S hoặc phép đo độ trễ toàn xe.
+
+## Danh sách bằng chứng skeleton
+
+Ngày10/11 có thêm [92mẫu điện thoại thật](latency-results.md): p95 bấm→STATUS
+125,2ms, max221,4ms; Motion→trước SPI p99=0,668ms, max2,045ms. Chưa đạt hết
+budget chẩn đoán và chưa đo cạnh PWM. Frame/ACK SPI tăng nhiều trong lượt này;
+phép thử CS GPIO không giải quyết, đã loại bản thử. Không nâng kết luận phần
+cứng thành PASS.28test host,24test browser và4testbench RTL đạt; build haiESP
+được kiểm, FPGA source/bitstream giữ mốc cũ.
 
 `data/bench-manual.json`, `bench-ai.json`, `bench-final.json`,
 `bench-flash-recovery.json` chỉ giữ command/ACK/error/latency; không có câu nói,

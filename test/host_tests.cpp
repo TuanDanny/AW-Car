@@ -1,5 +1,7 @@
 #include "simple/control.hpp"
 #include "simple/pid.hpp"
+#include "simple/network_policy.hpp"
+#include "simple/log_ring.hpp"
 #include <cmath>
 #include <cstdio>
 #include <cstdlib>
@@ -74,7 +76,7 @@ void control() {
     const auto old=c.state().generation;c.stop();CHECK(c.state().generation!=old && c.state().mode==Mode::Manual && c.state().left==0);
     c.set_mode(Mode::Ai);links(c,800);const auto epoch=c.state().generation;
     CHECK(!c.manual(Action::Forward,30,800));CHECK(!c.ai({old,Action::Forward,30,1000},800));
-    CHECK(c.ai({epoch,Action::Forward,30,0},800));c.tick(800);c.tick(801);CHECK(c.state().left==405);
+    CHECK(c.ai({epoch,Action::Forward,30,1000},800));c.tick(800);c.tick(801);CHECK(c.state().left==405);
     links(c,1290);c.tick(1290);links(c,1780);c.tick(1799);CHECK(c.state().left==405);
     c.tick(1800);CHECK(c.state().left==0 && c.state().mode==Mode::Ai && c.state().reason==Reason::AiComplete);
     links(c,1900);CHECK(c.ai({epoch,Action::Forward,50,3000},1900));c.tick(1900);c.tick(1901);
@@ -104,5 +106,83 @@ void pid() {
     p.reset();CHECK(p.integral==0 && p.previous_error==0 && p.derivative==0);
     p.dt=0;CHECK(p.update(10,0)==0);
 }
+void ai_default_duration() {
+    using namespace simple;
+    CHECK(AiMove{}.duration_ms==3000);
+    for(auto duration:{uint16_t(0),kAiDefaultDurationMs,uint16_t(1000)}) {
+        Control c(42);c.set_mode(Mode::Ai);links(c,100);
+        CHECK(c.ai({c.state().generation,Action::Forward,30,duration},100));
+        const uint64_t deadline=100+(duration?duration:kAiDefaultDurationMs);
+        for(uint64_t now=100;now<deadline;now+=100) { links(c,now);c.tick(now); }
+        links(c,deadline-1);c.tick(deadline-1);CHECK(c.state().left==405);
+        c.tick(deadline);CHECK(c.state().left==0 && c.state().reason==Reason::AiComplete);
+    }
 }
-int main() { codec();control();pid();std::printf("PASS native assertions=%u seed=731 SPI_random=12000 UART_frames=1024 PID=disabled_on_firmware\n",assertions); }
+void maintenance() {
+    using namespace simple;
+    Control c(20);links(c,1);CHECK(c.manual(Action::Forward,100,1));c.tick(1);c.tick(2);
+    CHECK(c.driver_enabled() && c.state().left==1350);
+    c.set_mode(Mode::Ai);const auto old=c.state().generation;
+    CHECK(c.ai({old,Action::Forward,100,3000},3));c.tick(3);c.tick(4);
+    c.maintenance(true);CHECK(c.maintaining() && !c.driver_enabled() && c.state().left==0);
+    CHECK(c.state().mode==Mode::Manual && c.state().reason==Reason::Maintenance);
+    const auto entered=c.state().generation;c.maintenance(true);CHECK(c.state().generation==entered);
+    for(unsigned n=0;n<1000;++n) {
+        links(c,5+n);c.set_mode(Mode::Ai);
+        CHECK(!c.manual(Action::Forward,100,5+n));
+        CHECK(!c.ai({c.state().generation,Action::Backward,100,3000},5+n));
+        c.tick(5+n);CHECK(!c.driver_enabled() && !c.state().left && !c.state().right);
+    }
+    c.stop();CHECK(c.maintaining() && c.state().reason==Reason::Maintenance);
+    c.maintenance(false);c.tick(1005);
+    CHECK(!c.maintaining() && !c.driver_enabled() && !c.state().left && c.state().mode==Mode::Manual);
+    CHECK(!c.ai({old,Action::Forward,100,1000},1005)); // Old AI cannot survive update/failure.
+    c.set_mode(Mode::Ai);CHECK(!c.ai({old,Action::Forward,100,1000},1005));
+    c.set_mode(Mode::Manual);CHECK(c.manual(Action::Forward,30,1005));c.tick(1005);c.tick(1006);
+    CHECK(c.state().left==405); // Only a fresh explicit command may move again.
+}
+void network_policy() {
+    using P=simple::NetworkPolicy;using A=P::Action;
+    P p;CHECK(p.step(0,false)==A::None);
+    p.configure(0);CHECK(p.step(499,false)==A::None);CHECK(p.step(500,false)==A::Connect);
+    CHECK(p.step(1000,false)==A::None); // Do not restart a DHCP/connection attempt.
+    CHECK(p.step(15500,false)==A::Cancel);CHECK(p.failures()==1);
+    p.disconnected(15501);CHECK(p.failures()==1); // Duplicate event does not postpone forever.
+    CHECK(p.step(16499,false)==A::None);CHECK(p.step(16500,false)==A::Connect);
+    p.got_ip();CHECK(p.online() && p.failures()==0);CHECK(p.step(50000,true)==A::None);
+    p.disconnected(50000);CHECK(p.step(51000,true)==A::None);
+    CHECK(p.step(52999,false)==A::None);CHECK(p.step(53000,false)==A::Connect);
+    CHECK(p.step(53001,true)==A::Cancel); // Cancel off-channel attempts if driving starts.
+    CHECK(p.step(55000,false)==A::None);CHECK(p.step(55001,false)==A::Connect);
+    p.configure(60000);uint64_t now=60500;
+    for(unsigned n=0;n<12;++n) {
+        CHECK(p.step(now,false)==A::Connect);p.disconnected(now);
+        const auto wait=p.retry_ms(now);CHECK(wait>=1000 && wait<=60000);
+        if(n>=5) CHECK(wait==60000);
+        CHECK(p.step(now+wait-1,false)==A::None);now+=wait;
+    }
+    CHECK(simple::on_interface(0x0104a8c0,0x0104a8c0));
+    CHECK(!simple::on_interface(0,0));CHECK(!simple::on_interface(0x6401a8c0,0x0104a8c0));
+    uint8_t ap[4]={192,168,4,1},sta[4]={192,168,0,10};uint32_t a{},s{},got{};
+    CHECK(simple::ipv4_destination(ap,4,a));CHECK(simple::ipv4_destination(sta,4,s));
+    uint8_t mapped[16]={0};mapped[10]=mapped[11]=0xff;std::memcpy(mapped+12,ap,4);
+    CHECK(simple::ipv4_destination(mapped,16,got) && simple::on_interface(got,a));
+    std::memcpy(mapped+12,sta,4);
+    CHECK(simple::ipv4_destination(mapped,16,got) && !simple::on_interface(got,a));
+    mapped[0]=0x20;CHECK(!simple::ipv4_destination(mapped,16,got)); // Real IPv6 is not an AP IPv4 match.
+    mapped[0]=0;mapped[10]=0;CHECK(!simple::ipv4_destination(mapped,16,got));
+    for(size_t size:{0U,1U,3U,5U,15U}) CHECK(!simple::ipv4_destination(mapped,size,got));
+}
+void log_ring() {
+    simple::LogRing<4> ring;simple::LogRing<4>::Record records[3];
+    auto batch=ring.read(0,records,3);CHECK(batch.count==0 && batch.next==0);
+    for(uint64_t i=1;i<=20;++i) ring.append(i*500,"sample");
+    batch=ring.read(0,records,3);CHECK(batch.count==3 && batch.dropped==16 && batch.next==19);
+    CHECK(records[0].seq==17 && records[0].ms==8500 && std::strcmp(records[0].text,"sample")==0);
+    batch=ring.read(batch.next,records,3);CHECK(batch.count==1 && batch.next==20 && batch.dropped==0);
+    CHECK(ring.read(20,records,3).count==0);CHECK(ring.read(UINT64_MAX,records,3).count==0);
+    char large[1000];std::memset(large,'x',sizeof(large));large[999]=0;ring.append(1,large);
+    batch=ring.read(20,records,3);CHECK(batch.count==1 && std::strlen(records[0].text)==255);
+}
+}
+int main() { codec();control();pid();ai_default_duration();maintenance();network_policy();log_ring();std::printf("PASS native assertions=%u seed=731 SPI_random=12000 UART_frames=1024 PID=disabled_on_firmware\n",assertions); }

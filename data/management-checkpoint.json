@@ -1,0 +1,48 @@
+{
+  "scope": "Real USB-powered ESP32-S3 Brain and Motion; VM off, no motors",
+  "brain": {
+    "build": "simplev1-755a962d940a",
+    "app_sha256": "b43a69724b7564f2c0f526aa99f0db7d4c7eeeaf30d18e54a6fd0aa44966df4f",
+    "usb_readback_verified": true,
+    "nvs_partition_otadata_preserved": true,
+    "cloud_ready_observed": true
+  },
+  "motion": {
+    "build": "simplev1-82a9a80c9029",
+    "app_sha256": "da21a9915bb7e872b394dc9d22ff3447a4cbf1da447d35043ec5db1ff0a21345",
+    "usb_readback_verified": true,
+    "nvs_partition_motioncfg_preserved": true
+  },
+  "network": {
+    "mdns_names_resolved_and_authenticated": true,
+    "fallback_ip_authenticated": true,
+    "wrong_token_http_401": true,
+    "wrong_board_certificate_rejected": true,
+    "management_ws_http_404": true,
+    "dashboard_sta_boundary_retested": true,
+    "log_poll_seconds": 120.21,
+    "motion_poll_requests_ok": 226,
+    "motion_poll_errors": 0,
+    "motion_samples_read": 270,
+    "old_samples_overwritten_before_initial_cursor": 248,
+    "extra_probe_during_concurrent_sessions_reset_once": true,
+    "extra_probe_retested_alone_passed": true,
+    "control_frames_sent_by_laptop": 0
+  },
+  "regression": {
+    "user_confirmed_manual_stop_oled_ai": true,
+    "native_assertions": 49261,
+    "tls_client_tests": 5,
+    "mailbox_to_spi_p99_us_observed": 1699,
+    "mailbox_to_spi_max_us_observed": 1699,
+    "sample_count_at_observation": 38,
+    "is_end_to_end_latency": false,
+    "sporadic_spi_frame_ack_errors_observed": true,
+    "spi_io_errors_observed": 0,
+    "spi_frame_ack_error_total_in_later_window": 135,
+    "spi_frame_ack_growth_needs_isolation_before_motor_acceptance": true
+  },
+  "ota_enabled": false,
+  "overall_ota_acceptance": false,
+  "raw_logs_and_keys_committed": false
+}

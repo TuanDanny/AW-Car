@@ -184,12 +184,12 @@
           <div class="button-row"><button id="listen-start" class="button primary" type="button" disabled>Bắt đầu nghe</button><button id="listen-stop" class="button" type="button" disabled>Dừng nghe</button></div>
         </section>
         <section class="panel" aria-labelledby="wifi-title">
-          <h2 id="wifi-title">Wi-Fi Internet cho Brain</h2>
+          <h2 id="wifi-title">Wi-Fi AI và quản trị</h2>
           <p class="sub">Điện thoại vẫn kết nối với AP của Motion.</p>
           <form id="wifi-form" autocomplete="off">
             <div class="field"><label for="ssid">Tên mạng (SSID)</label><input id="ssid" name="ssid" type="text" maxlength="32" placeholder="Tên Wi-Fi Internet" autocomplete="off" required></div>
             <div class="field"><label for="password">Mật khẩu</label><input id="password" name="password" type="password" maxlength="64" placeholder="Để trống nếu mạng mở" autocomplete="new-password"></div>
-            <div class="form-bottom"><p class="sub">Gửi trực tiếp tới Brain. Trang không lưu mật khẩu.</p><button id="wifi-submit" class="button primary" type="submit" disabled>Kết nối Wi-Fi</button></div>
+            <div class="form-bottom"><p class="sub">Cấu hình Brain và Motion. Lái xe vẫn qua AW-CAR.</p><button id="wifi-submit" class="button primary" type="submit" disabled>Kết nối Wi-Fi</button></div>
           </form>
           <div id="network-caption" class="network-caption">Mạng hiện tại: —<br>IP Brain: —</div>
         </section>
@@ -232,6 +232,7 @@
       const keysDown = new Set();
 
       function notify(message, error = false) {
+        if ($('notice').textContent === message && $('notice').dataset.error === String(error)) return;
         $('notice').textContent = message;
         $('notice').dataset.error = String(error);
       }
@@ -253,30 +254,43 @@
         if (neutral && hadHeld && status?.mode === 'manual') send({ t: 'neutral' });
       }
       function canDrive() {
-        return open() && fresh && received && status?.mode === 'manual' && awaitingMode === null && !document.hidden;
+        return open() && fresh && received && !status?.maintenance && status?.mode === 'manual' && awaitingMode === null && !document.hidden;
       }
       function sendHeld() {
         if (!held) return;
-        // Do not keep a MOVE for replay after a blocked socket drains.
-        if (!canDrive() || socket.bufferedAmount !== 0) { clearHeld(true); return; }
+        if (!canDrive()) { clearHeld(true); return; }
+        const now = performance.now();
+        // Skip brief backpressure without queuing MOVE or losing the held input.
+        // A long gap still cancels the hold; draining later must not revive it.
+        const busy = socket.bufferedAmount !== 0;
+        if (busy && held.blockedAt === null) held.blockedAt = now;
+        if (held.blockedAt !== null && now - held.blockedAt >= 150) {
+          clearHeld(true); notify('Đường gửi lệnh bị chậm. Đã hủy giữ; nhấn lại để chạy.', true); return;
+        }
+        if (busy) return;
+        held.blockedAt = null;
         if (!send({ t: 'drive', action: held.action, speed: Number($('speed').value) })) clearHeld(false);
       }
       function press(owner, action, element) {
         if (!canDrive()) return;
         clearHeld(false);
-        held = { owner, action, element };
+        held = { owner, action, element, blockedAt: null };
         element.classList.add('is-held');
         sendHeld();
         if (held) heldTimer = setInterval(sendHeld, 50);
       }
       function release(owner) { if (held?.owner === owner) clearHeld(true); }
       function controls() {
-        directions.forEach((button) => { button.disabled = !canDrive(); });
-        const available = open() && fresh && received;
-        for (const id of ['manual-mode', 'ai-mode', 'listen-start', 'listen-stop', 'wifi-submit']) $(id).disabled = !available;
-        $('speed').disabled = !canDrive();
+        const drive = canDrive();
+        directions.forEach((button) => { if (button.disabled !== !drive) button.disabled = !drive; });
+        const available = open() && fresh && received && !status?.maintenance;
+        for (const id of ['manual-mode', 'ai-mode', 'listen-start', 'listen-stop', 'wifi-submit']) {
+          if ($(id).disabled !== !available) $(id).disabled = !available;
+        }
+        if ($('speed').disabled !== !drive) $('speed').disabled = !drive;
         for (const mode of ['manual', 'ai']) $(mode + '-mode').setAttribute('aria-pressed', String(received && status?.mode === mode));
-        $('mode-hint').textContent = !available ? 'Chờ trạng thái Motion trước khi điều khiển.'
+        $('mode-hint').textContent = status?.maintenance ? 'Motion đang bảo trì OTA · điều khiển đã khóa.'
+          : !available ? 'Chờ trạng thái Motion trước khi điều khiển.'
           : awaitingMode !== null ? 'Đang chờ Motion xác nhận chế độ.'
           : status.mode === 'ai' ? 'AI điều khiển di chuyển. STOP luôn sẵn sàng.' : 'Manual · Giữ một nút hoặc phím để chạy.';
         $('telemetry').dataset.fresh = String(fresh);
@@ -296,8 +310,8 @@
       }
       function chip(id, label, state) {
         const element = $(id);
-        element.dataset.state = state;
-        element.lastElementChild.textContent = label;
+        if (element.dataset.state !== state) element.dataset.state = state;
+        if (element.lastElementChild.textContent !== label) element.lastElementChild.textContent = label;
       }
       function unknownLinks() {
         chip('fpga-link', 'FPGA · chưa cập nhật', 'warn');
@@ -317,7 +331,10 @@
         $('listen-state').textContent = brain.speaking ? 'Brain đang nói' : brain.listening ? 'Brain đang nghe' : 'Brain chưa bật nghe';
         const networkResult = ['Chưa có yêu cầu kết nối', 'Đang lưu / kết nối Wi-Fi', 'Đã có IP', 'Kết nối Wi-Fi thất bại'][brain.wifi_result] || 'Chưa có kết quả Wi-Fi';
         // textContent keeps SSID/status strings inert; passwords are never rendered.
-        $('network-caption').textContent = 'Mạng: ' + (brain.ssid || '—') + ' · IP: ' + (brain.ip || '—') + ' · ' + networkResult;
+        const mn = data.motion_network || {};
+        const motionResult = mn.online ? 'Đã có IP' : mn.connecting ? 'Đang kết nối' : mn.configured ? 'Chờ kết nối lại' : 'Chưa cấu hình';
+        $('network-caption').textContent = 'Brain: ' + (brain.ssid || '—') + ' · ' + (brain.ip || '—') + ' · ' + networkResult
+          + ' | Motion quản trị: ' + (mn.ip || '—') + ' · ' + motionResult + '. Lái xe chỉ qua AW-CAR / 192.168.4.1.';
         $('left-duty').textContent = signed(data.left);
         $('right-duty').textContent = signed(data.right);
         $('left-count').textContent = number(fpga.left_count);
@@ -334,13 +351,13 @@
         $('latency-max').textContent = number(diag.latency_max_us) + ' µs';
         $('runtime').textContent = number(diag.heap) + ' B / ' + (Number.isFinite(diag.uptime_ms) ? number(Math.floor(diag.uptime_ms / 1000)) + ' s' : '—');
         const action = typeof data.action === 'number' ? actionOrder[data.action] : data.action;
-        $('motion-state').textContent = (data.mode === 'ai' ? 'AI' : 'Manual') + ' · ' + (actionNames[action] || 'Chưa rõ lệnh');
+        $('motion-state').textContent = data.maintenance ? 'Bảo trì OTA · không điều khiển' : (data.mode === 'ai' ? 'AI' : 'Manual') + ' · ' + (actionNames[action] || 'Chưa rõ lệnh');
         $('motion-detail').textContent = 'Theo STATUS Motion · mức lệnh ' + number(data.speed) + '%';
         $('last-status').textContent = 'STATUS vừa nhận · 10 Hz';
       }
       function onStatus(data) {
         if (data.mode !== 'manual' && data.mode !== 'ai') return;
-        if (received && (data.mode !== status.mode || data.generation !== status.generation)) clearHeld(false);
+        if (received && (data.maintenance || data.mode !== status.mode || data.generation !== status.generation)) clearHeld(false);
         status = data; received = true; fresh = true; staleEpisode = false; lastStatusAt = performance.now();
         if (awaitingMode === data.mode) awaitingMode = null;
         render(data);
@@ -390,9 +407,11 @@
           if (!data || typeof data !== 'object') return;
           if (data.t === 'status') onStatus(data);
           else if (data.t === 'result') {
-            if (data.ok === false) { clearHeld(false); awaitingMode = null; controls(); }
+            if (data.ok === false) {
+              clearHeld(false); awaitingMode = null; controls();
+              notify('Motion từ chối yêu cầu. Kiểm tra kết nối và trạng thái.', true);
+            } else if (data.reason !== 'received') notify('Motion đã nhận yêu cầu. Xem trạng thái phản hồi.');
             // No raw result echo: a server error must not disclose Wi-Fi credentials.
-            notify(data.ok ? 'Motion đã nhận yêu cầu. Xem trạng thái phản hồi.' : 'Motion từ chối yêu cầu. Kiểm tra kết nối và trạng thái.', !data.ok);
           }
         });
         ws.addEventListener('close', (event) => {
@@ -466,15 +485,21 @@
           notify('Tên mạng cần 1–32 byte; mật khẩu tối đa 64 byte UTF-8.', true); return;
         }
         const sent = send({ t: 'wifi', ssid, password });
-        notify(sent ? 'Đã gửi cấu hình Wi-Fi tới Brain. Chờ kết quả kết nối.' : 'Chưa gửi được cấu hình Wi-Fi.', !sent);
+        notify(sent ? 'Đã gửi cấu hình Wi-Fi tới hai board. Chờ kết quả kết nối.' : 'Chưa gửi được cấu hình Wi-Fi.', !sent);
       });
       $('reconnect').addEventListener('click', connect);
       setInterval(() => {
         if (!open()) return;
-        send({ t: 'status' });
+        if (socket.bufferedAmount === 0) send({ t: 'status' });
         if (performance.now() - lastStatusAt > 1000) stale();
       }, 100);
       connect();
+      function loadLatencyObserver() {
+        if (location.hash !== '#latency' || $('latency-observer')) return;
+        const observer = document.createElement('script'); observer.id = 'latency-observer';
+        observer.src = '/latency.js'; document.head.appendChild(observer);
+      }
+      window.addEventListener('hashchange', loadLatencyObserver); loadLatencyObserver();
     })();
   </script>
 </body>

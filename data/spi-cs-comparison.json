@@ -1,0 +1,31 @@
+{
+  "date_local": "2026-11-10",
+  "vm_off": true,
+  "motors_connected": false,
+  "clock_hz": 1000000,
+  "mode": 0,
+  "wire_bytes": 32,
+  "same_wiring_and_fpga": true,
+  "windows": [
+    {
+      "build": "simplev1-2f131b1123c6",
+      "configuration": "hardware CS, accepted control firmware",
+      "observed_interval_ms": 291950,
+      "spi_io_errors_delta": 0,
+      "frame_errors_delta": 2674,
+      "ack_mismatches_delta": 2735
+    },
+    {
+      "build": "simplev1-a033c4cdd245",
+      "configuration": "software CS setup/hold/gap2us, discarded experiment",
+      "observed_interval_ms": 145406,
+      "spi_io_errors_delta": 0,
+      "frame_errors_delta": 1133,
+      "ack_mismatches_delta": 1130
+    }
+  ],
+  "software_cs_resolves_faults": false,
+  "experiment_retained_in_final_source": false,
+  "root_cause_established": false,
+  "not_controlled_load_comparison": "Original window includes button activity; experiment idle. Neither window is SPI-clean."
+}

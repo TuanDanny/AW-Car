@@ -1,6 +1,7 @@
 #pragma once
 #include "simple/control.hpp"
 #include <array>
+#include <atomic>
 #include "freertos/FreeRTOS.h"
 #include "freertos/queue.h"
 #include "freertos/task.h"
@@ -12,6 +13,7 @@ struct Snapshot {
     simple::BrainState brain{};
     simple::SpiStatus fpga{};
     bool brain_connected{};
+    bool maintenance{},driver_gpio{};
     uint32_t uart_rx{},uart_errors{},uart_tx_errors{},spi_ok{},spi_errors{},rejected{};
     uint32_t spi_io_errors{},spi_frame_errors{},spi_ack_errors{},spi_startup{};
     uint32_t latency_count{},latency_max_us{};
@@ -28,6 +30,10 @@ public:
     bool listen(bool enabled);
     bool wifi(const char* ssid,size_t ssid_len,const char* password,size_t password_len);
     Snapshot snapshot();
+    bool network_busy();
+    bool begin_update();
+    void end_update();
+    void check_local_boot();
 private:
     enum class Source { None,Manual,Ai };
     struct Pending {
@@ -56,6 +62,8 @@ private:
     spi_device_handle_t spi_{};
     TaskHandle_t control_task_{};
     QueueHandle_t uart_events_{},uart_out_{};
+    std::atomic<bool> maintenance_requested_{false},maintenance_ready_{false};
+    std::atomic<uint32_t> control_at_{0};
 };
 void start_web();
 } // namespace motion

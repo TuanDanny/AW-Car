@@ -109,7 +109,7 @@ const char* action_name(Action a) {
         case Action::Left:return "left"; case Action::Right:return "right"; default:return "neutral"; }
 }
 const char* reason_name(Reason r) {
-    static constexpr const char* names[]={"boot","released","stop","mode_changed","manual_timeout","ai_complete","brain_lost","fpga_lost","takeover","internet_lost","wrong_mode","invalid","reversing","waking","active"};
+    static constexpr const char* names[]={"boot","released","stop","mode_changed","manual_timeout","ai_complete","brain_lost","fpga_lost","takeover","internet_lost","wrong_mode","invalid","reversing","waking","active","maintenance"};
     const auto i=uint8_t(r); return i<sizeof(names)/sizeof(names[0])?names[i]:"unknown";
 }
 } // namespace simple

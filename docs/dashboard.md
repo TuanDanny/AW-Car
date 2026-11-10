@@ -4,6 +4,7 @@ Trang tiếng Việt tại `esp/motion/web/index.html`, một file chứa HTML/C
 không CDN, font tải ngoài, framework hay bước build frontend. Motion phục vụ
 HTTP `/` và WebSocket `/ws` trên cùng host; dùng `wss` nếu trang được mở bằng
 HTTPS. AP Motion: `AW-CAR` / `123456789`, địa chỉ `http://192.168.4.1`.
+Điều khiển chỉ nhận qua interface AP. Router/STA không cung cấp dashboard hoặc `/ws` lái xe.
 Đọc `protocol.md` để xem contract phía Motion/Brain/FPGA.
 
 ## Sử dụng
@@ -20,7 +21,7 @@ HTTPS. AP Motion: `AW-CAR` / `123456789`, địa chỉ `http://192.168.4.1`.
   Thanh STOP cố định dưới màn hình, kể cả khi cuộn trên điện thoại.
 - **AI** khóa bốn nút Manual. STOP, đổi mode, Bắt đầu nghe và Dừng nghe vẫn
   dùng được. Web không phân xử lệnh AI và không kéo dài thời lượng AI.
-- **Wi-Fi Internet cho Brain** gửi tên mạng/mật khẩu qua Motion tới Brain.
+- **Wi-Fi AI và quản trị** lưu mạng trên Motion và gửi tên mạng/mật khẩu tới Brain.
   Không đổi kết nối AP của điện thoại. SSID 1–32 byte, mật khẩu 0–64 byte UTF-8;
   mật khẩu trống dành cho mạng mở. Trang xóa ô mật khẩu ngay khi gửi, không
   log, lưu localStorage/cookie, ghi URL hay hiển thị lại mật khẩu. Trạng thái
@@ -32,6 +33,11 @@ Press gửi `{"t":"drive","action":"forward","speed":30}` ngay trong sự kiện
 bấm; lặp mỗi 50 ms khi giữ. Nút/phím mới thay nút cũ. Thả nút mới nhất gửi
 `{"t":"neutral"}` và không khôi phục nút/phím trước; thả nút cũ không ảnh hưởng
 nút mới. Không có hàng đợi MOVE hoặc khôi phục thao tác sau STOP/đổi mode.
+
+Socket bận ngắn thì bỏ lần lặp đó, giữ thao tác vật lý; không xếp thêm MOVE.
+Tắc liên tục150ms thì hủy giữ, gửi neutral và cần nhấn lại. STATUS cũng không
+xếp thêm vào socket đang bận. ACK lặp không ghi lại thông báo/DOM mỗi20Hz;
+nhả, cancel, STOP và deadline500ms của Motion giữ nguyên.
 
 Pointer capture giữ được sự kiện nhả ngoài nút. Pointer cancel, mất capture,
 blur, trang hidden, đóng trang và focus ô nhập đều xóa thao tác giữ. Phím repeat
@@ -50,6 +56,14 @@ không được hiển thị như xác nhận xe vật lý đã dừng; chỉ ST
 lệnh Motion đang báo. AI tiếp tục theo deadline riêng khi Web ngắt.
 
 ## Dữ liệu hiển thị
+
+Đo trên điện thoại: mở `http://192.168.4.1/#latency`. Bộ đo không tự chạy xe;
+giữ VM ngắt và người dùng bấm từng nút, giữ0,5–1giây rồi nhả1giây. Timestamp
+bấm/gửi/STATUS cùng đồng hồ performance của browser; một mẫu chỉ hợp lệ khi
+mode/generation không đổi, mục tiêu đúng dấu/duty và SPI/seq có tiến triển.
+Số cuối là phản hồi setpoint phần mềm, gồm poll100ms; không xác nhận cạnh PWM
+hoặc motor đã quay. Bỏ `#latency` và tải lại để tắt hoàn toàn observer. Log chỉ
+giữ hướng và hai số microsecond, không có hội thoại hay credential.
 
 `status` dùng đúng shape firmware: `build`, `mode`, `action`, `speed`, `left`,
 `right`, `reason`, `generation`; `fpga` gồm connected/applied_seq/count/seen;
@@ -97,6 +111,11 @@ FPGA, motor, reset, mất liên kết hoặc dừng vật lý trên xe.
 - Bấm ngay và chu kỳ giữ được đo trên browser/host; không phải số đo độ trễ
   ESP32, UART, SPI hay motor. Các trường latency chưa đo hiển thị `—`.
 - Layout tĩnh 1440/390/320 px, cú pháp JS/Python, README và khoảng trắng đạt.
+- Lượt sửa giữ nút:22/22 ca browser đạt, gồm backpressure ngắn/dài, giữ touch3s
+  và AI mặc định3s. Có tái hiện FAIL của code cũ bằng WebSocket native trước sửa;
+  không dùng các số host này để công bố độ trễ Wi-Fi thật.
+- Người dùng xác nhận trên điện thoại sau nạp: giữ/nhả mượt, hết chập chờn;
+  AI mặc định khoảng3giây rồi về0, thử với VM ngắt và chưa motor.
 - Native DLL dùng tên theo hash nên chạy lại suite trong khi simulator mở được;
   unittest/cấu trúc đã được chạy lại và đạt. Browser chuẩn không cần mở COM.
 - Web phần cứng đã được người dùng kiểm bốn hướng ở30%; AI trái/phải khớp log

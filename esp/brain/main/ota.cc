@@ -1,4 +1,5 @@
 #include "ota.h"
+#include "management.hpp"
 #include "system_info.h"
 #include "settings.h"
 #include "assets/lang_config.h"
@@ -278,6 +279,7 @@ void Ota::MarkCurrentVersionValid() {
 }
 
 bool Ota::Upgrade(const std::string& firmware_url, std::function<void(int progress, size_t speed)> callback) {
+    management::UpdateLease lease;if(!lease) return false;
     ESP_LOGI(TAG, "Upgrading firmware from %s", firmware_url.c_str());
     esp_ota_handle_t update_handle = 0;
     auto update_partition = esp_ota_get_next_update_partition(NULL);

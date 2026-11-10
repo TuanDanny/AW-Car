@@ -493,8 +493,7 @@ void Application::CheckNewVersion() {
 
         if (ota_->HasNewVersion()) ESP_LOGI(TAG, "Service offers firmware; automatic installation disabled for AW-Car profile");
 
-        // No new version, mark the current version as valid
-        ota_->MarkCurrentVersionValid();
+        // OTA health is confirmed locally after init/main-loop/UART, independently of cloud.
         if (!ota_->HasActivationCode() && !ota_->HasActivationChallenge()) {
             // Exit the loop if done checking new version
             break;

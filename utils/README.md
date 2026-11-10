@@ -1,5 +1,22 @@
 # Công cụ
 
+`awcarctl.py discover`, `info brain|motion`, `logs brain|motion --seconds 60`:
+đọc quản trị trên STA, HTTPS3232; thêm `--ip` khi không tìm thấy .local.
+`upload brain` nạp app vào slot không chạy, xác minh boot/ELF và health cục bộ;
+Motion phải migration riêng trước. `test_ota_receiver.py` kiểm các ca từ chối,
+truyền dở và reset, chỉ chạy trên bàn với `--vm-off`.
+
+`migrate_motion_ota.py` chỉ dành lần USB chuyển từ layout legacy; đã bootstrap
+thì chỉ upload app. Mỗi vùng bị ghi đều sao lưu trước, giữ factory/NVS/motioncfg.
+
+`analyze_phone_latency.py <COM7.txt>` chỉ trích số của latency_probe và runtime,
+không sao chép raw serial/ASR. Thiếu10mẫu mỗi hướng không đánh dấu pass.
+Build sinh token/chứng chỉ riêng trong build/private/management-keys; giữ chúng
+để dùng từ laptop, không commit. CLI pin đúng chứng chỉ, không dùng verify=false.
+
+`probe_ap_boundary.py --ip <Motion-STA-IP>`: từ LAN router kiểm root và WS handshake
+thật/giả Host/Origin AP; không gửi frame lái. Địa chỉ AP192.168.4.1 bị từ chối đầu vào.
+
 `build_esp.py motion|brain`: build ESP-IDF, không nạp. `build_host.py`: native C++.
 Các thư mục build, log thô, flash dump không đưa vào Git. Công cụ flash phải xác nhận
 đúng manifest/board và trạng thái VM trước khi dùng; không tự dò rồi ghi mọi COM.

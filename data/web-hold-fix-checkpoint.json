@@ -1,0 +1,47 @@
+{
+  "date_local": "2026-11-10",
+  "request": "Smooth held Web input, small control flow, default AI duration3000ms",
+  "before": {
+    "source_commit": "f054185",
+    "user_report": "UI stutters and intermittently loses held direction",
+    "reproduced": "Native browser WebSocket with injected60ms bufferedAmount backpressure cancels physical hold",
+    "not_claimed": "This injection measures logic, not the actual phone radio delay"
+  },
+  "changes": [
+    "Skip a repeat when the socket is briefly busy; do not queue MOVE",
+    "Cancel the hold after150ms continuous backpressure and require a fresh press",
+    "Skip STATUS enqueue while the socket is busy",
+    "Avoid repeated successful-ACK notices and unchanged button/chip DOM writes",
+    "AI schema and Motion default both3000ms; explicit durations100..3000ms preserved"
+  ],
+  "unchanged": ["Manual500ms deadline", "STOP/release/cancel behavior", "SPI/FPGA/PID", "Control20Hz and STATUS10Hz", "AP-only driving"],
+  "software_checks": {
+    "native_assertions": 52283,
+    "brain_context_checks": 127,
+    "unit_tests": 26,
+    "browser_tests": 22,
+    "before_reproduction_failed": true,
+    "after_reproduction_passed": true,
+    "both_esp_builds_pass": true
+  },
+  "deployment": {
+    "vm_off": true,
+    "motors_connected": false,
+    "motion_build": "simplev1-f57890d1e534",
+    "motion_readback_sha256": "e76e2ebbb814edde8b16e91fbb15a42af1349725f6a5e8b07ea6c5469db7a7fd",
+    "motion_nvs_partition_otadata_motioncfg_preserved": true,
+    "brain_build": "simplev1-814afb90103b",
+    "brain_ota_elf_sha256": "0aabb95bc0efc6257088e10b1bcea25fcd58a1d7b74077217afd52107e7ae5a4",
+    "brain_ota_state": "valid"
+  },
+  "user_acceptance": {
+    "date_local": "2026-11-10",
+    "physical_phone_hold_release": "Smooth, no intermittent hold loss reported after reload",
+    "ai_omitted_duration": "Approximately3s then duty returns to0",
+    "source": "Explicit user confirmation after the requested phone tests",
+    "vm_off": true,
+    "motor_operation_not_claimed": true
+  },
+  "pending": [],
+  "known_separate_issue": "Paired SPI frame/ACK warnings already present before this change"
+}

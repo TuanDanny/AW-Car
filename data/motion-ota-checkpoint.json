@@ -1,0 +1,59 @@
+{
+  "stage": 5,
+  "date_local": "2026-11-10",
+  "board": "motion",
+  "vm_off": true,
+  "motors_connected": false,
+  "migration": {
+    "usb_once": true,
+    "readback_sha256_verified": true,
+    "preserved_byte_for_byte": ["nvs", "phy_init", "motioncfg", "factory"],
+    "ota_0_offset": "0x200000",
+    "ota_1_offset": "0x380000",
+    "slot_size": "0x180000",
+    "private_backup_before_each_touched_region": true
+  },
+  "running_release": {
+    "build": "simplev1-835a7505f4da",
+    "bytes": 1073744,
+    "image_sha256": "a02d82f05f19a3c9a85a6fbac2e9474458997918bfe54a80e76a83f11b49c6a3",
+    "elf_sha256": "90dc6f892e06a0b795bcdb84ce6d7213f38ef00e5d807d134c8da4c88dbbb6de",
+    "ota_state": "valid",
+    "upload_acknowledged": true
+  },
+  "negative_cases": {
+    "wrong_project": "HTTP400, same active ELF/boot",
+    "wrong_sha256": "HTTP400, same active ELF/boot",
+    "interrupted": "same active ELF/boot; 1.61s recovery observed",
+    "reset_incomplete": "new boot, same active ELF valid; 4.43s recovery observed"
+  },
+  "rollback": {
+    "failing_trial": "simplev1-b1bb58721961",
+    "trial_observed_over_management": true,
+    "returned_to_known_good_elf": true,
+    "returned_state": "valid"
+  },
+  "maintenance_evidence": {
+    "serial_observed": true,
+    "duty": [0, 0],
+    "gpio10_pad_input_enabled": true,
+    "driver_gpio": 0,
+    "maintenance": 1,
+    "zero_spi_ack_required_before_flash": 2,
+    "external_stby_dmm_measurement_not_repeated": true,
+    "old_manual_ai_inputs_not_replayed": "native and browser tests"
+  },
+  "issues_fixed_during_test": [
+    "Trial maintenance originally suppressed STA discovery; retry now pauses for actual writing or movement, not safe zero boot checks",
+    "Host uploader now owns immutable validated bytes, so a concurrent rebuild cannot change its streamed image"
+  ],
+  "software_checks": {
+    "unit_tests": 26,
+    "browser_tests": 18,
+    "native_assertions": 52273,
+    "brain_context_assertions": 127,
+    "both_esp_builds_pass": true
+  },
+  "pending": ["Final user regression", "Controlled A/B 30-minute load and physical button-to-PWM timing"],
+  "known_limit": "Paired SPI frame/ACK errors predate OTA and remain under investigation; no SPI I/O error in sampled tests"
+}

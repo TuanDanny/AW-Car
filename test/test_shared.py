@@ -48,10 +48,10 @@ class SharedTests(unittest.TestCase):
 
     def test_no_old_control_contract_on_motion(self):
         source = "\n".join(p.read_text(encoding="utf-8") for p in (ROOT / "esp/motion/main").glob("*.cpp"))
-        for term in ["CLEAR_FAULT", "ARM_REQUEST", "validated=", "WIFI_MODE_APSTA"]:
+        for term in ["CLEAR_FAULT", "ARM_REQUEST", "validated="]:
             self.assertNotIn(term, source)
         self.assertIn("SPI_DMA_DISABLED", source)
-        self.assertIn("WIFI_MODE_AP", source)
+        self.assertIn("WIFI_MODE_APSTA", source)
 
     def test_structure(self):
         subprocess.run([sys.executable, str(ROOT / "utils/check_repo.py")], check=True)

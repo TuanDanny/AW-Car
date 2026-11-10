@@ -11,9 +11,14 @@ Mapping: Forward=(+,+), Backward=(-,-), Left=(-,+), Right=(+,-).
 Boot Manual/0; STOP thắng MOVE cùng đợt xử lý, chuyển Manual và tăng generation.
 Đổi mode/trang mới cũng tăng generation và hủy mục tiêu. Web ngắt trong Manual về 0;
 AI không phụ thuộc Web. Thả nút về 0; nút mới thay nút cũ, không khôi phục nút cũ.
-Manual hết hạn 500 ms. AI duration=0 là 1000 ms, khác 0 phải trong 100..3000 ms.
+Manual hết hạn 500 ms. AI duration=0 là 3000 ms, khác 0 phải trong 100..3000 ms.
 AI mới thay cũ. Brain mất UART/cloud trong AI → 0/Manual. Manual không phụ thuộc Brain.
 FPGA mất lệnh hợp lệ 500 ms về 0. Đảo cực phải có 40 ms neutral.
+
+OTA Motion dùng MAINTENANCE cục bộ, không phải ARM/Gate của kiến trúc cũ:
+vào/ra đều tăng generation, hủy mục tiêu và về Manual0; trong lúc này từ chối
+mode/MOVE. GPIO10LOW và ACK hai gói SPI duty0 là điều kiện trước ghi flash.
+Reason bổ sung ở cuối enum là Maintenance=15; wire layout/version không đổi.
 
 ## UART: 460800 8N1
 
@@ -66,6 +71,8 @@ là liên kết sống. Master reset được phép bắt đầu seq mới; khô
 ## WebSocket JSON (Motion)
 
 HTTP `/`, WS `/ws`, không PIN/cookie. AP AW-CAR/123456789, 192.168.4.1.
+Chỉ interface AP được mở dashboard/lái xe; kiểm tra local socket IP ngoài Host/Origin.
+STA/router chỉ dành cho AI và quản trị, không nhận MOVE/mode qua `/ws`.
 Chỉ một socket điều khiển; socket mới stop/Manual rồi thay socket cũ. Origin cùng host.
 
 Ví dụ: `{"t":"drive","action":"forward","speed":30}`; action forward/backward/left/right.
@@ -74,4 +81,5 @@ Ví dụ: `{"t":"drive","action":"forward","speed":30}`; action forward/backward
 `{"t":"status"}` mỗi 100 ms. Drive gửi ngay và lặp 50 ms khi giữ, không gửi hàng đợi cũ.
 Web tự xóa phím khi blur/hidden/close và không auto reconnect/restore MOVE.
 Status trả mode/action/speed/duty/generation, SPI/Brain/cloud, counts, reason/build ID.
+`maintenance:true` khóa nút lái/mode và xóa thao tác đang giữ; STOP vẫn gửi được.
 Không có tốc độ/pin giả, ARM hay báo target/ACK thành số đo xe đã chạy.

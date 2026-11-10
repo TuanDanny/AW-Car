@@ -1,0 +1,66 @@
+{
+  "baseline_commit": "fff2940",
+  "baseline_device_latency_us": {
+    "scope": "Motion accepted mailbox input to immediately before SPI API; not Wi-Fi or PWM latency",
+    "count": 1062,
+    "percentile_window": 256,
+    "p50": 256,
+    "p95": 459,
+    "p99": 1671,
+    "max": 2627
+  },
+  "software_validation": {
+    "native_assertions": 49254,
+    "python_tests": 10,
+    "python_skipped": 1,
+    "browser_simulator_tests_passed": 17,
+    "browser_is_hardware_evidence": false
+  },
+  "motion_usb_checkpoint": {
+    "build_id": "simplev1-9441bc362b38",
+    "app_sha256": "b236fb8a8301b56d334e032eb8f42d510acfdccb00d6590bae9ee04f8d5e92d2",
+    "readback_verified": true,
+    "nvs_preserved": true,
+    "partition_table_preserved": true,
+    "motioncfg_preserved": true,
+    "vm_off_confirmed": true
+  },
+  "brain_build_only": {
+    "build_id": "simplev1-05bae95e7115",
+    "app_sha256": "235eacd2902392f6410f7c8be10d8c33ef0218ac151b103034b2882693833dc4",
+    "flashed": false
+  },
+  "initial_hardware_observations": {
+    "build_id": "simplev1-b56f90b15fb7",
+    "duration_s": 180,
+    "panic": 0,
+    "task_watchdog": 0,
+    "uart_error_end": 0,
+    "spi_error_end": 4,
+    "nonzero_motion_observed": false,
+    "ap_dashboard_rejected": true,
+    "root_cause": "ESP-IDF dual-stack HTTP returns IPv4-mapped IPv6; original filter accepted AF_INET only",
+    "fix": "sockaddr_storage plus strict IPv4/mapped IPv6 normalization; native regression added"
+  },
+  "mapped_fix_idle_observations": {
+    "build_id": "simplev1-9441bc362b38",
+    "duration_s": 180,
+    "both_boards_panic": 0,
+    "both_boards_task_watchdog": 0,
+    "motion_uart_error_end": 0,
+    "motion_spi_error_end": 0,
+    "duty_end": [0, 0],
+    "nonzero_motion_observed": false,
+    "phone_apsta_test_observed": false
+  },
+  "pending": [
+    "APSTA phone and router testing",
+    "STA socket access denial on hardware",
+    "latency and STOP A/B",
+    "management discovery, log and authenticated OTA",
+    "Motion partition migration and local boot rollback"
+  ],
+  "raw_logs_committed": false,
+  "credentials_committed": false,
+  "apsta_hardware_accepted": false
+}
