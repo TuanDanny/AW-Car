@@ -177,6 +177,11 @@ không replay và default3giây. Hai ESP đã build/nạp, Motion readback khớ
 Brain boot VALID. Xem `data/web-hold-fix-checkpoint.json`; phản hồi điện thoại
 thật và log AI mới được ghi riêng, không suy từ simulator.
 
+Người dùng xác nhận sau khi tải lại Web ngày10/11: giữ/nhả đã mượt, không còn
+chập chờn; câu AI không nói thời lượng giữ duty khoảng3giây rồi về0. Chốt đạt
+hai yêu cầu này trong điều kiện VM ngắt, chưa motor; không mở rộng thành nghiệm
+thu công suất, nguồn2S hoặc phép đo độ trễ toàn xe.
+
 ## Danh sách bằng chứng skeleton
 
 `data/bench-manual.json`, `bench-ai.json`, `bench-final.json`,

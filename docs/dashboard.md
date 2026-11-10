@@ -106,6 +106,8 @@ FPGA, motor, reset, mất liên kết hoặc dừng vật lý trên xe.
 - Lượt sửa giữ nút:22/22 ca browser đạt, gồm backpressure ngắn/dài, giữ touch3s
   và AI mặc định3s. Có tái hiện FAIL của code cũ bằng WebSocket native trước sửa;
   không dùng các số host này để công bố độ trễ Wi-Fi thật.
+- Người dùng xác nhận trên điện thoại sau nạp: giữ/nhả mượt, hết chập chờn;
+  AI mặc định khoảng3giây rồi về0, thử với VM ngắt và chưa motor.
 - Native DLL dùng tên theo hash nên chạy lại suite trong khi simulator mở được;
   unittest/cấu trúc đã được chạy lại và đạt. Browser chuẩn không cần mở COM.
 - Web phần cứng đã được người dùng kiểm bốn hướng ở30%; AI trái/phải khớp log
