@@ -2,7 +2,10 @@
 
 - Ngoại lệ được người dùng giao10/11/2026: phát triển AP+STA/OTA trên
   `codex/simplev1-ota` tại D:/Project/AW-Car-ota; áp dụng docs/ota-network-plan.md.
-  Manual chỉ AP192.168.4.1; router chỉ Xiaozhi/OTA/log. Chưa merge main.
+  Manual chỉ AP192.168.4.1; router chỉ Xiaozhi/OTA/log. Yêu cầu tiếp10/11:
+  đẩy source đã nghiệm thu lên origin và cập nhật main qua PR/squash sau CI;
+  CI phải chạy lại trên main rồi đồng bộ simplev1. Giữ tag baseline và lịch sử,
+  không force-push. Mốc hiện hành ở docs/current-release.md.
 
 Yêu cầu được duyệt ngày 10/11/2026 thay thế kiến trúc cũ **chỉ trên nhánh simplev1**.
 

@@ -6,7 +6,8 @@ Tên board giữ nguyên khi router đổi DHCP: `awcar-brain.local`, `awcar-mot
 
 ## Lệnh dùng hằng ngày
 
-Mở PowerShell trong `D:/Project/AW-Car-ota` (nhánh `codex/simplev1-ota`):
+Mở PowerShell tại root checkout `D:/Project/AW-Car` (main), hoặc worktree phát triển.
+Giữ đúng bộ khóa riêng đã dùng khi build/nạp các board:
 
 ```powershell
 python utils/awcarctl.py discover

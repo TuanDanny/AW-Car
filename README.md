@@ -2,12 +2,12 @@
 
 Skeleton độc lập: **Web → Motion → SPI → FPGA → DRV8833**, Brain chuyên Xiaozhi.
 
-`main` là bản **prototype v1**; `simplev1` giữ nền skeleton cùng nội dung khi chốt.
+`main` là bản **prototype v1 hiện hành**; `simplev1` được đồng bộ theo mốc nghiệm thu.
 Workspace chính: `D:/Project/AW-Car`; worktree skeleton: `D:/Project/AW-Car/simplev1`.
 Manual trước, AI sau, PID viết sẵn nhưng chưa bật. Không dùng ARM/PIN/Gate handshake.
 
-**Mốc nền đã được chủ dự án duyệt: `prototype-v1` / `simplev1-skeleton-v1` (10/11/2026).**
-Xem [phạm vi nghiệm thu và bản đang chạy](docs/skeleton-baseline.md) trước khi nâng cấp.
+**Bản hiện hành:** [source ba board và phạm vi nghiệm thu](docs/current-release.md).
+Hai tag `prototype-v1` / `simplev1-skeleton-v1` giữ mốc ban đầu để phục hồi.
 
 | Thư mục | Nội dung |
 | --- | --- |
@@ -22,8 +22,8 @@ Xem [phạm vi nghiệm thu và bản đang chạy](docs/skeleton-baseline.md) t
 Xem [contract](docs/protocol.md) trước khi thay giao thức. Không coi mô phỏng hoặc
 build thành công là bằng chứng xe đã chạy. Phép thử phần cứng phải ghi riêng.
 
-Nhánh nâng cấp `codex/simplev1-ota`: [cách dùng OTA/log qua router](docs/ota-usage.md).
-Manual vẫn chỉ qua AW-CAR/192.168.4.1; main chưa nhận nâng cấp này.
+Manual vẫn chỉ qua AW-CAR/192.168.4.1; router phục vụ AI, OTA và log.
+Xem [cách dùng OTA/log](docs/ota-usage.md) và [đo độ trễ](docs/latency-measurement.md).
 
 Đọc [build/nạp/thu log](docs/build.md) và [báo cáo kiểm chứng](docs/verification.md).
 Ngày10/11: Manual bốn hướng và AI quay trái/phải đã có log SPI trên ba board;

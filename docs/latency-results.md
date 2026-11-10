@@ -33,3 +33,19 @@ Cửa sổ SPI206,656giây trong lượt đầu có1.955frame bị loại và1.9
 
 Số liệu lọc ở [latency-phone.json](../data/latency-phone.json). Log thô riêng tư
 không vào Git. Công cụ/timestamp/giới hạn ở [cách đo](latency-measurement.md).
+
+## Phép thử CS riêng
+
+Đọc driver/header ESP-IDF6.1 và [tài liệu chính thức](https://docs.espressif.com/projects/esp-idf/en/v6.1/esp32s3/api-reference/peripherals/spi_master.html)
+cho thấy không nên dựa vào cs_ena_pretrans như bảo đảm setup cho full-duplex.
+Đã thử đúng một thay đổi: GPIO5 tự tạo setup/hold/gap2µs, vẫn mode0/1MHz,
+wire32byte/CRC và timeout giữ nguyên, không đổi FPGA/dây. Bản thử
+`simplev1-a033c4cdd245` chạy150giây, idle/VM ngắt, vẫn tăng frame/ACK lỗi.
+**Không chứng minh CS là nguyên nhân và không giữ bản thử trong source cuối.**
+Đã phục hồi source `simplev1-2f131b1123c6`, nạp/đọc ngược lại; image có thể khác
+SHA lần đầu do metadata commit/build, source ID giữ nguyên. Không dùng mẫu điện
+thoại trước để khẳng định có một phép đo điện thoại mới sau lần nạp phục hồi.
+
+Vì lỗi SPI chưa được khoanh vùng, số đo92mẫu chỉ nghiệm thu đường setpoint có
+phản hồi. Cần đo bus/tín hiệu vật lý riêng trước khi kết luận độ tin cậy toàn
+chuỗi; không bỏ CRC hoặc tăng timeout để đổi kết quả thành PASS.

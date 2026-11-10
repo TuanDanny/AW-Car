@@ -184,6 +184,13 @@ thu công suất, nguồn2S hoặc phép đo độ trễ toàn xe.
 
 ## Danh sách bằng chứng skeleton
 
+Ngày10/11 có thêm [92mẫu điện thoại thật](latency-results.md): p95 bấm→STATUS
+125,2ms, max221,4ms; Motion→trước SPI p99=0,668ms, max2,045ms. Chưa đạt hết
+budget chẩn đoán và chưa đo cạnh PWM. Frame/ACK SPI tăng nhiều trong lượt này;
+phép thử CS GPIO không giải quyết, đã loại bản thử. Không nâng kết luận phần
+cứng thành PASS.28test host,24test browser và4testbench RTL đạt; build haiESP
+được kiểm, FPGA source/bitstream giữ mốc cũ.
+
 `data/bench-manual.json`, `bench-ai.json`, `bench-final.json`,
 `bench-flash-recovery.json` chỉ giữ command/ACK/error/latency; không có câu nói,
 SSID/mật khẩu thật, MAC, NVS hay raw console. Báo cáo build/soak/FPGA và wiring
