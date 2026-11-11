@@ -15,7 +15,7 @@ Tag `prototype-v2` đánh dấu bản phần mềm mới sau CI main; xem
 | --- | --- |
 | [esp](esp/README.md) | Hai firmware ESP-IDF 6.1 và lõi dùng chung |
 | [fpga](fpga/README.md) | SPI/PWM/encoder SystemVerilog + Gowin |
-| [schematic](schematic/README.md) | Đấu nối bản simple, chưa PCB |
+| [schematic](schematic/README.md) | KiCad/PDF A3 màu, dây GPIO và cảm biến/nguồn dự kiến; chưa PCB |
 | [docs](docs/README.md) | Contract, nguồn tham khảo, hướng dẫn và nghiệm thu |
 | [data](data/README.md) | Vector chuẩn và bằng chứng đã lọc |
 | [utils](utils/README.md) | Build/test/thu log |

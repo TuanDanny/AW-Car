@@ -1,0 +1,85 @@
+{
+  "pass": true,
+  "native_netlist_pins_checked": 140,
+  "cst_connections_checked": 10,
+  "independent_harness_rail_checks": 33,
+  "planned_pins_not_firmware_enabled": true,
+  "brain_firmware_gpio_checks": 10,
+  "motion_firmware_gpio_checks": 7,
+  "planned_left_encoder_requires_pull_none": true,
+  "scope": "A3 module interconnect with planned 8.4V power and sensors; not PCB/load certification",
+  "date_local": "2026-11-11",
+  "drawing": "schematic/simplev1.kicad_sch",
+  "revision": "A3-2",
+  "kicad_version": "10.0.6",
+  "part_count": 28,
+  "defined_module_pins": 153,
+  "net_count": 49,
+  "paper": {
+    "format": "A3",
+    "orientation": "landscape",
+    "width_mm": 419.989,
+    "height_mm": 297.002,
+    "pdf_pages": 1
+  },
+  "colors": {
+    "Brain": "#E9DFFF",
+    "Motion": "#D9EFFF",
+    "FPGA": "#DFF4E7"
+  },
+  "planned": {
+    "I2C_motion_SDA": 11,
+    "I2C_motion_SCL": 12,
+    "TCRT_cliff_left_DO": 8,
+    "TCRT_cliff_right_DO": 9,
+    "MPU6050_address": "0x68",
+    "VL53L0X_address": "0x29",
+    "left_encoder_package_pin": 27,
+    "firmware_enabled": false
+  },
+  "power": {
+    "system_input_max_v": 8.4,
+    "motor_VM_direct": true,
+    "logic_module": "DSN6000AUD",
+    "logic_output_v": 5.0,
+    "DSN_user_test": "3.3V to nearly 30V input, 5V output, NO LOAD ONLY",
+    "DSN_loaded_qualification_pass": false,
+    "amp_separate_buck": true,
+    "amp_buck_SKU": "TBD",
+    "manual_RUN_USB_jumpers": 3,
+    "automatic_USB_backfeed_isolation": false
+  },
+  "erc": {
+    "errors": 0,
+    "warnings": 0,
+    "exclusions": 0
+  },
+  "drawio_validation": {
+    "errors": 0,
+    "warnings": 0
+  },
+  "native_netlist_pass": true,
+  "overwrite_guard_verified": true,
+  "unit_tests": 28,
+  "unit_opt_in_browser_skip": 1,
+  "physical_sensor_test_in_this_task": false,
+  "loaded_power_test": false,
+  "PCB_footprints_assigned": false,
+  "firmware_source_changed": false,
+  "board_flashing_performed": false,
+  "limitations": [
+    "Draft module interconnect, not PCB release",
+    "Left encoder pull setting is still DOWN in current RTL target; change to NONE before fitting",
+    "Future sensor electrical levels/pull-ups must be checked on actual modules",
+    "Amp buck SKU, filter components, current ratings and protection still pending"
+  ],
+  "artifact_sha256": {
+    "schematic/simplev1.kicad_sch": "f50ffda84a1ef5368ac494257a12b2c43823cf067fcf780355390b599e609cf1",
+    "schematic/simplev1.kicad_sym": "d04a98859f2aa6f47dcbdbcf805ea24ec5b39a1576c6e52bb1f1600c00fd98d1",
+    "schematic/simplev1.drawio": "30a4feaeb933a8db28b87a6ca6aa7478ee7a9e4c62204adbddd3d0ee7034d555",
+    "schematic/simplev1.pdf": "db0e0a5196f0465c6693c0a08bb1e7207cba9a17599971b81947fa4483891125",
+    "schematic/simplev1-preview.png": "43253588d8898a11a91d355abde38a5b27b1a3601d053688aab2755ea22eaea2"
+  },
+  "reproducible_generation_verified": true,
+  "alternate_output_preserves_main_manifest": true
+}

@@ -32,3 +32,9 @@ không reset/gửi lệnh; phân biệt watchdog với panic. `check_wiring.py` 
 netlist XML xuất bằng KiCad với contract và CST thực. `program_fpga.py` mặc định
 SRAM, Flash đòi hash/báo cáo SPI khớp. `simulator.py` dùng lõi C++ thật; `soak.py`
 chỉ đo host. `generate_schematic.py` không ghi đè mặc định, giữ schematic cũ riêng.
+
+`schematic_model.py` là model chân/đường đi của schematic A3. Generator xuất KiCad
+và draw.io từ cùng model; `--force` sao lưu sheet/thư viện/project/manifest trước.
+Đường tín hiệu có dây thật; chạy `kicad-cli sch export netlist --format kicadxml`
+rồi `check_wiring.py` để kiểm netlist với firmware, CST và rail nguồn độc lập.
+Cảm biến/nguồn `[PLAN]` chỉ ở bản vẽ, không bật GPIO hay thay firmware.
