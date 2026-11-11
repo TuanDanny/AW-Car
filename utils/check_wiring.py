@@ -32,7 +32,7 @@ def check(path: Path):
         'drv_left_in1': ('L_IN1', 35), 'drv_left_in2': ('L_IN2', 40),
         'drv_right_in1': ('R_IN1', 41), 'drv_right_in2': ('R_IN2', 42),
     }
-    cst = (ROOT/'fpga/targets/tang_nano9k/simplev1_nano9k.cst').read_text()
+    cst = (ROOT/'fpga/targets/tang_nano9k/simplev1_nano9k.cst').read_text(encoding='utf-8')
     locations = {name: int(pin) for name, pin in re.findall(r'IO_LOC\s+"([^"]+)"\s+(\d+)\s*;', cst)}
     io_types = dict(re.findall(r'IO_PORT\s+"([^"]+)"\s+([^;]+);',cst))
     for port, (net, pin) in required.items():
@@ -76,14 +76,14 @@ def check(path: Path):
     for net,expected in contract.items():
         nodes={key for key,name in actual.items() if name==net and not key[0].startswith('#')}
         if nodes!=expected:raise ValueError(f'Harness/rail conflict {net}: {nodes!r} != {expected!r}')
-    brain=(ROOT/'esp/brain/main/boards/aw-car/config.h').read_text()
+    brain=(ROOT/'esp/brain/main/boards/aw-car/config.h').read_text(encoding='utf-8')
     macros=dict(re.findall(r'#define\s+(\w+)\s+GPIO_NUM_(\d+)',brain))
     expected_brain={'AUDIO_I2S_MIC_GPIO_WS':4,'AUDIO_I2S_MIC_GPIO_SCK':5,'AUDIO_I2S_MIC_GPIO_DIN':6,
         'AUDIO_I2S_SPK_GPIO_DOUT':7,'AUDIO_I2S_SPK_GPIO_BCLK':15,'AUDIO_I2S_SPK_GPIO_LRCK':16,
         'DISPLAY_SDA_PIN':41,'DISPLAY_SCL_PIN':42,'BRAIN_UART_TX':17,'BRAIN_UART_RX':18}
     for name,pin in expected_brain.items():
         if macros.get(name)!=str(pin):raise ValueError('Brain firmware pin changed: '+name)
-    motion=(ROOT/'esp/motion/main/runtime.cpp').read_text()
+    motion=(ROOT/'esp/motion/main/runtime.cpp').read_text(encoding='utf-8')
     for field,pin in {'mosi_io_num':15,'miso_io_num':16,'sclk_io_num':4,'spics_io_num':5}.items():
         if not re.search(r'\b'+field+r'\s*=\s*'+str(pin)+r'\s*;',motion):
             raise ValueError('Motion firmware SPI pin changed: '+field)

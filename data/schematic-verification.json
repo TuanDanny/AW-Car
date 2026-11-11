@@ -74,11 +74,11 @@
     "Amp buck SKU, filter components, current ratings and protection still pending"
   ],
   "artifact_sha256": {
-    "schematic\\simplev1.kicad_sch": "f50ffda84a1ef5368ac494257a12b2c43823cf067fcf780355390b599e609cf1",
-    "schematic\\simplev1.kicad_sym": "d04a98859f2aa6f47dcbdbcf805ea24ec5b39a1576c6e52bb1f1600c00fd98d1",
-    "schematic\\simplev1.drawio": "30a4feaeb933a8db28b87a6ca6aa7478ee7a9e4c62204adbddd3d0ee7034d555",
-    "schematic\\simplev1.pdf": "db0e0a5196f0465c6693c0a08bb1e7207cba9a17599971b81947fa4483891125",
-    "schematic\\simplev1-preview.png": "43253588d8898a11a91d355abde38a5b27b1a3601d053688aab2755ea22eaea2"
+    "schematic/simplev1.kicad_sch": "f50ffda84a1ef5368ac494257a12b2c43823cf067fcf780355390b599e609cf1",
+    "schematic/simplev1.kicad_sym": "d04a98859f2aa6f47dcbdbcf805ea24ec5b39a1576c6e52bb1f1600c00fd98d1",
+    "schematic/simplev1.drawio": "30a4feaeb933a8db28b87a6ca6aa7478ee7a9e4c62204adbddd3d0ee7034d555",
+    "schematic/simplev1.pdf": "db0e0a5196f0465c6693c0a08bb1e7207cba9a17599971b81947fa4483891125",
+    "schematic/simplev1-preview.png": "43253588d8898a11a91d355abde38a5b27b1a3601d053688aab2755ea22eaea2"
   },
   "reproducible_generation_verified": true,
   "alternate_output_preserves_main_manifest": true
