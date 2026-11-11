@@ -1,0 +1,1 @@
+(sym_lib_table (version 7) (lib (name "AWCAR") (type "KiCad") (uri "${KIPRJMOD}/simplev1.kicad_sym") (options "") (descr "Logical plug-in modules, no footprint mapping")))
