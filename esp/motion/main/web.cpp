@@ -50,6 +50,10 @@ esp_err_t status(httpd_req_t* request) {
     cJSON_AddNumberToObject(r,"generation",s.car.generation);cJSON_AddStringToObject(r,"reason",simple::reason_name(s.car.reason));
     cJSON_AddBoolToObject(r,"simulator",false);
     cJSON_AddBoolToObject(r,"maintenance",s.maintenance);
+    auto* startup=cJSON_AddObjectToObject(r,"startup");
+    cJSON_AddBoolToObject(startup,"enabled",s.startup.enabled);
+    cJSON_AddNumberToObject(startup,"gain_percent",s.startup.gain_percent);
+    cJSON_AddNumberToObject(startup,"tau_ms",s.startup.tau_ms);
     const auto net=network_state();auto* network=cJSON_AddObjectToObject(r,"motion_network");
     cJSON_AddBoolToObject(network,"configured",net.configured);cJSON_AddBoolToObject(network,"online",net.online);
     cJSON_AddBoolToObject(network,"connecting",net.connecting);cJSON_AddStringToObject(network,"ip",net.ip);
@@ -115,11 +119,8 @@ esp_err_t message(httpd_req_t* request,cJSON* json) {
     if(std::strcmp(type,"drive")==0) {
         const auto* name=string(json,"action");int speed=0;simple::Action action=simple::Action::Neutral;
         if(!name || !integer(json,"speed",0,100,speed)) return result(request,false,"invalid_drive");
-        if(!std::strcmp(name,"forward")) action=simple::Action::Forward;
-        else if(!std::strcmp(name,"backward")) action=simple::Action::Backward;
-        else if(!std::strcmp(name,"left")) action=simple::Action::Left;
-        else if(!std::strcmp(name,"right")) action=simple::Action::Right;
-        else return result(request,false,"invalid_action");
+        if(!simple::parse_action(name,action) || action==simple::Action::Neutral)
+            return result(request,false,"invalid_action");
         const auto s=runtime.snapshot();
         if(s.car.mode!=simple::Mode::Manual) return result(request,false,"manual_only");
         if(!s.car.fpga_link) return result(request,false,"fpga_unavailable");

@@ -463,7 +463,8 @@ class DashboardTests(unittest.TestCase):
         output = prepare_output()
         self.assertTrue(self.page.locator("#simulator").is_visible())
         self.assertIn("Lệnh PWM", self.page.locator("#telemetry").inner_text())
-        self.assertEqual(self.page.locator("[data-action]").count(), 4)
+        self.assertEqual(self.page.locator(".pad [data-action]").count(), 4)
+        self.assertEqual(self.page.locator("#primitives [data-action]").count(), 6)
         self.assertEqual(self.probe.errors, [])
         for label, width, height in [("desktop", 1440, 1000), ("mobile", 390, 844)]:
             self.page.set_viewport_size({"width": width, "height": height})
@@ -641,6 +642,87 @@ class DashboardTests(unittest.TestCase):
         self.assertGreater(self.page.evaluate('window.__stableWrites'),0,
                            'Changed duty must still render')
         self.page.evaluate('window.__stableObserver.disconnect()')
+
+    def test_27_six_extra_primitives_zero_thirty_full_and_release(self):
+        self.page.locator('#primitives summary').click()
+        expected = {'forward_left':(203,405),'forward_right':(405,203),
+                    'backward_left':(-405,-203),'backward_right':(-203,-405),
+                    'pivot_left':(0,405),'pivot_right':(405,0)}
+        for speed in (0,30,100):
+            self.page.locator('#speed').evaluate("(e,v)=>{e.value=String(v);e.dispatchEvent(new Event('input',{bubbles:true}));}", speed)
+            for action, thirty in expected.items():
+                full = 1350 if speed==100 else 405
+                half = 675 if speed==100 else 203
+                values = tuple(0 if v==0 or speed==0 else (1 if v>0 else -1)*(half if abs(v)==203 else full) for v in thirty)
+                # The fixed STOP dock overlaps the bottom of the viewport.
+                # Center the target and hit-test before using raw mouse coords.
+                self.page.locator('#'+action).evaluate("e=>e.scrollIntoView({block:'center'})")
+                self.page.wait_for_function("id=>{const e=document.getElementById(id),r=e.getBoundingClientRect();return document.elementFromPoint(r.x+r.width/2,r.y+r.height/2)?.closest('[data-action]')===e;}",arg=action)
+                self.pointer_down(action)
+                try:
+                    self.wait(lambda: (self.probe.latest.get('left'),self.probe.latest.get('right'))==values,
+                              'Wrong primitive duty: '+action)
+                except AssertionError:
+                    self.page.screenshot(path=str(prepare_output()/('failure-'+action+'.png')))
+                    print('primitive failure:',action,speed,values,self.sim_state(),
+                          self.page.evaluate('window.__inputTrace.slice(-8)'))
+                    raise
+                self.page.wait_for_timeout(120)
+                self.page.mouse.up();self.wait_zero()
+        self.page.locator('#telemetry details').evaluate('e=>e.open=true')
+        self.assertIn('Tắt',self.page.locator('#startup-state').inner_text())
+        self.assertEqual(self.probe.errors,[])
+
+    def test_28_closing_primitive_group_cancels_hold_without_replay(self):
+        self.page.locator('#primitives summary').click()
+        self.page.locator('#forward_left').evaluate("e=>e.scrollIntoView({block:'center'})")
+        self.pointer_down('forward_left')
+        self.wait(lambda:self.probe.latest.get('left')==203)
+        marker=len(self.probe.sent)
+        self.page.locator('#primitives').evaluate('e=>e.open=false')
+        self.wait(lambda:bool(self.probe.commands('neutral',marker)))
+        self.wait_zero();self.page.mouse.up()
+        marker=len(self.probe.sent)
+        self.page.locator('#primitives').evaluate('e=>e.open=true')
+        self.assert_no_drive(marker)
+
+    def test_29_extra_primitives_ai_and_old_generation_rejected(self):
+        self.page.locator('#ai-mode').click();self.wait_mode('ai')
+        self.page.locator('#primitives summary').click()
+        expected={'forward_left':(203,405),'forward_right':(405,203),
+                  'backward_left':(-405,-203),'backward_right':(-203,-405),
+                  'pivot_left':(0,405),'pivot_right':(405,0)}
+        for action,values in expected.items():
+            self.assertTrue(self.page.locator('#'+action).is_disabled())
+            self.sim_event({'event':'ai','action':action,'speed':30,'duration_ms':400})
+            self.wait(lambda:(self.probe.latest.get('left'),self.probe.latest.get('right'))==values)
+            self.wait_zero()
+        old=self.sim_state()['generation']
+        self.page.locator('#stop').click();self.wait_mode('manual');self.wait_zero()
+        self.sim_event({'event':'ai','action':'backward_left','generation':old},accepted=False)
+        self.wait_zero()
+
+    def test_30_extra_mobile_touch_hold_and_cancel(self):
+        self.page.set_viewport_size({'width':390,'height':844})
+        self.page.locator('#primitives summary').click()
+        button=self.page.locator('#backward_left');button.evaluate("e=>e.scrollIntoView({block:'center'})")
+        box=button.bounding_box()
+        self.assertIsNotNone(box)
+        cdp=self.context.new_cdp_session(self.page)
+        cdp.send('Emulation.setTouchEmulationEnabled',{'enabled':True})
+        point={'x':box['x']+box['width']/2,'y':box['y']+box['height']/2}
+        cdp.send('Input.dispatchTouchEvent',{'type':'touchStart','touchPoints':[point]})
+        try:
+            self.wait(lambda:self.probe.latest.get('left')==-405 and self.probe.latest.get('right')==-203)
+        except AssertionError:
+            self.page.screenshot(path=str(prepare_output()/'failure-touch.png'))
+            print('touch failure:',self.sim_state(),self.page.evaluate('window.__inputTrace.slice(-8)'))
+            raise
+        self.page.wait_for_timeout(1200)
+        self.assertEqual(self.sim_state()['left'],-405)
+        cdp.send('Input.dispatchTouchEvent',{'type':'touchCancel','touchPoints':[]})
+        self.wait_zero()
+        self.assertLessEqual(self.page.evaluate('document.documentElement.scrollWidth'),390)
 
     def test_18_maintenance_clears_held_and_never_replays(self):
         self.page.locator('#forward').hover()

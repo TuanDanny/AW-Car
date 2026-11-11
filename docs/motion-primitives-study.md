@@ -5,6 +5,10 @@ Phạm vi: tính toán, mô phỏng và đề xuất bước nâng cấp nhỏ; 
 firmware ba board, không sửa schematic tay, không bật PID**. MATLAB được bỏ
 theo yêu cầu của chủ dự án. Kết quả có thể tái tạo bằng Python + matplotlib.
 
+Đây là hồ sơ nghiên cứu tại commit47a2d81 trước khi sửa firmware. Chủ dự án đã
+giao triển khai tiếp trên cùng nhánh; xem [hồ sơ triển khai](motion-primitives-implementation.md).
+Các mô tả “hiện tại” về source bên dưới chỉ nền prototype-v2 trước nâng cấp.
+
 ## 1. Kết luận khả thi và giới hạn
 
 Khả thi: đi thẳng/lùi, rẽ cong hai phía khi tiến/lùi, quay tại chỗ, quay quanh

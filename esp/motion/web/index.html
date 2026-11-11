@@ -60,6 +60,9 @@
     .pad-center { grid-area: 2 / 2; display: grid; place-items: center; color: var(--ink); }
     .car { width: 44px; height: 70px; }
     .pad-hint { text-align: center; min-height: 22px; color: var(--muted); font-size: 12px; margin-bottom: 19px; }
+    .primitive-pad { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 14px 0; }
+    .primitive-pad .direction { min-height: 62px; }
+    #primitives { margin: 0 0 18px; }
     kbd { font: 11px/1.2 Consolas, monospace; background: var(--paper); border: 1px solid var(--line); border-radius: 4px; padding: 2px 4px; }
     .speed { border-top: 1px solid var(--line); padding-top: 19px; }
     .speed-head { display: flex; align-items: baseline; justify-content: space-between; gap: 15px; }
@@ -169,6 +172,19 @@
           <button class="direction" id="backward" data-action="backward" aria-label="Lùi" aria-keyshortcuts="S" type="button" disabled><svg viewBox="0 0 28 28" fill="none" stroke="currentColor" aria-hidden="true"><path d="M14 5v18m-7-7 7 7 7-7"/></svg><span>Lùi</span></button>
         </div>
         <div class="pad-hint">Hoặc giữ <kbd>W</kbd> <kbd>A</kbd> <kbd>S</kbd> <kbd>D</kbd> · Quay tại chỗ</div>
+        <details id="primitives">
+          <summary>Rẽ cong &amp; quay quanh một bên</summary>
+          <p class="sub">Giữ để chạy, nhả về 0. Rẽ cong: ga bên trong bằng một nửa bên ngoài. Khi lùi, trái/phải là hướng đầu xe xoay.</p>
+          <div class="primitive-pad" role="group" aria-label="Động tác bổ sung">
+            <button class="direction" id="forward_left" data-action="forward_left" type="button" disabled>Tiến rẽ trái</button>
+            <button class="direction" id="forward_right" data-action="forward_right" type="button" disabled>Tiến rẽ phải</button>
+            <button class="direction" id="backward_left" data-action="backward_left" type="button" disabled>Lùi · đầu xoay trái</button>
+            <button class="direction" id="backward_right" data-action="backward_right" type="button" disabled>Lùi · đầu xoay phải</button>
+            <button class="direction" id="pivot_left" data-action="pivot_left" type="button" disabled>Quay quanh bên trái</button>
+            <button class="direction" id="pivot_right" data-action="pivot_right" type="button" disabled>Quay quanh bên phải</button>
+          </div>
+          <p class="sub">Quay quanh một bên: bên đó nhận ga 0, không phải phanh giữ bánh. Chưa điều khiển theo góc hoặc bán kính đo được.</p>
+        </details>
         <div class="speed">
           <div class="speed-head"><label for="speed">Mức lệnh</label><output id="speed-value" for="speed">30<small>%</small></output></div>
           <input id="speed" type="range" min="0" max="100" step="1" value="30" aria-label="Mức lệnh phần trăm">
@@ -208,6 +224,7 @@
         <div><dt>Lý do từ Motion</dt><dd id="reason">—</dd></div><div><dt>Generation / Applied seq</dt><dd id="generation">—</dd></div><div><dt>Build</dt><dd id="build">—</dd></div>
         <div><dt>UART RX / lỗi</dt><dd id="uart">—</dd></div><div><dt>SPI OK / lỗi</dt><dd id="spi">—</dd></div><div><dt>Mẫu độ trễ</dt><dd id="latency-count">—</dd></div>
         <div><dt>Độ trễ p50 / p95 / p99</dt><dd id="latency">—</dd></div><div><dt>Độ trễ lớn nhất</dt><dd id="latency-max">—</dd></div><div><dt>Heap / thời gian chạy</dt><dd id="runtime">—</dd></div>
+        <div><dt>Đề-pa mũ thử nghiệm</dt><dd id="startup-state">—</dd></div>
       </dl></details>
     </section>
     <p class="footnote">PWM là lệnh điều khiển, không phải tốc độ đo. Encoder một OUT chỉ đếm cạnh, không xác định chiều.</p>
@@ -234,8 +251,10 @@
 
       const directions = [...document.querySelectorAll('[data-action]')];
       const keyActions = { KeyW: 'forward', KeyS: 'backward', KeyA: 'left', KeyD: 'right' };
-      const actionNames = { neutral: 'Lệnh về 0', forward: 'Lệnh tiến', backward: 'Lệnh lùi', left: 'Lệnh quay trái', right: 'Lệnh quay phải' };
-      const actionOrder = ['neutral', 'forward', 'backward', 'left', 'right'];
+      const actionNames = { neutral: 'Lệnh về 0', forward: 'Lệnh tiến', backward: 'Lệnh lùi', left: 'Lệnh quay trái', right: 'Lệnh quay phải',
+        forward_left: 'Tiến rẽ trái', forward_right: 'Tiến rẽ phải', backward_left: 'Lùi · đầu xoay trái', backward_right: 'Lùi · đầu xoay phải',
+        pivot_left: 'Quay quanh bên trái', pivot_right: 'Quay quanh bên phải' };
+      const actionOrder = ['neutral', 'forward', 'backward', 'left', 'right', 'forward_left', 'forward_right', 'backward_left', 'backward_right', 'pivot_left', 'pivot_right'];
       let socket = null, status = null, fresh = false, received = false;
       let lastStatusAt = 0, staleEpisode = false, awaitingMode = null;
       let held = null, heldTimer = null;
@@ -361,6 +380,10 @@
         setText('latency', [diag.latency_p50_us, diag.latency_p95_us, diag.latency_p99_us].map(number).join(' / ') + ' µs');
         setText('latency-max', number(diag.latency_max_us) + ' µs');
         setText('runtime', number(diag.heap) + ' B / ' + (Number.isFinite(diag.uptime_ms) ? number(Math.floor(diag.uptime_ms / 1000)) + ' s' : '—'));
+        const startup = data.startup;
+        setText('startup-state', !startup ? 'Chưa có dữ liệu' : startup.enabled
+          ? 'Bật · hệ số ' + number(startup.gain_percent) + '% · tau ' + number(startup.tau_ms) + ' ms'
+          : 'Tắt · duty trực tiếp');
         const action = typeof data.action === 'number' ? actionOrder[data.action] : data.action;
         setText('motion-state', data.maintenance ? 'Bảo trì OTA · không điều khiển' : (data.mode === 'ai' ? 'AI' : 'Manual') + ' · ' + (actionNames[action] || 'Chưa rõ lệnh'));
         setText('motion-detail', 'Theo STATUS Motion · mức lệnh ' + number(data.speed) + '%');
@@ -458,6 +481,9 @@
       });
       window.addEventListener('pointerup', (event) => release('pointer:' + event.pointerId));
       window.addEventListener('pointercancel', () => clearHeld(true));
+      $('primitives').addEventListener('toggle', () => {
+        if (!$('primitives').open && held?.element.closest('#primitives')) clearHeld(true);
+      });
       window.addEventListener('keydown', (event) => {
         if (event.code === 'Space' && !editable(event.target)) {
           event.preventDefault(); if (!event.repeat) stop(); return;

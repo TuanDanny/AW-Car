@@ -1,0 +1,24 @@
+menu "AW-Car experimental startup"
+    config SIMPLE_STARTUP_ENABLED
+        bool "Enable uncalibrated exponential startup envelope"
+        default n
+        help
+            Experimental; disabled for the accepted prototype flow. Measure
+            motor current, breakaway and sustainable effort before enabling.
+            STOP, release, timeout and reverse/wake guards still take priority.
+
+    config SIMPLE_STARTUP_GAIN_PERCENT
+        int "Startup common duty gain (100 = no boost)"
+        range 100 300
+        default 100
+        depends on SIMPLE_STARTUP_ENABLED
+        help
+            Shared multiplier preserves the requested wheel-effort ratio.
+            100 intentionally has no boost; no TT calibration value is assumed.
+
+    config SIMPLE_STARTUP_TAU_MS
+        int "Startup exponential time constant (ms)"
+        range 10 1000
+        default 100
+        depends on SIMPLE_STARTUP_ENABLED
+endmenu

@@ -23,7 +23,11 @@ uint64_t us() { return uint64_t(esp_timer_get_time()); }
 Runtime& Runtime::get() { static Runtime runtime;return runtime; }
 void Runtime::wake() { if(control_task_) xTaskNotifyGive(control_task_); }
 void Runtime::start() {
-    core_=simple::Control(esp_random());
+    simple::StartupConfig startup{};
+#ifdef CONFIG_SIMPLE_STARTUP_ENABLED
+    startup={true,CONFIG_SIMPLE_STARTUP_GAIN_PERCENT,CONFIG_SIMPLE_STARTUP_TAU_MS};
+#endif
+    core_=simple::Control(esp_random(),startup);
     maintenance_requested_=management::boot_pending();
     // Input enable makes gpio_get_level read the pad, rather than always return0.
     gpio_config_t pin{};pin.pin_bit_mask=1ULL<<kDriver;pin.mode=GPIO_MODE_INPUT_OUTPUT;pin.pull_down_en=GPIO_PULLDOWN_ENABLE;
@@ -149,6 +153,7 @@ void Runtime::control_loop() {
         portENTER_CRITICAL(&mux_);
         snapshot_.car=core_.state();snapshot_.brain=core_.brain_state();snapshot_.fpga=fpga;
         snapshot_.maintenance=requested;snapshot_.driver_gpio=gpio_get_level(kDriver)!=0;
+        snapshot_.startup=core_.startup_config();
         snapshot_.brain_connected=core_.brain_connected(now);
         if(!have_tx) ++snapshot_.spi_startup;
         else if(valid) ++snapshot_.spi_ok;

@@ -10,7 +10,11 @@ constexpr int16_t kDutyMax = 1350;
 constexpr uint32_t kClockHz = 27000000;
 constexpr uint16_t kAiDefaultDurationMs = 3000;
 enum class Mode : uint8_t { Manual = 0, Ai = 1 };
-enum class Action : uint8_t { Neutral, Forward, Backward, Left, Right };
+// 0..4 retain their accepted wire values/meaning; Left/Right are spins.
+enum class Action : uint8_t {
+    Neutral, Forward, Backward, Left, Right,
+    ForwardLeft, ForwardRight, BackwardLeft, BackwardRight, PivotLeft, PivotRight
+};
 enum class Reason : uint8_t {
     Boot, Released, Stop, ModeChanged, ManualTimeout, AiComplete,
     BrainLost, FpgaLost, Takeover, InternetLost, WrongMode, Invalid, Reversing, Waking, Active, Maintenance
@@ -80,6 +84,7 @@ bool parse_brain_state(const Frame& frame, BrainState& state);
 Frame make_motion_state(uint16_t seq, const MotionState& state);
 bool parse_motion_state(const Frame& frame, MotionState& state);
 bool valid_action(Action action);
+bool parse_action(const char* name,Action& action);
 const char* action_name(Action action);
 const char* reason_name(Reason reason);
 } // namespace simple

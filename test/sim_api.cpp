@@ -7,6 +7,9 @@
 #define API extern "C"
 #endif
 API void* car_create(unsigned generation) { return new simple::Control(generation); }
+API void* car_create_startup(unsigned generation,unsigned gain_percent,unsigned tau_ms) {
+    return new simple::Control(generation,{true,uint16_t(gain_percent),uint16_t(tau_ms)});
+}
 API void car_destroy(void* p) { delete static_cast<simple::Control*>(p); }
 API void codec_spi_encode(unsigned seq,int left,int right,unsigned char* out) {
     const auto bytes=simple::encode_spi_command({uint16_t(seq),int16_t(left),int16_t(right)});
@@ -35,6 +38,17 @@ API int car_event(void* p,unsigned event,unsigned a,unsigned b,unsigned duration
 }
 API int car_state(void* p,char* out,unsigned capacity,unsigned long long now) {
     auto& c=*static_cast<simple::Control*>(p);const auto s=c.state();
-    return std::snprintf(out,capacity,"{\"mode\":\"%s\",\"generation\":%u,\"action\":\"%s\",\"speed\":%u,\"left\":%d,\"right\":%d,\"reason\":\"%s\",\"fpga_connected\":%s,\"brain_connected\":%s,\"driver\":%s,\"left_count\":%u,\"right_count\":%u,\"maintenance\":%s}",
-        s.mode==simple::Mode::Manual?"manual":"ai",s.generation,simple::action_name(s.action),s.speed,s.left,s.right,simple::reason_name(s.reason),c.fpga_connected(now)?"true":"false",c.brain_connected(now)?"true":"false",c.driver_enabled()?"true":"false",s.left_count,s.right_count,c.maintaining()?"true":"false");
+    const auto startup=c.startup_config();
+    return std::snprintf(out,capacity,"{\"mode\":\"%s\",\"generation\":%u,\"action\":\"%s\",\"speed\":%u,\"left\":%d,\"right\":%d,\"reason\":\"%s\",\"fpga_connected\":%s,\"brain_connected\":%s,\"driver\":%s,\"left_count\":%u,\"right_count\":%u,\"maintenance\":%s,\"startup\":{\"enabled\":%s,\"gain_percent\":%u,\"tau_ms\":%u}}",
+        s.mode==simple::Mode::Manual?"manual":"ai",s.generation,simple::action_name(s.action),s.speed,s.left,s.right,simple::reason_name(s.reason),c.fpga_connected(now)?"true":"false",c.brain_connected(now)?"true":"false",c.driver_enabled()?"true":"false",s.left_count,s.right_count,c.maintaining()?"true":"false",
+        startup.enabled?"true":"false",startup.gain_percent,startup.tau_ms);
+}
+API int primitive_left(unsigned action,unsigned speed) { return simple::primitive_effort(simple::Action(action),uint8_t(speed)).left; }
+API int primitive_right(unsigned action,unsigned speed) { return simple::primitive_effort(simple::Action(action),uint8_t(speed)).right; }
+API void* envelope_create(unsigned gain_percent,unsigned tau_ms) { return new simple::StartupEnvelope({true,uint16_t(gain_percent),uint16_t(tau_ms)}); }
+API void envelope_destroy(void* p) { delete static_cast<simple::StartupEnvelope*>(p); }
+API void envelope_reset(void* p) { static_cast<simple::StartupEnvelope*>(p)->reset(); }
+API void envelope_sample(void* p,int left,int right,unsigned long long now,int* out) {
+    const auto effort=static_cast<simple::StartupEnvelope*>(p)->apply({int16_t(left),int16_t(right)},now);
+    out[0]=effort.left;out[1]=effort.right;
 }

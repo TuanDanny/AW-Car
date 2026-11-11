@@ -17,7 +17,9 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "build/python_packages"))
 from aiohttp import web, WSMsgType
 
-ACTION = {"neutral": 0, "forward": 1, "backward": 2, "left": 3, "right": 4}
+ACTION = {"neutral": 0, "forward": 1, "backward": 2, "left": 3, "right": 4,
+          "forward_left": 5, "forward_right": 6, "backward_left": 7, "backward_right": 8,
+          "pivot_left": 9, "pivot_right": 10}
 
 class Native:
     def __init__(self):

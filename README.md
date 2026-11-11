@@ -1,5 +1,9 @@
 # AW-Car — prototype v2
 
+Nhánh `codex/motion-primitives-sim`: đang triển khai thêm động tác cơ bản Web/AI,
+[phạm vi và kiểm chứng](docs/motion-primitives-implementation.md). Đề-pa mặc
+định tắt; đây là source ứng viên chưa nạp, không thay mốc nghiệm thu main.
+
 Skeleton độc lập: **Web → Motion → SPI → FPGA → DRV8833**, Brain chuyên Xiaozhi.
 
 `main` là **nhánh chính thức duy nhất và skeleton ổn định** để phát triển tiếp.

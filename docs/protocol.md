@@ -8,12 +8,35 @@ poly 0x1021, init 0xFFFF, refin/refout false, xorout 0. `123456789` → 0x29B1.
 Mode Manual=0, AI=1. Action Neutral=0, Forward=1, Backward=2, Left=3, Right=4.
 Left/Right là quay tại chỗ. Speed 0..100%, mặc định 30%; duty = round(speed*1350/100).
 Mapping: Forward=(+,+), Backward=(-,-), Left=(-,+), Right=(+,-).
+
+Nhánh motion-primitives mở rộng cộng thêm action 5..10; wire length/version/CRC
+không đổi, giá trị 0..4 giữ nguyên. Nạp đồng bộ Brain/Motion trước dùng action mới;
+firmware cũ từ chối action chưa biết, không có thương lượng tính năng tự động.
+
+| ID | Tên Web/AI | Duty trái/phải (F=round(speed*1350/100), H=round(speed*1350/200)) |
+| --- | --- | --- |
+| 5 | forward_left | +H,+F |
+| 6 | forward_right | +F,+H |
+| 7 | backward_left | −F,−H |
+| 8 | backward_right | −H,−F |
+| 9 | pivot_left | 0,+F |
+| 10 | pivot_right | +F,0 |
+
+Khi lùi, trái/phải là hướng **đầu xe xoay**. H làm tròn độc lập nên tỷ lệ duty
+có sai số lượng tử dưới một tick; chưa phải tỷ lệ tốc độ thật. Pivot đặt một
+bên duty0, không phanh khóa bánh hoặc hứa tâm quay chính xác.
 Boot Manual/0; STOP thắng MOVE cùng đợt xử lý, chuyển Manual và tăng generation.
 Đổi mode/trang mới cũng tăng generation và hủy mục tiêu. Web ngắt trong Manual về 0;
 AI không phụ thuộc Web. Thả nút về 0; nút mới thay nút cũ, không khôi phục nút cũ.
 Manual hết hạn 500 ms. AI duration=0 là 3000 ms, khác 0 phải trong 100..3000 ms.
 AI mới thay cũ. Brain mất UART/cloud trong AI → 0/Manual. Manual không phụ thuộc Brain.
 FPGA mất lệnh hợp lệ 500 ms về 0. Đảo cực phải có 40 ms neutral.
+
+Đề-pa mũ thử nghiệm ở Motion, `CONFIG_SIMPLE_STARTUP_ENABLED` mặc định tắt.
+Nếu chủ động bật, hệ số gain/tau cấu hình lúc build; gain mặc định100% nghĩa là
+không boost. Hệ số chung bị giới hạn bởi max duty, áp dụng sau reverse/wake;
+đến5*tau chốt target. Refresh/đổi mức ga không reset timer. STOP/nhả/đổi mode/
+timeout/bảo trì/mất liên kết hủy ngay, không có đuôi mũ. Chưa hiệu chuẩn motor.
 
 OTA Motion dùng MAINTENANCE cục bộ, không phải ARM/Gate của kiến trúc cũ:
 vào/ra đều tăng generation, hủy mục tiêu và về Manual0; trong lúc này từ chối
@@ -75,11 +98,13 @@ Chỉ interface AP được mở dashboard/lái xe; kiểm tra local socket IP n
 STA/router chỉ dành cho AI và quản trị, không nhận MOVE/mode qua `/ws`.
 Chỉ một socket điều khiển; socket mới stop/Manual rồi thay socket cũ. Origin cùng host.
 
-Ví dụ: `{"t":"drive","action":"forward","speed":30}`; action forward/backward/left/right.
+Ví dụ: `{"t":"drive","action":"forward","speed":30}`; action theo bảng0..10
+(neutral dùng bản tin `neutral`, không dùng `drive`).
 `{"t":"neutral"}` khi nhả; `{"t":"stop"}`; `{"t":"mode","mode":"ai"}`;
 `{"t":"listen","enabled":true}`; `{"t":"wifi","ssid":"...","password":"..."}`;
 `{"t":"status"}` mỗi 100 ms. Drive gửi ngay và lặp 50 ms khi giữ, không gửi hàng đợi cũ.
 Web tự xóa phím khi blur/hidden/close và không auto reconnect/restore MOVE.
 Status trả mode/action/speed/duty/generation, SPI/Brain/cloud, counts, reason/build ID.
+`startup:{enabled,gain_percent,tau_ms}` chỉ báo cấu hình, không phải endpoint bật boost.
 `maintenance:true` khóa nút lái/mode và xóa thao tác đang giữ; STOP vẫn gửi được.
 Không có tốc độ/pin giả, ARM hay báo target/ACK thành số đo xe đã chạy.

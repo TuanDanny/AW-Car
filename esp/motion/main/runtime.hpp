@@ -14,6 +14,7 @@ struct Snapshot {
     simple::SpiStatus fpga{};
     bool brain_connected{};
     bool maintenance{},driver_gpio{};
+    simple::StartupConfig startup{};
     uint32_t uart_rx{},uart_errors{},uart_tx_errors{},spi_ok{},spi_errors{},rejected{};
     uint32_t spi_io_errors{},spi_frame_errors{},spi_ack_errors{},spi_startup{};
     uint32_t latency_count{},latency_max_us{};

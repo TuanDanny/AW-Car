@@ -3,6 +3,8 @@
 - [Bản source ba board hiện hành](current-release.md).
 - [Nghiên cứu động tác cơ bản và đề-pa mũ](motion-primitives-study.md): mô phỏng
   Python/matplotlib, đối chiếu giải tích; chưa thay firmware hoặc nghiệm thu motor.
+- [Triển khai động tác trên nhánh thử nghiệm](motion-primitives-implementation.md):
+  sáu action mới, hồi quy bốn hướng và đề-pa mặc định tắt.
 
 - [Protocol](protocol.md): giao thức UART/SPI và hành vi điều khiển.
 - [Nguồn tham khảo](upstream.md), [Brain](brain.md), [Dashboard](dashboard.md).

@@ -43,6 +43,10 @@ observer hoặc bỏ assertion để che lỗi đồng bộ trong mô hình host
 Ca26 theo dõi mutation qua10STATUS: các field không đổi không được ghi text
 lại, nhưng khi bắt đầu/nhả Tiến, duty phải cập nhật đúng +405 rồi0.
 
+Ca27–30: sáu nút cung/pivot ở0/30/100%, đóng nhóm đang giữ phải neutral và
+không replay khi mở lại, AI dùng action mới/generation cũ bị từ chối, touch
+giữ và touchCancel ở viewport390px. Bốn nút cũ vẫn kiểm nguyên các ca trước.
+
 Ca AI dùng `/sim/event` để kiểm tra thời lượng native, STOP/generation cũ và
 AI tiếp tục khi đóng Web. Mỗi test reset simulator; không chạy đồng thời một
 suite khác cùng cổng. Thời gian bấm/chu kỳ giữ đo trên browser/host, không
