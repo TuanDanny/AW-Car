@@ -1,6 +1,8 @@
 # Tài liệu simplev1
 
 - [Bản source ba board hiện hành](current-release.md).
+- [Nghiên cứu động tác cơ bản và đề-pa mũ](motion-primitives-study.md): mô phỏng
+  Python/matplotlib, đối chiếu giải tích; chưa thay firmware hoặc nghiệm thu motor.
 
 - [Protocol](protocol.md): giao thức UART/SPI và hành vi điều khiển.
 - [Nguồn tham khảo](upstream.md), [Brain](brain.md), [Dashboard](dashboard.md).

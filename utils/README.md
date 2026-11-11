@@ -1,5 +1,11 @@
 # Công cụ
 
+`motion_primitives_sim.py`: mô phỏng offline động tác, tròn/số 8 và đề-pa mũ.
+Thư viện chuẩn cho phép tính/đối chiếu; matplotlib chỉ dùng vẽ hình, cài bằng
+`python -m pip install -r utils/requirements-motion-sim.txt` trong venv riêng.
+Không gửi UART/SPI, không truy cập board hoặc sửa firmware. Xem
+[nghiên cứu và giới hạn mô hình](../docs/motion-primitives-study.md).
+
 `benchmark_web_render.py --port 8798 --baseline-port 8800 --baseline-ref 97f9fcd`:
 A/B HTML thật trên hai simulator localhost riêng. Server8800 dùng `simulator.py
 --html <HTML baseline>`; server8798 dùng HTML hiện tại. Tool xác minh đúng HTML,
