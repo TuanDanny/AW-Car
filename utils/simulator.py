@@ -63,6 +63,7 @@ class Native:
             **s, "t": "status", "build": "simplev1-host-" + self.source_hash[:12], "simulator": True,
             **({"sensors": self.sensors} if self.sensors is not None else {}),
             "fpga": {"connected": s["fpga_connected"], "applied_seq": self.spi_seq,
+                     "ack_left": s["left"], "ack_right": s["right"],
                      "left_count": s["left_count"], "right_count": s["right_count"],
                      "left_seen": self.counts[0] > 0, "right_seen": self.counts[1] > 0},
             "brain": {"connected": s["brain_connected"], "wifi": bool(self.flags & 1) and self.brain,
@@ -90,6 +91,11 @@ class Native:
         self.commands += 1
         if kind == "status":
             return self.state()
+        if kind == "probe_status":
+            s = self.state()
+            return {"t": "probe_status", "generation": s["generation"], "seq": self.spi_seq,
+                    "spi_ok": self.spi_seq, "left": s["left"], "right": s["right"],
+                    "connected": s["fpga_connected"] and not s["maintenance"]}
         if kind == "latency":
             ok = obj.get('action') in ACTION and type(obj.get('dispatch_us')) is int and type(obj.get('confirm_us')) is int and 0 <= obj['dispatch_us'] <= obj['confirm_us'] <= 2000000
             return {"t":"result","ok":ok,"reason":"received" if ok else "invalid_latency_sample"}

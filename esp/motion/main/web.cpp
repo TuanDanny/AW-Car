@@ -63,6 +63,7 @@ esp_err_t status(httpd_req_t* request) {
     cJSON_AddNumberToObject(network,"disconnect_reason",net.disconnect_reason);cJSON_AddNumberToObject(network,"ap_channel",net.ap_channel);
     auto* f=cJSON_AddObjectToObject(r,"fpga");cJSON_AddBoolToObject(f,"connected",s.car.fpga_link);
     cJSON_AddNumberToObject(f,"applied_seq",s.car.applied_seq);cJSON_AddNumberToObject(f,"left_count",s.fpga.left_count);
+    cJSON_AddNumberToObject(f,"ack_left",s.ack_left);cJSON_AddNumberToObject(f,"ack_right",s.ack_right);
     cJSON_AddNumberToObject(f,"right_count",s.fpga.right_count);cJSON_AddBoolToObject(f,"left_seen",(s.fpga.flags&2)!=0);
     cJSON_AddBoolToObject(f,"right_seen",(s.fpga.flags&4)!=0);
     auto* b=cJSON_AddObjectToObject(r,"brain");cJSON_AddBoolToObject(b,"connected",s.brain_connected);
@@ -93,6 +94,15 @@ esp_err_t status(httpd_req_t* request) {
     if(result==ESP_OK) ++status_replies;
     return result;
 }
+esp_err_t probe_status(httpd_req_t* request) {
+    const auto s=Runtime::get().snapshot();
+    char reply[188]{};
+    std::snprintf(reply,sizeof(reply),
+        "{\"t\":\"probe_status\",\"generation\":%lu,\"seq\":%u,\"spi_ok\":%lu,\"left\":%d,\"right\":%d,\"connected\":%s}",
+        static_cast<unsigned long>(s.car.generation),unsigned(s.car.applied_seq),static_cast<unsigned long>(s.spi_ok),
+        int(s.ack_left),int(s.ack_right),s.car.fpga_link && !s.maintenance ? "true" : "false");
+    return send_text(request,reply);
+}
 const char* string(cJSON* object,const char* key) {
     const auto* p=cJSON_GetObjectItemCaseSensitive(object,key);return cJSON_IsString(p)?p->valuestring:nullptr;
 }
@@ -105,12 +115,13 @@ esp_err_t message(httpd_req_t* request,cJSON* json) {
     const char* type=string(json,"t");if(!type) return result(request,false,"invalid_type");
     auto& runtime=Runtime::get();
     if(std::strcmp(type,"status")==0) { ++status_requests; return status(request); }
+    if(std::strcmp(type,"probe_status")==0) return probe_status(request);
     if(std::strcmp(type,"latency")==0) {
         const auto* action=string(json,"action");int dispatch=0,confirm=0;
         if(!action || (std::strcmp(action,"forward") && std::strcmp(action,"backward") && std::strcmp(action,"left") && std::strcmp(action,"right")) ||
            !integer(json,"dispatch_us",0,2000000,dispatch) || !integer(json,"confirm_us",dispatch,2000000,confirm))
             return result(request,false,"invalid_latency_sample");
-        ESP_LOGI("latency_probe","action=%s dispatch_us=%d confirm_us=%d scope=phone_to_status poll_ms=100",action,dispatch,confirm);
+        ESP_LOGI("latency_probe","action=%s dispatch_us=%d confirm_us=%d scope=phone_to_spi_ack",action,dispatch,confirm);
         return result(request,true,"received");
     }
     if(std::strcmp(type,"stop")==0) { runtime.stop();return result(request,true,"received"); }

@@ -109,6 +109,7 @@ void Runtime::accept(const simple::Frame& f) {
 }
 void Runtime::control_loop() {
     uint16_t seq=0,last_tx=0;bool have_tx=false;simple::SpiStatus fpga{};
+    int16_t last_left=0,last_right=0;
     bool previous_zero=false;unsigned zero_acks=0;
     for(;;) {
         ulTaskNotifyTake(pdTRUE,pdMS_TO_TICKS(5));
@@ -156,7 +157,7 @@ void Runtime::control_loop() {
         snapshot_.startup=core_.startup_config();
         snapshot_.brain_connected=core_.brain_connected(now);
         if(!have_tx) ++snapshot_.spi_startup;
-        else if(valid) ++snapshot_.spi_ok;
+        else if(valid) { ++snapshot_.spi_ok; snapshot_.ack_left=last_left; snapshot_.ack_right=last_right; }
         else {
             ++snapshot_.spi_errors;
             if(result!=ESP_OK) ++snapshot_.spi_io_errors;
@@ -171,7 +172,7 @@ void Runtime::control_loop() {
             snapshot_.latency_max_us=std::max(snapshot_.latency_max_us,delay);
         }
         portEXIT_CRITICAL(&mux_);
-        last_tx=seq;have_tx=true;
+        last_tx=seq;last_left=state.left;last_right=state.right;have_tx=true;
     }
 }
 void Runtime::uart_loop() {

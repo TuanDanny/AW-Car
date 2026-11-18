@@ -12,6 +12,7 @@ struct Snapshot {
     simple::MotionState car{};
     simple::BrainState brain{};
     simple::SpiStatus fpga{};
+    int16_t ack_left{},ack_right{};
     bool brain_connected{};
     bool maintenance{},driver_gpio{};
     simple::StartupConfig startup{};

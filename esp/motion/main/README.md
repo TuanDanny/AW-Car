@@ -21,19 +21,22 @@ tạo sensor và -5 lỗi khi đọc. Khoảng cách là `null` khi mẫu không
 Driver dùng ST API qua [component ESP-IDF](https://github.com/nallyn1972/vl53l0x/tree/108d39933303cbdb68a61e72dceda1e7d6c76b76)
 đã khóa revision trong manifest.
 
-Dashboard nhận telemetry trong khung STATUS 10 Hz có sẵn. Một tác vụ I²C
-chạy ở core 0, bên ngoài vòng điều khiển. VL53L0X vẫn đo từng lần theo bản
-gốc. MPU dùng chung SDA11/SCL12, thử 0x68 trước rồi 0x69, đọc trong các nhịp 100 ms
-giữa những lần đo VL53L0X, với thang
+Dashboard nhận telemetry trong khung STATUS 10 Hz có sẵn. Hai tác vụ I²C
+chạy ở core 0, bên ngoài vòng điều khiển. VL53L0X đo từng lần trên I²C0,
+SDA11/SCL12. MPU dùng I²C1 riêng trên SDA6/SCL7, thử 0x68 trước rồi 0x69
+và đọc mỗi 100 ms với thang
 ±2 g và ±250 °/s. Hai TCRT5000 dùng DO trái GPIO8 và DO phải GPIO9, chỉ
 hiển thị mức logic cho đến khi xác nhận cực tính trên xe. Khi cảm biến
 không trả mẫu hoặc mẫu quá hạn, Web hiển thị trạng thái thay cho số cũ.
 
-Cùng bus và địa chỉ đó nhận MPU6050 (mã 0x68) và MPU6515 (mã 0x74) theo
+Driver nhận MPU6050 (mã 0x68) và MPU6515 (mã 0x74) theo
 [bảng thanh ghi trong driver Linux](https://github.com/torvalds/linux/blob/master/drivers/iio/imu/inv_mpu6050/inv_mpu_core.c).
 Log quản trị có `mpu_id` và `az` (gia tốc trục Z, mg) để kiểm tra mà không cần USB.
 Địa chỉ I²C phụ thuộc AD0, độc lập với mã WHO_AM_I.
 Bảng `/#latency` dùng trực tiếp STATUS của trang và cùng kết nối WebSocket.
+Khi đo, trình duyệt yêu cầu xác nhận gọn sau 15 ms và lặp mỗi 25 ms tối đa
+sáu lần, rồi dùng STATUS thường nếu cần. Motion đối chiếu ACK từ giao dịch
+SPI trước đó với duty thật đã gửi. Khung STATUS thường vẫn chạy ở 10 Hz.
 `awcarctl.py info motion` có địa chỉ MPU và bộ đếm mở/đóng, nhận/gửi STATUS,
 lỗi gửi/nhận WebSocket. Sau khi quá hạn hoặc ngắt bất thường, trang xóa thao
 tác giữ và cho kết nối lại. Khi trang khác tiếp quản, tab cũ chờ người dùng.

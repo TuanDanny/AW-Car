@@ -1,9 +1,11 @@
 #include "sensor_telemetry.hpp"
 #include "laser_diag.hpp"
 #include "driver/gpio.h"
+#include "driver/i2c_master.h"
 #include "esp_log.h"
 #include "esp_timer.h"
 #include "freertos/FreeRTOS.h"
+#include "freertos/task.h"
 
 namespace motion {
 namespace {
@@ -60,18 +62,7 @@ int signed_word(const uint8_t* bytes) {
     return word >= 0x8000 ? word - 0x10000 : word;
 }
 
-} // namespace
-
-void start_edge_inputs() {
-    gpio_config_t config{};
-    config.pin_bit_mask = (1ULL << kEdgeLeft) | (1ULL << kEdgeRight);
-    config.mode = GPIO_MODE_INPUT;
-    config.pull_down_en = GPIO_PULLDOWN_ENABLE;
-    edge_ready = gpio_config(&config) == ESP_OK;
-    if (!edge_ready) ESP_LOGW("sensor_status", "TCRT5000 input setup failed");
-}
-
-void start_mpu_telemetry(i2c_master_bus_handle_t bus) {
+void attach_mpu_handles(i2c_master_bus_handle_t bus) {
     i2c_device_config_t config{};
     config.dev_addr_length = I2C_ADDR_BIT_LEN_7;
     config.scl_speed_hz = 100000;
@@ -120,6 +111,45 @@ void poll_mpu_telemetry() {
     }
     sample.sampled_us = esp_timer_get_time();
     publish_mpu(sample);
+}
+
+void mpu_task(void*) {
+    i2c_master_bus_config_t config{};
+    config.i2c_port = I2C_NUM_1;
+    config.sda_io_num = GPIO_NUM_6;
+    config.scl_io_num = GPIO_NUM_7;
+    config.clk_source = I2C_CLK_SRC_DEFAULT;
+    config.glitch_ignore_cnt = 7;
+    i2c_master_bus_handle_t bus{};
+    const auto result = i2c_new_master_bus(&config, &bus);
+    attach_mpu_handles(result == ESP_OK ? bus : nullptr);
+    if (!mpu_handles[0] && !mpu_handles[1]) {
+        ESP_LOGW("sensor_status", "MPU setup failed on SDA6/SCL7");
+        vTaskDelete(nullptr);
+        return;
+    }
+
+    auto tick = xTaskGetTickCount();
+    for (;;) {
+        poll_mpu_telemetry();
+        vTaskDelayUntil(&tick, pdMS_TO_TICKS(100));
+    }
+}
+
+} // namespace
+
+void start_edge_inputs() {
+    gpio_config_t config{};
+    config.pin_bit_mask = (1ULL << kEdgeLeft) | (1ULL << kEdgeRight);
+    config.mode = GPIO_MODE_INPUT;
+    config.pull_down_en = GPIO_PULLDOWN_ENABLE;
+    edge_ready = gpio_config(&config) == ESP_OK;
+    if (!edge_ready) ESP_LOGW("sensor_status", "TCRT5000 input setup failed");
+}
+
+void start_mpu_telemetry() {
+    if (xTaskCreatePinnedToCore(mpu_task, "mpu_telemetry", 4096, nullptr, 1, nullptr, 0) != pdPASS)
+        publish_mpu({"bus_error"});
 }
 
 MpuDiagnostic mpu_diagnostic() {

@@ -1,5 +1,4 @@
 #include "laser_diag.hpp"
-#include "sensor_telemetry.hpp"
 
 #include "driver/i2c_master.h"
 #include "esp_log.h"
@@ -31,14 +30,6 @@ void publish(int status,bool ack,uint16_t mm=0) {
     portEXIT_CRITICAL(&reading_mux);
 }
 
-// A single background task owns both I²C device handles, including attach/detach.
-void wait_between_ranges(unsigned slots) {
-    auto tick = xTaskGetTickCount();
-    for (unsigned slot = 0; slot < slots; ++slot) {
-        poll_mpu_telemetry();
-        vTaskDelayUntil(&tick, pdMS_TO_TICKS(100));
-    }
-}
 
 VL53L0X_Error initialize(VL53L0X_Dev_t& sensor) {
     uint8_t model=0;
@@ -72,7 +63,6 @@ void laser_task(void*) {
     bus_config.glitch_ignore_cnt=7;
     i2c_master_bus_handle_t bus{};
     const esp_err_t bus_result=i2c_new_master_bus(&bus_config,&bus);
-    start_mpu_telemetry(bus_result==ESP_OK ? bus : nullptr);
     if(bus_result!=ESP_OK) {
         publish(kBusError,false);
         ESP_LOGW(kTag,"I2C setup: %s",esp_err_to_name(bus_result));
@@ -91,7 +81,7 @@ void laser_task(void*) {
         const esp_err_t probe=i2c_master_probe(bus,kAddress,40);
         if(probe!=ESP_OK) {
             publish(probe==ESP_ERR_NOT_FOUND?kNoAck:kBusError,false);
-            wait_between_ranges(10);
+            vTaskDelay(pdMS_TO_TICKS(1000));
             continue;
         }
 
@@ -111,7 +101,7 @@ void laser_task(void*) {
                         break;
                     }
                     publish(sample.RangeStatus,true,sample.RangeMilliMeter);
-                    wait_between_ranges(2);
+                    vTaskDelay(pdMS_TO_TICKS(200));
                 }
             } else {
                 publish(kInitError,true);
@@ -122,7 +112,7 @@ void laser_task(void*) {
             publish(kInitError,true);
             ESP_LOGW(kTag,"sensor attach: %s",esp_err_to_name(attached));
         }
-        wait_between_ranges(10);
+        vTaskDelay(pdMS_TO_TICKS(1000));
     }
 }
 
@@ -138,7 +128,6 @@ LaserReading laser_reading() {
 void start_laser_diagnostics() {
     if(xTaskCreatePinnedToCore(laser_task,"laser_diag",6144,nullptr,1,nullptr,0)!=pdPASS) {
         publish(kBusError,false);
-        start_mpu_telemetry(nullptr);
         ESP_LOGW(kTag,"could not start sensor task");
     }
 }

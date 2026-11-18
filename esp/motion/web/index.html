@@ -215,8 +215,8 @@
       </div>
     </div>
     <section id="latency-panel" class="panel telemetry" hidden aria-labelledby="latency-title">
-      <h2 id="latency-title">Đo bấm → STATUS xác nhận</h2>
-      <p class="sub">Giữ VM ngắt. Mỗi nút giữ 0,5–1 giây, nhả giữa các lần. Số đo gồm chu kỳ STATUS 100 ms.</p>
+      <h2 id="latency-title">Đo bấm → FPGA xác nhận</h2>
+      <p class="sub">Giữ VM ngắt. Mỗi nút giữ 0,5–1 giây, nhả giữa các lần. Đo ACK qua WebSocket.</p>
       <pre id="latency-readout" style="white-space:pre-wrap;font-size:12px;line-height:1.7"></pre>
     </section>
     <p id="notice" class="notice" role="status" aria-live="polite"></p>
@@ -296,7 +296,7 @@
       let probing = false, probe = null, incomplete = 0;
 
       function renderLatency() {
-        setText('latency-readout', 'Hướng · N · bấm→gửi / bấm→STATUS (ms)\n' + Object.keys(latencyActions).map(action => {
+        setText('latency-readout', 'Hướng · N · bấm→gửi / bấm→FPGA ACK (ms)\n' + Object.keys(latencyActions).map(action => {
           const row = latencyRows[action];
           return latencyActions[action][0] + ' · ' + (row?.count ?? 0) + ' · ' + (row
             ? (row.dispatch_us / 1000).toFixed(2) + ' / ' + (row.confirm_us / 1000).toFixed(2) : '—');
@@ -304,6 +304,7 @@
       }
       function cancelProbe() {
         if (!probe) return;
+        clearTimeout(probe.timer);
         probe = null;
         ++incomplete;
         renderLatency();
@@ -318,25 +319,34 @@
         if (!probing) return;
         cancelProbe();
         const axes = latencyActions[action];
-        if (!axes || !status?.fpga?.connected || status.left || status.right) return;
+        if (!axes || !status?.fpga?.connected || status.left || status.right ||
+            status.fpga.ack_left !== 0 || status.fpga.ack_right !== 0) return;
         const start = event.timeStamp, now = performance.now();
         const duty = Math.round(Number($('speed').value) * 1350 / 100);
         if (!duty || !Number.isFinite(start) || start > now || now - start > 1000) return;
-        probe = { action, start, sent: null, generation: status.generation, seq: status.fpga.applied_seq,
+        probe = { action, start, sent: null, timer: null, attempts: 0, generation: status.generation, seq: status.fpga.applied_seq,
           spi: status.diag?.spi_ok ?? 0, left: duty * axes[1], right: duty * axes[2] };
+      }
+      function scheduleProbe(sample, delay) {
+        sample.timer = setTimeout(() => {
+          if (probe !== sample || sample.attempts >= 6) return;
+          ++sample.attempts;
+          if (open() && socket.bufferedAmount === 0) send({ t: 'probe_status' });
+          scheduleProbe(sample, 25);
+        }, delay);
       }
       function observeProbe(data, now) {
         const sample = probe;
         if (!sample) return;
-        if (now - sample.start > 2000 || data.generation !== sample.generation || data.mode !== 'manual' || data.maintenance) {
+        if (now - sample.start > 2000 || data.generation !== sample.generation) {
           cancelProbe();
           return;
         }
-        if (sample.sent === null || !data.fpga?.connected || data.fpga.applied_seq === sample.seq ||
-            (data.diag?.spi_ok ?? 0) <= sample.spi || data.action !== sample.action || data.reason !== 'active' ||
+        if (sample.sent === null || !data.connected || data.seq === sample.seq || data.spi_ok <= sample.spi ||
             data.left !== sample.left || data.right !== sample.right) return;
         const result = { t: 'latency', action: sample.action, dispatch_us: Math.round((sample.sent - sample.start) * 1000),
           confirm_us: Math.round((now - sample.start) * 1000) };
+        clearTimeout(sample.timer);
         probe = null;
         latencyRows[result.action] = { ...result, count: (latencyRows[result.action]?.count ?? 0) + 1 };
         renderLatency();
@@ -352,8 +362,10 @@
       function send(message) {
         if (!open()) return false;
         try {
-          if (probe?.sent === null && message.t === 'drive' && message.action === probe.action) probe.sent = performance.now();
+          const first = probe?.sent === null && message.t === 'drive' && message.action === probe.action;
+          if (first) probe.sent = performance.now();
           socket.send(JSON.stringify(message));
+          if (first) scheduleProbe(probe, 15);
           return true;
         }
         catch { return false; }
@@ -522,7 +534,11 @@
         status = data; received = true; fresh = true; staleEpisode = false; lastStatusAt = performance.now();
         if (reconnectTimer !== null) { clearTimeout(reconnectTimer); reconnectTimer = null; }
         reconnectDelay = 500;
-        if (probe) observeProbe(data, lastStatusAt);
+        if (probe) {
+          if (data.mode !== 'manual' || data.maintenance) cancelProbe();
+          else observeProbe({ generation: data.generation, seq: data.fpga?.applied_seq, spi_ok: data.diag?.spi_ok,
+            left: data.fpga?.ack_left, right: data.fpga?.ack_right, connected: data.fpga?.connected }, lastStatusAt);
+        }
         if (awaitingMode === data.mode) awaitingMode = null;
         render(data);
         chip('connection', 'Motion đã kết nối', 'good');
@@ -592,6 +608,7 @@
           try { data = JSON.parse(event.data); } catch { return; }
           if (!data || typeof data !== 'object') return;
           if (data.t === 'status') onStatus(data);
+          else if (data.t === 'probe_status') observeProbe(data, performance.now());
           else if (data.t === 'result') {
             if (data.ok === false) {
               clearHeld(false); awaitingMode = null; controls();
