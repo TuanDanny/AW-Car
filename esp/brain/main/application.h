@@ -13,6 +13,7 @@
 #include <functional>
 #include <cstdint>
 #include <vector>
+#include <atomic>
 
 #include "protocol.h"
 #include "car/ai_context.hpp"
@@ -37,6 +38,7 @@
 #define MAIN_EVENT_STOP_LISTENING       (1 << 11)
 #define MAIN_EVENT_STATE_CHANGED        (1 << 12)
 #define MAIN_EVENT_PLAYBACK_DRAINED     (1 << 13)
+#define MAIN_EVENT_STARTUP_SOUND        (1 << 14)
 
 
 enum AecMode {
@@ -118,6 +120,8 @@ public:
     void SetAecMode(AecMode mode);
     AecMode GetAecMode() const { return aec_mode_; }
     void PlaySound(const std::string_view& sound);
+    // Also callable by the OTA worker; cancellation never waits for playback.
+    void CancelStartupSound();
     AudioService& GetAudioService() { return audio_service_; }
 
     /**
@@ -136,6 +140,11 @@ private:
     std::unique_ptr<Protocol> protocol_;
     EventGroupHandle_t event_group_ = nullptr;
     esp_timer_handle_t clock_timer_handle_ = nullptr;
+    esp_timer_handle_t startup_sound_timer_ = nullptr;
+    std::atomic<bool> network_connected_{false};
+    std::atomic<bool> startup_sound_requested_{false};
+    std::atomic<bool> startup_sound_pending_{false};
+    bool startup_sound_offered_ = false;
     DeviceStateMachine state_machine_;
     ListeningMode listening_mode_ = kListeningModeAutoStop;
     AecMode aec_mode_ = kAecOff;

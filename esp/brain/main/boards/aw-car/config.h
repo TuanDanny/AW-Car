@@ -2,7 +2,9 @@
 #include <driver/gpio.h>
 // Verified AW-Car bread-compact wiring; only the simplev1 UART contract changes.
 #define AUDIO_INPUT_SAMPLE_RATE 16000
-#define AUDIO_OUTPUT_SAMPLE_RATE 24000
+// MAX98357A I2S supports 48 kHz, not 24 kHz. AudioService resamples each
+// cloud/OGG packet from its declared rate; never play 24 kHz PCM at 48 kHz.
+#define AUDIO_OUTPUT_SAMPLE_RATE 48000
 #define AUDIO_I2S_MIC_GPIO_WS GPIO_NUM_4
 #define AUDIO_I2S_MIC_GPIO_SCK GPIO_NUM_5
 #define AUDIO_I2S_MIC_GPIO_DIN GPIO_NUM_6

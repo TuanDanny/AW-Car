@@ -4,6 +4,7 @@
 #include <nvs_flash.h>
 #include <driver/gpio.h>
 #include <esp_event.h>
+#include <esp_system.h>
 #include <freertos/FreeRTOS.h>
 #include <freertos/task.h>
 
@@ -19,6 +20,8 @@
 extern "C" void app_main(void)
 {
     ESP_LOGI(TAG,"build=%s Brain STA-only / UART17-18 / no dashboard",SIMPLE_BUILD_ID);
+    ESP_LOGI(TAG,"startup stage=app reset_reason=%d uptime_ms=%lld",
+             static_cast<int>(esp_reset_reason()), esp_timer_get_time()/1000);
     // Initialize NVS flash for WiFi configuration
     esp_err_t ret = nvs_flash_init();
     ESP_ERROR_CHECK(ret);
