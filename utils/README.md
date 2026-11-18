@@ -14,6 +14,9 @@ Không phát MOVE tự động hoặc coi số đo host là độ trễ Wi-Fi/PW
 
 `awcarctl.py discover`, `info brain|motion`, `logs brain|motion --seconds 60`:
 đọc quản trị trên STA, HTTPS3232; thêm `--ip` khi không tìm thấy .local.
+Khi rớt kết nối, công cụ tự kết nối lại và tiếp tục đọc từ mẫu cuối đã nhận.
+Thông báo mất kết nối, khởi động lại và mẫu đã bị ghi đè nằm ở stderr.
+Lượt thu rỗng hoặc kết thúc khi vẫn mất kết nối trả mã lỗi.
 `upload brain` nạp app vào slot không chạy, xác minh boot/ELF và health cục bộ;
 Motion phải migration riêng trước. `test_ota_receiver.py` kiểm các ca từ chối,
 truyền dở và reset, chỉ chạy trên bàn với `--vm-off`.
