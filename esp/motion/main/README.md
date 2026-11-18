@@ -8,3 +8,15 @@ Waking/Reversing vẫn bận dù PWM0; giữ kiểm pending/OTA và STA đã onl
 `Kconfig.projbuild`: đề-pa mũ thử nghiệm mặc định tắt, gain mặc định100% không
 boost. Chỉ cấu hình khi build sau khi đo motor/dòng; Web chỉ quan sát trạng
 thái này. Sáu action mới đi qua cùng mailbox/task/timeout với bốn action cũ.
+
+Bản thử VL53L0X dùng I²C 100 kHz trên SDA GPIO11 và SCL GPIO12, địa chỉ
+7 bit `0x29`. Task `laser_diag` chạy ưu tiên thấp trên core 0 và đọc
+khoảng cách độc lập với đường điều khiển. Giữ VM ngắt khi kiểm trên bàn.
+
+`awcarctl.py info motion` và `logs motion` trả về `tof_ack` cho phản hồi
+I²C, `tof_status` cho trạng thái và `tof_mm` cho khoảng cách hợp lệ.
+`tof_status` bằng 0 khi có mẫu hợp lệ. Giá trị dương là mã RangeStatus
+của ST. Mã âm gồm -1 đang khởi tạo, -2 lỗi bus, -3 chưa ACK, -4 lỗi khởi
+tạo sensor và -5 lỗi khi đọc. Khoảng cách là `null` khi mẫu không hợp lệ.
+Driver dùng ST API qua [component ESP-IDF](https://github.com/nallyn1972/vl53l0x/tree/108d39933303cbdb68a61e72dceda1e7d6c76b76)
+đã khóa revision trong manifest.

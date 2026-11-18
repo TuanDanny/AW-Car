@@ -1,4 +1,5 @@
 #include "network_manager.hpp"
+#include "laser_diag.hpp"
 #include "runtime.hpp"
 #include "management.hpp"
 #include <cstdio>
@@ -29,10 +30,15 @@ constexpr const char* tag="motion_network";
 #endif
 void describe_motion(char* out,size_t size) {
     const auto s=Runtime::get().snapshot();
-    std::snprintf(out,size,"{\"mode\":\"%s\",\"left\":%d,\"right\":%d,\"generation\":%lu,\"reason\":\"%s\",\"fpga\":%d,\"maintenance\":%d,\"driver_gpio\":%d,\"uart_errors\":%lu,\"spi_errors\":%lu}",
+    const auto tof=laser_reading();
+    char distance[6]="null";
+    if(tof.status==0) std::snprintf(distance,sizeof(distance),"%u",unsigned(tof.mm));
+    std::snprintf(out,size,"{\"mode\":\"%s\",\"left\":%d,\"right\":%d,\"generation\":%lu,\"reason\":\"%s\",\"fpga\":%d,\"maintenance\":%d,\"driver_gpio\":%d,\"uart_errors\":%lu,\"spi_errors\":%lu,"
+        "\"tof_mm\":%s,\"tof_ack\":%d,\"tof_status\":%d}",
         s.car.mode==simple::Mode::Manual?"manual":"ai",s.car.left,s.car.right,
         static_cast<unsigned long>(s.car.generation),simple::reason_name(s.car.reason),s.car.fpga_link,s.maintenance,s.driver_gpio,
-        static_cast<unsigned long>(s.uart_errors),static_cast<unsigned long>(s.spi_errors));
+        static_cast<unsigned long>(s.uart_errors),static_cast<unsigned long>(s.spi_errors),
+        distance,tof.ack,tof.status);
 }
 uint64_t now_ms() { return esp_timer_get_time()/1000; }
 void disconnect() {

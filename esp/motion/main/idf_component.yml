@@ -2,3 +2,6 @@ dependencies:
   idf: ">=6.1.0"
   espressif/cjson: "1.7.19"
   espressif/led_strip: "3.0.3"
+  vl53l0x:
+    git: https://github.com/nallyn1972/vl53l0x.git
+    version: 108d39933303cbdb68a61e72dceda1e7d6c76b76

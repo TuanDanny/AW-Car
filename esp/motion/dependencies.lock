@@ -33,11 +33,20 @@ dependencies:
     source:
       type: idf
     version: 6.1.0
+  vl53l0x:
+    component_hash: 1722c7b76c1511f9c17eea76ce733ae7c2efb85546ec6cf18aa6d6fc43fc87bb
+    dependencies: []
+    source:
+      git: https://github.com/nallyn1972/vl53l0x.git
+      path: .
+      type: git
+    version: 108d39933303cbdb68a61e72dceda1e7d6c76b76
 direct_dependencies:
 - espressif/cjson
 - espressif/led_strip
 - espressif/mdns
 - idf
-manifest_hash: 8cd9819bf3cea1f30fe357fd33ed1a4f85814ee08bfa91c412daa52dd6b48f78
+- vl53l0x
+manifest_hash: 052ab1e353c4cb4c768afe64fde141498cee3e42d63bc05207ea5acbc437ea70
 target: esp32s3
 version: 3.0.0

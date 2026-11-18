@@ -1,6 +1,6 @@
-idf_component_register(SRCS "main.cpp" "runtime.cpp" "web.cpp" "network_manager.cpp"
+idf_component_register(SRCS "main.cpp" "runtime.cpp" "web.cpp" "network_manager.cpp" "laser_diag.cpp"
     INCLUDE_DIRS "." REQUIRES shared management esp_driver_gpio esp_driver_spi esp_driver_uart
-    esp_wifi esp_netif esp_event esp_http_server esp_timer nvs_flash espressif__cjson espressif__led_strip
+    esp_wifi esp_netif esp_event esp_http_server esp_timer nvs_flash esp_driver_i2c espressif__cjson espressif__led_strip
     EMBED_TXTFILES "../web/index.html" "../web/latency.js")
 target_compile_features(${COMPONENT_LIB} PUBLIC cxx_std_17)
 if(DEFINED SIMPLE_BUILD_ID)
