@@ -111,11 +111,13 @@ void StaNetwork::Run() {
     uint32_t backoff = 1000;
     size_t index = 0;
     bool connecting = false;
+    uint64_t publish_connected_at = 0;
     for (;;) {
         uint32_t events = 0;
         xTaskNotifyWait(0, UINT32_MAX, &events, pdMS_TO_TICKS(100));
         const auto now = Now();
         if (events & kDown) {
+            publish_connected_at = 0;
             connecting = false;
             if (result_ != 0) result_ = 3;
             Notify(NetworkEvent::Disconnected);
@@ -125,17 +127,19 @@ void StaNetwork::Run() {
         }
         if (events & kUp) {
             connecting = false; backoff = 1000;
-            std::string ssid;
-            { std::lock_guard lock(state_mutex_); ssid = ssid_; }
-            Notify(NetworkEvent::Connected, ssid);
             const auto rc=management::start("brain",SIMPLE_BUILD_ID,DescribeBrain,{EnterUpdate,LeaveUpdate});
             if(rc!=ESP_OK) ESP_LOGE("BrainSTA","management start failed: %s",esp_err_to_name(rc));
+            // Reuse this worker's timed wait: no extra task or blocking sleep.
+            // Cloud starts after local management init, never after a client request.
+            publish_connected_at = Now()+300;
+            ESP_LOGI("BrainSTA", "startup stage=management_ready cloud_gap_ms=300");
         }
         Credentials credentials;
         if (xQueueReceive(configurations_, &credentials, 0) == pdPASS) {
             // Same manager/namespace/keys as the activated firmware; never log credentials.
             const bool saved = store.AddSsid(credentials.ssid, credentials.password);
             if (saved) {
+                publish_connected_at = 0;
                 connected_ = false; connecting = false;
                 brain::Runtime::Get().SetCloud(false);
                 Disconnect();
@@ -144,7 +148,15 @@ void StaNetwork::Run() {
             } else result_ = 3;
             explicit_bzero(&credentials, sizeof(credentials));
         }
-        if (connected_) continue;
+        if (connected_) {
+            if (publish_connected_at && Now() >= publish_connected_at) {
+                publish_connected_at = 0;
+                std::string ssid;
+                { std::lock_guard lock(state_mutex_); ssid = ssid_; }
+                Notify(NetworkEvent::Connected, ssid);
+            }
+            continue;
+        }
         if (connecting && now >= connect_deadline) {
             Disconnect(); connecting = false;
             next_attempt = now+backoff;

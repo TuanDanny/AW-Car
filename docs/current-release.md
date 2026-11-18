@@ -54,3 +54,27 @@ Prototype v2 là skeleton phần mềm đã kiểm thử, không phải nghiệm
 Xem [nạp/OTA/log](ota-usage.md), [đấu nối](../schematic/README.md) và
 [cách đo độ trễ](latency-measurement.md). [Mốc skeleton cũ](skeleton-baseline.md)
 chỉ mô tả tag ban đầu; không dùng build ID cũ để chọn app hiện hành.
+
+## Mốc thử nghiệm cảm biến ngày 18/11/2026
+
+Các bản dưới đây thuộc nhánh `codex/vl53l0x-baseline-first`. Mốc prototype v2
+ở trên dùng để phục hồi bản ổn định trên main.
+
+| Board | Mã bản | Commit khớp source |
+| --- | --- | --- |
+| Brain ESP32-S3 | `simplev1-4e69a1922a92` | `c731186` |
+| Motion ESP32-S3 | `simplev1-4753477af536` | `828734d` |
+| Tang Nano9K | UserCode `0x0000A6C1` theo lần nạp đã lưu | `prototype-v2:fpga` |
+
+Brain và Motion trả đúng mã bản qua giao diện quản trị. Hai image cục bộ
+khớp SHA-256 trong manifest và cây source tái tạo được mã build tương ứng.
+Với Brain, trước khi tái tính mã build hãy sinh `lang_config.h` theo lệnh
+trong `esp/brain/main/CMakeLists.txt`. Khi cần build đúng bản đã nạp, checkout
+commit ghi trong bảng. Đầu nhánh đã gom code Brain và Motion, dùng chung bản
+`esp/management` của Motion với bộ đệm phản hồi trạng thái lớn hơn.
+
+Toàn bộ cây `fpga/` trùng prototype v2. File bitstream đã lưu khớp SHA-256
+của mốc đó. Căn cứ về bitstream trên Tang là lần nạp trước đã ghi nhận.
+
+Motion dùng bus SDA11/SCL12 cho VL53L0X và bus SDA6/SCL7 cho MPU. Việc thử
+cảm biến đang tiếp tục. Schematic sẽ cập nhật một lượt khi chốt cả bộ cảm biến.
