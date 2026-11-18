@@ -137,6 +137,7 @@ def main():
         if command == 'logs':
             sub.add_argument('--seconds', type=float, default=60)
             sub.add_argument('--interval', type=float, default=1)
+            sub.add_argument('--fresh', action='store_true', help='Only print samples collected after capture starts')
         if command == 'upload':
             sub.add_argument('--file',type=Path)
             sub.add_argument('--manifest',type=Path)
@@ -166,9 +167,14 @@ def main():
             client.close();print(json.dumps(result,indent=2));return 0
         if args.interval < .2 or args.interval > 10 or args.seconds < 0:
             parser.error('interval must be 0.2..10 seconds; seconds >= 0 (0 means until Ctrl+C)')
-        deadline = time.monotonic() + args.seconds if args.seconds else float('inf')
         cursor = 0
+        start_ms = None
         boot = None
+        if args.fresh:
+            current = client.get('/info')
+            start_ms = current['uptime_ms']
+            boot = current['boot']
+        deadline = time.monotonic() + args.seconds if args.seconds else float('inf')
         received = False
         disconnected = False
         while time.monotonic() < deadline:
@@ -180,12 +186,15 @@ def main():
                 if boot is not None and boot != batch.get('boot'):
                     print('Board restarted; reading logs from the new boot', file=sys.stderr, flush=True)
                     cursor = 0
+                    start_ms = None
                     boot = batch.get('boot')
                     continue
                 boot = batch.get('boot')
                 if batch.get('dropped'):
                     print('Older diagnostic samples overwritten:', batch['dropped'], file=sys.stderr, flush=True)
                 for item in batch.get('samples', []):
+                    if start_ms is not None and item['ms'] < start_ms:
+                        continue
                     print(f"{args.board} {item['ms']}ms #{item['seq']} {item['text']}", flush=True)
                     received = True
                 cursor = int(batch['next'])
