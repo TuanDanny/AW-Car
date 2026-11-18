@@ -8,6 +8,7 @@ struct LaserReading {
     int status=-1;
     uint16_t mm=0;
     bool ack=false;
+    int64_t sampled_us=0;
 };
 
 LaserReading laser_reading();

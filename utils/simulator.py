@@ -47,6 +47,7 @@ class Native:
         self.ssid = "Motion giả lập"
         self.wifi_result = 2
         self.spi_seq = 0
+        self.sensors = None
 
     def now(self):
         return (time.monotonic_ns() - self.start) // 1_000_000
@@ -60,6 +61,7 @@ class Native:
         s = json.loads(buffer.value)
         return {
             **s, "t": "status", "build": "simplev1-host-" + self.source_hash[:12], "simulator": True,
+            **({"sensors": self.sensors} if self.sensors is not None else {}),
             "fpga": {"connected": s["fpga_connected"], "applied_seq": self.spi_seq,
                      "left_count": s["left_count"], "right_count": s["right_count"],
                      "left_seen": self.counts[0] > 0, "right_seen": self.counts[1] > 0},
@@ -178,6 +180,8 @@ async def sim_event(request):
         ok = native.event(7, ACTION.get(obj.get("action"), 99), int(obj.get("speed", 30)), int(obj.get("duration_ms", 3000)), generation)
     elif kind == "counts":
         native.counts = [int(obj.get("left", 0)), int(obj.get("right", 0))]
+    elif kind == "sensors":
+        native.sensors = obj.get("sensors")
     elif kind == "reset":
         generation = (native.state()["generation"] + 100) & 0xffffffff
         native.dll.car_destroy(native.pointer)
@@ -185,6 +189,7 @@ async def sim_event(request):
         native.fpga = native.brain = True
         native.flags = 3
         native.counts = [0, 0]
+        native.sensors = None
     elif kind == "stop":
         native.event(3, 2)
     elif kind == "maintenance":

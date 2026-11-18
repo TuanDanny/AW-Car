@@ -1,5 +1,6 @@
 #include "runtime.hpp"
 #include "laser_diag.hpp"
+#include "sensor_telemetry.hpp"
 #include "network_manager.hpp"
 #include <cstring>
 #include "esp_event.h"
@@ -32,6 +33,7 @@ extern "C" void app_main() {
     motion::Runtime::get().start();
     motion::start_network();
     ESP_ERROR_CHECK(esp_event_handler_register(WIFI_EVENT,ESP_EVENT_ANY_ID,wifi_event,nullptr));
+    motion::start_edge_inputs();
     motion::start_web();
     management::start_boot_guard([] { motion::Runtime::get().check_local_boot(); });
     motion::start_laser_diagnostics();

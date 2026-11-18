@@ -1,5 +1,6 @@
 #include "runtime.hpp"
 #include "network_manager.hpp"
+#include "sensor_telemetry.hpp"
 #include <algorithm>
 #include <cmath>
 #include <cstdio>
@@ -87,6 +88,7 @@ esp_err_t status(httpd_req_t* request) {
     cJSON_AddNumberToObject(d,"uptime_ms",double(esp_timer_get_time()/1000));
     cJSON_AddNumberToObject(d,"ws_opened",opened);cJSON_AddNumberToObject(d,"ws_closed",closed);
     cJSON_AddNumberToObject(d,"ws_send_errors",send_errors);cJSON_AddNumberToObject(d,"ws_receive_errors",recv_errors);
+    add_sensor_status(r);
     return send_json(request,r);
 }
 const char* string(cJSON* object,const char* key) {

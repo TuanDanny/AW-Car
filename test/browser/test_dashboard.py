@@ -724,6 +724,30 @@ class DashboardTests(unittest.TestCase):
         self.wait_zero()
         self.assertLessEqual(self.page.evaluate('document.documentElement.scrollWidth'),390)
 
+    def test_31_sensor_status_updates_without_interfering_with_hold(self):
+        self.page.set_viewport_size({'width': 390, 'height': 844})
+        self.page.locator('#forward').scroll_into_view_if_needed()
+        self.pointer_down()
+        self.wait(lambda: self.probe.latest.get('left') == 405)
+        self.sim_event({'event': 'sensors', 'sensors': {
+            'tof_status': 0, 'tof_mm': 400, 'edge_do': [0, 1], 'mpu_status': 'ok',
+            'accel_mg': [10, -20, 980], 'gyro_dps10': [15, 0, -25]}})
+        self.wait(lambda: self.page.locator('#sensor-range').inner_text() == '400 mm')
+        self.assertEqual(self.page.locator('#sensor-edge').inner_text(), 'Trái 0 · Phải 1')
+        self.assertIn('10 / -20 / 980 mg', self.page.locator('#sensor-accel').inner_text())
+        self.assertIn('1,5 / 0 / -2,5 °/s', self.page.locator('#sensor-gyro').inner_text())
+        self.sim_event({'event': 'sensors', 'sensors': {
+            'tof_status': 2, 'edge_do': [1, 0], 'mpu_status': 'stale'}})
+        self.wait(lambda: self.page.locator('#sensor-range-state').inner_text() == 'Tín hiệu yếu')
+        self.assertEqual(self.page.locator('#sensor-range').inner_text(), '—')
+        self.assertEqual(self.page.locator('#sensor-edge').inner_text(), 'Trái 1 · Phải 0')
+        self.assertIn('quá hạn', self.page.locator('#sensor-mpu-state').inner_text())
+        self.assertNotIn('mg', self.page.locator('#sensor-accel').inner_text())
+        self.assertEqual(self.sim_state()['left'], 405)
+        self.page.mouse.up()
+        self.wait_zero()
+        self.assertLessEqual(self.page.evaluate('document.documentElement.scrollWidth'), 390)
+
     def test_18_maintenance_clears_held_and_never_replays(self):
         self.page.locator('#forward').hover()
         self.page.mouse.down()

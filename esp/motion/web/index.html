@@ -98,6 +98,9 @@
     .metric .value { margin: 7px 0 3px; font: 500 23px/1.1 "Bahnschrift", "Segoe UI", sans-serif; font-variant-numeric: tabular-nums; letter-spacing: -.6px; overflow-wrap: anywhere; }
     .metric .unit { font-size: 10px; color: var(--muted); }
     #telemetry[data-fresh="false"] .metrics { opacity: .5; }
+    .sensor-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(185px, 100%), 1fr)); gap: 16px; }
+    .sensor-grid .metric .value { font-size: 18px; }
+    .sensor-grid .unit { min-height: 1.4em; }
     details { border-top: 1px solid var(--line); margin-top: 20px; padding-top: 14px; }
     summary { font-size: 12px; color: var(--muted); cursor: pointer; }
     .diagnostics { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px 22px; margin: 18px 0 0; }
@@ -227,6 +230,27 @@
         <div><dt>Đề-pa mũ thử nghiệm</dt><dd id="startup-state">—</dd></div>
       </dl></details>
     </section>
+    <section class="panel telemetry" aria-labelledby="sensor-title">
+      <div class="telemetry-head"><h2 id="sensor-title">Cảm biến Motion</h2></div>
+      <div class="sensor-grid">
+        <div class="metric">
+          <div class="label">Khoảng cách · VL53L0X</div>
+          <div id="sensor-range" class="value">—</div>
+          <div id="sensor-range-state" class="unit">Chưa có dữ liệu</div>
+        </div>
+        <div class="metric">
+          <div class="label">Dò mép rơi · TCRT5000</div>
+          <div id="sensor-edge" class="value">—</div>
+          <div class="unit">Mức DO thô · chưa xác định mức báo mép</div>
+        </div>
+        <div class="metric">
+          <div class="label">Chuyển động · MPU6050</div>
+          <div id="sensor-mpu-state" class="value">Chưa có dữ liệu</div>
+          <div id="sensor-accel" class="unit">Gia tốc XYZ · —</div>
+          <div id="sensor-gyro" class="unit">Tốc độ quay XYZ · —</div>
+        </div>
+      </div>
+    </section>
     <p class="footnote">PWM là lệnh điều khiển, không phải tốc độ đo. Encoder một OUT chỉ đếm cạnh, không xác định chiều.</p>
   </main>
   <footer class="stop-dock">
@@ -278,7 +302,7 @@
         const hadHeld = held !== null;
         if (held) held.element.classList.remove('is-held');
         held = null;
-        clearInterval(heldTimer);
+        clearTimeout(heldTimer);
         heldTimer = null;
         if (neutral && hadHeld && status?.mode === 'manual') send({ t: 'neutral' });
       }
@@ -286,6 +310,8 @@
         return open() && fresh && received && !status?.maintenance && status?.mode === 'manual' && awaitingMode === null && !document.hidden;
       }
       function sendHeld() {
+        clearTimeout(heldTimer);
+        heldTimer = null;
         if (!held) return;
         if (!canDrive()) { clearHeld(true); return; }
         const now = performance.now();
@@ -296,17 +322,24 @@
         if (held.blockedAt !== null && now - held.blockedAt >= 150) {
           clearHeld(true); notify('Đường gửi lệnh bị chậm. Đã hủy giữ; nhấn lại để chạy.', true); return;
         }
-        if (busy) return;
+        if (busy) {
+          heldTimer = setTimeout(sendHeld, held.sent ? 50 : 8);
+          return;
+        }
         held.blockedAt = null;
-        if (!send({ t: 'drive', action: held.action, speed: Number($('speed').value) })) clearHeld(false);
+        if (!send({ t: 'drive', action: held.action, speed: Number($('speed').value) })) {
+          clearHeld(false);
+          return;
+        }
+        held.sent = true;
+        heldTimer = setTimeout(sendHeld, 50);
       }
       function press(owner, action, element) {
         if (!canDrive()) return;
         clearHeld(false);
-        held = { owner, action, element, blockedAt: null };
+        held = { owner, action, element, blockedAt: null, sent: false };
         element.classList.add('is-held');
         sendHeld();
-        if (held) heldTimer = setInterval(sendHeld, 50);
       }
       function release(owner) { if (held?.owner === owner) clearHeld(true); }
       function controls() {
@@ -347,10 +380,35 @@
         chip('brain-link', 'Chưa cập nhật', 'warn');
         chip('wifi-link', 'Wi-Fi —', 'warn');
         chip('cloud-link', 'Cloud —', 'warn');
+        renderSensors();
       }
       const numberFormat = new Intl.NumberFormat('vi-VN');
       const number = (value) => Number.isFinite(value) ? numberFormat.format(value) : '—';
       const signed = (value) => Number.isFinite(value) ? (value > 0 ? '+' : '') + value : '—';
+      const rangeStates = {
+        0: 'Mẫu hợp lệ', 1: 'Sai số ước lượng cao', 2: 'Tín hiệu yếu', 4: 'Lỗi pha',
+        '-1': 'Đang khởi tạo', '-2': 'Lỗi bus I²C', '-3': 'Chưa thấy cảm biến',
+        '-4': 'Lỗi khởi tạo', '-5': 'Lỗi đọc', '-6': 'Dữ liệu quá hạn'
+      };
+      const mpuStates = {
+        ok: 'Đang đọc', initializing: 'Đang khởi tạo', unavailable: 'Chưa thấy cảm biến',
+        wrong_device: 'Sai mã thiết bị', bus_error: 'Lỗi bus I²C',
+        read_error: 'Lỗi đọc', stale: 'Dữ liệu quá hạn'
+      };
+      const level = (value) => value === 0 ? '0' : value === 1 ? '1' : '—';
+      function renderSensors(sensors) {
+        const range = sensors?.tof_status;
+        setText('sensor-range', range === 0 && Number.isFinite(sensors.tof_mm) ? number(sensors.tof_mm) + ' mm' : '—');
+        setText('sensor-range-state', range === undefined ? 'Chưa có dữ liệu' : (rangeStates[range] || 'Mẫu lỗi ' + range));
+        const edge = sensors?.edge_do;
+        setText('sensor-edge', edge ? 'Trái ' + level(edge[0]) + ' · Phải ' + level(edge[1]) : '—');
+        const mpu = sensors?.mpu_status;
+        setText('sensor-mpu-state', mpuStates[mpu] || 'Chưa có dữ liệu');
+        setText('sensor-accel', 'Gia tốc XYZ · ' + (mpu === 'ok' && sensors.accel_mg
+          ? sensors.accel_mg.map(number).join(' / ') + ' mg' : '—'));
+        setText('sensor-gyro', 'Tốc độ quay XYZ · ' + (mpu === 'ok' && sensors.gyro_dps10
+          ? sensors.gyro_dps10.map((axis) => number(axis / 10)).join(' / ') + ' °/s' : '—'));
+      }
       function render(data) {
         const fpga = data.fpga || {}, brain = data.brain || {}, diag = data.diag || {};
         if ($('simulator').hidden !== (data.simulator !== true)) $('simulator').hidden = data.simulator !== true;
@@ -388,6 +446,7 @@
         setText('motion-state', data.maintenance ? 'Bảo trì OTA · không điều khiển' : (data.mode === 'ai' ? 'AI' : 'Manual') + ' · ' + (actionNames[action] || 'Chưa rõ lệnh'));
         setText('motion-detail', 'Theo STATUS Motion · mức lệnh ' + number(data.speed) + '%');
         setText('last-status', 'STATUS vừa nhận · 10 Hz');
+        renderSensors(data.sensors);
       }
       function onStatus(data) {
         if (data.mode !== 'manual' && data.mode !== 'ai') return;
