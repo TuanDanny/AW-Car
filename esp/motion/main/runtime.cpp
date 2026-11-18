@@ -110,6 +110,7 @@ void Runtime::accept(const simple::Frame& f) {
 void Runtime::control_loop() {
     uint16_t seq=0,last_tx=0;bool have_tx=false;simple::SpiStatus fpga{};
     int16_t last_left=0,last_right=0;
+    uint64_t intent_us=0,last_intent_us=0;
     bool previous_zero=false;unsigned zero_acks=0;
     for(;;) {
         ulTaskNotifyTake(pdTRUE,pdMS_TO_TICKS(5));
@@ -128,8 +129,14 @@ void Runtime::control_loop() {
         else {
             if(inputs.disconnected) core_.disconnect();
             if(inputs.mode) core_.set_mode(inputs.new_mode);
-            if(inputs.source==Source::Manual) rejected=!core_.manual(inputs.action,inputs.speed,now);
-            else if(inputs.source==Source::Ai) rejected=!core_.ai(inputs.ai,now);
+            if(inputs.source==Source::Manual) {
+                const auto before=core_.state();
+                rejected=!core_.manual(inputs.action,inputs.speed,now);
+                if(!rejected && (before.action!=inputs.action || before.speed!=inputs.speed))
+                    intent_us=inputs.command_us;
+            } else if(inputs.source==Source::Ai) {
+                rejected=!core_.ai(inputs.ai,now);
+            }
         }
         core_.tick(now);
         const auto state=core_.state();
@@ -143,7 +150,8 @@ void Runtime::control_loop() {
         simple::SpiStatus received{};
         const bool frame_valid=result==ESP_OK && simple::decode_spi_status(rx,received);
         const bool valid=frame_valid && have_tx && received.applied_seq==last_tx;
-        if(valid) { fpga=received;core_.fpga(received,us()/1000); }
+        const uint64_t ack_us=valid ? us() : 0;
+        if(valid) { fpga=received;core_.fpga(received,ack_us/1000); }
         // A response acknowledges the PREVIOUS transfer. Two zero ACKs plus
         // measured GPIO10 LOW are required before the OTA task may touch flash.
         if(requested && valid && previous_zero && !state.left && !state.right) ++zero_acks;
@@ -157,7 +165,15 @@ void Runtime::control_loop() {
         snapshot_.startup=core_.startup_config();
         snapshot_.brain_connected=core_.brain_connected(now);
         if(!have_tx) ++snapshot_.spi_startup;
-        else if(valid) { ++snapshot_.spi_ok; snapshot_.ack_left=last_left; snapshot_.ack_right=last_right; }
+        else if(valid) {
+            ++snapshot_.spi_ok;
+            if(snapshot_.ack_left!=last_left || snapshot_.ack_right!=last_right) {
+                snapshot_.ack_edge_us=ack_us;
+                snapshot_.drive_to_ack_us=last_intent_us
+                    ? uint32_t(std::min<uint64_t>(ack_us-last_intent_us,UINT32_MAX)) : 0;
+            }
+            snapshot_.ack_left=last_left;snapshot_.ack_right=last_right;
+        }
         else {
             ++snapshot_.spi_errors;
             if(result!=ESP_OK) ++snapshot_.spi_io_errors;
@@ -173,6 +189,7 @@ void Runtime::control_loop() {
         }
         portEXIT_CRITICAL(&mux_);
         last_tx=seq;last_left=state.left;last_right=state.right;have_tx=true;
+        last_intent_us=state.mode==simple::Mode::Manual && (state.left || state.right) ? intent_us : 0;
     }
 }
 void Runtime::uart_loop() {

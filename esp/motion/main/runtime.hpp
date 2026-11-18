@@ -13,6 +13,8 @@ struct Snapshot {
     simple::BrainState brain{};
     simple::SpiStatus fpga{};
     int16_t ack_left{},ack_right{};
+    uint64_t ack_edge_us{};
+    uint32_t drive_to_ack_us{};
     bool brain_connected{};
     bool maintenance{},driver_gpio{};
     simple::StartupConfig startup{};

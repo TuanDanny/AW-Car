@@ -94,13 +94,16 @@ esp_err_t status(httpd_req_t* request) {
     if(result==ESP_OK) ++status_replies;
     return result;
 }
-esp_err_t probe_status(httpd_req_t* request) {
+esp_err_t probe_status(httpd_req_t* request,int sent_ms) {
     const auto s=Runtime::get().snapshot();
-    char reply[188]{};
+    const auto ack_age_us=s.ack_edge_us ? uint64_t(esp_timer_get_time())-s.ack_edge_us : 0;
+    char reply[256]{};
     std::snprintf(reply,sizeof(reply),
-        "{\"t\":\"probe_status\",\"generation\":%lu,\"seq\":%u,\"spi_ok\":%lu,\"left\":%d,\"right\":%d,\"connected\":%s}",
+        "{\"t\":\"probe_status\",\"generation\":%lu,\"seq\":%u,\"spi_ok\":%lu,\"left\":%d,\"right\":%d,\"connected\":%s,"
+        "\"sent_ms\":%d,\"board_us\":%lu,\"ack_age_us\":%llu}",
         static_cast<unsigned long>(s.car.generation),unsigned(s.car.applied_seq),static_cast<unsigned long>(s.spi_ok),
-        int(s.ack_left),int(s.ack_right),s.car.fpga_link && !s.maintenance ? "true" : "false");
+        int(s.ack_left),int(s.ack_right),s.car.fpga_link && !s.maintenance ? "true" : "false",
+        sent_ms,static_cast<unsigned long>(s.drive_to_ack_us),static_cast<unsigned long long>(ack_age_us));
     return send_text(request,reply);
 }
 const char* string(cJSON* object,const char* key) {
@@ -115,7 +118,11 @@ esp_err_t message(httpd_req_t* request,cJSON* json) {
     const char* type=string(json,"t");if(!type) return result(request,false,"invalid_type");
     auto& runtime=Runtime::get();
     if(std::strcmp(type,"status")==0) { ++status_requests; return status(request); }
-    if(std::strcmp(type,"probe_status")==0) return probe_status(request);
+    if(std::strcmp(type,"probe_status")==0) {
+        int sent_ms=-1;
+        integer(json,"sent_ms",0,INT32_MAX,sent_ms);
+        return probe_status(request,sent_ms);
+    }
     if(std::strcmp(type,"latency")==0) {
         const auto* action=string(json,"action");int dispatch=0,confirm=0;
         if(!action || (std::strcmp(action,"forward") && std::strcmp(action,"backward") && std::strcmp(action,"left") && std::strcmp(action,"right")) ||

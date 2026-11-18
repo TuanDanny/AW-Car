@@ -218,6 +218,7 @@
       <h2 id="latency-title">Đo bấm → FPGA xác nhận</h2>
       <p class="sub">Giữ VM ngắt. Mỗi nút giữ 0,5–1 giây, nhả giữa các lần. Đo ACK qua WebSocket.</p>
       <pre id="latency-readout" style="white-space:pre-wrap;font-size:12px;line-height:1.7"></pre>
+      <p id="latency-segments" class="sub"></p>
     </section>
     <p id="notice" class="notice" role="status" aria-live="polite"></p>
     <section id="telemetry" class="panel telemetry" data-fresh="false" aria-labelledby="telemetry-title">
@@ -301,6 +302,10 @@
           return latencyActions[action][0] + ' · ' + (row?.count ?? 0) + ' · ' + (row
             ? (row.dispatch_us / 1000).toFixed(2) + ' / ' + (row.confirm_us / 1000).toFixed(2) : '—');
         }).join('\n') + '\nLượt chưa xác nhận/hủy: ' + incomplete);
+        const last = Object.values(latencyRows).reduce((latest, row) => !latest || row.at > latest.at ? row : latest, null);
+        const ms = (value) => Number.isFinite(value) ? value.toFixed(1) + ' ms' : '—';
+        setText('latency-segments', last ? latencyActions[last.action][0] + ' · Motion nhận → FPGA ACK ' + ms(last.boardMs)
+          + ' · RTT gói kiểm tra ' + ms(last.rttMs) + ' · Tuổi ACK khi Motion trả lời ' + ms(last.ackAgeMs) : '');
       }
       function cancelProbe() {
         if (!probe) return;
@@ -331,7 +336,7 @@
         sample.timer = setTimeout(() => {
           if (probe !== sample || sample.attempts >= 6) return;
           ++sample.attempts;
-          if (open() && socket.bufferedAmount === 0) send({ t: 'probe_status' });
+          if (open() && socket.bufferedAmount === 0) send({ t: 'probe_status', sent_ms: Math.floor(performance.now()) });
           scheduleProbe(sample, 25);
         }, delay);
       }
@@ -348,7 +353,10 @@
           confirm_us: Math.round((now - sample.start) * 1000) };
         clearTimeout(sample.timer);
         probe = null;
-        latencyRows[result.action] = { ...result, count: (latencyRows[result.action]?.count ?? 0) + 1 };
+        latencyRows[result.action] = { ...result, at: now, count: (latencyRows[result.action]?.count ?? 0) + 1,
+          boardMs: data.board_us > 0 ? data.board_us / 1000 : NaN,
+          rttMs: data.sent_ms >= sample.sent - 1 ? now - data.sent_ms : NaN,
+          ackAgeMs: Number.isFinite(data.ack_age_us) ? data.ack_age_us / 1000 : NaN };
         renderLatency();
         if (open() && socket.bufferedAmount === 0) send(result);
       }

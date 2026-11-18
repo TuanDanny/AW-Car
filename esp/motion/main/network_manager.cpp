@@ -157,6 +157,7 @@ void start_network() {
     changes=xQueueCreate(1,sizeof(Credentials));configASSERT(changes);
     ESP_ERROR_CHECK(esp_wifi_set_storage(WIFI_STORAGE_RAM));
     ESP_ERROR_CHECK(esp_wifi_set_mode(WIFI_MODE_APSTA));ESP_ERROR_CHECK(esp_wifi_set_config(WIFI_IF_AP,&ap));
+    ESP_ERROR_CHECK(esp_wifi_set_ps(WIFI_PS_NONE)); // Motion prioritizes command latency over radio sleep.
     ESP_ERROR_CHECK(esp_wifi_start());
     configASSERT(xTaskCreate(run,"motion_sta",6144,nullptr,3,&worker)==pdPASS);
 }

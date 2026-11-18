@@ -95,6 +95,7 @@ class Native:
             s = self.state()
             return {"t": "probe_status", "generation": s["generation"], "seq": self.spi_seq,
                     "spi_ok": self.spi_seq, "left": s["left"], "right": s["right"],
+                    "sent_ms": obj.get("sent_ms", -1),
                     "connected": s["fpga_connected"] and not s["maintenance"]}
         if kind == "latency":
             ok = obj.get('action') in ACTION and type(obj.get('dispatch_us')) is int and type(obj.get('confirm_us')) is int and 0 <= obj['dispatch_us'] <= obj['confirm_us'] <= 2000000

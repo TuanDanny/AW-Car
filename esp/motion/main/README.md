@@ -37,6 +37,10 @@ Bảng `/#latency` dùng trực tiếp STATUS của trang và cùng kết nối 
 Khi đo, trình duyệt yêu cầu xác nhận gọn sau 15 ms và lặp mỗi 25 ms tối đa
 sáu lần, rồi dùng STATUS thường nếu cần. Motion đối chiếu ACK từ giao dịch
 SPI trước đó với duty thật đã gửi. Khung STATUS thường vẫn chạy ở 10 Hz.
+Bảng đo hiển thị thời gian Motion nhận lệnh đến ACK, RTT của gói kiểm tra
+và tuổi ACK tại lúc trả lời nếu mẫu đến qua gói đo gọn.
+Motion dùng `WIFI_PS_NONE` để ưu tiên độ trễ, với chi phí tăng tiêu thụ điện.
+Xem [Wi-Fi modem sleep của Espressif](https://docs.espressif.com/projects/esp-idf/en/stable/esp32s3/api-guides/wifi-driver/wifi-performance-and-power-save.html).
 `awcarctl.py info motion` có địa chỉ MPU và bộ đếm mở/đóng, nhận/gửi STATUS,
 lỗi gửi/nhận WebSocket. Sau khi quá hạn hoặc ngắt bất thường, trang xóa thao
 tác giữ và cho kết nối lại. Khi trang khác tiếp quản, tab cũ chờ người dùng.
