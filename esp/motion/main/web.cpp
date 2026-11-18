@@ -23,6 +23,8 @@ namespace motion {
 namespace {
 httpd_handle_t server{};
 int owner=-1; // Only the HTTP server task reads/writes this descriptor.
+std::atomic<TaskHandle_t> probe_task{};
+uint32_t armed_web_probe{},armed_web_generation{};
 std::atomic<uint32_t> opened{},closed{},send_errors{},recv_errors{},status_requests{},status_replies{};
 using Json=std::unique_ptr<cJSON,decltype(&cJSON_Delete)>;
 esp_err_t send_text(httpd_req_t* request,const char* text) {
@@ -106,6 +108,29 @@ esp_err_t probe_status(httpd_req_t* request,int sent_ms) {
         sent_ms,static_cast<unsigned long>(s.drive_to_ack_us),static_cast<unsigned long long>(ack_age_us));
     return send_text(request,reply);
 }
+void send_probe_ack(void*) {
+    if(owner<0 || !armed_web_probe) return;
+    const auto s=Runtime::get().snapshot();
+    if(s.probe_ack_token!=armed_web_probe || s.probe_ack_generation!=armed_web_generation ||
+       s.car.generation!=armed_web_generation || s.maintenance) return;
+    armed_web_probe=0;
+    char reply[160]{};
+    const int length=std::snprintf(reply,sizeof(reply),
+        "{\"t\":\"probe_ack\",\"token\":%lu,\"generation\":%lu,\"board_us\":%lu,\"ack_age_us\":%llu}",
+        static_cast<unsigned long>(s.probe_ack_token),static_cast<unsigned long>(s.probe_ack_generation),
+        static_cast<unsigned long>(s.probe_ack_delay_us),
+        static_cast<unsigned long long>(uint64_t(esp_timer_get_time())-s.probe_ack_us));
+    if(length<=0 || size_t(length)>=sizeof(reply)) return;
+    httpd_ws_frame_t frame{};
+    frame.type=HTTPD_WS_TYPE_TEXT;frame.payload=reinterpret_cast<uint8_t*>(reply);frame.len=size_t(length);
+    if(httpd_ws_send_frame_async(server,owner,&frame)!=ESP_OK) ++send_errors;
+}
+void probe_worker(void*) {
+    for(;;) {
+        ulTaskNotifyTake(pdTRUE,portMAX_DELAY);
+        httpd_queue_work(server,send_probe_ack,nullptr);
+    }
+}
 const char* string(cJSON* object,const char* key) {
     const auto* p=cJSON_GetObjectItemCaseSensitive(object,key);return cJSON_IsString(p)?p->valuestring:nullptr;
 }
@@ -131,9 +156,9 @@ esp_err_t message(httpd_req_t* request,cJSON* json) {
         ESP_LOGI("latency_probe","action=%s dispatch_us=%d confirm_us=%d scope=phone_to_spi_ack",action,dispatch,confirm);
         return result(request,true,"received");
     }
-    if(std::strcmp(type,"stop")==0) { runtime.stop();return result(request,true,"received"); }
+    if(std::strcmp(type,"stop")==0) { armed_web_probe=0;runtime.stop();return result(request,true,"received"); }
     if(runtime.snapshot().maintenance) return result(request,false,"maintenance");
-    if(std::strcmp(type,"neutral")==0) { runtime.drive(simple::Action::Neutral,0);return result(request,true,"received"); }
+    if(std::strcmp(type,"neutral")==0) { armed_web_probe=0;runtime.drive(simple::Action::Neutral,0);return result(request,true,"received"); }
     if(std::strcmp(type,"mode")==0) {
         const auto* mode=string(json,"mode");if(!mode || (std::strcmp(mode,"manual") && std::strcmp(mode,"ai"))) return result(request,false,"invalid_mode");
         runtime.mode(std::strcmp(mode,"ai")==0?simple::Mode::Ai:simple::Mode::Manual);return result(request,true,"received");
@@ -146,7 +171,12 @@ esp_err_t message(httpd_req_t* request,cJSON* json) {
         const auto s=runtime.snapshot();
         if(s.car.mode!=simple::Mode::Manual) return result(request,false,"manual_only");
         if(!s.car.fpga_link) return result(request,false,"fpga_unavailable");
-        runtime.drive(action,uint8_t(speed));return result(request,true,"received");
+        int token=0;
+        if(speed>0 && integer(json,"probe",1,INT32_MAX,token)) {
+            armed_web_probe=uint32_t(token);
+            armed_web_generation=s.car.generation;
+        }
+        runtime.drive(action,uint8_t(speed),uint32_t(token));return result(request,true,"received");
     }
     if(std::strcmp(type,"listen")==0) {
         const auto* enabled=cJSON_GetObjectItemCaseSensitive(json,"enabled");
@@ -167,7 +197,7 @@ esp_err_t message(httpd_req_t* request,cJSON* json) {
     return result(request,false,"unknown_command");
 }
 void close_socket(httpd_handle_t,int fd) {
-    if(fd==owner) { owner=-1;Runtime::get().disconnect();++closed;ESP_LOGI("simple_web","peer_closed fd=%d",fd); }
+    if(fd==owner) { owner=-1;armed_web_probe=0;Runtime::get().disconnect();++closed;ESP_LOGI("simple_web","peer_closed fd=%d",fd); }
     close(fd);
 }
 esp_err_t pre_handshake(httpd_req_t* request) {
@@ -185,6 +215,7 @@ esp_err_t pre_handshake(httpd_req_t* request) {
 }
 esp_err_t post_handshake(httpd_req_t* request) {
     const int fd=httpd_req_to_sockfd(request),previous=owner;owner=fd;
+    armed_web_probe=0;
     Runtime::get().stop(simple::Reason::Takeover);++opened;
     const int one=1;const auto rc=setsockopt(fd,IPPROTO_TCP,TCP_NODELAY,&one,sizeof(one));
     if(rc!=0) ESP_LOGW("simple_web","TCP_NODELAY failed fd=%d errno=%d",fd,errno);
@@ -232,6 +263,9 @@ esp_err_t index(httpd_req_t* request) {
 WebDiagnostics web_diagnostics() {
     return {opened.load(),closed.load(),status_requests.load(),status_replies.load(),send_errors.load(),recv_errors.load()};
 }
+void notify_web_probe() {
+    if(const auto task=probe_task.load()) xTaskNotifyGive(task);
+}
 void start_web() {
     httpd_config_t config=HTTPD_DEFAULT_CONFIG();config.task_priority=4;config.core_id=0;config.stack_size=12288;
     config.max_open_sockets=4;config.lru_purge_enable=false;config.recv_wait_timeout=2;config.send_wait_timeout=1;
@@ -242,5 +276,9 @@ void start_web() {
     httpd_uri_t ws{};ws.uri="/ws";ws.method=HTTP_GET;ws.handler=ws_handler;ws.is_websocket=true;
     ws.handle_ws_control_frames=true;ws.ws_pre_handshake_cb=pre_handshake;ws.ws_post_handshake_cb=post_handshake;
     ESP_ERROR_CHECK(httpd_register_uri_handler(server,&ws));
+    TaskHandle_t worker{};
+    if(xTaskCreatePinnedToCore(probe_worker,"web_probe",3072,nullptr,3,&worker,0)!=pdPASS)
+        ESP_LOGW("simple_web","ACK push task unavailable");
+    else probe_task.store(worker);
 }
 } // namespace motion

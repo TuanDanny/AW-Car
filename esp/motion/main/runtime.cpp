@@ -59,8 +59,13 @@ void Runtime::mode(simple::Mode mode) {
 void Runtime::disconnect() {
     portENTER_CRITICAL(&mux_);pending_.disconnected=true;portEXIT_CRITICAL(&mux_);wake();
 }
-void Runtime::drive(simple::Action action,uint8_t speed) {
-    portENTER_CRITICAL(&mux_);pending_.source=Source::Manual;pending_.action=action;pending_.speed=speed;pending_.command_us=us();portEXIT_CRITICAL(&mux_);wake();
+void Runtime::drive(simple::Action action,uint8_t speed,uint32_t probe_token) {
+    portENTER_CRITICAL(&mux_);
+    const bool retain=!probe_token && pending_.probe_token && pending_.source==Source::Manual &&
+        pending_.action==action && pending_.speed==speed;
+    if(!retain) { pending_.probe_token=probe_token;pending_.command_us=us(); }
+    pending_.source=Source::Manual;pending_.action=action;pending_.speed=speed;
+    portEXIT_CRITICAL(&mux_);wake();
 }
 bool Runtime::listen(bool enabled) {
     simple::Frame f{simple::Type::Listen,0,1,{}};f.payload[0]=enabled?1:0;return xQueueSend(uart_out_,&f,0)==pdTRUE;
@@ -111,6 +116,8 @@ void Runtime::control_loop() {
     uint16_t seq=0,last_tx=0;bool have_tx=false;simple::SpiStatus fpga{};
     int16_t last_left=0,last_right=0;
     uint64_t intent_us=0,last_intent_us=0;
+    uint32_t armed_probe=0,armed_generation=0,last_probe=0,last_probe_generation=0;
+    uint64_t probe_received_us=0,last_probe_received_us=0;
     bool previous_zero=false;unsigned zero_acks=0;
     for(;;) {
         ulTaskNotifyTake(pdTRUE,pdMS_TO_TICKS(5));
@@ -132,8 +139,15 @@ void Runtime::control_loop() {
             if(inputs.source==Source::Manual) {
                 const auto before=core_.state();
                 rejected=!core_.manual(inputs.action,inputs.speed,now);
-                if(!rejected && (before.action!=inputs.action || before.speed!=inputs.speed))
-                    intent_us=inputs.command_us;
+                if(!rejected) {
+                    const bool changed=before.action!=inputs.action || before.speed!=inputs.speed;
+                    if(changed || inputs.probe_token) armed_probe=inputs.probe_token;
+                    if(changed) intent_us=inputs.command_us;
+                    if(inputs.probe_token) {
+                        armed_generation=core_.state().generation;
+                        probe_received_us=inputs.command_us;
+                    }
+                }
             } else if(inputs.source==Source::Ai) {
                 rejected=!core_.ai(inputs.ai,now);
             }
@@ -152,6 +166,10 @@ void Runtime::control_loop() {
         const bool valid=frame_valid && have_tx && received.applied_seq==last_tx;
         const uint64_t ack_us=valid ? us() : 0;
         if(valid) { fpga=received;core_.fpga(received,ack_us/1000); }
+        if(state.generation!=armed_generation || state.mode!=simple::Mode::Manual ||
+           state.action==simple::Action::Neutral) armed_probe=0;
+        const bool ack_probe=valid && last_probe && last_probe==armed_probe &&
+            last_probe_generation==state.generation;
         // A response acknowledges the PREVIOUS transfer. Two zero ACKs plus
         // measured GPIO10 LOW are required before the OTA task may touch flash.
         if(requested && valid && previous_zero && !state.left && !state.right) ++zero_acks;
@@ -181,6 +199,13 @@ void Runtime::control_loop() {
             else ++snapshot_.spi_ack_errors;
         }
         if(rejected) ++snapshot_.rejected;
+        if(ack_probe) {
+            snapshot_.probe_ack_token=last_probe;
+            snapshot_.probe_ack_generation=last_probe_generation;
+            snapshot_.probe_ack_us=ack_us;
+            snapshot_.probe_ack_delay_us=uint32_t(std::min<uint64_t>(ack_us-last_probe_received_us,UINT32_MAX));
+            armed_probe=0;
+        }
         const auto input_time=inputs.stop?inputs.stop_us:inputs.command_us;
         if(input_time && !rejected && started>=input_time) {
             const auto delay=uint32_t(std::min<uint64_t>(started-input_time,UINT32_MAX));
@@ -188,8 +213,11 @@ void Runtime::control_loop() {
             snapshot_.latency_max_us=std::max(snapshot_.latency_max_us,delay);
         }
         portEXIT_CRITICAL(&mux_);
+        if(ack_probe) notify_web_probe();
         last_tx=seq;last_left=state.left;last_right=state.right;have_tx=true;
         last_intent_us=state.mode==simple::Mode::Manual && (state.left || state.right) ? intent_us : 0;
+        last_probe=(state.left || state.right) ? armed_probe : 0;
+        last_probe_generation=state.generation;last_probe_received_us=probe_received_us;
     }
 }
 void Runtime::uart_loop() {

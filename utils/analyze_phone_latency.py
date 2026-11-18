@@ -31,8 +31,6 @@ def summarize(text,minimum=10):
             'physical_pwm_measured':False,'motor_motion_measured':False}
     if fpga_ack:
         report['scope']='Real phone PointerEvent timestamp to send and matching applied FPGA sequence via WebSocket; not physical PWM edge'
-        report['fast_probe_first_ms']=15
-        report['fast_probe_repeat_ms']=25
     enough=all(len(samples[a])>=minimum for a in ACTIONS);within=True
     for action,values in samples.items():
         send=distribution([x[0] for x in values]);confirm=distribution([x[1] for x in values])

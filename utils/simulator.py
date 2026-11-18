@@ -157,12 +157,21 @@ async def websocket(request):
             if native.owner is not ws:
                 break
             if message.type == WSMsgType.TEXT:
+                obj = None
                 try:
                     obj = json.loads(message.data)
                     reply = native.command(obj) if isinstance(obj, dict) else {"t": "result", "ok": False, "reason": "invalid_json"}
                 except (ValueError, TypeError):
                     reply = {"t": "result", "ok": False, "reason": "invalid_json"}
                 await ws.send_json(reply)
+                if isinstance(obj, dict) and obj.get("t") == "drive" and reply.get("ok") and obj.get("probe"):
+                    generation = native.state()["generation"]
+                    await asyncio.sleep(.015)
+                    state = native.state()
+                    if (native.owner is ws and not ws.closed and state["generation"] == generation and
+                            state["action"] == obj["action"] and (state["left"] or state["right"])):
+                        await ws.send_json({"t": "probe_ack", "token": obj["probe"], "generation": generation,
+                                            "board_us": 15000, "ack_age_us": 0})
     finally:
         if native.owner is ws:
             native.owner = None

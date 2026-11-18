@@ -294,7 +294,7 @@
         forward: ['Tiến', 1, 1], backward: ['Lùi', -1, -1], left: ['Trái', -1, 1], right: ['Phải', 1, -1]
       };
       const latencyRows = Object.create(null);
-      let probing = false, probe = null, incomplete = 0;
+      let probing = false, probe = null, incomplete = 0, probeToken = 0;
 
       function renderLatency() {
         setText('latency-readout', 'Hướng · N · bấm→gửi / bấm→FPGA ACK (ms)\n' + Object.keys(latencyActions).map(action => {
@@ -304,7 +304,8 @@
         }).join('\n') + '\nLượt chưa xác nhận/hủy: ' + incomplete);
         const last = Object.values(latencyRows).reduce((latest, row) => !latest || row.at > latest.at ? row : latest, null);
         const ms = (value) => Number.isFinite(value) ? value.toFixed(1) + ' ms' : '—';
-        setText('latency-segments', last ? latencyActions[last.action][0] + ' · Motion nhận → FPGA ACK ' + ms(last.boardMs)
+        setText('latency-segments', last ? latencyActions[last.action][0] + (last.pushed ? ' · ACK chủ động' : ' · ACK dự phòng')
+          + ' · Motion nhận → FPGA ACK ' + ms(last.boardMs)
           + ' · RTT gói kiểm tra ' + ms(last.rttMs) + ' · Tuổi ACK khi Motion trả lời ' + ms(last.ackAgeMs) : '');
       }
       function cancelProbe() {
@@ -329,16 +330,14 @@
         const start = event.timeStamp, now = performance.now();
         const duty = Math.round(Number($('speed').value) * 1350 / 100);
         if (!duty || !Number.isFinite(start) || start > now || now - start > 1000) return;
-        probe = { action, start, sent: null, timer: null, attempts: 0, generation: status.generation, seq: status.fpga.applied_seq,
+        probe = { action, start, sent: null, timer: null, token: ++probeToken, generation: status.generation, seq: status.fpga.applied_seq,
           spi: status.diag?.spi_ok ?? 0, left: duty * axes[1], right: duty * axes[2] };
       }
-      function scheduleProbe(sample, delay) {
+      function scheduleProbe(sample) {
         sample.timer = setTimeout(() => {
-          if (probe !== sample || sample.attempts >= 6) return;
-          ++sample.attempts;
+          if (probe !== sample) return;
           if (open() && socket.bufferedAmount === 0) send({ t: 'probe_status', sent_ms: Math.floor(performance.now()) });
-          scheduleProbe(sample, 25);
-        }, delay);
+        }, 100);
       }
       function observeProbe(data, now) {
         const sample = probe;
@@ -349,11 +348,14 @@
         }
         if (sample.sent === null || !data.connected || data.seq === sample.seq || data.spi_ok <= sample.spi ||
             data.left !== sample.left || data.right !== sample.right) return;
+        completeProbe(sample, data, now, false);
+      }
+      function completeProbe(sample, data, now, pushed) {
         const result = { t: 'latency', action: sample.action, dispatch_us: Math.round((sample.sent - sample.start) * 1000),
           confirm_us: Math.round((now - sample.start) * 1000) };
         clearTimeout(sample.timer);
         probe = null;
-        latencyRows[result.action] = { ...result, at: now, count: (latencyRows[result.action]?.count ?? 0) + 1,
+        latencyRows[result.action] = { ...result, at: now, pushed, count: (latencyRows[result.action]?.count ?? 0) + 1,
           boardMs: data.board_us > 0 ? data.board_us / 1000 : NaN,
           rttMs: data.sent_ms >= sample.sent - 1 ? now - data.sent_ms : NaN,
           ackAgeMs: Number.isFinite(data.ack_age_us) ? data.ack_age_us / 1000 : NaN };
@@ -371,9 +373,12 @@
         if (!open()) return false;
         try {
           const first = probe?.sent === null && message.t === 'drive' && message.action === probe.action;
-          if (first) probe.sent = performance.now();
+          if (first) {
+            probe.sent = performance.now();
+            message.probe = probe.token;
+          }
           socket.send(JSON.stringify(message));
-          if (first) scheduleProbe(probe, 15);
+          if (first) scheduleProbe(probe);
           return true;
         }
         catch { return false; }
@@ -617,6 +622,8 @@
           if (!data || typeof data !== 'object') return;
           if (data.t === 'status') onStatus(data);
           else if (data.t === 'probe_status') observeProbe(data, performance.now());
+          else if (data.t === 'probe_ack' && probe?.token === data.token && probe.generation === data.generation &&
+                   probe.sent !== null) completeProbe(probe, data, performance.now(), true);
           else if (data.t === 'result') {
             if (data.ok === false) {
               clearHeld(false); awaitingMode = null; controls();

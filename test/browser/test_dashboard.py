@@ -785,6 +785,19 @@ class DashboardTests(unittest.TestCase):
         self.page.mouse.up()
         self.wait_zero()
 
+    def test_34_probe_ack_arrives_without_periodic_status(self):
+        self.page.evaluate("location.hash = '#latency'")
+        self.page.wait_for_selector('#latency-readout')
+        self.page.locator('#forward').scroll_into_view_if_needed()
+        self.mute_status = True
+        self.pointer_down()
+        self.wait(lambda: 'ACK chủ động' in self.page.locator('#latency-segments').inner_text())
+        self.assertIn('Tiến · 1', self.page.locator('#latency-readout').inner_text())
+        self.assertFalse(self.probe.commands('probe_status'))
+        self.page.mouse.up()
+        self.mute_status = False
+        self.wait_zero()
+
     def test_18_maintenance_clears_held_and_never_replays(self):
         self.page.locator('#forward').hover()
         self.page.mouse.down()

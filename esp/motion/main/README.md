@@ -34,9 +34,9 @@ Driver nhận MPU6050 (mã 0x68) và MPU6515 (mã 0x74) theo
 Log quản trị có `mpu_id` và `az` (gia tốc trục Z, mg) để kiểm tra mà không cần USB.
 Địa chỉ I²C phụ thuộc AD0, độc lập với mã WHO_AM_I.
 Bảng `/#latency` dùng trực tiếp STATUS của trang và cùng kết nối WebSocket.
-Khi đo, trình duyệt yêu cầu xác nhận gọn sau 15 ms và lặp mỗi 25 ms tối đa
-sáu lần, rồi dùng STATUS thường nếu cần. Motion đối chiếu ACK từ giao dịch
-SPI trước đó với duty thật đã gửi. Khung STATUS thường vẫn chạy ở 10 Hz.
+Khi đo, trình duyệt gắn mã vào lệnh đầu. Motion đối chiếu ACK từ giao dịch
+SPI trước đó với lệnh đã đánh dấu, rồi báo task Web gửi ACK chủ động qua
+`httpd_queue_work`. Gói kiểm tra sau 100 ms và STATUS 10 Hz là đường dự phòng.
 Bảng đo hiển thị thời gian Motion nhận lệnh đến ACK, RTT của gói kiểm tra
 và tuổi ACK tại lúc trả lời nếu mẫu đến qua gói đo gọn.
 Motion dùng `WIFI_PS_NONE` để ưu tiên độ trễ, với chi phí tăng tiêu thụ điện.

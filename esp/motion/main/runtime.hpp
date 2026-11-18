@@ -15,6 +15,8 @@ struct Snapshot {
     int16_t ack_left{},ack_right{};
     uint64_t ack_edge_us{};
     uint32_t drive_to_ack_us{};
+    uint32_t probe_ack_token{},probe_ack_generation{},probe_ack_delay_us{};
+    uint64_t probe_ack_us{};
     bool brain_connected{};
     bool maintenance{},driver_gpio{};
     simple::StartupConfig startup{};
@@ -30,7 +32,7 @@ public:
     void stop(simple::Reason reason=simple::Reason::Stop);
     void mode(simple::Mode mode);
     void disconnect();
-    void drive(simple::Action action,uint8_t speed);
+    void drive(simple::Action action,uint8_t speed,uint32_t probe_token=0);
     bool listen(bool enabled);
     bool wifi(const char* ssid,size_t ssid_len,const char* password,size_t password_len);
     Snapshot snapshot();
@@ -50,6 +52,7 @@ private:
         simple::AiMove ai{};
         simple::BrainState brain_state{};
         uint64_t brain_at{},command_us{},stop_us{};
+        uint32_t probe_token{};
     };
     void accept(const simple::Frame& frame);
     void control_loop();
@@ -70,6 +73,7 @@ private:
     std::atomic<uint32_t> control_at_{0};
 };
 void start_web();
+void notify_web_probe();
 struct WebDiagnostics {
     uint32_t opened, closed, status_requests, status_replies, send_errors, recv_errors;
 };
