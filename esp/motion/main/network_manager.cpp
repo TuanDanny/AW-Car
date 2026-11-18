@@ -1,6 +1,7 @@
 #include "network_manager.hpp"
 #include "laser_diag.hpp"
 #include "runtime.hpp"
+#include "sensor_telemetry.hpp"
 #include "management.hpp"
 #include <cstdio>
 #include "simple/network_policy.hpp"
@@ -31,14 +32,26 @@ constexpr const char* tag="motion_network";
 void describe_motion(char* out,size_t size) {
     const auto s=Runtime::get().snapshot();
     const auto tof=laser_reading();
+    const auto mpu=mpu_diagnostic();
     char distance[6]="null";
+    char accel_z[6]="null";
     if(tof.status==0) std::snprintf(distance,sizeof(distance),"%u",unsigned(tof.mm));
-    std::snprintf(out,size,"{\"mode\":\"%s\",\"left\":%d,\"right\":%d,\"generation\":%lu,\"reason\":\"%s\",\"fpga\":%d,\"maintenance\":%d,\"driver_gpio\":%d,\"uart_errors\":%lu,\"spi_errors\":%lu,"
-        "\"tof_mm\":%s,\"tof_ack\":%d,\"tof_status\":%d}",
+    if(mpu.fresh) std::snprintf(accel_z,sizeof(accel_z),"%d",mpu.accel_z_mg);
+    const int length=std::snprintf(out,size,"{\"mode\":\"%s\",\"left\":%d,\"right\":%d,\"generation\":%lu,\"reason\":\"%s\",\"fpga\":%d,\"maintenance\":%d,\"driver_gpio\":%d,\"uart_errors\":%lu,\"spi_errors\":%lu,"
+        "\"tof_mm\":%s,\"tof_ack\":%d,\"tof_status\":%d,\"mpu_id\":%d,\"az\":%s}",
         s.car.mode==simple::Mode::Manual?"manual":"ai",s.car.left,s.car.right,
         static_cast<unsigned long>(s.car.generation),simple::reason_name(s.car.reason),s.car.fpga_link,s.maintenance,s.driver_gpio,
         static_cast<unsigned long>(s.uart_errors),static_cast<unsigned long>(s.spi_errors),
-        distance,tof.ack,tof.status);
+        distance,tof.ack,tof.status,mpu.identity,accel_z);
+    if(size>256 && length>0 && size_t(length)<size) {
+        const auto web=web_diagnostics();
+        std::snprintf(out+length-1,size-length+1,
+            ",\"mpu_addr\":%d,\"ws\":{\"opened\":%lu,\"closed\":%lu,\"status_requests\":%lu,\"status_replies\":%lu,\"send_errors\":%lu,\"recv_errors\":%lu}}",
+            mpu.address,
+            static_cast<unsigned long>(web.opened),static_cast<unsigned long>(web.closed),
+            static_cast<unsigned long>(web.status_requests),static_cast<unsigned long>(web.status_replies),
+            static_cast<unsigned long>(web.send_errors),static_cast<unsigned long>(web.recv_errors));
+    }
 }
 uint64_t now_ms() { return esp_timer_get_time()/1000; }
 void disconnect() {

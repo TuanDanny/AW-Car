@@ -23,8 +23,19 @@ Driver dùng ST API qua [component ESP-IDF](https://github.com/nallyn1972/vl53l0
 
 Dashboard nhận telemetry trong khung STATUS 10 Hz có sẵn. Một tác vụ I²C
 chạy ở core 0, bên ngoài vòng điều khiển. VL53L0X vẫn đo từng lần theo bản
-gốc. MPU6050 địa chỉ 0x68 dùng chung SDA11/SCL12, đọc trong các nhịp 100 ms
+gốc. MPU dùng chung SDA11/SCL12, thử 0x68 trước rồi 0x69, đọc trong các nhịp 100 ms
 giữa những lần đo VL53L0X, với thang
 ±2 g và ±250 °/s. Hai TCRT5000 dùng DO trái GPIO8 và DO phải GPIO9, chỉ
 hiển thị mức logic cho đến khi xác nhận cực tính trên xe. Khi cảm biến
 không trả mẫu hoặc mẫu quá hạn, Web hiển thị trạng thái thay cho số cũ.
+
+Cùng bus và địa chỉ đó nhận MPU6050 (mã 0x68) và MPU6515 (mã 0x74) theo
+[bảng thanh ghi trong driver Linux](https://github.com/torvalds/linux/blob/master/drivers/iio/imu/inv_mpu6050/inv_mpu_core.c).
+Log quản trị có `mpu_id` và `az` (gia tốc trục Z, mg) để kiểm tra mà không cần USB.
+Địa chỉ I²C phụ thuộc AD0, độc lập với mã WHO_AM_I.
+Bảng `/#latency` dùng trực tiếp STATUS của trang và cùng kết nối WebSocket.
+`awcarctl.py info motion` có địa chỉ MPU và bộ đếm mở/đóng, nhận/gửi STATUS,
+lỗi gửi/nhận WebSocket. Sau khi quá hạn hoặc ngắt bất thường, trang xóa thao
+tác giữ và cho kết nối lại. Khi trang khác tiếp quản, tab cũ chờ người dùng.
+Tham khảo [WebSocket CloseEvent](https://developer.mozilla.org/en-US/docs/Web/API/CloseEvent/code)
+và [quản lý phiên HTTP của ESP-IDF](https://docs.espressif.com/projects/esp-idf/en/v6.0.2/esp32/api-reference/protocols/esp_http_server.html).

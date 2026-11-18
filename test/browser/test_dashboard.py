@@ -140,7 +140,8 @@ class DashboardTests(unittest.TestCase):
         if self._testMethodName not in ('test_19_brief_socket_backpressure_keeps_physical_hold',
                                        'test_20_sustained_backpressure_requires_a_fresh_press',
                                        'test_23_latency_observer_records_four_buttons',
-                                       'test_24_latency_observer_cancels_old_generation'):
+                                       'test_24_latency_observer_cancels_old_generation',
+                                       'test_32_latency_hash_uses_the_open_status_connection'):
             self.context.route_web_socket("**/ws", self.relay)
         self.sim_event({"event": "reset"})
         self.page, self.probe = self.new_page()
@@ -730,10 +731,11 @@ class DashboardTests(unittest.TestCase):
         self.pointer_down()
         self.wait(lambda: self.probe.latest.get('left') == 405)
         self.sim_event({'event': 'sensors', 'sensors': {
-            'tof_status': 0, 'tof_mm': 400, 'edge_do': [0, 1], 'mpu_status': 'ok',
+            'tof_status': 0, 'tof_mm': 400, 'edge_do': [0, 1], 'mpu_status': 'ok', 'mpu_who_am_i': 0x74,
             'accel_mg': [10, -20, 980], 'gyro_dps10': [15, 0, -25]}})
         self.wait(lambda: self.page.locator('#sensor-range').inner_text() == '400 mm')
         self.assertEqual(self.page.locator('#sensor-edge').inner_text(), 'Trái 0 · Phải 1')
+        self.assertIn('MPU6515', self.page.locator('#sensor-mpu-label').inner_text())
         self.assertIn('10 / -20 / 980 mg', self.page.locator('#sensor-accel').inner_text())
         self.assertIn('1,5 / 0 / -2,5 °/s', self.page.locator('#sensor-gyro').inner_text())
         self.sim_event({'event': 'sensors', 'sensors': {
@@ -747,6 +749,41 @@ class DashboardTests(unittest.TestCase):
         self.page.mouse.up()
         self.wait_zero()
         self.assertLessEqual(self.page.evaluate('document.documentElement.scrollWidth'), 390)
+
+    def test_32_latency_hash_uses_the_open_status_connection(self):
+        requests = []
+        sockets = []
+        self.page.on('request', lambda request: requests.append(request.url))
+        self.page.on('websocket', lambda socket: sockets.append(socket.url))
+        generation = self.probe.latest['generation']
+        self.page.evaluate("location.hash = '#latency'")
+        self.page.wait_for_selector('#latency-readout')
+        self.page.locator('#forward').scroll_into_view_if_needed()
+        self.pointer_down()
+        self.wait(lambda: len(self.probe.commands('latency')) == 1)
+        self.assertIn('Tiến · 1', self.page.locator('#latency-readout').inner_text())
+        self.page.mouse.up()
+        self.wait_zero()
+        self.page.evaluate("location.hash = ''")
+        self.page.wait_for_selector('#latency-panel', state='hidden')
+        self.assertEqual(self.probe.latest['generation'], generation)
+        self.assertFalse(sockets)
+        self.assertFalse(requests)
+
+    def test_33_socket_drop_reconnects_without_resuming_held_input(self):
+        self.pointer_down()
+        self.wait(lambda: self.sim_state()['left'] > 0)
+        marker = len(self.probe.sent)
+        self.relays[-1].close(code=1011, reason='simulated_drop')
+        self.wait(lambda: self.probe.socket_count == 2)
+        self.page.wait_for_selector('#telemetry[data-fresh="true"]')
+        self.wait_zero()
+        self.assert_no_drive(marker)
+        self.page.mouse.up()
+        self.pointer_down()
+        self.wait(lambda: self.sim_state()['left'] > 0)
+        self.page.mouse.up()
+        self.wait_zero()
 
     def test_18_maintenance_clears_held_and_never_replays(self):
         self.page.locator('#forward').hover()

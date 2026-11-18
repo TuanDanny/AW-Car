@@ -214,6 +214,11 @@
         </section>
       </div>
     </div>
+    <section id="latency-panel" class="panel telemetry" hidden aria-labelledby="latency-title">
+      <h2 id="latency-title">Đo bấm → STATUS xác nhận</h2>
+      <p class="sub">Giữ VM ngắt. Mỗi nút giữ 0,5–1 giây, nhả giữa các lần. Số đo gồm chu kỳ STATUS 100 ms.</p>
+      <pre id="latency-readout" style="white-space:pre-wrap;font-size:12px;line-height:1.7"></pre>
+    </section>
     <p id="notice" class="notice" role="status" aria-live="polite"></p>
     <section id="telemetry" class="panel telemetry" data-fresh="false" aria-labelledby="telemetry-title">
       <div class="telemetry-head"><div class="panel-head"><h2 id="telemetry-title">Phản hồi Motion</h2><span id="fpga-link" class="chip"><span class="dot"></span><span>FPGA —</span></span></div><span id="last-status" class="last-status">Chưa có STATUS</span></div>
@@ -244,7 +249,7 @@
           <div class="unit">Mức DO thô · chưa xác định mức báo mép</div>
         </div>
         <div class="metric">
-          <div class="label">Chuyển động · MPU6050</div>
+          <div id="sensor-mpu-label" class="label">Chuyển động · MPU</div>
           <div id="sensor-mpu-state" class="value">Chưa có dữ liệu</div>
           <div id="sensor-accel" class="unit">Gia tốc XYZ · —</div>
           <div id="sensor-gyro" class="unit">Tốc độ quay XYZ · —</div>
@@ -281,8 +286,62 @@
       const actionOrder = ['neutral', 'forward', 'backward', 'left', 'right', 'forward_left', 'forward_right', 'backward_left', 'backward_right', 'pivot_left', 'pivot_right'];
       let socket = null, status = null, fresh = false, received = false;
       let lastStatusAt = 0, staleEpisode = false, awaitingMode = null;
+      let reconnectTimer = null, reconnectDelay = 500, allowReconnect = true;
       let held = null, heldTimer = null;
       const keysDown = new Set();
+      const latencyActions = {
+        forward: ['Tiến', 1, 1], backward: ['Lùi', -1, -1], left: ['Trái', -1, 1], right: ['Phải', 1, -1]
+      };
+      const latencyRows = Object.create(null);
+      let probing = false, probe = null, incomplete = 0;
+
+      function renderLatency() {
+        setText('latency-readout', 'Hướng · N · bấm→gửi / bấm→STATUS (ms)\n' + Object.keys(latencyActions).map(action => {
+          const row = latencyRows[action];
+          return latencyActions[action][0] + ' · ' + (row?.count ?? 0) + ' · ' + (row
+            ? (row.dispatch_us / 1000).toFixed(2) + ' / ' + (row.confirm_us / 1000).toFixed(2) : '—');
+        }).join('\n') + '\nLượt chưa xác nhận/hủy: ' + incomplete);
+      }
+      function cancelProbe() {
+        if (!probe) return;
+        probe = null;
+        ++incomplete;
+        renderLatency();
+      }
+      function syncProbe() {
+        probing = location.hash === '#latency';
+        $('latency-panel').hidden = !probing;
+        if (!probing) cancelProbe();
+        else renderLatency();
+      }
+      function startProbe(event, action) {
+        if (!probing) return;
+        cancelProbe();
+        const axes = latencyActions[action];
+        if (!axes || !status?.fpga?.connected || status.left || status.right) return;
+        const start = event.timeStamp, now = performance.now();
+        const duty = Math.round(Number($('speed').value) * 1350 / 100);
+        if (!duty || !Number.isFinite(start) || start > now || now - start > 1000) return;
+        probe = { action, start, sent: null, generation: status.generation, seq: status.fpga.applied_seq,
+          spi: status.diag?.spi_ok ?? 0, left: duty * axes[1], right: duty * axes[2] };
+      }
+      function observeProbe(data, now) {
+        const sample = probe;
+        if (!sample) return;
+        if (now - sample.start > 2000 || data.generation !== sample.generation || data.mode !== 'manual' || data.maintenance) {
+          cancelProbe();
+          return;
+        }
+        if (sample.sent === null || !data.fpga?.connected || data.fpga.applied_seq === sample.seq ||
+            (data.diag?.spi_ok ?? 0) <= sample.spi || data.action !== sample.action || data.reason !== 'active' ||
+            data.left !== sample.left || data.right !== sample.right) return;
+        const result = { t: 'latency', action: sample.action, dispatch_us: Math.round((sample.sent - sample.start) * 1000),
+          confirm_us: Math.round((now - sample.start) * 1000) };
+        probe = null;
+        latencyRows[result.action] = { ...result, count: (latencyRows[result.action]?.count ?? 0) + 1 };
+        renderLatency();
+        if (open() && socket.bufferedAmount === 0) send(result);
+      }
 
       function notify(message, error = false) {
         if ($('notice').textContent === message && $('notice').dataset.error === String(error)) return;
@@ -292,7 +351,11 @@
       function open() { return socket && socket.readyState === WebSocket.OPEN; }
       function send(message) {
         if (!open()) return false;
-        try { socket.send(JSON.stringify(message)); return true; }
+        try {
+          if (probe?.sent === null && message.t === 'drive' && message.action === probe.action) probe.sent = performance.now();
+          socket.send(JSON.stringify(message));
+          return true;
+        }
         catch { return false; }
       }
       function editable(target) {
@@ -403,7 +466,12 @@
         const edge = sensors?.edge_do;
         setText('sensor-edge', edge ? 'Trái ' + level(edge[0]) + ' · Phải ' + level(edge[1]) : '—');
         const mpu = sensors?.mpu_status;
-        setText('sensor-mpu-state', mpuStates[mpu] || 'Chưa có dữ liệu');
+        const who = sensors?.mpu_who_am_i;
+        const address = sensors?.mpu_address;
+        const identity = Number.isInteger(who) ? ' · ID 0x' + who.toString(16).toUpperCase().padStart(2, '0') : '';
+        const busAddress = Number.isInteger(address) ? ' · I²C 0x' + address.toString(16).toUpperCase() : '';
+        setText('sensor-mpu-label', 'Chuyển động · ' + (who === 0x74 ? 'MPU6515' : who === 0x68 ? 'MPU6050' : 'MPU'));
+        setText('sensor-mpu-state', (mpuStates[mpu] || 'Chưa có dữ liệu') + identity + busAddress);
         setText('sensor-accel', 'Gia tốc XYZ · ' + (mpu === 'ok' && sensors.accel_mg
           ? sensors.accel_mg.map(number).join(' / ') + ' mg' : '—'));
         setText('sensor-gyro', 'Tốc độ quay XYZ · ' + (mpu === 'ok' && sensors.gyro_dps10
@@ -452,27 +520,52 @@
         if (data.mode !== 'manual' && data.mode !== 'ai') return;
         if (received && (data.maintenance || data.mode !== status.mode || data.generation !== status.generation)) clearHeld(false);
         status = data; received = true; fresh = true; staleEpisode = false; lastStatusAt = performance.now();
+        if (reconnectTimer !== null) { clearTimeout(reconnectTimer); reconnectTimer = null; }
+        reconnectDelay = 500;
+        if (probe) observeProbe(data, lastStatusAt);
         if (awaitingMode === data.mode) awaitingMode = null;
         render(data);
         chip('connection', 'Motion đã kết nối', 'good');
+        if (!$('reconnect').hidden) $('reconnect').hidden = true;
         $('connection-note').hidden = true;
         controls();
       }
       function stale() {
         if (staleEpisode) return;
         staleEpisode = true;
+        if (probe) cancelProbe();
         // One neutral per stale episode, only in Manual. Motion owns the 500 ms deadline.
         clearHeld(false);
         if (received && status?.mode === 'manual') send({ t: 'neutral' });
         fresh = false;
         unknownLinks();
         chip('connection', 'Chưa nhận STATUS mới', 'warn');
+        $('reconnect').hidden = false;
         $('connection-note').hidden = false;
-        $('connection-note').textContent = 'STATUS quá hạn. Đã xóa thao tác giữ; chưa xác nhận trạng thái xe.';
+        $('connection-note').textContent = 'STATUS quá hạn. Đã xóa thao tác giữ. Chọn Kết nối lại nếu trạng thái chưa cập nhật.';
         $('motion-state').textContent = 'Chưa có trạng thái mới';
         $('motion-detail').textContent = 'Không xác nhận xe đã dừng.';
         $('last-status').textContent = 'Dữ liệu cuối · đã quá hạn';
         controls();
+        scheduleReconnect(1600);
+      }
+      function scheduleReconnect(delay) {
+        if (!allowReconnect || document.hidden || reconnectTimer !== null) return;
+        reconnectTimer = setTimeout(() => {
+          reconnectTimer = null;
+          if (!fresh && allowReconnect && !document.hidden) {
+            reconnectDelay = Math.min(reconnectDelay * 2, 4000);
+            replaceSocket();
+          }
+        }, delay);
+      }
+      function replaceSocket() {
+        clearTimeout(reconnectTimer); reconnectTimer = null;
+        const previous = socket;
+        socket = null;
+        if (previous?.readyState === WebSocket.OPEN || previous?.readyState === WebSocket.CONNECTING)
+          previous.close(1000, 'reconnect');
+        connect();
       }
       function connect() {
         if (socket && (socket.readyState === WebSocket.OPEN || socket.readyState === WebSocket.CONNECTING)) return;
@@ -509,6 +602,7 @@
         });
         ws.addEventListener('close', (event) => {
           if (socket !== ws) return;
+          if (probe) cancelProbe();
           clearHeld(false); keysDown.clear(); fresh = false; awaitingMode = null;
           unknownLinks();
           chip('connection', 'Đã ngắt kết nối', 'bad');
@@ -519,6 +613,12 @@
           $('motion-detail').textContent = 'Đã xóa thao tác giữ trên trang.';
           $('last-status').textContent = status ? 'Dữ liệu cuối · đã ngắt' : 'Chưa có STATUS';
           controls();
+          if (event.reason === 'controller_replaced' || event.code === 1008) {
+            allowReconnect = false;
+            clearTimeout(reconnectTimer); reconnectTimer = null;
+          } else {
+            scheduleReconnect(reconnectDelay);
+          }
         });
         ws.addEventListener('error', () => {
           if (socket !== ws) return;
@@ -532,6 +632,7 @@
           event.preventDefault();
           button.focus({ preventScroll: true });
           button.setPointerCapture(event.pointerId);
+          startProbe(event, button.dataset.action);
           press('pointer:' + event.pointerId, button.dataset.action, button);
         });
         button.addEventListener('lostpointercapture', (event) => release('pointer:' + event.pointerId));
@@ -539,7 +640,7 @@
         button.addEventListener('click', (event) => event.preventDefault());
       });
       window.addEventListener('pointerup', (event) => release('pointer:' + event.pointerId));
-      window.addEventListener('pointercancel', () => clearHeld(true));
+      window.addEventListener('pointercancel', () => { clearHeld(true); if (probe) cancelProbe(); });
       $('primitives').addEventListener('toggle', () => {
         if (!$('primitives').open && held?.element.closest('#primitives')) clearHeld(true);
       });
@@ -558,10 +659,21 @@
         if (!keyActions[event.code]) return;
         keysDown.delete(event.code); release('key:' + event.code);
       });
-      window.addEventListener('blur', () => { clearHeld(true); keysDown.clear(); });
-      document.addEventListener('visibilitychange', () => { if (document.hidden) { clearHeld(true); keysDown.clear(); } });
+      window.addEventListener('blur', () => { clearHeld(true); keysDown.clear(); if (probe) cancelProbe(); });
+      document.addEventListener('visibilitychange', () => {
+        if (document.hidden) { clearHeld(true); keysDown.clear(); if (probe) cancelProbe(); }
+        else if (!fresh && !open()) scheduleReconnect(reconnectDelay);
+      });
       document.addEventListener('focusin', (event) => { if (editable(event.target)) clearHeld(true); });
-      window.addEventListener('pagehide', () => { clearHeld(true); keysDown.clear(); if (open()) socket.close(1000, 'page_exit'); });
+      window.addEventListener('pagehide', () => {
+        allowReconnect = false;
+        clearTimeout(reconnectTimer); reconnectTimer = null;
+        clearHeld(true); keysDown.clear();
+        if (open()) socket.close(1000, 'page_exit');
+      });
+      window.addEventListener('pageshow', (event) => {
+        if (event.persisted) { allowReconnect = true; replaceSocket(); }
+      });
       $('speed').addEventListener('input', () => {
         $('speed-value').replaceChildren(document.createTextNode($('speed').value), Object.assign(document.createElement('small'), { textContent: '%' }));
         sendHeld();
@@ -583,19 +695,19 @@
         const sent = send({ t: 'wifi', ssid, password });
         notify(sent ? 'Đã gửi cấu hình Wi-Fi tới hai board. Chờ kết quả kết nối.' : 'Chưa gửi được cấu hình Wi-Fi.', !sent);
       });
-      $('reconnect').addEventListener('click', connect);
+      $('reconnect').addEventListener('click', () => {
+        allowReconnect = true;
+        reconnectDelay = 500;
+        replaceSocket();
+      });
       setInterval(() => {
         if (!open()) return;
         if (socket.bufferedAmount === 0) send({ t: 'status' });
         if (performance.now() - lastStatusAt > 1000) stale();
       }, 100);
+      window.addEventListener('hashchange', syncProbe);
+      syncProbe();
       connect();
-      function loadLatencyObserver() {
-        if (location.hash !== '#latency' || $('latency-observer')) return;
-        const observer = document.createElement('script'); observer.id = 'latency-observer';
-        observer.src = '/latency.js'; document.head.appendChild(observer);
-      }
-      window.addEventListener('hashchange', loadLatencyObserver); loadLatencyObserver();
     })();
   </script>
 </body>

@@ -11,10 +11,14 @@ namespace {
 constexpr auto kEdgeLeft = GPIO_NUM_8;
 constexpr auto kEdgeRight = GPIO_NUM_9;
 constexpr uint8_t kMpuAddress = 0x68;
+constexpr uint8_t kMpu6050Identity = 0x68;
+constexpr uint8_t kMpu6515Identity = 0x74;
 constexpr int kI2cTimeoutMs = 15;
 
 struct MpuReading {
     const char* status = "initializing";
+    int who_am_i = -1;
+    int address{};
     int accel_mg[3]{};
     int gyro_dps10[3]{};
     int64_t sampled_us{};
@@ -23,9 +27,11 @@ struct MpuReading {
 bool edge_ready = false; // Set before starting the Web server.
 portMUX_TYPE mpu_mux = portMUX_INITIALIZER_UNLOCKED;
 MpuReading mpu_reading{};
+i2c_master_dev_handle_t mpu_handles[2]{};
 i2c_master_dev_handle_t mpu_device{};
-bool mpu_awake{};
 int64_t mpu_retry_us{};
+int mpu_identity = -1; // Only accessed by the I²C task.
+int mpu_address{};
 
 void publish_mpu(const MpuReading& sample) {
     portENTER_CRITICAL(&mpu_mux);
@@ -36,9 +42,11 @@ void publish_mpu(const MpuReading& sample) {
 const char* initialize_mpu(i2c_master_dev_handle_t device) {
     constexpr uint8_t who_am_i = 0x75;
     uint8_t identity{};
+    mpu_identity = -1;
     if (i2c_master_transmit_receive(device, &who_am_i, 1, &identity, 1, kI2cTimeoutMs) != ESP_OK)
         return "unavailable";
-    if (identity != 0x68) return "wrong_device";
+    mpu_identity = identity;
+    if (identity != kMpu6050Identity && identity != kMpu6515Identity) return "wrong_device";
     constexpr uint8_t wake[] = {0x6b, 0x01}; // Wake, PLL clock.
     constexpr uint8_t ranges[] = {0x1a, 0x03, 0x00, 0x00}; // DLPF, ±250 °/s, ±2 g.
     if (i2c_master_transmit(device, wake, sizeof(wake), kI2cTimeoutMs) != ESP_OK ||
@@ -66,40 +74,60 @@ void start_edge_inputs() {
 void start_mpu_telemetry(i2c_master_bus_handle_t bus) {
     i2c_device_config_t config{};
     config.dev_addr_length = I2C_ADDR_BIT_LEN_7;
-    config.device_address = kMpuAddress;
     config.scl_speed_hz = 100000;
-    if (!bus || i2c_master_bus_add_device(bus, &config, &mpu_device) != ESP_OK)
+    if (bus) {
+        for (int i = 0; i < 2; ++i) {
+            config.device_address = kMpuAddress + i;
+            i2c_master_bus_add_device(bus, &config, &mpu_handles[i]);
+        }
+    }
+    if (!mpu_handles[0] && !mpu_handles[1])
         publish_mpu({"bus_error"});
 }
 
 void poll_mpu_telemetry() {
-    if (!mpu_device || esp_timer_get_time() < mpu_retry_us) return;
-    if (!mpu_awake) {
-        if (const char* error = initialize_mpu(mpu_device)) {
-            publish_mpu({error});
-            mpu_retry_us = esp_timer_get_time() + 1000000;
-        } else {
-            mpu_awake = true;
-            mpu_retry_us = esp_timer_get_time() + 80000;
-            publish_mpu({});
+    if ((!mpu_handles[0] && !mpu_handles[1]) || esp_timer_get_time() < mpu_retry_us) return;
+    if (!mpu_device) {
+        MpuReading failure{"unavailable"};
+        for (int i = 0; i < 2; ++i) {
+            if (!mpu_handles[i]) continue;
+            const char* error = initialize_mpu(mpu_handles[i]);
+            if (!error) {
+                mpu_device = mpu_handles[i];
+                mpu_address = kMpuAddress + i;
+                mpu_retry_us = esp_timer_get_time() + 80000;
+                publish_mpu({"initializing", mpu_identity, mpu_address});
+                return;
+            }
+            if (mpu_identity >= 0) failure = {error, mpu_identity, kMpuAddress + i};
         }
+        publish_mpu(failure);
+        mpu_retry_us = esp_timer_get_time() + 1000000;
         return;
     }
     constexpr uint8_t accel_xout_h = 0x3b;
     uint8_t bytes[14]{};
     if (i2c_master_transmit_receive(mpu_device, &accel_xout_h, 1, bytes, sizeof(bytes), kI2cTimeoutMs) != ESP_OK) {
-        publish_mpu({"read_error"});
-        mpu_awake = false;
+        publish_mpu({"read_error", mpu_identity, mpu_address});
+        mpu_device = nullptr;
         mpu_retry_us = esp_timer_get_time() + 1000000;
         return;
     }
-    MpuReading sample{"ok"};
+    MpuReading sample{"ok", mpu_identity, mpu_address};
     for (int axis = 0; axis < 3; ++axis) {
         sample.accel_mg[axis] = signed_word(bytes + 2 * axis) * 1000 / 16384;
         sample.gyro_dps10[axis] = signed_word(bytes + 8 + 2 * axis) * 10 / 131;
     }
     sample.sampled_us = esp_timer_get_time();
     publish_mpu(sample);
+}
+
+MpuDiagnostic mpu_diagnostic() {
+    portENTER_CRITICAL(&mpu_mux);
+    const auto sample = mpu_reading;
+    portEXIT_CRITICAL(&mpu_mux);
+    const bool fresh = sample.sampled_us && esp_timer_get_time() - sample.sampled_us <= 500000;
+    return {sample.who_am_i, fresh, sample.accel_mg[2], sample.address};
 }
 
 void add_sensor_status(cJSON* status) {
@@ -119,6 +147,8 @@ void add_sensor_status(cJSON* status) {
     }
     const bool stale = mpu.sampled_us && now - mpu.sampled_us > 500000;
     cJSON_AddStringToObject(sensors, "mpu_status", stale ? "stale" : mpu.status);
+    if (mpu.who_am_i >= 0) cJSON_AddNumberToObject(sensors, "mpu_who_am_i", mpu.who_am_i);
+    if (mpu.address) cJSON_AddNumberToObject(sensors, "mpu_address", mpu.address);
     if (mpu.sampled_us && !stale) {
         cJSON_AddItemToObject(sensors, "accel_mg", cJSON_CreateIntArray(mpu.accel_mg, 3));
         cJSON_AddItemToObject(sensors, "gyro_dps10", cJSON_CreateIntArray(mpu.gyro_dps10, 3));

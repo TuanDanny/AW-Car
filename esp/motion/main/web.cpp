@@ -2,6 +2,7 @@
 #include "network_manager.hpp"
 #include "sensor_telemetry.hpp"
 #include <algorithm>
+#include <atomic>
 #include <cmath>
 #include <cstdio>
 #include <cerrno>
@@ -18,12 +19,11 @@
 #define SIMPLE_BUILD_ID "simplev1-dev"
 #endif
 extern const char page_start[] asm("_binary_index_html_start");
-extern const char latency_start[] asm("_binary_latency_js_start");
 namespace motion {
 namespace {
 httpd_handle_t server{};
 int owner=-1; // Only the HTTP server task reads/writes this descriptor.
-uint32_t opened{},closed{},send_errors{},recv_errors{};
+std::atomic<uint32_t> opened{},closed{},send_errors{},recv_errors{},status_requests{},status_replies{};
 using Json=std::unique_ptr<cJSON,decltype(&cJSON_Delete)>;
 esp_err_t send_text(httpd_req_t* request,const char* text) {
     httpd_ws_frame_t frame{};frame.type=HTTPD_WS_TYPE_TEXT;
@@ -86,10 +86,12 @@ esp_err_t status(httpd_req_t* request) {
     cJSON_AddNumberToObject(d,"latency_p99_us",percentile(99));cJSON_AddNumberToObject(d,"latency_max_us",s.latency_max_us);
     cJSON_AddNumberToObject(d,"latency_window",count);cJSON_AddNumberToObject(d,"heap",esp_get_free_heap_size());
     cJSON_AddNumberToObject(d,"uptime_ms",double(esp_timer_get_time()/1000));
-    cJSON_AddNumberToObject(d,"ws_opened",opened);cJSON_AddNumberToObject(d,"ws_closed",closed);
-    cJSON_AddNumberToObject(d,"ws_send_errors",send_errors);cJSON_AddNumberToObject(d,"ws_receive_errors",recv_errors);
+    cJSON_AddNumberToObject(d,"ws_opened",opened.load());cJSON_AddNumberToObject(d,"ws_closed",closed.load());
+    cJSON_AddNumberToObject(d,"ws_send_errors",send_errors.load());cJSON_AddNumberToObject(d,"ws_receive_errors",recv_errors.load());
     add_sensor_status(r);
-    return send_json(request,r);
+    const auto result=send_json(request,r);
+    if(result==ESP_OK) ++status_replies;
+    return result;
 }
 const char* string(cJSON* object,const char* key) {
     const auto* p=cJSON_GetObjectItemCaseSensitive(object,key);return cJSON_IsString(p)?p->valuestring:nullptr;
@@ -102,7 +104,7 @@ bool integer(cJSON* object,const char* key,int min,int max,int& value) {
 esp_err_t message(httpd_req_t* request,cJSON* json) {
     const char* type=string(json,"t");if(!type) return result(request,false,"invalid_type");
     auto& runtime=Runtime::get();
-    if(std::strcmp(type,"status")==0) return status(request);
+    if(std::strcmp(type,"status")==0) { ++status_requests; return status(request); }
     if(std::strcmp(type,"latency")==0) {
         const auto* action=string(json,"action");int dispatch=0,confirm=0;
         if(!action || (std::strcmp(action,"forward") && std::strcmp(action,"backward") && std::strcmp(action,"left") && std::strcmp(action,"right")) ||
@@ -203,14 +205,14 @@ esp_err_t index(httpd_req_t* request) {
     if(!request_on_ap(request)) return httpd_resp_send_err(request,HTTPD_403_FORBIDDEN,"Dashboard is available on AW-CAR / 192.168.4.1 only");
     httpd_resp_set_type(request,"text/html; charset=utf-8");httpd_resp_set_hdr(request,"Cache-Control","no-store");
     httpd_resp_set_hdr(request,"X-Content-Type-Options","nosniff");httpd_resp_set_hdr(request,"X-Frame-Options","DENY");
-    return httpd_resp_send(request,page_start,HTTPD_RESP_USE_STRLEN);
+    httpd_resp_set_hdr(request,"Connection","close");
+    const auto result=httpd_resp_send(request,page_start,HTTPD_RESP_USE_STRLEN);
+    if(result==ESP_OK) httpd_sess_trigger_close(request->handle,httpd_req_to_sockfd(request));
+    return result;
 }
-esp_err_t latency_script(httpd_req_t* request) {
-    if(!request_on_ap(request)) return httpd_resp_send_err(request,HTTPD_403_FORBIDDEN,"AP only");
-    httpd_resp_set_type(request,"text/javascript; charset=utf-8");httpd_resp_set_hdr(request,"Cache-Control","no-store");
-    httpd_resp_set_hdr(request,"X-Content-Type-Options","nosniff");
-    return httpd_resp_send(request,latency_start,HTTPD_RESP_USE_STRLEN);
 }
+WebDiagnostics web_diagnostics() {
+    return {opened.load(),closed.load(),status_requests.load(),status_replies.load(),send_errors.load(),recv_errors.load()};
 }
 void start_web() {
     httpd_config_t config=HTTPD_DEFAULT_CONFIG();config.task_priority=4;config.core_id=0;config.stack_size=12288;
@@ -219,8 +221,6 @@ void start_web() {
     config.close_fn=close_socket;ESP_ERROR_CHECK(httpd_start(&server,&config));
     httpd_uri_t root{};root.uri="/";root.method=HTTP_GET;root.handler=index;
     ESP_ERROR_CHECK(httpd_register_uri_handler(server,&root));
-    httpd_uri_t probe{};probe.uri="/latency.js";probe.method=HTTP_GET;probe.handler=latency_script;
-    ESP_ERROR_CHECK(httpd_register_uri_handler(server,&probe));
     httpd_uri_t ws{};ws.uri="/ws";ws.method=HTTP_GET;ws.handler=ws_handler;ws.is_websocket=true;
     ws.handle_ws_control_frames=true;ws.ws_pre_handshake_cb=pre_handshake;ws.ws_post_handshake_cb=post_handshake;
     ESP_ERROR_CHECK(httpd_register_uri_handler(server,&ws));

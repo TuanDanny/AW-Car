@@ -132,9 +132,6 @@ async def app_context(app):
 async def index(request):
     return web.Response(text=request.app['html'].read_text(encoding="utf-8"), content_type="text/html", headers={"Cache-Control": "no-store"})
 
-async def latency_script(request):
-    return web.Response(text=(ROOT/'esp/motion/web/latency.js').read_text(encoding='utf-8'),content_type='text/javascript')
-
 async def websocket(request):
     native = request.app["native"]
     origin = request.headers.get("Origin", "")
@@ -207,7 +204,7 @@ def main():
     app["native"] = Native()
     app['html'] = args.html.resolve(strict=True)
     app.cleanup_ctx.append(app_context)
-    app.add_routes([web.get("/", index), web.get('/latency.js',latency_script), web.get("/ws", websocket), web.get("/sim/state", lambda r: web.json_response(r.app["native"].state())), web.post("/sim/event", sim_event)])
+    app.add_routes([web.get("/", index), web.get("/ws", websocket), web.get("/sim/state", lambda r: web.json_response(r.app["native"].state())), web.post("/sim/event", sim_event)])
     web.run_app(app, host="127.0.0.1", port=args.port, print=print)
 
 if __name__ == "__main__":

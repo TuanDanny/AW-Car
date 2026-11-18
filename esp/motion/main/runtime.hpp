@@ -67,4 +67,8 @@ private:
     std::atomic<uint32_t> control_at_{0};
 };
 void start_web();
+struct WebDiagnostics {
+    uint32_t opened, closed, status_requests, status_replies, send_errors, recv_errors;
+};
+WebDiagnostics web_diagnostics();
 } // namespace motion
