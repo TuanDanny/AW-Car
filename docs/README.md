@@ -1,18 +1,18 @@
-# Tài liệu simplev1
+# Tài liệu AW-Car
 
-- [Bản source ba board hiện hành](current-release.md).
-- [Nghiên cứu động tác cơ bản và đề-pa mũ](motion-primitives-study.md): mô phỏng
-  Python/matplotlib, đối chiếu giải tích; chưa thay firmware hoặc nghiệm thu motor.
-- [Triển khai động tác trên nhánh thử nghiệm](motion-primitives-implementation.md):
-  sáu action mới, hồi quy bốn hướng và đề-pa mặc định tắt.
+## Dùng bản hiện hành
 
-- [Protocol](protocol.md): giao thức UART/SPI và hành vi điều khiển.
-- [Nguồn tham khảo](upstream.md), [Brain](brain.md), [Dashboard](dashboard.md).
-- [Build/nạp/log](build.md), [kết quả kiểm chứng](verification.md).
-- [Mốc skeleton đã duyệt](skeleton-baseline.md), [câu nói/pinyin/dịch nghĩa](voice-commands.md).
-- [AP+STA / OTA đã duyệt và cổng kiểm thử](ota-network-plan.md).
-- [Dùng OTA và log hằng ngày](ota-usage.md).
-- [Đo độ trễ bốn nút trên điện thoại](latency-measurement.md).
-- [Kết quả92mẫu thật và giới hạn SPI](latency-results.md).
-- [Review tối ưu, chưa thay firmware](optimization-review.md).
-- [Bản tối ưu nhỏ và số đo A/B sau nạp Motion](optimization-results.md).
+- [Source, mã firmware và phạm vi nghiệm thu ba board](current-release.md)
+- [Dashboard và Thanh ga](dashboard.md)
+- [Câu lệnh Xiaozhi, pinyin và nghĩa tiếng Việt](voice-commands.md)
+- [Build và nạp](build.md), [OTA và log](ota-usage.md)
+- [Giao thức UART/SPI](protocol.md), [Brain](brain.md)
+- [Đo độ trễ từ Web đến FPGA ACK](latency-measurement.md)
+- [Schematic tham chiếu](../schematic/README.md), [nguồn tham khảo](upstream.md)
+
+## Lịch sử và mô phỏng
+
+- [Nghiệm thu bàn thử ngày 10/11](verification.md) và [mốc prototype v1](skeleton-baseline.md)
+- [Số đo điện thoại bản đầu](latency-results.md) và [kết quả A/B prototype v2](optimization-results.md)
+- [Thiết kế AP+STA/OTA](ota-network-plan.md)
+- [Mô phỏng động tác và đề-pa](motion-primitives-study.md), [hồ sơ triển khai ban đầu](motion-primitives-implementation.md)

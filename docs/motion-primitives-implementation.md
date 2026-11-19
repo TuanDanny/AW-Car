@@ -1,4 +1,6 @@
-# Triển khai động tác cơ bản — source ứng viên
+# Hồ sơ thử nghiệm động tác cơ bản ngày 12/11/2026
+
+Xem [mốc tích hợp hiện tại](current-release.md) cho bản đang chạy.
 
 Ngày12/11/2026, nhánh `codex/motion-primitives-sim`, nền prototype-v2 `85a0094`.
 Chủ dự án chốt dùng cả Web/AI; khi lùi, trái/phải là hướng đầu xe xoay.

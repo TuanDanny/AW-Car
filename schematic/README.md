@@ -1,5 +1,8 @@
 # Đấu nối simplev1
 
+[Bảng chân firmware và hạng mục chờ cập nhật KiCad](../docs/current-release.md#chân-cảm-biến-và-phần-cứng-chờ-bổ-sung)
+ghi trạng thái hiện tại. Các bước dưới đây thuộc mốc đấu nối trên bàn ban đầu.
+
 Schematic KiCad A3 là **tham chiếu đấu nối trên bàn**, chưa PCB/nguồn pin/Gate.
 ID GPIO và package giữ đúng tên vật lý, không đoán số pad footprint module.
 Các net cùng tên nối chung. Inputs bên trái, outputs bên phải, nguồn trên/GND dưới.

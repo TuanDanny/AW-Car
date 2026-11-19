@@ -5,6 +5,7 @@ MCP chụp context tại ingress rồi sao chép vào arguments trước callbac
 `runtime` sở hữu UART1/parser/status5Hz/STOP và một mục tiêu MOVE thay thế.
 `tools.cc` đăng ký ba tool xe và các tool audio/status tối thiểu.
 
-MOVE dùng parser action chung: bốn hướng cũ + sáu động tác cung/pivot; không
-thêm tool cấp PWM hoặc quyền chạy. Giữ default30%/3s và context/generation.
+MOVE dùng parser action chung cho mười động tác. AI và Web dùng cùng thang
+Thanh ga, mặc định 20% tương ứng duty 56%. Thời lượng mặc định 3 giây.
+Quy đổi diễn ra trước khi gửi lệnh UART với context/generation của phiên.
 Các câu nói/pinyin ở `../../../../docs/voice-commands.md`.

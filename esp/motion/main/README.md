@@ -5,9 +5,14 @@
 `network_activity.hpp` là predicate C++ thuần dùng chung với host test: intent
 Waking/Reversing vẫn bận dù PWM0; giữ kiểm pending/OTA và STA đã online.
 
-`Kconfig.projbuild`: đề-pa mũ thử nghiệm mặc định tắt, gain mặc định100% không
-boost. Chỉ cấu hình khi build sau khi đo motor/dòng; Web chỉ quan sát trạng
-thái này. Sáu action mới đi qua cùng mailbox/task/timeout với bốn action cũ.
+Bản thử đề-pa trên nhánh cảm biến bật profile mũ trong `sdkconfig.defaults`
+với gain 140% và tau 150 ms. Mức đỉnh tính từ duty đích, có giới hạn 100%
+và giữ tỷ lệ duty trái/phải. Ví dụ lệnh thẳng 46% cho đỉnh khoảng 64,4%,
+ở trên mốc đo 60% khoảng 41 ms theo mô hình. Thử trên xe cùng VM và mặt
+sàn để hiệu chỉnh lại. STOP, nhả nút và timeout vẫn ưu tiên đưa duty về 0.
+Web hiển thị cấu hình trong “Thông tin kết nối & chẩn đoán”. Với checkout
+đã có `sdkconfig`, mở mục “AW-Car experimental startup” trong `menuconfig`
+để đồng bộ ba giá trị với `sdkconfig.defaults` trước khi build.
 
 Bản thử VL53L0X dùng I²C 100 kHz trên SDA GPIO11 và SCL GPIO12, địa chỉ
 7 bit `0x29`. Task `laser_diag` chạy ưu tiên thấp trên core 0 và đọc

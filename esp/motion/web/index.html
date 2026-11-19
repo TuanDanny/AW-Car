@@ -189,8 +189,8 @@
           <p class="sub">Quay quanh một bên: bên đó nhận ga 0, không phải phanh giữ bánh. Chưa điều khiển theo góc hoặc bán kính đo được.</p>
         </details>
         <div class="speed">
-          <div class="speed-head"><label for="speed">Mức lệnh</label><output id="speed-value" for="speed">30<small>%</small></output></div>
-          <input id="speed" type="range" min="0" max="100" step="1" value="30" aria-label="Mức lệnh phần trăm">
+          <div class="speed-head"><label for="speed">Thanh ga</label><output id="speed-value" for="speed">20<small>%</small></output></div>
+          <input id="speed" type="range" min="0" max="100" step="1" value="20">
           <div class="range-ends"><span>0%</span><span>100%</span></div>
         </div>
       </section>
@@ -321,6 +321,11 @@
         if (!probing) cancelProbe();
         else renderLatency();
       }
+      function manualDutyPercent() {
+        const throttle = $('speed').valueAsNumber;
+        if (throttle === 0) return 0;
+        return 45 + Math.round((throttle - 1) * 55 / 99);
+      }
       function startProbe(event, action) {
         if (!probing) return;
         cancelProbe();
@@ -328,7 +333,7 @@
         if (!axes || !status?.fpga?.connected || status.left || status.right ||
             status.fpga.ack_left !== 0 || status.fpga.ack_right !== 0) return;
         const start = event.timeStamp, now = performance.now();
-        const duty = Math.round(Number($('speed').value) * 1350 / 100);
+        const duty = Math.round(manualDutyPercent() * 1350 / 100);
         if (!duty || !Number.isFinite(start) || start > now || now - start > 1000) return;
         probe = { action, start, sent: null, timer: null, token: ++probeToken, generation: status.generation, seq: status.fpga.applied_seq,
           spi: status.diag?.spi_ok ?? 0, left: duty * axes[1], right: duty * axes[2] };
@@ -415,7 +420,7 @@
           return;
         }
         held.blockedAt = null;
-        if (!send({ t: 'drive', action: held.action, speed: Number($('speed').value) })) {
+        if (!send({ t: 'drive', action: held.action, speed: manualDutyPercent() })) {
           clearHeld(false);
           return;
         }
@@ -537,7 +542,7 @@
           : 'Tắt · duty trực tiếp');
         const action = typeof data.action === 'number' ? actionOrder[data.action] : data.action;
         setText('motion-state', data.maintenance ? 'Bảo trì OTA · không điều khiển' : (data.mode === 'ai' ? 'AI' : 'Manual') + ' · ' + (actionNames[action] || 'Chưa rõ lệnh'));
-        setText('motion-detail', 'Theo STATUS Motion · mức lệnh ' + number(data.speed) + '%');
+        setText('motion-detail', 'Theo STATUS Motion · duty mục tiêu ' + number(data.speed) + '%');
         setText('last-status', 'STATUS vừa nhận · 10 Hz');
         renderSensors(data.sensors);
       }

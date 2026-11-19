@@ -20,6 +20,14 @@ import time
 ROOT=Path(__file__).resolve().parents[1]
 
 def sha(data): return hashlib.sha256(data).hexdigest()
+def verify_management_identity(current_app,key_id):
+    # App-only USB updates must retain the public identity of the deployed
+    # management credential. Binary/manifest integrity is checked separately.
+    if not isinstance(key_id,str) or len(key_id)!=12 or any(c not in '0123456789abcdef' for c in key_id):
+        raise ValueError('Missing/invalid management identity in build manifest; no write')
+    if (key_id+'\0').encode('ascii') not in current_app:
+        raise ValueError('Management identity differs from deployed app; rebuild with the existing private keys; no write')
+
 def partitions(data):
     result={}
     for i in range(0,min(len(data),0xc00),32):
@@ -108,7 +116,9 @@ def main():
         name=path.relative_to(build).as_posix()
         if manifest["images"][name]["sha256"]!=sha(path.read_bytes()): raise ValueError("Image/manifest hash mismatch")
     # One current-app snapshot per selected release, not a repeated16MiB full backup.
-    read(app["offset"],app["size"],"app-before.bin")
+    current_app=read(app["offset"],app["size"],"app-before.bin")
+    if not args.bootstrap_ota:
+        verify_management_identity(current_app,manifest.get('management_key_id'))
     invoke(esptool.cmds.write_flash,esp,[(offset,str(path)) for offset,path in images],
            flash_freq="keep",flash_mode="keep",flash_size="keep")
     verified={}

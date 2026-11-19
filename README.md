@@ -1,37 +1,25 @@
-# AW-Car — prototype v2
+# AW-Car
 
-Nhánh `codex/motion-primitives-sim`: đang triển khai thêm động tác cơ bản Web/AI,
-[phạm vi và kiểm chứng](docs/motion-primitives-implementation.md). Đề-pa mặc
-định tắt; đây là source ứng viên chưa nạp, không thay mốc nghiệm thu main.
+Xe 4WD hai bên độc lập. **Web → Motion → SPI → Tang Nano9K → DRV8833** là
+đường điều khiển trực tiếp. Brain chạy Xiaozhi, mic, loa và OLED, rồi gửi lệnh
+AI sang Motion qua UART. Manual hoạt động qua AW-CAR tại `192.168.4.1`.
+Wi-Fi router phục vụ Xiaozhi, OTA và log.
 
-Skeleton độc lập: **Web → Motion → SPI → FPGA → DRV8833**, Brain chuyên Xiaozhi.
-
-`main` là **nhánh chính thức duy nhất và skeleton ổn định** để phát triển tiếp.
-Workspace chính: `D:/Project/AW-Car`. Nhánh tác vụ được xóa sau merge và CI đạt.
-Manual trước, AI sau, PID viết sẵn nhưng chưa bật. Không dùng ARM/PIN/Gate handshake.
-
-**Bản hiện hành:** [source ba board và phạm vi nghiệm thu](docs/current-release.md).
-Hai tag `prototype-v1` / `simplev1-skeleton-v1` giữ mốc ban đầu để phục hồi.
-Tag `prototype-v2` đánh dấu bản phần mềm mới sau CI main; xem
-[số đo trước/sau và giới hạn nghiệm thu](docs/optimization-results.md).
+[Bản hiện hành, mốc nghiệm thu và phần cứng chờ bổ sung](docs/current-release.md)
+ghi mã nguồn và mã firmware của cả ba board. `main` là nhánh chính thức.
+`prototype-v1` và `prototype-v2` là hai mốc phục hồi.
 
 | Thư mục | Nội dung |
 | --- | --- |
-| [esp](esp/README.md) | Hai firmware ESP-IDF 6.1 và lõi dùng chung |
-| [fpga](fpga/README.md) | SPI/PWM/encoder SystemVerilog + Gowin |
-| [schematic](schematic/README.md) | Đấu nối bản simple, chưa PCB |
-| [docs](docs/README.md) | Contract, nguồn tham khảo, hướng dẫn và nghiệm thu |
-| [data](data/README.md) | Vector chuẩn và bằng chứng đã lọc |
-| [utils](utils/README.md) | Build/test/thu log |
-| [test](test/README.md) | Kiểm thử host, browser và RTL |
+| [esp](esp/README.md) | Firmware Brain, Motion và giao thức C++ dùng chung |
+| [fpga](fpga/README.md) | SPI, PWM và encoder SystemVerilog trên Tang Nano9K |
+| [schematic](schematic/README.md) | Bản vẽ đấu nối tham chiếu |
+| [docs](docs/README.md) | Hướng dẫn, contract và lịch sử kiểm chứng |
+| [data](data/README.md) | Vector giao thức và bằng chứng đã lọc |
+| [utils](utils/README.md) | Build, kiểm tra, OTA và thu log |
+| [test](test/README.md) | Kiểm thử host, trình duyệt và RTL |
 
-Xem [contract](docs/protocol.md) trước khi thay giao thức. Không coi mô phỏng hoặc
-build thành công là bằng chứng xe đã chạy. Phép thử phần cứng phải ghi riêng.
-
-Manual vẫn chỉ qua AW-CAR/192.168.4.1; router phục vụ AI, OTA và log.
-Xem [cách dùng OTA/log](docs/ota-usage.md) và [đo độ trễ](docs/latency-measurement.md).
-
-Đọc [build/nạp/thu log](docs/build.md) và [báo cáo kiểm chứng](docs/verification.md).
-Ngày10/11: Manual bốn hướng và AI quay trái/phải đã có log SPI trên ba board;
-cầuB cả haiDRV đã đo đúng cực tính ở100% với VM USB khoảng5V, chưa motor.
-PID mặc định tắt. Chưa nghiệm thu cầuA trên bản mới, nguồn2S hoặc cơ khí xe.
+Bắt đầu từ [Dashboard](docs/dashboard.md), [OTA và log](docs/ota-usage.md)
+hoặc [hướng dẫn build](docs/build.md). Đọc [contract](docs/protocol.md)
+trước khi đổi giao thức và [bảng chân đang chạy](docs/current-release.md#chân-cảm-biến-và-phần-cứng-chờ-bổ-sung)
+trước khi đi dây.
