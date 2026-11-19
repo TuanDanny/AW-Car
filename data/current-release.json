@@ -1,89 +1,63 @@
 {
-  "date_local": "2026-11-11",
-  "role": "accepted stable software skeleton; motor, 2S, PID and physical latency are later milestones",
+  "date_local": "2026-11-19",
   "boards": {
     "brain": {
-      "build_id": "simplev1-814afb90103b",
-      "source_digest": "62b20eea22c3f465c1762d84d069498577cbe5a8c86d8b21b9b23201247ea67f",
+      "build_id": "simplev1-446be7f0109d",
+      "source_digest": "ff2951a8a2e2ef413e9e5bea929cb4d5a211d7a1d47f4fd0d1f0d51635d4725f",
+      "sdkconfig_sha256": "e1e13e4cb6c81bbb65177767f781e9263481a866a037232c4d8da9f071c930e0",
       "image": {
-        "bytes": 2347440,
-        "sha256": "f08dccc3c71882af4154167aff2238d423f81c71adc00c8d6089decc21301721"
+        "bytes": 2349760,
+        "sha256": "c18bcd0a68f811d8a5e63900765575207270b1fedd1a59c36fac81fe48a15547"
       },
-      "test_rollback": false,
-      "prior_ota_valid_confirmed": true
+      "elf_sha256": "259e5b5d4fd46b8dff05e5d49041a56fccea8663475b76ce18edd066aa709d5b"
     },
     "motion": {
-      "build_id": "simplev1-33495b1fe7e0",
-      "source_digest": "ccf9765ae164f4fabab97062a9b1147c08a81042e01c990495c3d343b1fba4e9",
+      "build_id": "simplev1-7c10f8dbd4db",
+      "source_digest": "4829059e4debc1081375f9b9a8197461cffddc4f3f628a846c58065335dc3408",
+      "sdkconfig_sha256": "46058ca88b1e579cadf7da5639d5bb706f7673c1c003d67a39b98b82d8c34509",
       "image": {
-        "bytes": 1080256,
-        "sha256": "d62c815ba037b262a162d1d82b11ef8073add9432509eb2b908e1136582baab9"
+        "bytes": 1126544,
+        "sha256": "e26f9c56165ce3f506c8da95ebcd7d5980d53725a01deb3a4d657f5442e36f73"
       },
-      "test_rollback": false,
-      "readback_verified": true,
-      "preserved": {
-        "nvs_preserved": true,
-        "partition_table_preserved": true,
-        "otadata_preserved": true,
-        "legacy_motioncfg_preserved": true
-      }
+      "elf_sha256": "1a8c7437592911987a424ad73bf97bbf3446ebd57ac5554bbb5eee9013ba0353"
     },
     "fpga": {
-      "source_baseline": "fff2940db374f9a86d47193c09c417a4b162d398",
-      "bitstream_sha256": "64212c9aa7f73ec7779f27e3f2fd48f7b7e3a62ae9eee3a9dffc78a0ecb4cf43",
-      "usercode": "0x0000A6C1",
-      "reflashed_in_this_task": false,
-      "new_byte_readback_claimed": false
+      "source_tree": "1a1a98df5cc3a21804df98bf9bd31c0add886e4b",
+      "previous_release": "prototype-v2",
+      "previous_programmed_artifact_sha256": "64212c9aa7f73ec7779f27e3f2fd48f7b7e3a62ae9eee3a9dffc78a0ecb4cf43",
+      "rebuilt_artifact_sha256": "760ec2e8be4afec967b6445ca849874daed319a689cfea53733db9adb1f484cb",
+      "configuration_payload_sha256": "1a7441fa0db4da4a1d5bfbb73732703182c8d5ed22006c86a9c3ac93fdcd6407",
+      "usercode_previously_verified": "0x0000A6C1",
+      "flash_byte_readback_in_this_check": false
     }
   },
-  "vm_off": true,
-  "motors_connected": false,
-  "raw_private_data_committed": false,
+  "web_and_ai_throttle": {
+    "default_percent": 20,
+    "default_target_duty_percent": 56,
+    "minimum_nonzero_target_duty_percent": 45
+  },
+  "motion_startup": {
+    "gain_percent": 140,
+    "tau_ms": 150
+  },
   "software_checks": {
-    "unit_tests": 28,
-    "unit_skips": 1,
-    "native_assertions": 52301,
-    "brain_context_checks": 127,
-    "browser_tests": 26,
-    "rtl_testbenches": 4
+    "host_passed": 56,
+    "browser_cases": 34,
+    "rtl_testbenches": 4,
+    "gowin_pnr": "PASS",
+    "timing_clock_mhz": 27,
+    "setup_violations": 0,
+    "hold_violations": 0
   },
-  "phone_latency_report": "data/optimization-comparison.json",
-  "spi_issue_resolved": false,
-  "failed_cs_experiment_discarded": true,
-  "simulator_publication_fix": {
-    "hardware_firmware_changed": false,
-    "reason": "Match production input -> tick -> snapshot order; avoid intermediate Released reason with live duty",
-    "regression_before": "405/released",
-    "regression_after": "405/active",
-    "browser_regression_test": 25
+  "motion_spi_idle_observation": {
+    "window_ms": 8018,
+    "error_counter_delta": 112,
+    "valid_spi_link_reported": true
   },
-  "release": "prototype-v2",
-  "official_branch": "main",
-  "prototype_v2": {
-    "implementation_commit": "79b42044e731527141a9a8f43f47f0199dce5ae1",
-    "baseline_main": "97f9fcd87ebb6859abe696cdca2b94231b6b0154",
-    "phone_A_samples": 60,
-    "phone_B_samples": 61,
-    "phone_status_p50_ms": [
-      218.6,
-      102.2
-    ],
-    "phone_status_p95_ms": [
-      305.2,
-      305.2
-    ],
-    "phone_status_max_ms": [
-      426.8,
-      405.5
-    ],
-    "host_dom_mutation_reduction_percent": 87.6,
-    "motion_flash_readback_verified": true,
-    "brain_image_unchanged": true,
-    "fpga_source_unchanged": true,
-    "manual_ai_oled_speaker_user_confirmed": true,
-    "spi_error_delta_B_window": 0,
-    "spi_issue_proven_resolved": false,
-    "new_ota_cycle_tested": false,
-    "new_30_min_soak_tested": false
-  }
+  "physical_pending": [
+    "encoder_left",
+    "edge_right",
+    "peripheral_3v3_regulator",
+    "schematic_update"
+  ]
 }

@@ -5,6 +5,7 @@ namespace { int8_t sign(int16_t v) { return v>0?1:v<0?-1:0; } }
 void Control::clear_target(Reason reason) {
     action_=Action::Neutral; speed_=0; desired_left_=desired_right_=left_=right_=0;
     deadline_=wake_until_=0; driver_=false; reason_=reason;
+    startup_.reset();
 }
 void Control::stop(Reason reason) {
     ++generation_; if(generation_==0) ++generation_;
@@ -22,14 +23,8 @@ void Control::set_mode(Mode mode) {
 void Control::target(Action a,uint8_t speed,uint64_t deadline) {
     if(a==Action::Neutral || speed==0) { clear_target(Reason::Released); return; }
     action_=a; speed_=speed; deadline_=deadline; reason_=Reason::Released;
-    const int16_t duty=int16_t((unsigned(speed)*kDutyMax+50)/100);
-    switch(a) {
-        case Action::Forward:desired_left_=duty;desired_right_=duty;break;
-        case Action::Backward:desired_left_=-duty;desired_right_=-duty;break;
-        case Action::Left:desired_left_=-duty;desired_right_=duty;break;
-        case Action::Right:desired_left_=duty;desired_right_=-duty;break;
-        default:clear_target(Reason::Invalid);break;
-    }
+    const auto effort=primitive_effort(a,speed);
+    desired_left_=effort.left;desired_right_=effort.right;
 }
 bool Control::manual(Action a,uint8_t speed,uint64_t now) {
     now_=now;
@@ -49,17 +44,18 @@ void Control::brain(const BrainState& state,uint64_t now) { brain_=state;brain_a
 void Control::fpga(const SpiStatus& state,uint64_t now) { fpga_=state;fpga_at_=now;fpga_seen_=true; }
 void Control::tick(uint64_t now) {
     now_=now;
-    if(action_==Action::Neutral) { left_=right_=0;driver_=false;return; }
+    if(action_==Action::Neutral) { left_=right_=0;driver_=false;startup_.reset();return; }
     if(!fpga_connected(now)) { stop(Reason::FpgaLost);return; }
     if(mode_==Mode::Ai && !brain_connected(now)) { stop(Reason::BrainLost);return; }
     if(mode_==Mode::Ai && (brain_.flags&(kWifiReady|kCloudReady))!=(kWifiReady|kCloudReady)) { stop(Reason::InternetLost);return; }
     if(now>=deadline_) { clear_target(mode_==Mode::Manual?Reason::ManualTimeout:Reason::AiComplete);return; }
     const bool reverse_left=desired_left_ && last_left_sign_ && sign(desired_left_)!=last_left_sign_ && now-last_left_at_<40;
     const bool reverse_right=desired_right_ && last_right_sign_ && sign(desired_right_)!=last_right_sign_ && now-last_right_at_<40;
-    if(reverse_left || reverse_right) { left_=right_=0;driver_=false;wake_until_=0;reason_=Reason::Reversing;return; }
+    if(reverse_left || reverse_right) { left_=right_=0;driver_=false;wake_until_=0;startup_.reset();reason_=Reason::Reversing;return; }
     if(!driver_) { driver_=true;wake_until_=now+1;left_=right_=0;reason_=Reason::Waking;return; }
     if(now<wake_until_) { left_=right_=0;reason_=Reason::Waking;return; }
-    left_=desired_left_; right_=desired_right_;
+    const auto output=startup_.apply({desired_left_,desired_right_},now);
+    left_=output.left;right_=output.right;
     if(left_) { last_left_sign_=sign(left_);last_left_at_=now; }
     if(right_) { last_right_sign_=sign(right_);last_right_at_=now; }
     reason_=Reason::Active;

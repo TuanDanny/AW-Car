@@ -1,4 +1,5 @@
 #include "car/ai_context.hpp"
+#include "car/throttle.hpp"
 #include <cassert>
 #include <functional>
 #include <iostream>
@@ -74,4 +75,17 @@ int main() {
     for (auto old : callbacks) check(!g.CanMove(old,1031));
     check(g.CanMove(fresh,1031));
     std::cout << "Brain context checks: " << checks << " PASS\n";
+
+    using brain::ThrottleToDutyPercent;
+    assert(brain::kDefaultThrottlePercent == 20);
+    assert(ThrottleToDutyPercent(0) == 0);
+    assert(ThrottleToDutyPercent(1) == 45);
+    assert(ThrottleToDutyPercent(brain::kDefaultThrottlePercent) == 56);
+    assert(ThrottleToDutyPercent(47) == 71);
+    assert(ThrottleToDutyPercent(100) == 100);
+    for (int throttle = 2; throttle <= 100; ++throttle) {
+        const int step = ThrottleToDutyPercent(throttle) - ThrottleToDutyPercent(throttle - 1);
+        assert(step == 0 || step == 1);
+    }
+    std::cout << "Brain throttle mapping: PASS\n";
 }

@@ -17,9 +17,11 @@ def distribution(values):
 
 
 def summarize(text,minimum=10):
-    parsed=re.findall(r'latency_probe: action=(forward|backward|left|right) dispatch_us=(\d+) confirm_us=(\d+)',text)
+    parsed=re.findall(r'latency_probe: action=(forward|backward|left|right) dispatch_us=(\d+) confirm_us=(\d+)(?: scope=(\w+))?',text)
+    fpga_ack=any(scope=='phone_to_spi_ack' for _,_,_,scope in parsed)
     samples={a:[] for a in ACTIONS}
-    for action,start,end in parsed:
+    for action,start,end,scope in parsed:
+        if (scope=='phone_to_spi_ack') != fpga_ack: continue
         start,end=int(start),int(end)
         if 0<=start<=end<=2000000:samples[action].append((start,end))
     report={'scope':'Real phone PointerEvent timestamp to send and matching Motion setpoint STATUS; not physical PWM edge',
@@ -27,6 +29,8 @@ def summarize(text,minimum=10):
             'budget_note':'Proposed diagnostic budgets, not a certified hardware limit',
             'budgets_ms':{'dispatch_p95':10,'status_p95':150,'status_p99':200,'status_max':300},
             'physical_pwm_measured':False,'motor_motion_measured':False}
+    if fpga_ack:
+        report['scope']='Real phone PointerEvent timestamp to send and matching applied FPGA sequence via WebSocket; not physical PWM edge'
     enough=all(len(samples[a])>=minimum for a in ACTIONS);within=True
     for action,values in samples.items():
         send=distribution([x[0] for x in values]);confirm=distribution([x[1] for x in values])

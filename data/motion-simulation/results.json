@@ -1,0 +1,141 @@
+{
+  "schema": 1,
+  "scope": "offline ideal/toy models; NOT firmware or hardware acceptance",
+  "source_baseline": "85a0094fcc0eb6dd07d9693b3a020455372657df",
+  "units": "track b=1 abstract length unit; time in seconds; no AW-Car speed calibration",
+  "python": "3.13.15",
+  "parameters": {
+    "track_units": 1,
+    "dt_s": 0.005,
+    "figure8_amplitude_units": 2,
+    "path_phase_rate_rad_s": 0.2,
+    "kick_target": 0.3,
+    "kick_start": 0.5,
+    "kick_tau_s": 0.1,
+    "toy_breakaway": 0.4,
+    "toy_running_friction": 0.2
+  },
+  "mixer": {
+    "cases": 6561,
+    "max_error": 2.220446049250313e-16
+  },
+  "circle_rk4_vs_analytic": {
+    "max_position_units": 5.541913383664413e-13,
+    "max_heading_rad": 2.469136006766348e-13,
+    "endpoint_position_units": 5.530628568447941e-13
+  },
+  "eight_rk4_vs_analytic": {
+    "max_position_units": 2.8356304488331837e-13,
+    "max_heading_rad": 1.6919798895287386e-13,
+    "endpoint_position_units": 8.227960173812549e-14
+  },
+  "eight_half_dt_vs_analytic": {
+    "max_position_units": 2.5914850478588656e-14,
+    "max_heading_rad": 1.509903313490213e-14,
+    "endpoint_position_units": 1.8775572663931274e-14
+  },
+  "eight_euler_vs_analytic": {
+    "max_position_units": 0.0037867971216445618,
+    "max_heading_rad": 0.0015855206939883182,
+    "endpoint_position_units": 1.0425401364684437e-08
+  },
+  "eight_peak_wheel_speed_units_s": 0.5822126400409016,
+  "linear_motor_rk4_max_error": 2.3216034372719463e-09,
+  "linear_motor_equal_tau_max_error": 1.1701162594413006e-08,
+  "exponential_recurrence_max_error": 1.6653345369377348e-16,
+  "illustrative_5pct_side_gain_bias": {
+    "max_position_units": 2.111474968430697,
+    "max_heading_rad": 1.2194446940209875,
+    "endpoint_position_units": 0.4043157166827188
+  },
+  "toy_friction_final_speed": {
+    "target_30_no_kick": 0.0,
+    "target_30_kick": 0.10000035394021761,
+    "target_15_kick": 0.0
+  },
+  "kick_untruncated_at_ms": {
+    "0": 0.5,
+    "100": 0.37357588823428844,
+    "200": 0.32706705664732255,
+    "300": 0.30995741367357277,
+    "500": 0.3013475893998171
+  },
+  "kick_finite_profile_at_ms": {
+    "0": 0.5,
+    "100": 0.37357588823428844,
+    "200": 0.32706705664732255,
+    "300": 0.30995741367357277,
+    "500": 0.3
+  },
+  "primitive_effort": {
+    "stop": [
+      0.0,
+      0.0
+    ],
+    "forward": [
+      0.3,
+      0.3
+    ],
+    "backward": [
+      -0.3,
+      -0.3
+    ],
+    "arc_forward_left": [
+      0.15,
+      0.3
+    ],
+    "arc_forward_right": [
+      0.3,
+      0.15
+    ],
+    "arc_reverse_yaw_left": [
+      -0.3,
+      -0.15
+    ],
+    "arc_reverse_yaw_right": [
+      -0.15,
+      -0.3
+    ],
+    "spin_left": [
+      -0.3,
+      0.3
+    ],
+    "spin_right": [
+      0.3,
+      -0.3
+    ],
+    "pivot_left": [
+      0.0,
+      0.3
+    ],
+    "pivot_right": [
+      0.3,
+      0.0
+    ]
+  },
+  "checks": {
+    "mixer_6561_cases_bounded_error": true,
+    "circle_vs_analytic_below_1e_8": true,
+    "eight_vs_analytic_below_1e_8": true,
+    "path_wheel_speed_below_one": true,
+    "linear_motor_below_1e_7": true,
+    "equal_tau_motor_below_1e_7": true,
+    "recurrence_below_1e_12": true,
+    "toy_kick_starts_and_sustains": true,
+    "toy_low_throttle_stalls_again": true
+  },
+  "matplotlib": "3.11.2",
+  "plot_packages": {
+    "matplotlib": "3.11.2",
+    "numpy": "2.5.2",
+    "contourpy": "1.4.0",
+    "cycler": "0.12.1",
+    "fonttools": "4.66.1",
+    "kiwisolver": "1.5.1",
+    "packaging": "26.3",
+    "pillow": "12.3.0",
+    "pyparsing": "3.3.3",
+    "python-dateutil": "4.0.0",
+    "tzdata": "2026.6"
+  }
+}

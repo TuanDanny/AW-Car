@@ -34,6 +34,11 @@ class ManagementClient(unittest.TestCase):
             protocol_version='HTTP/1.1'
             def log_message(self,*args): pass
             def do_GET(self):
+                if self.path=='/logs?after=37':
+                    cls.reconnect_sockets.append(self.connection)
+                    if len(cls.reconnect_sockets)==1:
+                        self.close_connection=True
+                        return
                 if self.headers.get('Authorization')!='Bearer '+'a'*64:
                     self.send_response(401);self.send_header('Content-Length','0');self.end_headers();return
                 content=json.dumps({'role':'motion','key_id':cls.key_id,'ota_enabled':False}).encode()
@@ -65,6 +70,15 @@ class ManagementClient(unittest.TestCase):
         client=self.client();client.key='b'*64
         try:
             with self.assertRaisesRegex(ValueError,'HTTP 401'): client.get('/info')
+        finally: client.close()
+
+    def test_remote_close_reconnects_with_same_log_cursor(self):
+        type(self).reconnect_sockets=[]
+        client=self.client()
+        try:
+            self.assertEqual(client.get('/logs?after=37')['role'],'motion')
+            first, second=self.reconnect_sockets
+            self.assertIsNot(first,second)
         finally: client.close()
 
     def test_wrong_role(self):

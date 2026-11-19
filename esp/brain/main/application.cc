@@ -46,9 +46,23 @@ Application::Application() : notify_player_(audio_service_) {
                                                 .name = "clock_timer",
                                                 .skip_unhandled_events = true};
     esp_timer_create(&clock_timer_args, &clock_timer_handle_);
+    esp_timer_create_args_t startup_sound_args = {
+        .callback = [](void* arg) {
+            auto* app = static_cast<Application*>(arg);
+            xEventGroupSetBits(app->event_group_, MAIN_EVENT_STARTUP_SOUND);
+        },
+        .arg = this,
+        .dispatch_method = ESP_TIMER_TASK,
+        .name = "startup_sound",
+    };
+    ESP_ERROR_CHECK(esp_timer_create(&startup_sound_args, &startup_sound_timer_));
 }
 
 Application::~Application() {
+    CancelStartupSound();
+    if (startup_sound_timer_ != nullptr) {
+        esp_timer_delete(startup_sound_timer_);
+    }
     notify_player_.Stop();
     if (clock_timer_handle_ != nullptr) {
         esp_timer_stop(clock_timer_handle_);
@@ -57,7 +71,22 @@ Application::~Application() {
     vEventGroupDelete(event_group_);
 }
 
-bool Application::SetDeviceState(DeviceState state) { return state_machine_.TransitionTo(state); }
+bool Application::SetDeviceState(DeviceState state) {
+    const bool changed = state_machine_.TransitionTo(state);
+    if (changed && state != kDeviceStateIdle) {
+        CancelStartupSound();
+    }
+    return changed;
+}
+
+void Application::CancelStartupSound() {
+    startup_sound_requested_ = false;
+    startup_sound_pending_ = false;
+    if (startup_sound_timer_ != nullptr) {
+        // An expired/stopped timer is normal. A late event sees pending=false.
+        esp_timer_stop(startup_sound_timer_);
+    }
+}
 
 void Application::Initialize() {
     auto& board = Board::GetInstance();
@@ -73,6 +102,8 @@ void Application::Initialize() {
     auto codec = board.GetAudioCodec();
     audio_service_.Initialize(codec);
     audio_service_.Start();
+    ESP_LOGI(TAG, "startup stage=local_ready i2s_rx=%d i2s_tx=%d wifi_gap_ms=150",
+             codec->input_sample_rate(), codec->output_sample_rate());
     ESP_LOGI(TAG, "After board/audio init");
     SystemInfo::PrintHeapStats();
 
@@ -130,6 +161,7 @@ void Application::Initialize() {
                 break;
             }
             case NetworkEvent::Connected: {
+                network_connected_ = true;
                 std::string msg = Lang::Strings::CONNECTED_TO;
                 msg += data;
                 display->ShowNotification(msg.c_str(), 30000);
@@ -137,6 +169,8 @@ void Application::Initialize() {
                 break;
             }
             case NetworkEvent::Disconnected:
+                network_connected_ = false;
+                CancelStartupSound();
                 xEventGroupSetBits(event_group_, MAIN_EVENT_NETWORK_DISCONNECTED);
                 break;
             case NetworkEvent::WifiConfigModeEnter:
@@ -168,6 +202,10 @@ void Application::Initialize() {
     });
 
     // Start network asynchronously
+    // Only the setup task waits here. Audio tasks remain idle and Run() is not
+    // blocked by any later network/cloud wait; OTA health is local-only.
+    vTaskDelay(pdMS_TO_TICKS(150));
+    ESP_LOGI(TAG, "startup stage=wifi_start");
     board.StartNetwork();
 
     // Update the status bar immediately to show the network state
@@ -183,12 +221,13 @@ void Application::Run() {
         MAIN_EVENT_VAD_CHANGE | MAIN_EVENT_CLOCK_TICK | MAIN_EVENT_ERROR |
         MAIN_EVENT_NETWORK_CONNECTED | MAIN_EVENT_NETWORK_DISCONNECTED | MAIN_EVENT_TOGGLE_CHAT |
         MAIN_EVENT_START_LISTENING | MAIN_EVENT_STOP_LISTENING | MAIN_EVENT_ACTIVATION_DONE |
-        MAIN_EVENT_STATE_CHANGED | MAIN_EVENT_PLAYBACK_DRAINED;
+        MAIN_EVENT_STATE_CHANGED | MAIN_EVENT_PLAYBACK_DRAINED | MAIN_EVENT_STARTUP_SOUND;
 
     while (true) {
         auto bits = xEventGroupWaitBits(event_group_, ALL_EVENTS, pdTRUE, pdFALSE, portMAX_DELAY);
 
         if (bits & MAIN_EVENT_ERROR) {
+            CancelStartupSound();
             if (GetDeviceState() == kDeviceStateNotifying) {
                 StopNotification();
             }
@@ -284,15 +323,27 @@ void Application::Run() {
                 // SystemInfo::PrintTaskCpuUsage(pdMS_TO_TICKS(1000));
             }
         }
+
+        // Handle user/network/error events first. This tone is offered only
+        // once per boot, so an expired callback cannot acquire a new session.
+        if ((bits & MAIN_EVENT_STARTUP_SOUND) && startup_sound_pending_.exchange(false) &&
+            network_connected_.load() && GetDeviceState() == kDeviceStateIdle &&
+            !brain::Runtime::Get().Updating() && last_error_message_.empty() &&
+            audio_service_.IsPlaybackIdle()) {
+            ESP_LOGI(TAG, "startup stage=ready_sound");
+            audio_service_.PlaySound(Lang::Sounds::OGG_SUCCESS);
+        }
     }
 }
 
 void Application::HandleNetworkConnectedEvent() {
+    if (!network_connected_.load()) return;
     ESP_LOGI(TAG, "Network connected");
     auto state = GetDeviceState();
 
     if (state == kDeviceStateStarting || state == kDeviceStateWifiConfiguring) {
         // Network is ready, start activation
+        ESP_LOGI(TAG, "startup stage=cloud_start");
         SetDeviceState(kDeviceStateActivating);
         if (activation_task_handle_ != nullptr) {
             ESP_LOGW(TAG, "Activation task already running");
@@ -315,6 +366,7 @@ void Application::HandleNetworkConnectedEvent() {
 }
 
 void Application::HandleNetworkDisconnectedEvent() {
+    CancelStartupSound();
     // Close current conversation when network disconnected
     auto state = GetDeviceState();
     if (state == kDeviceStateNotifying) {
@@ -356,10 +408,10 @@ void Application::HandleActivationDoneEvent() {
     board.SetPowerSaveLevel(PowerSaveLevel::LOW_POWER);
 
     if (!has_error) {
-        Schedule([this]() {
-            // Play the success sound to indicate the device is ready
-            audio_service_.PlaySound(Lang::Sounds::OGG_SUCCESS);
-        });
+        if (!startup_sound_offered_ && network_connected_.load() && !brain::Runtime::Get().Updating()) {
+            startup_sound_offered_ = true;
+            startup_sound_requested_ = true;
+        }
     }
 }
 
@@ -559,9 +611,7 @@ void Application::InitializeProtocol() {
         brain::Runtime::Get().SetCloud(true);
         board.SetPowerSaveLevel(PowerSaveLevel::PERFORMANCE);
         if (protocol_->server_sample_rate() != codec->output_sample_rate()) {
-            ESP_LOGW(TAG,
-                     "Server sample rate %d does not match device output sample rate %d, "
-                     "resampling may cause distortion",
+            ESP_LOGI(TAG, "Server audio %d Hz -> I2S %d Hz through rate converter",
                      protocol_->server_sample_rate(), codec->output_sample_rate());
         }
     });
@@ -778,11 +828,13 @@ void Application::DismissAlert() {
 void Application::ToggleChatState() { StartListening(); }
 
 void Application::StartListening() {
+    CancelStartupSound();
     const auto context = brain::Runtime::Get().BeginExplicit();
     Schedule([this, context] { StartFreshConversation(context); });
 }
 
 void Application::StopListening() {
+    CancelStartupSound();
     brain::Runtime::Get().Invalidate();
     Schedule([this] { HandleStopListeningEvent(); });
 }
@@ -942,6 +994,11 @@ void Application::HandleStateChangedEvent() {
             }
             audio_service_.EnableVoiceProcessing(false);
             audio_service_.EnableWakeWordDetection(true);
+            if (startup_sound_requested_.exchange(false) && !brain::Runtime::Get().Updating()) {
+                startup_sound_pending_ = true;
+                ESP_LOGI(TAG, "startup stage=audio_ready sound_gap_ms=500");
+                ESP_ERROR_CHECK(esp_timer_start_once(startup_sound_timer_, 500000));
+            }
             break;
         case kDeviceStateConnecting:
             display->SetStatus(Lang::Strings::CONNECTING);
@@ -1281,9 +1338,13 @@ void Application::SetAecMode(AecMode mode) {
     });
 }
 
-void Application::PlaySound(const std::string_view& sound) { audio_service_.PlaySound(sound); }
+void Application::PlaySound(const std::string_view& sound) {
+    CancelStartupSound();
+    audio_service_.PlaySound(sound);
+}
 
 void Application::ResetProtocol() {
+    CancelStartupSound();
     Schedule([this]() {
         if (GetDeviceState() == kDeviceStateNotifying) {
             StopNotification();

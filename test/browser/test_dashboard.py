@@ -140,7 +140,8 @@ class DashboardTests(unittest.TestCase):
         if self._testMethodName not in ('test_19_brief_socket_backpressure_keeps_physical_hold',
                                        'test_20_sustained_backpressure_requires_a_fresh_press',
                                        'test_23_latency_observer_records_four_buttons',
-                                       'test_24_latency_observer_cancels_old_generation'):
+                                       'test_24_latency_observer_cancels_old_generation',
+                                       'test_32_latency_hash_uses_the_open_status_connection'):
             self.context.route_web_socket("**/ws", self.relay)
         self.sim_event({"event": "reset"})
         self.page, self.probe = self.new_page()
@@ -226,7 +227,9 @@ class DashboardTests(unittest.TestCase):
         return indices[0] + 1
 
     def test_01_immediate_hold_release_pointer_capture(self):
-        self.assertEqual(self.page.locator("#speed").input_value(), "30")
+        self.assertEqual(self.page.get_by_role("slider", name="Thanh ga").input_value(), "20")
+        self.assertEqual(self.page.locator("#speed-value").inner_text(), "20%")
+        self.assertFalse(self.probe.commands("drive"))
         marker = len(self.probe.sent)
         self.pointer_down()
         self.wait(lambda: len(self.probe.commands("drive", marker)) >= 1)
@@ -240,7 +243,7 @@ class DashboardTests(unittest.TestCase):
         self.assertLessEqual(len(frames), 10)
         intervals = [b[0] - a[0] for a, b in zip(frames, frames[1:])]
         self.assertTrue(all(.020 < interval < .130 for interval in intervals), "Held repeat must be near 20 Hz")
-        self.assertTrue(all(value == {"t": "drive", "action": "forward", "speed": 30} for _, value in frames))
+        self.assertTrue(all(value == {"t": "drive", "action": "forward", "speed": 56} for _, value in frames))
         self.page.mouse.move(2, 2)
         marker = len(self.probe.sent)
         self.page.mouse.up()
@@ -385,12 +388,12 @@ class DashboardTests(unittest.TestCase):
         self.page.keyboard.down("w")
         marker = len(self.probe.sent)
         self.page.wait_for_selector('#telemetry[data-fresh="false"]')
+        self.assertIn("Chưa có trạng thái mới", self.page.locator("#motion-state").inner_text())
         self.page.wait_for_timeout(1050)
         self.assertEqual(len(self.probe.commands("neutral", marker)), 1)
         self.assertEqual(len(self.probe.commands("stop", marker)), 0)
         stale_marker = len(self.probe.sent)
         self.assert_no_drive(stale_marker)
-        self.assertIn("Chưa có trạng thái mới", self.page.locator("#motion-state").inner_text())
         self.mute_status = False
         self.page.wait_for_selector('#telemetry[data-fresh="true"]')
         self.wait_zero()
@@ -453,7 +456,7 @@ class DashboardTests(unittest.TestCase):
                 marker = len(self.probe.sent)
                 self.pointer_down(action)
                 self.wait(lambda: bool(self.probe.commands("drive", marker)))
-                self.assertEqual(self.probe.commands("drive", marker)[0], {"t": "drive", "action": action, "speed": 47})
+                self.assertEqual(self.probe.commands("drive", marker)[0], {"t": "drive", "action": action, "speed": 71})
                 self.wait(lambda: self.probe.latest.get("left", 0) * left_sign > 0 and self.probe.latest.get("right", 0) * right_sign > 0,
                           "Native C++ core reported wrong spin/drive polarity")
                 self.page.mouse.up()
@@ -463,7 +466,8 @@ class DashboardTests(unittest.TestCase):
         output = prepare_output()
         self.assertTrue(self.page.locator("#simulator").is_visible())
         self.assertIn("Lệnh PWM", self.page.locator("#telemetry").inner_text())
-        self.assertEqual(self.page.locator("[data-action]").count(), 4)
+        self.assertEqual(self.page.locator(".pad [data-action]").count(), 4)
+        self.assertEqual(self.page.locator("#primitives [data-action]").count(), 6)
         self.assertEqual(self.probe.errors, [])
         for label, width, height in [("desktop", 1440, 1000), ("mobile", 390, 844)]:
             self.page.set_viewport_size({"width": width, "height": height})
@@ -561,7 +565,7 @@ class DashboardTests(unittest.TestCase):
         marker=len(self.probe.sent);self.page.wait_for_timeout(3000)
         self.assertGreaterEqual(len(self.probe.commands('drive',marker)),45)
         self.assertFalse(self.probe.commands('neutral',marker))
-        self.assertEqual(self.sim_state()['left'],405)
+        self.assertEqual(self.sim_state()['left'],756)
         cdp.send('Input.dispatchTouchEvent',{'type':'touchEnd','touchPoints':[]})
         self.wait_zero();cdp.detach()
 
@@ -606,17 +610,17 @@ class DashboardTests(unittest.TestCase):
 
     def test_25_command_status_snapshot_is_after_control_tick(self):
         self.pointer_down('forward')
-        self.wait(lambda:self.probe.latest.get('left')==405)
+        self.wait(lambda:self.probe.latest.get('left')==756)
         marker=len(self.probe.statuses)
         self.page.evaluate("""() => {
           for (let i=0;i<5;i++) {
-            window.__testSocket.send(JSON.stringify({t:'drive',action:'forward',speed:30}));
+            window.__testSocket.send(JSON.stringify({t:'drive',action:'forward',speed:56}));
             window.__testSocket.send(JSON.stringify({t:'status'}));
           }
         }""")
         self.wait(lambda:len(self.probe.statuses)>=marker+5)
         replies=self.probe.statuses[marker:]
-        self.assertFalse(any(s.get('action')=='forward' and s.get('left')==405 and
+        self.assertFalse(any(s.get('action')=='forward' and s.get('left')==756 and
                              s.get('reason')=='released' for s in replies),
                          'STATUS must not expose the intermediate target-before-tick state')
         self.page.mouse.up()
@@ -634,13 +638,167 @@ class DashboardTests(unittest.TestCase):
         self.assertEqual(self.page.evaluate('window.__stableWrites'),0,
                          'Identical fields must not be rewritten on each STATUS')
         self.pointer_down('forward')
-        self.wait(lambda:self.page.locator('#left-duty').inner_text()=='+405')
-        self.assertEqual(self.page.locator('#right-duty').inner_text(),'+405')
+        self.wait(lambda:self.page.locator('#left-duty').inner_text()=='+756')
+        self.assertEqual(self.page.locator('#right-duty').inner_text(),'+756')
         self.page.mouse.up();self.wait_zero()
         self.wait(lambda:self.page.locator('#left-duty').inner_text()=='0')
         self.assertGreater(self.page.evaluate('window.__stableWrites'),0,
                            'Changed duty must still render')
         self.page.evaluate('window.__stableObserver.disconnect()')
+
+    def test_27_six_extra_primitives_zero_minimum_full_and_release(self):
+        self.page.locator('#primitives summary').click()
+        for throttle, speed, full, half in ((0, 0, 0, 0), (1, 45, 608, 304), (100, 100, 1350, 675)):
+            self.page.locator('#speed').evaluate("(e,v)=>{e.value=String(v);e.dispatchEvent(new Event('input',{bubbles:true}));}", throttle)
+            expected = {'forward_left': (half, full), 'forward_right': (full, half),
+                        'backward_left': (-full, -half), 'backward_right': (-half, -full),
+                        'pivot_left': (0, full), 'pivot_right': (full, 0)}
+            for action, values in expected.items():
+                # The fixed STOP dock overlaps the bottom of the viewport.
+                # Center the target and hit-test before using raw mouse coords.
+                self.page.locator('#'+action).evaluate("e=>e.scrollIntoView({block:'center'})")
+                self.page.wait_for_function("id=>{const e=document.getElementById(id),r=e.getBoundingClientRect();return document.elementFromPoint(r.x+r.width/2,r.y+r.height/2)?.closest('[data-action]')===e;}",arg=action)
+                marker = len(self.probe.sent)
+                self.pointer_down(action)
+                self.wait(lambda: bool(self.probe.commands('drive', marker)))
+                self.assertEqual(self.probe.commands('drive', marker)[0]['speed'], speed)
+                try:
+                    self.wait(lambda: (self.probe.latest.get('left'),self.probe.latest.get('right'))==values,
+                              'Wrong primitive duty: '+action)
+                except AssertionError:
+                    self.page.screenshot(path=str(prepare_output()/('failure-'+action+'.png')))
+                    print('primitive failure:',action,throttle,values,self.sim_state(),
+                          self.page.evaluate('window.__inputTrace.slice(-8)'))
+                    raise
+                self.page.wait_for_timeout(120)
+                self.page.mouse.up();self.wait_zero()
+        self.page.locator('#telemetry details').evaluate('e=>e.open=true')
+        self.assertIn('Tắt',self.page.locator('#startup-state').inner_text())
+        self.assertEqual(self.probe.errors,[])
+
+    def test_28_closing_primitive_group_cancels_hold_without_replay(self):
+        self.page.locator('#primitives summary').click()
+        self.page.locator('#forward_left').evaluate("e=>e.scrollIntoView({block:'center'})")
+        self.pointer_down('forward_left')
+        self.wait(lambda:self.probe.latest.get('left')==378)
+        marker=len(self.probe.sent)
+        self.page.locator('#primitives').evaluate('e=>e.open=false')
+        self.wait(lambda:bool(self.probe.commands('neutral',marker)))
+        self.wait_zero();self.page.mouse.up()
+        marker=len(self.probe.sent)
+        self.page.locator('#primitives').evaluate('e=>e.open=true')
+        self.assert_no_drive(marker)
+
+    def test_29_extra_primitives_ai_and_old_generation_rejected(self):
+        self.page.locator('#ai-mode').click();self.wait_mode('ai')
+        self.page.locator('#primitives summary').click()
+        expected={'forward_left':(203,405),'forward_right':(405,203),
+                  'backward_left':(-405,-203),'backward_right':(-203,-405),
+                  'pivot_left':(0,405),'pivot_right':(405,0)}
+        for action,values in expected.items():
+            self.assertTrue(self.page.locator('#'+action).is_disabled())
+            self.sim_event({'event':'ai','action':action,'speed':30,'duration_ms':400})
+            self.wait(lambda:(self.probe.latest.get('left'),self.probe.latest.get('right'))==values)
+            self.wait_zero()
+        old=self.sim_state()['generation']
+        self.page.locator('#stop').click();self.wait_mode('manual');self.wait_zero()
+        self.sim_event({'event':'ai','action':'backward_left','generation':old},accepted=False)
+        self.wait_zero()
+
+    def test_30_extra_mobile_touch_hold_and_cancel(self):
+        self.page.set_viewport_size({'width':390,'height':844})
+        self.page.locator('#primitives summary').click()
+        button=self.page.locator('#backward_left');button.evaluate("e=>e.scrollIntoView({block:'center'})")
+        box=button.bounding_box()
+        self.assertIsNotNone(box)
+        cdp=self.context.new_cdp_session(self.page)
+        cdp.send('Emulation.setTouchEmulationEnabled',{'enabled':True})
+        point={'x':box['x']+box['width']/2,'y':box['y']+box['height']/2}
+        cdp.send('Input.dispatchTouchEvent',{'type':'touchStart','touchPoints':[point]})
+        try:
+            self.wait(lambda:self.probe.latest.get('left')==-756 and self.probe.latest.get('right')==-378)
+        except AssertionError:
+            self.page.screenshot(path=str(prepare_output()/'failure-touch.png'))
+            print('touch failure:',self.sim_state(),self.page.evaluate('window.__inputTrace.slice(-8)'))
+            raise
+        self.page.wait_for_timeout(1200)
+        self.assertEqual(self.sim_state()['left'],-756)
+        cdp.send('Input.dispatchTouchEvent',{'type':'touchCancel','touchPoints':[]})
+        self.wait_zero()
+        self.assertLessEqual(self.page.evaluate('document.documentElement.scrollWidth'),390)
+
+    def test_31_sensor_status_updates_without_interfering_with_hold(self):
+        self.page.set_viewport_size({'width': 390, 'height': 844})
+        self.page.locator('#forward').scroll_into_view_if_needed()
+        self.pointer_down()
+        self.wait(lambda: self.probe.latest.get('left') == 756)
+        self.sim_event({'event': 'sensors', 'sensors': {
+            'tof_status': 0, 'tof_mm': 400, 'edge_do': [0, 1], 'mpu_status': 'ok', 'mpu_who_am_i': 0x74,
+            'accel_mg': [10, -20, 980], 'gyro_dps10': [15, 0, -25]}})
+        self.wait(lambda: self.page.locator('#sensor-range').inner_text() == '400 mm')
+        self.assertEqual(self.page.locator('#sensor-edge').inner_text(), 'Trái 0 · Phải 1')
+        self.assertIn('MPU6515', self.page.locator('#sensor-mpu-label').inner_text())
+        self.assertIn('10 / -20 / 980 mg', self.page.locator('#sensor-accel').inner_text())
+        self.assertIn('1,5 / 0 / -2,5 °/s', self.page.locator('#sensor-gyro').inner_text())
+        self.sim_event({'event': 'sensors', 'sensors': {
+            'tof_status': 2, 'edge_do': [1, 0], 'mpu_status': 'stale'}})
+        self.wait(lambda: self.page.locator('#sensor-range-state').inner_text() == 'Tín hiệu yếu')
+        self.assertEqual(self.page.locator('#sensor-range').inner_text(), '—')
+        self.assertEqual(self.page.locator('#sensor-edge').inner_text(), 'Trái 1 · Phải 0')
+        self.assertIn('quá hạn', self.page.locator('#sensor-mpu-state').inner_text())
+        self.assertNotIn('mg', self.page.locator('#sensor-accel').inner_text())
+        self.assertEqual(self.sim_state()['left'], 756)
+        self.page.mouse.up()
+        self.wait_zero()
+        self.assertLessEqual(self.page.evaluate('document.documentElement.scrollWidth'), 390)
+
+    def test_32_latency_hash_uses_the_open_status_connection(self):
+        requests = []
+        sockets = []
+        self.page.on('request', lambda request: requests.append(request.url))
+        self.page.on('websocket', lambda socket: sockets.append(socket.url))
+        generation = self.probe.latest['generation']
+        self.page.evaluate("location.hash = '#latency'")
+        self.page.wait_for_selector('#latency-readout')
+        self.page.locator('#forward').scroll_into_view_if_needed()
+        self.pointer_down()
+        self.wait(lambda: len(self.probe.commands('latency')) == 1)
+        self.assertIn('Tiến · 1', self.page.locator('#latency-readout').inner_text())
+        self.page.mouse.up()
+        self.wait_zero()
+        self.page.evaluate("location.hash = ''")
+        self.page.wait_for_selector('#latency-panel', state='hidden')
+        self.assertEqual(self.probe.latest['generation'], generation)
+        self.assertFalse(sockets)
+        self.assertFalse(requests)
+
+    def test_33_socket_drop_reconnects_without_resuming_held_input(self):
+        self.pointer_down()
+        self.wait(lambda: self.sim_state()['left'] > 0)
+        marker = len(self.probe.sent)
+        self.relays[-1].close(code=1011, reason='simulated_drop')
+        self.wait(lambda: self.probe.socket_count == 2)
+        self.page.wait_for_selector('#telemetry[data-fresh="true"]')
+        self.wait_zero()
+        self.assert_no_drive(marker)
+        self.page.mouse.up()
+        self.pointer_down()
+        self.wait(lambda: self.sim_state()['left'] > 0)
+        self.page.mouse.up()
+        self.wait_zero()
+
+    def test_34_probe_ack_arrives_without_periodic_status(self):
+        self.page.evaluate("location.hash = '#latency'")
+        self.page.wait_for_selector('#latency-readout')
+        self.page.locator('#forward').scroll_into_view_if_needed()
+        self.mute_status = True
+        self.pointer_down()
+        self.wait(lambda: 'ACK chủ động' in self.page.locator('#latency-segments').inner_text())
+        self.assertIn('Tiến · 1', self.page.locator('#latency-readout').inner_text())
+        self.assertFalse(self.probe.commands('probe_status'))
+        self.page.mouse.up()
+        self.mute_status = False
+        self.wait_zero()
 
     def test_18_maintenance_clears_held_and_never_replays(self):
         self.page.locator('#forward').hover()

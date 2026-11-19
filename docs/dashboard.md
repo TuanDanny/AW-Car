@@ -13,9 +13,11 @@ HTTPS. AP Motion: `AW-CAR` / `123456789`, địa chỉ `http://192.168.4.1`.
   Mở tab mới làm Motion hủy mục tiêu, chuyển Manual, thay phiên cũ; tab cũ
   hiển thị `1001 · controller_replaced`. Chọn **Kết nối lại** để tạo phiên mới.
 - **Manual**: giữ **Tiến**, **Lùi**, **Quay trái**, **Quay phải** hoặc W/S/A/D.
-  Trái/phải quay tại chỗ, hai bên ngược dấu. Không có nút lái chéo.
-- **Mức lệnh** 0–100%, mặc định 30%. Đây là phần trăm lệnh duty; không phải
-  tốc độ xe đo được. Lệnh PWM trái/phải có dấu, thang ±1350.
+  Trái/phải quay tại chỗ. Mở nhóm **Rẽ cong & quay quanh một bên** để dùng sáu động tác bổ sung.
+- **Thanh ga** 0–100%, mặc định 20%. Ga 0% gửi duty mục tiêu 0%.
+  Dải ga 1–100% được quy đổi tuyến tính sang duty mục tiêu 45–100% và làm tròn
+  đến phần trăm nguyên. Ga 20% gửi duty 56%. PWM trái/phải dùng thang ±1350
+  và có thể cao hơn duty mục tiêu trong lúc đề-pa.
 - Nhấn **STOP** hoặc Space ngoài ô nhập để gửi STOP ngay. Motion chuyển
   Manual và đổi generation; Web chờ STATUS xác nhận, không tự báo đã dừng.
   Thanh STOP cố định dưới màn hình, kể cả khi cuộn trên điện thoại.
@@ -29,8 +31,8 @@ HTTPS. AP Motion: `AW-CAR` / `123456789`, địa chỉ `http://192.168.4.1`.
 
 ## Vòng đời thao tác và kết nối
 
-Press gửi `{"t":"drive","action":"forward","speed":30}` ngay trong sự kiện
-bấm; lặp mỗi 50 ms khi giữ. Nút/phím mới thay nút cũ. Thả nút mới nhất gửi
+Ở ga mặc định 20%, bấm Tiến gửi `{"t":"drive","action":"forward","speed":56}`
+ngay và lặp mỗi 50 ms khi giữ. Nút/phím mới thay nút cũ. Thả nút mới nhất gửi
 `{"t":"neutral"}` và không khôi phục nút/phím trước; thả nút cũ không ảnh hưởng
 nút mới. Không có hàng đợi MOVE hoặc khôi phục thao tác sau STOP/đổi mode.
 
@@ -50,20 +52,16 @@ STOP lặp, không gửi neutral trong AI. Phản hồi mới cho phép bấm l�
 khôi phục giữ. Deadline Manual **500 ms thuộc Motion**, độc lập heartbeat và
 thời gian chạy JavaScript. Web không thay thế deadline này.
 
-Khi WebSocket đóng, Web xóa giữ ngay, khóa nút lái, hiển thị code/reason và dữ
-liệu cuối dưới dạng quá hạn. Không tự reconnect, không replay MOVE. Ngắt WS
-không được hiển thị như xác nhận xe vật lý đã dừng; chỉ STATUS mới xác nhận
-lệnh Motion đang báo. AI tiếp tục theo deadline riêng khi Web ngắt.
+Khi WebSocket đóng, Web xóa thao tác giữ, khóa nút lái và hiển thị lý do.
+Trang thử nối lại sau lỗi đường truyền. Nếu tab khác tiếp quản hoặc phiên
+bị chặn, dùng nút **Kết nối lại**. Mỗi lần nối lại cần thao tác lái mới.
+AI tiếp tục theo deadline riêng khi Web ngắt.
 
 ## Dữ liệu hiển thị
 
-Đo trên điện thoại: mở `http://192.168.4.1/#latency`. Bộ đo không tự chạy xe;
-giữ VM ngắt và người dùng bấm từng nút, giữ0,5–1giây rồi nhả1giây. Timestamp
-bấm/gửi/STATUS cùng đồng hồ performance của browser; một mẫu chỉ hợp lệ khi
-mode/generation không đổi, mục tiêu đúng dấu/duty và SPI/seq có tiến triển.
-Số cuối là phản hồi setpoint phần mềm, gồm poll100ms; không xác nhận cạnh PWM
-hoặc motor đã quay. Bỏ `#latency` và tải lại để tắt hoàn toàn observer. Log chỉ
-giữ hướng và hai số microsecond, không có hội thoại hay credential.
+Mở [bảng đo độ trễ Web đến FPGA ACK](latency-measurement.md) bằng `/#latency`.
+Mục **Cảm biến Motion** hiển thị khoảng cách laser, mức DO dò mép và dữ liệu
+MPU. Mục **Thông tin kết nối & chẩn đoán** hiển thị cấu hình đề-pa.
 
 `status` dùng đúng shape firmware: `build`, `mode`, `action`, `speed`, `left`,
 `right`, `reason`, `generation`; `fpga` gồm connected/applied_seq/count/seen;
@@ -104,7 +102,9 @@ và AI, takeover, refresh, reconnect tường minh, đúng dấu bốn hướng,
 trong viewport và không tràn ngang. Browser test/build không thay nghiệm thu
 FPGA, motor, reset, mất liên kết hoặc dừng vật lý trên xe.
 
-## Trạng thái nghiệm thu
+## Lịch sử nghiệm thu ngày 10/11
+
+Xem [mốc tích hợp hiện tại](current-release.md) cho bản đang chạy.
 
 - Ngày 10/11/2026: 17/17 browser tests đạt với `simplev1-host`, server cổng
   8783 dùng lõi C++ native. Ảnh desktop/mobile đã chụp và xem trực tiếp.

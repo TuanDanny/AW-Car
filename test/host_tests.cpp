@@ -101,6 +101,31 @@ void control() {
         const int magnitude=(speed*1350+50)/100;CHECK(std::abs(isolated.state().left)==magnitude && std::abs(isolated.state().right)==magnitude);
     }
 }
+void primitive_codec() {
+    using namespace simple;
+    CHECK(unsigned(Action::Forward)==1 && unsigned(Action::Backward)==2 &&
+          unsigned(Action::Left)==3 && unsigned(Action::Right)==4);
+    for(unsigned id=0;id<=unsigned(Action::PivotRight);++id) {
+        Action parsed=Action::Neutral;
+        CHECK(parse_action(action_name(Action(id)),parsed) && unsigned(parsed)==id);
+        for(auto speed:{0,30,100}) {
+            AiMove move{123,Action(id),uint8_t(speed),3000},decoded{};
+            CHECK(parse_ai_move(make_ai_move(3,move),decoded) && decoded.action==Action(id));
+            MotionState state{},received{};state.action=Action(id);
+            CHECK(parse_motion_state(make_motion_state(4,state),received) && received.action==Action(id));
+        }
+    }
+    Action parsed=Action::Forward;
+    CHECK(!parse_action(nullptr,parsed) && !parse_action("forward_left_extra",parsed));
+    for(unsigned id=11;id<=255;++id) {
+        AiMove move{123,Action(id),30,3000},decoded{};
+        CHECK(!valid_action(Action(id)) && !parse_ai_move(make_ai_move(2,move),decoded));
+        MotionState state{},received{};state.action=Action(id);
+        CHECK(!parse_motion_state(make_motion_state(4,state),received));
+    }
+    StartupEnvelope bad({true,500,0});CHECK(!bad.config().enabled);
+    CHECK(StartupConfig{}.enabled==false && StartupConfig{}.gain_percent==100);
+}
 void pid() {
     simple::Pid p;p.kp=2;p.ki=3;p.kd=.1f;p.high=100;p.integral_high=20;
     for(unsigned i=0;i<10000;++i) { const float out=p.update(1000,0);CHECK(std::isfinite(out) && out>=0 && out<=100 && p.integral<=20); }
@@ -210,4 +235,4 @@ void log_ring() {
     batch=ring.read(20,records,3);CHECK(batch.count==1 && std::strlen(records[0].text)==255);
 }
 }
-int main() { codec();control();pid();ai_default_duration();maintenance();network_policy();log_ring();std::printf("PASS native assertions=%u seed=731 SPI_random=12000 UART_frames=1024 PID=disabled_on_firmware\n",assertions); }
+int main() { codec();control();primitive_codec();pid();ai_default_duration();maintenance();network_policy();log_ring();std::printf("PASS native assertions=%u seed=731 SPI_random=12000 UART_frames=1024 PID=disabled_on_firmware\n",assertions); }

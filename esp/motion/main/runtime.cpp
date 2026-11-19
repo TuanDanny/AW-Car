@@ -23,7 +23,11 @@ uint64_t us() { return uint64_t(esp_timer_get_time()); }
 Runtime& Runtime::get() { static Runtime runtime;return runtime; }
 void Runtime::wake() { if(control_task_) xTaskNotifyGive(control_task_); }
 void Runtime::start() {
-    core_=simple::Control(esp_random());
+    simple::StartupConfig startup{};
+#ifdef CONFIG_SIMPLE_STARTUP_ENABLED
+    startup={true,CONFIG_SIMPLE_STARTUP_GAIN_PERCENT,CONFIG_SIMPLE_STARTUP_TAU_MS};
+#endif
+    core_=simple::Control(esp_random(),startup);
     maintenance_requested_=management::boot_pending();
     // Input enable makes gpio_get_level read the pad, rather than always return0.
     gpio_config_t pin{};pin.pin_bit_mask=1ULL<<kDriver;pin.mode=GPIO_MODE_INPUT_OUTPUT;pin.pull_down_en=GPIO_PULLDOWN_ENABLE;
@@ -55,8 +59,13 @@ void Runtime::mode(simple::Mode mode) {
 void Runtime::disconnect() {
     portENTER_CRITICAL(&mux_);pending_.disconnected=true;portEXIT_CRITICAL(&mux_);wake();
 }
-void Runtime::drive(simple::Action action,uint8_t speed) {
-    portENTER_CRITICAL(&mux_);pending_.source=Source::Manual;pending_.action=action;pending_.speed=speed;pending_.command_us=us();portEXIT_CRITICAL(&mux_);wake();
+void Runtime::drive(simple::Action action,uint8_t speed,uint32_t probe_token) {
+    portENTER_CRITICAL(&mux_);
+    const bool retain=!probe_token && pending_.probe_token && pending_.source==Source::Manual &&
+        pending_.action==action && pending_.speed==speed;
+    if(!retain) { pending_.probe_token=probe_token;pending_.command_us=us(); }
+    pending_.source=Source::Manual;pending_.action=action;pending_.speed=speed;
+    portEXIT_CRITICAL(&mux_);wake();
 }
 bool Runtime::listen(bool enabled) {
     simple::Frame f{simple::Type::Listen,0,1,{}};f.payload[0]=enabled?1:0;return xQueueSend(uart_out_,&f,0)==pdTRUE;
@@ -105,6 +114,10 @@ void Runtime::accept(const simple::Frame& f) {
 }
 void Runtime::control_loop() {
     uint16_t seq=0,last_tx=0;bool have_tx=false;simple::SpiStatus fpga{};
+    int16_t last_left=0,last_right=0;
+    uint64_t intent_us=0,last_intent_us=0;
+    uint32_t armed_probe=0,armed_generation=0,last_probe=0,last_probe_generation=0;
+    uint64_t probe_received_us=0,last_probe_received_us=0;
     bool previous_zero=false;unsigned zero_acks=0;
     for(;;) {
         ulTaskNotifyTake(pdTRUE,pdMS_TO_TICKS(5));
@@ -123,8 +136,21 @@ void Runtime::control_loop() {
         else {
             if(inputs.disconnected) core_.disconnect();
             if(inputs.mode) core_.set_mode(inputs.new_mode);
-            if(inputs.source==Source::Manual) rejected=!core_.manual(inputs.action,inputs.speed,now);
-            else if(inputs.source==Source::Ai) rejected=!core_.ai(inputs.ai,now);
+            if(inputs.source==Source::Manual) {
+                const auto before=core_.state();
+                rejected=!core_.manual(inputs.action,inputs.speed,now);
+                if(!rejected) {
+                    const bool changed=before.action!=inputs.action || before.speed!=inputs.speed;
+                    if(changed || inputs.probe_token) armed_probe=inputs.probe_token;
+                    if(changed) intent_us=inputs.command_us;
+                    if(inputs.probe_token) {
+                        armed_generation=core_.state().generation;
+                        probe_received_us=inputs.command_us;
+                    }
+                }
+            } else if(inputs.source==Source::Ai) {
+                rejected=!core_.ai(inputs.ai,now);
+            }
         }
         core_.tick(now);
         const auto state=core_.state();
@@ -138,7 +164,12 @@ void Runtime::control_loop() {
         simple::SpiStatus received{};
         const bool frame_valid=result==ESP_OK && simple::decode_spi_status(rx,received);
         const bool valid=frame_valid && have_tx && received.applied_seq==last_tx;
-        if(valid) { fpga=received;core_.fpga(received,us()/1000); }
+        const uint64_t ack_us=valid ? us() : 0;
+        if(valid) { fpga=received;core_.fpga(received,ack_us/1000); }
+        if(state.generation!=armed_generation || state.mode!=simple::Mode::Manual ||
+           state.action==simple::Action::Neutral) armed_probe=0;
+        const bool ack_probe=valid && last_probe && last_probe==armed_probe &&
+            last_probe_generation==state.generation;
         // A response acknowledges the PREVIOUS transfer. Two zero ACKs plus
         // measured GPIO10 LOW are required before the OTA task may touch flash.
         if(requested && valid && previous_zero && !state.left && !state.right) ++zero_acks;
@@ -149,9 +180,18 @@ void Runtime::control_loop() {
         portENTER_CRITICAL(&mux_);
         snapshot_.car=core_.state();snapshot_.brain=core_.brain_state();snapshot_.fpga=fpga;
         snapshot_.maintenance=requested;snapshot_.driver_gpio=gpio_get_level(kDriver)!=0;
+        snapshot_.startup=core_.startup_config();
         snapshot_.brain_connected=core_.brain_connected(now);
         if(!have_tx) ++snapshot_.spi_startup;
-        else if(valid) ++snapshot_.spi_ok;
+        else if(valid) {
+            ++snapshot_.spi_ok;
+            if(snapshot_.ack_left!=last_left || snapshot_.ack_right!=last_right) {
+                snapshot_.ack_edge_us=ack_us;
+                snapshot_.drive_to_ack_us=last_intent_us
+                    ? uint32_t(std::min<uint64_t>(ack_us-last_intent_us,UINT32_MAX)) : 0;
+            }
+            snapshot_.ack_left=last_left;snapshot_.ack_right=last_right;
+        }
         else {
             ++snapshot_.spi_errors;
             if(result!=ESP_OK) ++snapshot_.spi_io_errors;
@@ -159,6 +199,13 @@ void Runtime::control_loop() {
             else ++snapshot_.spi_ack_errors;
         }
         if(rejected) ++snapshot_.rejected;
+        if(ack_probe) {
+            snapshot_.probe_ack_token=last_probe;
+            snapshot_.probe_ack_generation=last_probe_generation;
+            snapshot_.probe_ack_us=ack_us;
+            snapshot_.probe_ack_delay_us=uint32_t(std::min<uint64_t>(ack_us-last_probe_received_us,UINT32_MAX));
+            armed_probe=0;
+        }
         const auto input_time=inputs.stop?inputs.stop_us:inputs.command_us;
         if(input_time && !rejected && started>=input_time) {
             const auto delay=uint32_t(std::min<uint64_t>(started-input_time,UINT32_MAX));
@@ -166,7 +213,11 @@ void Runtime::control_loop() {
             snapshot_.latency_max_us=std::max(snapshot_.latency_max_us,delay);
         }
         portEXIT_CRITICAL(&mux_);
-        last_tx=seq;have_tx=true;
+        if(ack_probe) notify_web_probe();
+        last_tx=seq;last_left=state.left;last_right=state.right;have_tx=true;
+        last_intent_us=state.mode==simple::Mode::Manual && (state.left || state.right) ? intent_us : 0;
+        last_probe=(state.left || state.right) ? armed_probe : 0;
+        last_probe_generation=state.generation;last_probe_received_us=probe_received_us;
     }
 }
 void Runtime::uart_loop() {

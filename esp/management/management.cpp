@@ -78,7 +78,7 @@ bool authenticate(httpd_req_t* r) {
 esp_err_t info(httpd_req_t* r) {
     if(!on_sta(r)) return deny(r,"403 Forbidden","STA only");
     if(!authenticate(r)) return deny(r,"401 Unauthorized","authentication required");
-    char status[256]{};describe_state(status,sizeof(status));const auto* app=esp_app_get_description();
+    char status[512]{};describe_state(status,sizeof(status));const auto* app=esp_app_get_description();
     char elf[65]{};hex(app->app_elf_sha256,32,elf);
     auto* root=cJSON_CreateObject();if(!root) return ESP_ERR_NO_MEM;
     cJSON_AddStringToObject(root,"build",build_name);

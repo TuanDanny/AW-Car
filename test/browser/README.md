@@ -40,8 +40,12 @@ như firmware, không công bố reason Released trung gian kèm duty đang khá
 Đã tái hiện trước sửa:405/Released; sau sửa:405/Active. Không nới timeout của
 observer hoặc bỏ assertion để che lỗi đồng bộ trong mô hình host.
 
-Ca26 theo dõi mutation qua10STATUS: các field không đổi không được ghi text
-lại, nhưng khi bắt đầu/nhả Tiến, duty phải cập nhật đúng +405 rồi0.
+Ca26 theo dõi mutation qua 10 STATUS. Khi bấm và nhả Tiến ở ga mặc định,
+duty cập nhật từ +756 về 0.
+
+Ca27–30 kiểm tra sáu nút cung/pivot ở ga 0/1/100%, đóng nhóm đang giữ phải neutral và
+không replay khi mở lại, AI dùng action mới/generation cũ bị từ chối, touch
+giữ và touchCancel ở viewport390px. Bốn nút cũ vẫn kiểm nguyên các ca trước.
 
 Ca AI dùng `/sim/event` để kiểm tra thời lượng native, STOP/generation cũ và
 AI tiếp tục khi đóng Web. Mỗi test reset simulator; không chạy đồng thời một

@@ -3,7 +3,8 @@
 Ngày11/11/2026. Baseline main `97f9fcd`; source tối ưu `79b4204` trên
 `codex/simplev1-ota`. Bản B đã nạp riêng Motion. Sau số đo và xác nhận người dùng,
 chủ dự án duyệt đưa lên main thành prototype v2 qua PR và CI.
-Kế hoạch và lý do chọn ở [review](optimization-review.md); số liệu đầy đủ ở
+Kế hoạch và lý do chọn ở [review lưu tại prototype v2](https://github.com/TuanDanny/AW-Car/blob/prototype-v2/docs/optimization-review.md).
+Số liệu đầy đủ ở
 [comparison](../data/optimization-comparison.json), [121 mẫu điện thoại](../data/optimization-phone-samples.json)
 và [benchmark Web](../data/optimization-web-render.json).
 

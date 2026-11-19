@@ -1,0 +1,64 @@
+{
+  "schema": 1,
+  "date_local": "2026-11-12",
+  "branch": "codex/motion-primitives-sim",
+  "baseline": "85a0094fcc0eb6dd07d9693b3a020455372657df",
+  "scope": "candidate source; host/browser/build verification, not physical deployment",
+  "features": {
+    "new_actions": ["forward_left", "forward_right", "backward_left", "backward_right", "pivot_left", "pivot_right"],
+    "reverse_convention": "head yaws left/right",
+    "inside_effort_ratio": 0.5,
+    "startup_enabled_default": false,
+    "startup_gain_percent_default": 100,
+    "ai_default_speed_percent": 30,
+    "ai_default_duration_ms": 3000,
+    "manual_timeout_ms": 500,
+    "reverse_neutral_ms": 40,
+    "driver_wake_ms": 1,
+    "wiring_changed": false,
+    "fpga_changed": false
+  },
+  "verification": {
+    "repo_structure": "PASS",
+    "diff_check": "PASS",
+    "unittest": {"run": 54, "skipped": 1, "skip_reason": "browser opt-in; executed separately", "failures": 0, "errors": 0},
+    "native_cpp_assertions": 52872,
+    "brain_context_checks": 127,
+    "python_offline_study_tests": 20,
+    "cpp_python_integration_tests": 6,
+    "primitive_action_speed_pairs": 1111,
+    "envelope_max_error_pwm_ticks": 0.494235,
+    "envelope_tolerance_pwm_ticks": 0.501,
+    "browser": {"tests": 30, "passed": 30, "failures": 0, "errors": 0, "backend": "localhost native C++ Control; not hardware", "old_cases_retained": 26},
+    "spi_random_frames": 12000,
+    "uart_random_frames": 1024
+  },
+  "firmware_builds": {
+    "brain": {
+      "result": "PASS",
+      "build_id": "simplev1-84ddf7614fa1",
+      "source_digest": "6ad24bfb12cfb3015a2027c8f66dad95695104b0721a10bd8388da1e6cd2d979",
+      "source_matches_build": true,
+      "image_bytes": 2348000,
+      "image_sha256": "99b51dd5c0b5a8e90d1e56a978902fbe12683a88e1f8b1505ef453b08a011518",
+      "flashed": false
+    },
+    "motion": {
+      "result": "PASS",
+      "build_id": "simplev1-8303ca707d06",
+      "source_digest": "89ec4671b93852951555a36552015917a4e526d2acd9120350130e63d5a60f59",
+      "source_matches_build": true,
+      "image_bytes": 1084096,
+      "image_sha256": "7f5770751c12a646c7cf1641c54f04b984df4b9ae0694b91adff768e2edc6bf4",
+      "flashed": false
+    }
+  },
+  "limitations": [
+    "No physical firmware update or COM/JTAG/OTA actions in this task",
+    "New speech commands not yet accepted on Xiaozhi cloud with real audio",
+    "No motor, current, power, encoder calibration or physical latency acceptance",
+    "No FPGA synthesis or PnR repeated because RTL and constraints are unchanged",
+    "Builds use isolated offline management identity; preserve deployed keys before physical update",
+    "Circle, figure-eight skills, autonomy and PID are not implemented in this milestone"
+  ]
+}

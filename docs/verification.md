@@ -1,4 +1,6 @@
-# Kiểm chứng simplev1 — 10/11/2026
+# Lịch sử kiểm chứng simplev1 ngày 10/11/2026
+
+Firmware trên xe và các mốc hiện nay được ghi tại [bản hiện hành](current-release.md).
 
 **Checkpoint quản trị mới:** [management-checkpoint.json](../data/management-checkpoint.json)
 ghi hai app đã nạp/đọc ngược, tìm bằng .local/IP, log HTTPS và xác thực trên board.
@@ -14,7 +16,7 @@ Brain chỉ build lại; chưa nạp thay firmware Brain. Có bản sửa IPv4-m
 sau khi chủ dự án báo dashboard bị chặn nhầm. Đang chờ thử điện thoại/router/latency;
 chưa kích hoạt migration, management log hoặc OTA.
 
-Mốc hiện tại: source cho ba board đã build và nạp; Manual/AI có duty đúng dấu và
+Mốc bàn thử ngày 10/11: source ba board đã build và nạp. Manual/AI có duty đúng dấu và
 ACK SPI trên phần cứng thật. Các lượt log đầu giữ VM ngắt; sau đó người dùng cấp
 **VM USB khoảng5V, chưa motor** và đo được bốn chiều đúng trên cầuB cả hai DRV.
 Không có PIN/ARM/Gate handshake cũ. Không coi mốc này là xe đã chạy hoặc nghiệm thu

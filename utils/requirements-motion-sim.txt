@@ -1,0 +1,2 @@
+# Plotting only; core equations/tests use the standard library.
+matplotlib==3.11.2

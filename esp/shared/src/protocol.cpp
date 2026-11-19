@@ -69,7 +69,7 @@ bool decode_spi_status(const SpiBytes& b,SpiStatus& out) {
     out={b[3],read16(b.data()+4),read32(b.data()+6),read32(b.data()+10),read32(b.data()+14),read32(b.data()+18),read32(b.data()+22),read32(b.data()+26)};
     return true;
 }
-bool valid_action(Action a) { return uint8_t(a)<=uint8_t(Action::Right); }
+bool valid_action(Action a) { return uint8_t(a)<=uint8_t(Action::PivotRight); }
 Frame make_ai_move(uint16_t seq,const AiMove& m) {
     Frame f{Type::AiMove,seq,8,{}}; write32(f.payload.data(),m.generation);
     f.payload[4]=uint8_t(m.action); f.payload[5]=m.speed; write16(f.payload.data()+6,m.duration_ms); return f;
@@ -105,8 +105,17 @@ bool parse_motion_state(const Frame& f,MotionState& s) {
     return true;
 }
 const char* action_name(Action a) {
-    switch(a) { case Action::Forward:return "forward"; case Action::Backward:return "backward";
-        case Action::Left:return "left"; case Action::Right:return "right"; default:return "neutral"; }
+    static constexpr const char* names[]={"neutral","forward","backward","left","right",
+        "forward_left","forward_right","backward_left","backward_right","pivot_left","pivot_right"};
+    static_assert(sizeof(names)/sizeof(names[0])==unsigned(Action::PivotRight)+1);
+    return valid_action(a)?names[uint8_t(a)]:"neutral";
+}
+bool parse_action(const char* name,Action& action) {
+    if(!name) return false;
+    for(unsigned i=0;i<=unsigned(Action::PivotRight);++i) {
+        if(std::strcmp(name,action_name(Action(i)))==0) { action=Action(i);return true; }
+    }
+    return false;
 }
 const char* reason_name(Reason r) {
     static constexpr const char* names[]={"boot","released","stop","mode_changed","manual_timeout","ai_complete","brain_lost","fpga_lost","takeover","internet_lost","wrong_mode","invalid","reversing","waking","active","maintenance"};

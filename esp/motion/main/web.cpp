@@ -1,6 +1,8 @@
 #include "runtime.hpp"
 #include "network_manager.hpp"
+#include "sensor_telemetry.hpp"
 #include <algorithm>
+#include <atomic>
 #include <cmath>
 #include <cstdio>
 #include <cerrno>
@@ -17,12 +19,13 @@
 #define SIMPLE_BUILD_ID "simplev1-dev"
 #endif
 extern const char page_start[] asm("_binary_index_html_start");
-extern const char latency_start[] asm("_binary_latency_js_start");
 namespace motion {
 namespace {
 httpd_handle_t server{};
 int owner=-1; // Only the HTTP server task reads/writes this descriptor.
-uint32_t opened{},closed{},send_errors{},recv_errors{};
+std::atomic<TaskHandle_t> probe_task{};
+uint32_t armed_web_probe{},armed_web_generation{};
+std::atomic<uint32_t> opened{},closed{},send_errors{},recv_errors{},status_requests{},status_replies{};
 using Json=std::unique_ptr<cJSON,decltype(&cJSON_Delete)>;
 esp_err_t send_text(httpd_req_t* request,const char* text) {
     httpd_ws_frame_t frame{};frame.type=HTTPD_WS_TYPE_TEXT;
@@ -50,6 +53,10 @@ esp_err_t status(httpd_req_t* request) {
     cJSON_AddNumberToObject(r,"generation",s.car.generation);cJSON_AddStringToObject(r,"reason",simple::reason_name(s.car.reason));
     cJSON_AddBoolToObject(r,"simulator",false);
     cJSON_AddBoolToObject(r,"maintenance",s.maintenance);
+    auto* startup=cJSON_AddObjectToObject(r,"startup");
+    cJSON_AddBoolToObject(startup,"enabled",s.startup.enabled);
+    cJSON_AddNumberToObject(startup,"gain_percent",s.startup.gain_percent);
+    cJSON_AddNumberToObject(startup,"tau_ms",s.startup.tau_ms);
     const auto net=network_state();auto* network=cJSON_AddObjectToObject(r,"motion_network");
     cJSON_AddBoolToObject(network,"configured",net.configured);cJSON_AddBoolToObject(network,"online",net.online);
     cJSON_AddBoolToObject(network,"connecting",net.connecting);cJSON_AddStringToObject(network,"ip",net.ip);
@@ -58,6 +65,7 @@ esp_err_t status(httpd_req_t* request) {
     cJSON_AddNumberToObject(network,"disconnect_reason",net.disconnect_reason);cJSON_AddNumberToObject(network,"ap_channel",net.ap_channel);
     auto* f=cJSON_AddObjectToObject(r,"fpga");cJSON_AddBoolToObject(f,"connected",s.car.fpga_link);
     cJSON_AddNumberToObject(f,"applied_seq",s.car.applied_seq);cJSON_AddNumberToObject(f,"left_count",s.fpga.left_count);
+    cJSON_AddNumberToObject(f,"ack_left",s.ack_left);cJSON_AddNumberToObject(f,"ack_right",s.ack_right);
     cJSON_AddNumberToObject(f,"right_count",s.fpga.right_count);cJSON_AddBoolToObject(f,"left_seen",(s.fpga.flags&2)!=0);
     cJSON_AddBoolToObject(f,"right_seen",(s.fpga.flags&4)!=0);
     auto* b=cJSON_AddObjectToObject(r,"brain");cJSON_AddBoolToObject(b,"connected",s.brain_connected);
@@ -81,9 +89,47 @@ esp_err_t status(httpd_req_t* request) {
     cJSON_AddNumberToObject(d,"latency_p99_us",percentile(99));cJSON_AddNumberToObject(d,"latency_max_us",s.latency_max_us);
     cJSON_AddNumberToObject(d,"latency_window",count);cJSON_AddNumberToObject(d,"heap",esp_get_free_heap_size());
     cJSON_AddNumberToObject(d,"uptime_ms",double(esp_timer_get_time()/1000));
-    cJSON_AddNumberToObject(d,"ws_opened",opened);cJSON_AddNumberToObject(d,"ws_closed",closed);
-    cJSON_AddNumberToObject(d,"ws_send_errors",send_errors);cJSON_AddNumberToObject(d,"ws_receive_errors",recv_errors);
-    return send_json(request,r);
+    cJSON_AddNumberToObject(d,"ws_opened",opened.load());cJSON_AddNumberToObject(d,"ws_closed",closed.load());
+    cJSON_AddNumberToObject(d,"ws_send_errors",send_errors.load());cJSON_AddNumberToObject(d,"ws_receive_errors",recv_errors.load());
+    add_sensor_status(r);
+    const auto result=send_json(request,r);
+    if(result==ESP_OK) ++status_replies;
+    return result;
+}
+esp_err_t probe_status(httpd_req_t* request,int sent_ms) {
+    const auto s=Runtime::get().snapshot();
+    const auto ack_age_us=s.ack_edge_us ? uint64_t(esp_timer_get_time())-s.ack_edge_us : 0;
+    char reply[256]{};
+    std::snprintf(reply,sizeof(reply),
+        "{\"t\":\"probe_status\",\"generation\":%lu,\"seq\":%u,\"spi_ok\":%lu,\"left\":%d,\"right\":%d,\"connected\":%s,"
+        "\"sent_ms\":%d,\"board_us\":%lu,\"ack_age_us\":%llu}",
+        static_cast<unsigned long>(s.car.generation),unsigned(s.car.applied_seq),static_cast<unsigned long>(s.spi_ok),
+        int(s.ack_left),int(s.ack_right),s.car.fpga_link && !s.maintenance ? "true" : "false",
+        sent_ms,static_cast<unsigned long>(s.drive_to_ack_us),static_cast<unsigned long long>(ack_age_us));
+    return send_text(request,reply);
+}
+void send_probe_ack(void*) {
+    if(owner<0 || !armed_web_probe) return;
+    const auto s=Runtime::get().snapshot();
+    if(s.probe_ack_token!=armed_web_probe || s.probe_ack_generation!=armed_web_generation ||
+       s.car.generation!=armed_web_generation || s.maintenance) return;
+    armed_web_probe=0;
+    char reply[160]{};
+    const int length=std::snprintf(reply,sizeof(reply),
+        "{\"t\":\"probe_ack\",\"token\":%lu,\"generation\":%lu,\"board_us\":%lu,\"ack_age_us\":%llu}",
+        static_cast<unsigned long>(s.probe_ack_token),static_cast<unsigned long>(s.probe_ack_generation),
+        static_cast<unsigned long>(s.probe_ack_delay_us),
+        static_cast<unsigned long long>(uint64_t(esp_timer_get_time())-s.probe_ack_us));
+    if(length<=0 || size_t(length)>=sizeof(reply)) return;
+    httpd_ws_frame_t frame{};
+    frame.type=HTTPD_WS_TYPE_TEXT;frame.payload=reinterpret_cast<uint8_t*>(reply);frame.len=size_t(length);
+    if(httpd_ws_send_frame_async(server,owner,&frame)!=ESP_OK) ++send_errors;
+}
+void probe_worker(void*) {
+    for(;;) {
+        ulTaskNotifyTake(pdTRUE,portMAX_DELAY);
+        httpd_queue_work(server,send_probe_ack,nullptr);
+    }
 }
 const char* string(cJSON* object,const char* key) {
     const auto* p=cJSON_GetObjectItemCaseSensitive(object,key);return cJSON_IsString(p)?p->valuestring:nullptr;
@@ -96,18 +142,23 @@ bool integer(cJSON* object,const char* key,int min,int max,int& value) {
 esp_err_t message(httpd_req_t* request,cJSON* json) {
     const char* type=string(json,"t");if(!type) return result(request,false,"invalid_type");
     auto& runtime=Runtime::get();
-    if(std::strcmp(type,"status")==0) return status(request);
+    if(std::strcmp(type,"status")==0) { ++status_requests; return status(request); }
+    if(std::strcmp(type,"probe_status")==0) {
+        int sent_ms=-1;
+        integer(json,"sent_ms",0,INT32_MAX,sent_ms);
+        return probe_status(request,sent_ms);
+    }
     if(std::strcmp(type,"latency")==0) {
         const auto* action=string(json,"action");int dispatch=0,confirm=0;
         if(!action || (std::strcmp(action,"forward") && std::strcmp(action,"backward") && std::strcmp(action,"left") && std::strcmp(action,"right")) ||
            !integer(json,"dispatch_us",0,2000000,dispatch) || !integer(json,"confirm_us",dispatch,2000000,confirm))
             return result(request,false,"invalid_latency_sample");
-        ESP_LOGI("latency_probe","action=%s dispatch_us=%d confirm_us=%d scope=phone_to_status poll_ms=100",action,dispatch,confirm);
+        ESP_LOGI("latency_probe","action=%s dispatch_us=%d confirm_us=%d scope=phone_to_spi_ack",action,dispatch,confirm);
         return result(request,true,"received");
     }
-    if(std::strcmp(type,"stop")==0) { runtime.stop();return result(request,true,"received"); }
+    if(std::strcmp(type,"stop")==0) { armed_web_probe=0;runtime.stop();return result(request,true,"received"); }
     if(runtime.snapshot().maintenance) return result(request,false,"maintenance");
-    if(std::strcmp(type,"neutral")==0) { runtime.drive(simple::Action::Neutral,0);return result(request,true,"received"); }
+    if(std::strcmp(type,"neutral")==0) { armed_web_probe=0;runtime.drive(simple::Action::Neutral,0);return result(request,true,"received"); }
     if(std::strcmp(type,"mode")==0) {
         const auto* mode=string(json,"mode");if(!mode || (std::strcmp(mode,"manual") && std::strcmp(mode,"ai"))) return result(request,false,"invalid_mode");
         runtime.mode(std::strcmp(mode,"ai")==0?simple::Mode::Ai:simple::Mode::Manual);return result(request,true,"received");
@@ -115,15 +166,17 @@ esp_err_t message(httpd_req_t* request,cJSON* json) {
     if(std::strcmp(type,"drive")==0) {
         const auto* name=string(json,"action");int speed=0;simple::Action action=simple::Action::Neutral;
         if(!name || !integer(json,"speed",0,100,speed)) return result(request,false,"invalid_drive");
-        if(!std::strcmp(name,"forward")) action=simple::Action::Forward;
-        else if(!std::strcmp(name,"backward")) action=simple::Action::Backward;
-        else if(!std::strcmp(name,"left")) action=simple::Action::Left;
-        else if(!std::strcmp(name,"right")) action=simple::Action::Right;
-        else return result(request,false,"invalid_action");
+        if(!simple::parse_action(name,action) || action==simple::Action::Neutral)
+            return result(request,false,"invalid_action");
         const auto s=runtime.snapshot();
         if(s.car.mode!=simple::Mode::Manual) return result(request,false,"manual_only");
         if(!s.car.fpga_link) return result(request,false,"fpga_unavailable");
-        runtime.drive(action,uint8_t(speed));return result(request,true,"received");
+        int token=0;
+        if(speed>0 && integer(json,"probe",1,INT32_MAX,token)) {
+            armed_web_probe=uint32_t(token);
+            armed_web_generation=s.car.generation;
+        }
+        runtime.drive(action,uint8_t(speed),uint32_t(token));return result(request,true,"received");
     }
     if(std::strcmp(type,"listen")==0) {
         const auto* enabled=cJSON_GetObjectItemCaseSensitive(json,"enabled");
@@ -144,7 +197,7 @@ esp_err_t message(httpd_req_t* request,cJSON* json) {
     return result(request,false,"unknown_command");
 }
 void close_socket(httpd_handle_t,int fd) {
-    if(fd==owner) { owner=-1;Runtime::get().disconnect();++closed;ESP_LOGI("simple_web","peer_closed fd=%d",fd); }
+    if(fd==owner) { owner=-1;armed_web_probe=0;Runtime::get().disconnect();++closed;ESP_LOGI("simple_web","peer_closed fd=%d",fd); }
     close(fd);
 }
 esp_err_t pre_handshake(httpd_req_t* request) {
@@ -162,6 +215,7 @@ esp_err_t pre_handshake(httpd_req_t* request) {
 }
 esp_err_t post_handshake(httpd_req_t* request) {
     const int fd=httpd_req_to_sockfd(request),previous=owner;owner=fd;
+    armed_web_probe=0;
     Runtime::get().stop(simple::Reason::Takeover);++opened;
     const int one=1;const auto rc=setsockopt(fd,IPPROTO_TCP,TCP_NODELAY,&one,sizeof(one));
     if(rc!=0) ESP_LOGW("simple_web","TCP_NODELAY failed fd=%d errno=%d",fd,errno);
@@ -200,14 +254,17 @@ esp_err_t index(httpd_req_t* request) {
     if(!request_on_ap(request)) return httpd_resp_send_err(request,HTTPD_403_FORBIDDEN,"Dashboard is available on AW-CAR / 192.168.4.1 only");
     httpd_resp_set_type(request,"text/html; charset=utf-8");httpd_resp_set_hdr(request,"Cache-Control","no-store");
     httpd_resp_set_hdr(request,"X-Content-Type-Options","nosniff");httpd_resp_set_hdr(request,"X-Frame-Options","DENY");
-    return httpd_resp_send(request,page_start,HTTPD_RESP_USE_STRLEN);
+    httpd_resp_set_hdr(request,"Connection","close");
+    const auto result=httpd_resp_send(request,page_start,HTTPD_RESP_USE_STRLEN);
+    if(result==ESP_OK) httpd_sess_trigger_close(request->handle,httpd_req_to_sockfd(request));
+    return result;
 }
-esp_err_t latency_script(httpd_req_t* request) {
-    if(!request_on_ap(request)) return httpd_resp_send_err(request,HTTPD_403_FORBIDDEN,"AP only");
-    httpd_resp_set_type(request,"text/javascript; charset=utf-8");httpd_resp_set_hdr(request,"Cache-Control","no-store");
-    httpd_resp_set_hdr(request,"X-Content-Type-Options","nosniff");
-    return httpd_resp_send(request,latency_start,HTTPD_RESP_USE_STRLEN);
 }
+WebDiagnostics web_diagnostics() {
+    return {opened.load(),closed.load(),status_requests.load(),status_replies.load(),send_errors.load(),recv_errors.load()};
+}
+void notify_web_probe() {
+    if(const auto task=probe_task.load()) xTaskNotifyGive(task);
 }
 void start_web() {
     httpd_config_t config=HTTPD_DEFAULT_CONFIG();config.task_priority=4;config.core_id=0;config.stack_size=12288;
@@ -216,10 +273,12 @@ void start_web() {
     config.close_fn=close_socket;ESP_ERROR_CHECK(httpd_start(&server,&config));
     httpd_uri_t root{};root.uri="/";root.method=HTTP_GET;root.handler=index;
     ESP_ERROR_CHECK(httpd_register_uri_handler(server,&root));
-    httpd_uri_t probe{};probe.uri="/latency.js";probe.method=HTTP_GET;probe.handler=latency_script;
-    ESP_ERROR_CHECK(httpd_register_uri_handler(server,&probe));
     httpd_uri_t ws{};ws.uri="/ws";ws.method=HTTP_GET;ws.handler=ws_handler;ws.is_websocket=true;
     ws.handle_ws_control_frames=true;ws.ws_pre_handshake_cb=pre_handshake;ws.ws_post_handshake_cb=post_handshake;
     ESP_ERROR_CHECK(httpd_register_uri_handler(server,&ws));
+    TaskHandle_t worker{};
+    if(xTaskCreatePinnedToCore(probe_worker,"web_probe",3072,nullptr,3,&worker,0)!=pdPASS)
+        ESP_LOGW("simple_web","ACK push task unavailable");
+    else probe_task.store(worker);
 }
 } // namespace motion

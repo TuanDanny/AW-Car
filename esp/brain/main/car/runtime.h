@@ -23,6 +23,7 @@ public:
     bool BeginUpdate();
     void EndUpdate();
     bool WorkerHealthy() const;
+    bool Updating() const { return updating_.load(); }
     void SetCloud(bool connected);
     void AudioClosed(bool cloud_closed);
     void SetAudio(bool listening, bool speaking);

@@ -63,7 +63,9 @@ python utils/program_fpga.py --vm-off --location 529
 & $espPython utils/serial_log.py --ports COM3 COM7 --seconds 180 --output build/private/session
 ```
 
-Flasher ESP từ chối sai VID/PID, flash size, partition layout hoặc image hash.
+Flasher ESP kiểm VID/PID, flash size, partition layout và hash image.
+Khi chỉ cập nhật app qua USB, công cụ kiểm mã nhận dạng quản trị của app
+đang chạy trước khi ghi.
 Chỉ ghi app đã chọn và assets Brain; đọc ngược kiểm SHA. Giữ partition table,
 NVS, otadata Brain và motioncfg cũ. **Không dùng lệnh flash-all/merged image tại
 0x0000** từ build output cho các board đã có dữ liệu. Công cụ xác định slot từ

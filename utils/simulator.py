@@ -17,7 +17,9 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "build/python_packages"))
 from aiohttp import web, WSMsgType
 
-ACTION = {"neutral": 0, "forward": 1, "backward": 2, "left": 3, "right": 4}
+ACTION = {"neutral": 0, "forward": 1, "backward": 2, "left": 3, "right": 4,
+          "forward_left": 5, "forward_right": 6, "backward_left": 7, "backward_right": 8,
+          "pivot_left": 9, "pivot_right": 10}
 
 class Native:
     def __init__(self):
@@ -45,6 +47,7 @@ class Native:
         self.ssid = "Motion giả lập"
         self.wifi_result = 2
         self.spi_seq = 0
+        self.sensors = None
 
     def now(self):
         return (time.monotonic_ns() - self.start) // 1_000_000
@@ -58,7 +61,9 @@ class Native:
         s = json.loads(buffer.value)
         return {
             **s, "t": "status", "build": "simplev1-host-" + self.source_hash[:12], "simulator": True,
+            **({"sensors": self.sensors} if self.sensors is not None else {}),
             "fpga": {"connected": s["fpga_connected"], "applied_seq": self.spi_seq,
+                     "ack_left": s["left"], "ack_right": s["right"],
                      "left_count": s["left_count"], "right_count": s["right_count"],
                      "left_seen": self.counts[0] > 0, "right_seen": self.counts[1] > 0},
             "brain": {"connected": s["brain_connected"], "wifi": bool(self.flags & 1) and self.brain,
@@ -86,6 +91,12 @@ class Native:
         self.commands += 1
         if kind == "status":
             return self.state()
+        if kind == "probe_status":
+            s = self.state()
+            return {"t": "probe_status", "generation": s["generation"], "seq": self.spi_seq,
+                    "spi_ok": self.spi_seq, "left": s["left"], "right": s["right"],
+                    "sent_ms": obj.get("sent_ms", -1),
+                    "connected": s["fpga_connected"] and not s["maintenance"]}
         if kind == "latency":
             ok = obj.get('action') in ACTION and type(obj.get('dispatch_us')) is int and type(obj.get('confirm_us')) is int and 0 <= obj['dispatch_us'] <= obj['confirm_us'] <= 2000000
             return {"t":"result","ok":ok,"reason":"received" if ok else "invalid_latency_sample"}
@@ -128,9 +139,6 @@ async def app_context(app):
 async def index(request):
     return web.Response(text=request.app['html'].read_text(encoding="utf-8"), content_type="text/html", headers={"Cache-Control": "no-store"})
 
-async def latency_script(request):
-    return web.Response(text=(ROOT/'esp/motion/web/latency.js').read_text(encoding='utf-8'),content_type='text/javascript')
-
 async def websocket(request):
     native = request.app["native"]
     origin = request.headers.get("Origin", "")
@@ -149,12 +157,21 @@ async def websocket(request):
             if native.owner is not ws:
                 break
             if message.type == WSMsgType.TEXT:
+                obj = None
                 try:
                     obj = json.loads(message.data)
                     reply = native.command(obj) if isinstance(obj, dict) else {"t": "result", "ok": False, "reason": "invalid_json"}
                 except (ValueError, TypeError):
                     reply = {"t": "result", "ok": False, "reason": "invalid_json"}
                 await ws.send_json(reply)
+                if isinstance(obj, dict) and obj.get("t") == "drive" and reply.get("ok") and obj.get("probe"):
+                    generation = native.state()["generation"]
+                    await asyncio.sleep(.015)
+                    state = native.state()
+                    if (native.owner is ws and not ws.closed and state["generation"] == generation and
+                            state["action"] == obj["action"] and (state["left"] or state["right"])):
+                        await ws.send_json({"t": "probe_ack", "token": obj["probe"], "generation": generation,
+                                            "board_us": 15000, "ack_age_us": 0})
     finally:
         if native.owner is ws:
             native.owner = None
@@ -176,6 +193,8 @@ async def sim_event(request):
         ok = native.event(7, ACTION.get(obj.get("action"), 99), int(obj.get("speed", 30)), int(obj.get("duration_ms", 3000)), generation)
     elif kind == "counts":
         native.counts = [int(obj.get("left", 0)), int(obj.get("right", 0))]
+    elif kind == "sensors":
+        native.sensors = obj.get("sensors")
     elif kind == "reset":
         generation = (native.state()["generation"] + 100) & 0xffffffff
         native.dll.car_destroy(native.pointer)
@@ -183,6 +202,7 @@ async def sim_event(request):
         native.fpga = native.brain = True
         native.flags = 3
         native.counts = [0, 0]
+        native.sensors = None
     elif kind == "stop":
         native.event(3, 2)
     elif kind == "maintenance":
@@ -200,7 +220,7 @@ def main():
     app["native"] = Native()
     app['html'] = args.html.resolve(strict=True)
     app.cleanup_ctx.append(app_context)
-    app.add_routes([web.get("/", index), web.get('/latency.js',latency_script), web.get("/ws", websocket), web.get("/sim/state", lambda r: web.json_response(r.app["native"].state())), web.post("/sim/event", sim_event)])
+    app.add_routes([web.get("/", index), web.get("/ws", websocket), web.get("/sim/state", lambda r: web.json_response(r.app["native"].state())), web.post("/sim/event", sim_event)])
     web.run_app(app, host="127.0.0.1", port=args.port, print=print)
 
 if __name__ == "__main__":

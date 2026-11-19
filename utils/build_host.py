@@ -32,11 +32,17 @@ def build(run: bool = True) -> dict:
     # Windows cannot overwrite a loaded DLL. Content-addressed builds also identify
     # exactly which native implementation a running browser/soak is exercising.
     digest = hashlib.sha256()
+    digest.update(str((base,cxx.stat().st_mtime_ns)).encode())
     for source in [*SOURCES, ROOT / "test/sim_api.cpp", *sorted((ROOT / "esp/shared/include/simple").glob("*.hpp"))]:
         digest.update(source.read_bytes())
     suffix = digest.hexdigest()[:12]
     library = BUILD / (f"simple_sim_{suffix}.dll" if os.name == "nt" else f"libsimple_sim_{suffix}.so")
-    subprocess.run(base + ["-shared", *([] if os.name == "nt" else ["-fPIC"]), *map(str, SOURCES), str(ROOT / "test/sim_api.cpp"), "-o", str(library)], check=True, env=env)
+    if not library.exists():
+        # Immutable content address: Windows keeps a loaded DLL locked. Compile
+        # atomically so a later test never reopens a partial/actively used file.
+        temporary=library.with_name(library.stem+f"_{os.getpid()}.tmp"+library.suffix)
+        subprocess.run(base + ["-shared", *([] if os.name == "nt" else ["-fPIC"]), *map(str, SOURCES), str(ROOT / "test/sim_api.cpp"), "-o", str(temporary)], check=True, env=env)
+        os.replace(temporary,library)
     if run:
         subprocess.run([str(exe)], check=True, env=env)
     result = {"compiler": str(cxx), "exe": str(exe), "library": str(library), "source_sha256": digest.hexdigest()}

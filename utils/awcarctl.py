@@ -8,12 +8,14 @@ import http.client
 import json
 from pathlib import Path
 import re
+import sys
 import time
 import ssl
 from management_keys import key_file, read_key
 from ota_image import BINARIES, inspect_bytes
 
 ROOT = Path(__file__).resolve().parents[1]
+TRANSPORT_ERRORS = (OSError, http.client.HTTPException)
 
 
 class Client:
@@ -57,8 +59,23 @@ class Client:
     def get(self, path):
         if path not in ('/info',) and not re.fullmatch(r'/logs\?after=[0-9]{1,20}', path):
             raise ValueError('Only read-only info/log routes are supported')
-        reply = self._json(path)
+        try:
+            reply = self._json(path)
+        except ssl.SSLCertVerificationError:
+            self.close()
+            raise
+        except TRANSPORT_ERRORS:
+            # A reused HTTPS session may have closed while the board was idle.
+            # Repeat the same read once over a freshly authenticated connection.
+            self.close()
+            time.sleep(0.25)
+            try:
+                reply = self._json(path)
+            except TRANSPORT_ERRORS:
+                self.close()
+                raise
         if reply.get('role') != self.role or reply.get('key_id') != self.key_id:
+            self.close()
             raise ValueError('Board/key identity mismatch; use the key used for its USB build')
         return reply
 
@@ -120,6 +137,7 @@ def main():
         if command == 'logs':
             sub.add_argument('--seconds', type=float, default=60)
             sub.add_argument('--interval', type=float, default=1)
+            sub.add_argument('--fresh', action='store_true', help='Only print samples collected after capture starts')
         if command == 'upload':
             sub.add_argument('--file',type=Path)
             sub.add_argument('--manifest',type=Path)
@@ -149,30 +167,54 @@ def main():
             client.close();print(json.dumps(result,indent=2));return 0
         if args.interval < .2 or args.interval > 10 or args.seconds < 0:
             parser.error('interval must be 0.2..10 seconds; seconds >= 0 (0 means until Ctrl+C)')
-        deadline = time.monotonic() + args.seconds if args.seconds else float('inf')
         cursor = 0
+        start_ms = None
         boot = None
+        if args.fresh:
+            current = client.get('/info')
+            start_ms = current['uptime_ms']
+            boot = current['boot']
+        deadline = time.monotonic() + args.seconds if args.seconds else float('inf')
+        received = False
+        disconnected = False
         while time.monotonic() < deadline:
             try:
                 batch = client.get('/logs?after=' + str(cursor))
+                if disconnected:
+                    print('Log connection restored', file=sys.stderr, flush=True)
+                    disconnected = False
                 if boot is not None and boot != batch.get('boot'):
+                    print('Board restarted; reading logs from the new boot', file=sys.stderr, flush=True)
                     cursor = 0
+                    start_ms = None
                     boot = batch.get('boot')
                     continue
                 boot = batch.get('boot')
                 if batch.get('dropped'):
-                    print('Older diagnostic samples overwritten:', batch['dropped'], flush=True)
+                    print('Older diagnostic samples overwritten:', batch['dropped'], file=sys.stderr, flush=True)
                 for item in batch.get('samples', []):
+                    if start_ms is not None and item['ms'] < start_ms:
+                        continue
                     print(f"{args.board} {item['ms']}ms #{item['seq']} {item['text']}", flush=True)
+                    received = True
                 cursor = int(batch['next'])
-            except (OSError, ValueError) as error:
-                print('Log connection unavailable:', str(error), flush=True)
-                client.close()
+            except ssl.SSLCertVerificationError:
+                raise
+            except TRANSPORT_ERRORS as error:
+                print('Log connection unavailable:', str(error), file=sys.stderr, flush=True)
+                disconnected = True
             time.sleep(args.interval)
+        client.close()
+        if not received:
+            print('No diagnostic samples received', file=sys.stderr)
+            return 1
+        if disconnected:
+            print('Log connection still unavailable at end of capture', file=sys.stderr)
+            return 1
         return 0
     except KeyboardInterrupt:
         return 0
-    except (OSError, ValueError) as error:
+    except (OSError, ValueError, http.client.HTTPException) as error:
         parser.exit(1, str(error) + '\n')
 
 

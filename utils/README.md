@@ -1,5 +1,11 @@
 # Công cụ
 
+`motion_primitives_sim.py`: mô phỏng offline động tác, tròn/số 8 và đề-pa mũ.
+Thư viện chuẩn cho phép tính/đối chiếu; matplotlib chỉ dùng vẽ hình, cài bằng
+`python -m pip install -r utils/requirements-motion-sim.txt` trong venv riêng.
+Không gửi UART/SPI, không truy cập board hoặc sửa firmware. Xem
+[nghiên cứu và giới hạn mô hình](../docs/motion-primitives-study.md).
+
 `benchmark_web_render.py --port 8798 --baseline-port 8800 --baseline-ref 97f9fcd`:
 A/B HTML thật trên hai simulator localhost riêng. Server8800 dùng `simulator.py
 --html <HTML baseline>`; server8798 dùng HTML hiện tại. Tool xác minh đúng HTML,
@@ -8,6 +14,11 @@ Không phát MOVE tự động hoặc coi số đo host là độ trễ Wi-Fi/PW
 
 `awcarctl.py discover`, `info brain|motion`, `logs brain|motion --seconds 60`:
 đọc quản trị trên STA, HTTPS3232; thêm `--ip` khi không tìm thấy .local.
+Khi rớt kết nối, công cụ tự kết nối lại và tiếp tục đọc từ mẫu cuối đã nhận.
+Thông báo mất kết nối, khởi động lại và mẫu đã bị ghi đè nằm ở stderr.
+Lượt thu rỗng hoặc kết thúc khi vẫn mất kết nối trả mã lỗi.
+`logs motion --seconds 20 --fresh` chỉ in mẫu phát sinh sau khi bắt đầu thu.
+Dùng sau khi đã cố định mục tiêu VL53L0X để bỏ mẫu cũ trong bộ đệm của Motion.
 `upload brain` nạp app vào slot không chạy, xác minh boot/ELF và health cục bộ;
 Motion phải migration riêng trước. `test_ota_receiver.py` kiểm các ca từ chối,
 truyền dở và reset, chỉ chạy trên bàn với `--vm-off`.

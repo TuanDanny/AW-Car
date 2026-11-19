@@ -108,6 +108,7 @@ void Runtime::Diagnostics(char* output,size_t capacity) {
 }
 bool Runtime::BeginUpdate() {
     if(updating_.exchange(true)) return false;
+    Application::GetInstance().CancelStartupSound();
     Stop();Application::GetInstance().StopListening();
     const auto deadline=Now()+500;
     while(stop_pending_ && Now()<deadline) vTaskDelay(pdMS_TO_TICKS(10));

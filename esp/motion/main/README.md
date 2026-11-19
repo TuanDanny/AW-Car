@@ -4,3 +4,50 @@
 đường deadline. `main` khởi tạo AP+STA; lái xe chỉ AP, không xóa NVS khi init lỗi.
 `network_activity.hpp` là predicate C++ thuần dùng chung với host test: intent
 Waking/Reversing vẫn bận dù PWM0; giữ kiểm pending/OTA và STA đã online.
+
+Bản thử đề-pa trên nhánh cảm biến bật profile mũ trong `sdkconfig.defaults`
+với gain 140% và tau 150 ms. Mức đỉnh tính từ duty đích, có giới hạn 100%
+và giữ tỷ lệ duty trái/phải. Ví dụ lệnh thẳng 46% cho đỉnh khoảng 64,4%,
+ở trên mốc đo 60% khoảng 41 ms theo mô hình. Thử trên xe cùng VM và mặt
+sàn để hiệu chỉnh lại. STOP, nhả nút và timeout vẫn ưu tiên đưa duty về 0.
+Web hiển thị cấu hình trong “Thông tin kết nối & chẩn đoán”. Với checkout
+đã có `sdkconfig`, mở mục “AW-Car experimental startup” trong `menuconfig`
+để đồng bộ ba giá trị với `sdkconfig.defaults` trước khi build.
+
+Bản thử VL53L0X dùng I²C 100 kHz trên SDA GPIO11 và SCL GPIO12, địa chỉ
+7 bit `0x29`. Task `laser_diag` chạy ưu tiên thấp trên core 0 và đọc
+khoảng cách độc lập với đường điều khiển. Giữ VM ngắt khi kiểm trên bàn.
+
+`awcarctl.py info motion` và `logs motion` trả về `tof_ack` cho phản hồi
+I²C, `tof_status` cho trạng thái và `tof_mm` cho khoảng cách hợp lệ.
+`tof_status` bằng 0 khi có mẫu hợp lệ. Giá trị dương là mã RangeStatus
+của ST. Mã âm gồm -1 đang khởi tạo, -2 lỗi bus, -3 chưa ACK, -4 lỗi khởi
+tạo sensor và -5 lỗi khi đọc. Khoảng cách là `null` khi mẫu không hợp lệ.
+Driver dùng ST API qua [component ESP-IDF](https://github.com/nallyn1972/vl53l0x/tree/108d39933303cbdb68a61e72dceda1e7d6c76b76)
+đã khóa revision trong manifest.
+
+Dashboard nhận telemetry trong khung STATUS 10 Hz có sẵn. Hai tác vụ I²C
+chạy ở core 0, bên ngoài vòng điều khiển. VL53L0X đo từng lần trên I²C0,
+SDA11/SCL12. MPU dùng I²C1 riêng trên SDA6/SCL7, thử 0x68 trước rồi 0x69
+và đọc mỗi 100 ms với thang
+±2 g và ±250 °/s. Hai TCRT5000 dùng DO trái GPIO8 và DO phải GPIO9, chỉ
+hiển thị mức logic cho đến khi xác nhận cực tính trên xe. Khi cảm biến
+không trả mẫu hoặc mẫu quá hạn, Web hiển thị trạng thái thay cho số cũ.
+
+Driver nhận MPU6050 (mã 0x68) và MPU6515 (mã 0x74) theo
+[bảng thanh ghi trong driver Linux](https://github.com/torvalds/linux/blob/master/drivers/iio/imu/inv_mpu6050/inv_mpu_core.c).
+Log quản trị có `mpu_id` và `az` (gia tốc trục Z, mg) để kiểm tra mà không cần USB.
+Địa chỉ I²C phụ thuộc AD0, độc lập với mã WHO_AM_I.
+Bảng `/#latency` dùng trực tiếp STATUS của trang và cùng kết nối WebSocket.
+Khi đo, trình duyệt gắn mã vào lệnh đầu. Motion đối chiếu ACK từ giao dịch
+SPI trước đó với lệnh đã đánh dấu, rồi báo task Web gửi ACK chủ động qua
+`httpd_queue_work`. Gói kiểm tra sau 100 ms và STATUS 10 Hz là đường dự phòng.
+Bảng đo hiển thị thời gian Motion nhận lệnh đến ACK, RTT của gói kiểm tra
+và tuổi ACK tại lúc trả lời nếu mẫu đến qua gói đo gọn.
+Motion dùng `WIFI_PS_NONE` để ưu tiên độ trễ, với chi phí tăng tiêu thụ điện.
+Xem [Wi-Fi modem sleep của Espressif](https://docs.espressif.com/projects/esp-idf/en/stable/esp32s3/api-guides/wifi-driver/wifi-performance-and-power-save.html).
+`awcarctl.py info motion` có địa chỉ MPU và bộ đếm mở/đóng, nhận/gửi STATUS,
+lỗi gửi/nhận WebSocket. Sau khi quá hạn hoặc ngắt bất thường, trang xóa thao
+tác giữ và cho kết nối lại. Khi trang khác tiếp quản, tab cũ chờ người dùng.
+Tham khảo [WebSocket CloseEvent](https://developer.mozilla.org/en-US/docs/Web/API/CloseEvent/code)
+và [quản lý phiên HTTP của ESP-IDF](https://docs.espressif.com/projects/esp-idf/en/v6.0.2/esp32/api-reference/protocols/esp_http_server.html).

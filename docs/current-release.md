@@ -1,56 +1,69 @@
-# Source ba board hiện hành — prototype v2
+# Mốc tích hợp AW-Car ngày 19/11/2026
 
-Ngày11/11/2026, chủ dự án duyệt giữ các tối ưu có lợi, đưa lên main và chỉ giữ
-main làm nhánh chính thức/skeleton cho tính năng sau. Phát hành qua PR/squash,
-CI PR và CI chạy lại trên main; tag `prototype-v2` sau khi đạt. Giữ tag v1,
-không force-push; xóa local/remote `simplev1` và `codex/simplev1-ota` sau cùng.
+## Firmware đang chạy
 
-| Board | Source / bản đã nạp |
-| --- | --- |
-| Brain ESP32-S3 | `simplev1-814afb90103b`, Xiaozhi/âm thanh/OLED, mặc định3giây |
-| Motion ESP32-S3 | `simplev1-33495b1fe7e0`, Web/AP+STA/SPI/OTA, tối ưu DOM và STA busy |
-| Tang Nano9K | RTL/constraints giữ nguyên mốc `fff2940`; UserCode `0x0000A6C1` |
+| Board | Firmware | Bằng chứng đối chiếu |
+| --- | --- | --- |
+| Brain ESP32-S3 | `simplev1-446be7f0109d` | OTA xác nhận build, hash ELF và trạng thái `valid` |
+| Motion ESP32-S3 | `simplev1-7c10f8dbd4db` | OTA xác nhận build, hash ELF và trạng thái `valid` |
+| Tang Nano9K | UserCode `0x0000A6C1` từ lần nạp trước | Cây RTL và constraints trùng `prototype-v2:fpga`. Motion nhận SPI ACK trên xe. |
 
-Manifest công khai đã lọc: [current-release.json](../data/current-release.json).
-Motion đọc ngược Flash đúng SHA256
-`d62c815ba037b262a162d1d82b11ef8073add9432509eb2b908e1136582baab9`;
-NVS, partition table, otadata và motioncfg giữ nguyên. Brain build lại vẫn đúng
-image cũ, không nạp lại. Build ID được đối chiếu source/defaults/lockfile và
-key ID đã dùng. Không commit private key, NVS, image hoặc log thô; build lại
-cho thiết bị cần bộ khóa được giữ riêng ở workspace. Bitstream FPGA có SHA256
-`64212c9aa7f73ec7779f27e3f2fd48f7b7e3a62ae9eee3a9dffc78a0ecb4cf43`;
-đã nạp/reload Flash ở mốc trước, không tuyên bố có byte-readback FPGA mới.
+Mã build của hai ESP khớp với cây source tích hợp. Hash app, hash ELF và
+thông số cấu hình nằm trong [manifest](../data/current-release.json). Khi đối
+chiếu Brain, sinh `lang_config.h` theo cấu hình tiếng Trung trong
+`esp/brain/main/CMakeLists.txt`. Bitstream Tang lưu từ lần nạp trước còn
+khớp hash. Build Gowin lần này tạo cùng payload cấu hình, đạt timing ở 27 MHz
+và vượt mô phỏng RTL lẫn netlist. Bằng chứng trên xe gồm ACK SPI hiện tại và
+lần xác minh nạp Tang đã lưu. Chưa có lượt đọc từng byte Flash Tang.
+Xem [mốc prototype v2](https://github.com/TuanDanny/AW-Car/blob/prototype-v2/docs/current-release.md)
+để phục hồi bản cũ.
 
-## Flow skeleton giữ ổn định
+## Kiểm thử phần mềm
 
-Web→Motion→SPI→FPGA→DRV; Manual chỉ AW-CAR/192.168.4.1, router dành Xiaozhi,
-OTA và log. Bốn hướng, giữ/nhả20Hz, STATUS10Hz, STOP/timeout về0, chuyển mode
-hủy lệnh cũ, không replay. AI mặc định30%/3giây cho từng lệnh, PID mặc định tắt.
-Giữ wiring, âm thanh, OLED, BOOT, giao thức và khoảng đảo chiều/thức driver.
-Không mang trở lại PIN/ARM/Gate handshake của kiến trúc cũ.
+Build ESP-IDF của hai ESP đạt. Kiểm thử host đạt 56 ca. Bộ trình duyệt
+chạy riêng trên simulator đạt 34 ca, gồm giữ/nhả, STOP, quy đổi Thanh ga
+và nhận ACK. FPGA đạt 4 testbench RTL, mô phỏng netlist và Gowin PnR/STA
+với 0 vi phạm setup và hold tại 27 MHz. Chạy lại báo cáo Gowin bằng
+`python utils/build_fpga.py --report build/fpga/release-check.json`.
+Khi cần tái tạo mốc này, checkout commit chứa bản manifest ngày 19/11/2026
+rồi làm theo [hướng dẫn build](build.md).
 
-V2 chỉ thêm setter Web có điều kiện/formatter dùng chung và nhận biết ý định
-chuyển động khi trì hoãn STA retry. Không tăng STATUS hoặc thêm task/queue.
-Observer `/#latency` tùy chọn chỉ đo, không tự phát MOVE.
+## Phạm vi hiện tại
 
-## Bằng chứng và giới hạn
+- Người dùng xác nhận xe chạy với đề-pa hàm mũ hệ số **1,40** và **150 ms**.
+  Thanh ga Web mặc định **20%**, gửi duty mục tiêu **56%**. Dải 1–100% tương
+  ứng 45–100% duty mục tiêu, ga 0% gửi duty 0%.
+- Web và AI cùng dùng các động tác tiến/lùi, quay tại chỗ, rẽ cong và quay
+  quanh một bên. AI dùng cùng thang Thanh ga với Web và mặc định 20% trong
+  3 giây. PID đang tắt.
+- Laser và MPU đã đọc được trên Motion. Laser có mẫu hợp lệ xen lỗi pha.
+  Kênh mép trái đã đổi mức đúng trên Web, có sàn là 1 và hở mép là 0.
+  Mốc khoảng 43 mm là kết quả thử với mặt sàn và biến trở hiện tại.
+  Firmware hiển thị cảm biến, chức năng tự dừng theo cảm biến đang chờ thử riêng.
+- OTA giữ chế độ Manual với PWM hai bên bằng 0 lúc khởi động. Số đo Web,
+  FPGA ACK và thời gian xe thực sự dừng là ba phép đo riêng.
+- Khi Motion đứng yên, bộ đếm lỗi SPI tăng 112 trong khoảng 8 giây ở một
+  đoạn log. Liên kết vẫn có ACK. Cần đo đường SPI trên xe để đánh giá độ
+  ổn định trước khi coi phần truyền động đã nghiệm thu đầy đủ.
 
-26ca browser đạt; 28unit test với một browser opt-in skip trong discovery,
-52.301native assertion/127Brain check. Build cả hai ESP32 đạt. Người dùng xác
-nhận bản B giữ/nhả mượt, STOP, AI3giây, OLED/loa bình thường, VM ngắt/chưa motor.
+## Chân cảm biến và phần cứng chờ bổ sung
 
-So A60/B61 mẫu cùng observer: bấm→STATUS p50 từ218,6 xuống102,2ms; p95 vẫn305,2ms,
-max426,8→405,5ms. DOM mutation giảm87,6% trên host. Chưa đạt toàn bộ budget độ
-trễ, không khẳng định mức giảm do riêng thay DOM hoặc tương đương PWM vật lý.
-Xem [báo cáo A/B](optimization-results.md). Bộ92mẫu cũ ở
-[latency-results.md](latency-results.md) là mốc trước, không trộn với A/B mới.
+| Kênh | Chân theo firmware | Trạng thái |
+| --- | --- | --- |
+| VL53L0X | Motion SDA11 / SCL12 | Đã đọc |
+| MPU mã thiết bị `0x74` | Motion SDA6 / SCL7 | Đã đọc tại địa chỉ I²C `0x68` |
+| TCRT5000 trái | Motion DO → GPIO8 | Đã thấy đổi mức 1↔0 |
+| TCRT5000 phải | Motion DO → GPIO9 | Chờ lắp và đo cực tính |
+| Encoder phải | OUT qua chuyển mức → Tang P28 | Đã gắn, đếm một OUT |
+| Encoder trái | OUT qua chuyển mức → Tang P27 | Chờ lắp. Xác nhận pull-up của module và cấu hình chân trước khi chạy. |
 
-Log B264giây không tăng lỗi SPI/UART, không thấy panic/watchdog; A bổ sung có
-hai lỗi SPI mới. Lịch sử có lỗi frame/ACK SPI chưa xác định nguyên nhân, nên
-không tuyên bố đã giải quyết độ tin cậy bus bằng lượt ngắn này. Không có soak
-30phút, đo cạnh PWM, motor/nguồn2S/PID hoặc chu kỳ OTA/rollback mới trong đợt V2.
-Prototype v2 là skeleton phần mềm đã kiểm thử, không phải nghiệm thu xe có tải.
+Đợt KiCad tiếp theo bổ sung kênh encoder trái, TCRT5000 phải và rail
+`3V3_PERIPH` từ buck riêng cho các module cần 3,3 V. Dùng GND chung,
+giữ hai đầu ra 3,3 V của buck và ESP32 tách riêng. Cần xác nhận điện áp
+từng module, rail kéo lên SDA/SCL và trạng thái khi Motion mất nguồn trước
+khi chốt mạch. [Đặc tả I²C](https://www.nxp.com/docs/en/user-guide/UM10204.pdf)
+· [Datasheet ESP32-S3](https://www.espressif.com/sites/default/files/documentation/esp32-s3_datasheet_en.pdf#page=65)
 
-Xem [nạp/OTA/log](ota-usage.md), [đấu nối](../schematic/README.md) và
-[cách đo độ trễ](latency-measurement.md). [Mốc skeleton cũ](skeleton-baseline.md)
-chỉ mô tả tag ban đầu; không dùng build ID cũ để chọn app hiện hành.
+Lượt tích hợp này dùng source phần mềm đã kiểm chứng. Schematic và PCB
+đang chỉnh tay chờ chốt đấu nối theo bảng trên trên
+[nhánh KiCad](https://github.com/TuanDanny/AW-Car/pull/18).

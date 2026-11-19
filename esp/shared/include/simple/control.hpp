@@ -1,11 +1,12 @@
 #pragma once
 #include "simple/protocol.hpp"
+#include "simple/primitives.hpp"
 
 namespace simple {
 // Exactly one owner calls this class. now_ms is monotonic, injectable on host.
 class Control {
 public:
-    explicit Control(uint32_t generation=1): generation_(generation?generation:1) {}
+    explicit Control(uint32_t generation=1,StartupConfig startup={}): generation_(generation?generation:1),startup_(startup) {}
     void stop(Reason reason=Reason::Stop);
     void maintenance(bool enabled);
     bool maintaining() const { return maintenance_; }
@@ -22,6 +23,7 @@ public:
     bool brain_connected(uint64_t now_ms) const { return brain_seen_ && (now_ms<=brain_at_ || now_ms-brain_at_<=500); }
     bool fpga_connected(uint64_t now_ms) const { return fpga_seen_ && (now_ms<=fpga_at_ || now_ms-fpga_at_<=500); }
     bool driver_enabled() const { return driver_; }
+    StartupConfig startup_config() const { return startup_.config(); }
 private:
     void clear_target(Reason reason);
     void target(Action action,uint8_t speed,uint64_t deadline);
@@ -36,5 +38,6 @@ private:
     bool driver_{},brain_seen_{},fpga_seen_{},maintenance_{};
     BrainState brain_{};
     SpiStatus fpga_{};
+    StartupEnvelope startup_{};
 };
 } // namespace simple
