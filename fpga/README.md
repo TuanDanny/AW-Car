@@ -29,7 +29,7 @@ Watchdog 500ms chỉ được làm mới bởi lệnh hợp lệ, không có l�
 
 Encoder hai FF đồng bộ, xác nhận mức ổn định 256 tick (~9,48us); baseline đầu
 không sinh cạnh giả. Đếm cạnh lên unsigned; period có sau hai cạnh, age saturate.
-Chân phải P28 không pull FPGA do đã có pull-up ngoài ở level shifter; P27 chưa
+Chân phải P48 không pull FPGA do đã có pull-up ngoài ở level shifter; P49 chưa
 dùng kéo xuống. Lọc không thay điện trở ngoài hoặc chứng minh đầu vào thả nổi an toàn.
 
 LED1 active-low: chờ nhấp nháy mỗi500ms, liên kết còn hạn sáng liên tục; LED2–6 tắt.

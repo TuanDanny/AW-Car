@@ -33,11 +33,11 @@ void Runtime::start() {
     gpio_config_t pin{};pin.pin_bit_mask=1ULL<<kDriver;pin.mode=GPIO_MODE_INPUT_OUTPUT;pin.pull_down_en=GPIO_PULLDOWN_ENABLE;
     ESP_ERROR_CHECK(gpio_config(&pin));ESP_ERROR_CHECK(gpio_set_level(kDriver,0));
     // CS is inactive before ownership moves to SPI2. No old permit/handshake outputs.
-    ESP_ERROR_CHECK(gpio_set_direction(GPIO_NUM_5,GPIO_MODE_OUTPUT));ESP_ERROR_CHECK(gpio_set_level(GPIO_NUM_5,1));
-    spi_bus_config_t bus{};bus.mosi_io_num=15;bus.miso_io_num=16;bus.sclk_io_num=4;
+    ESP_ERROR_CHECK(gpio_set_direction(GPIO_NUM_39,GPIO_MODE_OUTPUT));ESP_ERROR_CHECK(gpio_set_level(GPIO_NUM_39,1));
+    spi_bus_config_t bus{};bus.mosi_io_num=42;bus.miso_io_num=41;bus.sclk_io_num=40;
     bus.quadwp_io_num=-1;bus.quadhd_io_num=-1;bus.max_transfer_sz=32;
     ESP_ERROR_CHECK(spi_bus_initialize(SPI2_HOST,&bus,SPI_DMA_DISABLED));
-    spi_device_interface_config_t device{};device.clock_speed_hz=1000000;device.mode=0;device.spics_io_num=5;
+    spi_device_interface_config_t device{};device.clock_speed_hz=1000000;device.mode=0;device.spics_io_num=39;
     device.queue_size=1;device.cs_ena_pretrans=2;device.cs_ena_posttrans=2;
     ESP_ERROR_CHECK(spi_bus_add_device(SPI2_HOST,&device,&spi_));
     uart_config_t uart{};uart.baud_rate=460800;uart.data_bits=UART_DATA_8_BITS;uart.parity=UART_PARITY_DISABLE;

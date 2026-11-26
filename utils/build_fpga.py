@@ -22,8 +22,8 @@ TESTS = ("tb_pwm_encoder", "tb_spi", "tb_nano9k", "tb_watchdog")
 TOOLBIN = Path("D:/Project/AW-Car/build/toolchain/ucrt64/bin")
 GOWIN = Path("C:/Gowin/Gowin_V1.9.11.03_Education_x64/IDE")
 PINS = {"clk": 52, "arst_n": 3, "spi_mosi": 25, "spi_miso": 26,
-        "spi_sclk": 29, "spi_cs_n": 30, "enc_left": 27, "enc_right": 28,
-        "drv_left_in1": 35, "drv_left_in2": 40, "drv_right_in1": 41, "drv_right_in2": 42,
+        "spi_sclk": 29, "spi_cs_n": 30, "enc_left": 49, "enc_right": 48,
+        "drv_left_in1": 51, "drv_left_in2": 35, "drv_right_in1": 31, "drv_right_in2": 32,
         **{f"leds_n[{i}]": pin for i, pin in enumerate((10, 11, 13, 14, 15, 16))}}
 SAMPLERS = ("core/link/mosi_meta_s1", "core/link/sclk_meta_s1", "core/link/cs_meta_s1",
             "core/left_encoder/meta_ff_s1", "core/right_encoder/meta_ff_s1")

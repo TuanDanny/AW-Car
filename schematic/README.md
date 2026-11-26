@@ -1,3 +1,5 @@
+> Bản V4 đang phát triển nằm tại [pcb-v4](pcb-v4/README.md). Bảng bên dưới ghi mốc đấu nối cũ trước V4.
+
 # Đấu nối simplev1
 
 [Bảng chân firmware và hạng mục chờ cập nhật KiCad](../docs/current-release.md#chân-cảm-biến-và-phần-cứng-chờ-bổ-sung)

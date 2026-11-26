@@ -1,3 +1,7 @@
+> Pinout V4 đang tích hợp: SPI Motion GPIO42/41/40/39, FPGA encoder
+> P49/P48 và DRV P51/P35/P31/P32. Bằng chứng trong tài liệu dưới đây
+> thuộc mốc prototype trước đó và không xác nhận firmware V4 trong Flash.
+
 # Mốc tích hợp AW-Car ngày 19/11/2026
 
 ## Firmware đang chạy

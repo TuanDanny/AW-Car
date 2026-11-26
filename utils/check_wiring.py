@@ -1,4 +1,4 @@
-"""Check a native KiCad XML netlist against the wiring contract and FPGA CST."""
+"""Check the historical simplev1 bench KiCad XML netlist, before V4."""
 from __future__ import annotations
 import argparse
 import json
