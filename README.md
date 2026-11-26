@@ -28,13 +28,12 @@ trước khi đi dây.
 
 Bảng V4 dưới đây đối chiếu với PCB và schematic **candidate** đang chỉnh tại
 `schematic/pcb-in/ban-di-day-dang-do` trên máy làm việc ngày 26/11/2026.
-PCB này còn đang đi dây và chưa được kiểm chứng hoàn chỉnh. Số `Pxx` là số
+PCB này còn đang đi dây và chưa được kiểm chứng hoàn chỉnh.\nPCB chính thức trên máy nằm trong thư mục `schematic/pcb-in/ban-di-day-dang-do`. Số `Pxx` là số
 chân package FPGA của Tang Nano 9K, còn `GPIOxx` là GPIO ESP32-S3.
 
-**Chú ý khi nạp lại firmware từ main:** cấu hình main tại commit
-`5683150` khác pinout V4 ở SPI Motion, encoder và đầu ra DRV của FPGA.
-Dùng đúng bộ firmware tương ứng với dây đã đấu. Bảng phân biệt hai cấu hình
-bên dưới; chưa xác minh lại firmware trong Flash ở thời điểm viết bảng.
+**Trạng thái V4:** source trên nhánh này sử dụng pinout PCB V4 ở SPI
+Motion, encoder và các đầu ra DRV. Firmware V4 mới build cần được thử lại
+trên đúng ba board trước khi xác nhận trùng với Flash trên xe.
 
 ### Nguồn
 
@@ -71,23 +70,20 @@ Brain là GPIO0, LED onboard Brain là GPIO48.
 
 ### SPI Motion → Tang
 
-| Tín hiệu | PCB V4 | Firmware Motion trên main `5683150` |
+| Tín hiệu | Motion | Tang |
 | --- | --- | --- |
-| MOSI → Tang P25 | GPIO42 | GPIO15 |
-| MISO ← Tang P26 | GPIO41 | GPIO16 |
-| SCLK → Tang P29 | GPIO40 | GPIO4 |
-| CS → Tang P30 | GPIO39 | GPIO5 |
+| MOSI | GPIO42 | P25 |
+| MISO | GPIO41 | P26 |
+| SCLK | GPIO40 | P29 |
+| CS | GPIO39 | P30 |
 
 ### Tang, DRV và encoder
 
-| Tín hiệu | PCB V4 | Constraints FPGA trên main `5683150` |
-| --- | --- | --- |
-| DRV trái IN1 | P51 | P35 |
-| DRV trái IN2 | P35 | P40 |
-| DRV phải IN1 | P31 | P41 |
-| DRV phải IN2 | P32 | P42 |
-| Encoder trái qua chuyển mức | P49 | P27 |
-| Encoder phải qua chuyển mức | P48 | P28 |
+| Tín hiệu | Chân Tang V4 |
+| --- | --- |
+| DRV trái IN1 / IN2 | P51 / P35 |
+| DRV phải IN1 / IN2 | P31 / P32 |
+| Encoder trái / phải qua chuyển mức | P49 / P48 |
 
 Trên PCB V4, IN1 nối đến AIN1 và BIN1 cùng phía, IN2 nối đến AIN2 và BIN2.
 Mỗi DRV có hai ngõ ra AO và BO cho hai motor của cùng bên. Mỗi encoder dùng

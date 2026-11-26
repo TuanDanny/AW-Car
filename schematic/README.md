@@ -1,3 +1,5 @@
+> Bản V4 đang chỉnh trên máy nằm tại `schematic/pcb-in/ban-di-day-dang-do`. Bảng bên dưới ghi mốc đấu nối cũ trước V4.
+
 # Đấu nối simplev1
 
 [Bảng chân firmware và hạng mục chờ cập nhật KiCad](../docs/current-release.md#chân-cảm-biến-và-phần-cứng-chờ-bổ-sung)

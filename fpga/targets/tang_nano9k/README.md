@@ -7,9 +7,9 @@ POR1024clock với INIT0; motor được mask LOW ngay khi nhấn S2 và trong P
 | Chức năng | Package pin | Điện áp/pull |
 | --- | --- | --- |
 | MOSI/MISO/SCLK/CS |25/26/29/30|3,3V; MOSI/SCLK down, CS up |
-| Encoder trái/phải |27/28|3,3V; trái down, phải NONE (pull-up ngoài) |
-| DRV trái IN1/IN2 |35/40|3,3V, down |
-| DRV phải IN1/IN2 |41/42|3,3V, down |
+| Encoder trái/phải |49/48|3,3V; trái down, phải NONE (pull-up ngoài) |
+| DRV trái IN1/IN2 |51/35|3,3V, down |
+| DRV phải IN1/IN2 |31/32|3,3V, down |
 | LED1..6 |10/11/13/14/15/16|1,8V active-low, observer |
 
 Đây là số chân package, không phải vị trí header/GPIO ESP32. Giữ nguyên chân
