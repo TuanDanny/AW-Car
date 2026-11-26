@@ -1,4 +1,4 @@
-> Bản V4 đang phát triển nằm tại [pcb-v4](pcb-v4/README.md). Bảng bên dưới ghi mốc đấu nối cũ trước V4.
+> Bản V4 đang chỉnh trên máy nằm tại `schematic/pcb-in/ban-di-day-dang-do`. Bảng bên dưới ghi mốc đấu nối cũ trước V4.
 
 # Đấu nối simplev1
 

@@ -28,7 +28,7 @@ trước khi đi dây.
 
 Bảng V4 dưới đây đối chiếu với PCB và schematic **candidate** đang chỉnh tại
 `schematic/pcb-in/ban-di-day-dang-do` trên máy làm việc ngày 26/11/2026.
-PCB này còn đang đi dây và chưa được kiểm chứng hoàn chỉnh.\n[Mở bản PCB V4 đang phát triển](schematic/pcb-v4/README.md). Số `Pxx` là số
+PCB này còn đang đi dây và chưa được kiểm chứng hoàn chỉnh.\nPCB chính thức trên máy nằm trong thư mục `schematic/pcb-in/ban-di-day-dang-do`. Số `Pxx` là số
 chân package FPGA của Tang Nano 9K, còn `GPIOxx` là GPIO ESP32-S3.
 
 **Trạng thái V4:** source trên nhánh này sử dụng pinout PCB V4 ở SPI
